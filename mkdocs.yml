@@ -1,0 +1,34 @@
+site_name: pytoil
+repo_url: https://github.com/FollowTheProcess/pytoil
+site_url: https://FollowTheProcess.github.io/pytoil/
+site_description: CLI to automate the development workflow.
+site_author: Tom Fleet
+use_directory_urls: false
+nav:
+  - Home:
+      - Index: index.md
+plugins:
+  - mkdocstrings:
+      watch:
+        - pytoil
+  - search
+theme:
+  name: material
+  font:
+    text: Ubuntu
+    code: Ubuntu Mono
+  feature:
+    tabs: true
+  palette:
+    primary: indigo
+    accent: blue
+markdown_extensions:
+  - codehilite
+  - pymdownx.highlight:
+      use_pygments: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.details
+  - pymdownx.tabbed
+  - toc:
+      permalink: true

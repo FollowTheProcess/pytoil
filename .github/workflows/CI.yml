@@ -1,0 +1,86 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8, 3.9]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Dependencies
+        run: |
+          python3 -m pip install --upgrade pip setuptools wheel
+          python3 -m pip install nox
+          python3 -m pip install poetry
+
+      - name: Run Tests
+        run: nox --non-interactive --session "test-${{ matrix.python-version }}"
+
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Install Dependencies
+        run: |
+          python3 -m pip install --upgrade pip setuptools wheel
+          python3 -m pip install nox
+          python3 -m pip install poetry
+
+      - name: Lint
+        run: nox --non-interactive --session "lint"
+
+  docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Install Dependencies
+        run: |
+          python3 -m pip install --upgrade pip setuptools wheel
+          python3 -m pip install nox
+          python3 -m pip install poetry
+
+      - name: Build Docs
+        run: nox --non-interactive --session "docs"
+
+  deploy:
+    needs: [build, lint, docs]
+    runs-on: ubuntu-latest
+
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Install Dependencies
+        # Uses pypa build https://pypa-build.readthedocs.io/en/latest/
+        # For full PEP517/518 compliance
+        run: |
+          python3 -m pip install --upgrade pip setuptools wheel
+          python3 -m pip install poetry
+
+      - name: Build with Poetry
+        run: poetry build -v
+      - name: Publish to PyPI with Poetry
+        run: poetry publish -v --username=__token__ --password=${{ secrets.PYPI_API_TOKEN }}

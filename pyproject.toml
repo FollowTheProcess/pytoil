@@ -1,0 +1,54 @@
+[tool]
+[tool.poetry]
+name = "pytoil"
+version = "0.1.0"
+homepage = "https://github.com/FollowTheProcess/pytoil"
+description = "CLI to automate the development workflow."
+authors = ["Tom Fleet <tomfleet2018@gmail.com>"]
+readme = "README.md"
+keywords = [""]
+license =  "Apache Software License 2.0"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+]
+packages = [
+    {include = "pytoil"}
+]
+
+[tool.poetry.urls]
+"Documentation" = "https://FollowTheProcess.github.io/pytoil/"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+
+[tool.poetry.dev-dependencies]
+bump2version = "^1.0"
+flake8 = "^3.8"
+isort = "^5.6"
+nox = ">=2020.8.22"
+black = ">=20.8b1"
+pytest = "^6.1"
+pytest-cov = "^2.10"
+coverage = {version = "^5.3", extras = ["toml"]}
+coverage-badge = "^1.0"
+mypy = ">=0.800"
+mkdocs = "^1.1"
+mkdocs-material = "^6.2"
+mkdocstrings = "^0"
+
+[tool.isort]
+# Added for compatability with black
+profile = "black"
+multi_line_output = 3
+
+[tool.coverage.run]
+omit = ["*__init__.py"]
+
+[build-system]
+requires = ["poetry_core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

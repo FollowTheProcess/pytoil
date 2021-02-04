@@ -1,0 +1,19 @@
+[flake8]
+exclude = 
+    .git,
+    __pycache__,
+    .pytest_cache,
+    .mpypy_cache,
+    venv/,
+    .venv/,
+    docs,
+    site,
+    .nox,
+    *.egg,
+    *.egg-info,
+    build
+max-complexity = 10
+max-line-length = 88
+extend-ignore =
+    E203, # Black compatability: whitespace before :
+    W503, # Black compatability: line break before binary operator
