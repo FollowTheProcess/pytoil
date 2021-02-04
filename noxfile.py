@@ -41,7 +41,7 @@ def test(session):
     """
     session.install("--upgrade", "pip", "setuptools", "wheel")
     session.run("poetry", "install", "--no-dev", external=True)
-    poetry_install(session, "pytest", "pytest-cov")
+    poetry_install(session, "pytest", "pytest-cov", "pytest-mock")
     # Posargs allows passing of tests directly
     tests = session.posargs or ["tests/"]
     session.run("pytest", "--cov=pytoil", *tests)
