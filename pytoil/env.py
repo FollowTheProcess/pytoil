@@ -29,7 +29,7 @@ class VirtualEnv:
         self._path: pathlib.Path = self.basepath.joinpath(self.name)
         self._executable: Optional[pathlib.Path] = None
 
-    def __repr__(self) -> str:  # pragma: no cover
+    def __repr__(self) -> str:
         return (
             self.__class__.__qualname__
             + f"(basepath={self.basepath!r}, name={self.name!r})"
