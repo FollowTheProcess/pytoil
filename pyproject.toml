@@ -30,6 +30,7 @@ pytoil = "pytoil.cli:app"
 python = "^3.7"
 typer = {extras = ["all"], version = "^0.3.2"}
 virtualenv = "^20.4.2"
+PyYAML = "^5.4.1"
 
 [tool.poetry.dev-dependencies]
 bump2version = "^1.0"
