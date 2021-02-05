@@ -29,6 +29,17 @@ def test_virtualenv_init():
     assert env2.executable is None
 
 
+def test_virtualenv_repr():
+
+    path = pathlib.Path("made/up/dir")
+
+    env = VirtualEnv(basepath=path)
+    env2 = VirtualEnv(basepath=path, name="dinglevenv")
+
+    assert env.__repr__() == f"VirtualEnv(basepath={path!r}, name='.venv')"
+    assert env2.__repr__() == f"VirtualEnv(basepath={path!r}, name='dinglevenv')"
+
+
 def test_virtualenv_executable_setter():
 
     env = VirtualEnv(basepath=pathlib.Path("made/up/dir"))
