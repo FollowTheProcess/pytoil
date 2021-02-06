@@ -63,7 +63,6 @@ def coverage(session):
 
     session.run("coverage", "report", "--show-missing")
     session.run("coverage-badge", "-fo", f"{str(img_path)}")
-    session.run("coverage", "erase")
 
 
 @nox.session()
@@ -89,7 +88,6 @@ def docs(session):
     nox -s docs -- serve
     """
     session.install("--upgrade", "pip", "setuptools", "wheel")
-    session.run("poetry", "install", "--no-dev", external=True)
     poetry_install(session, "mkdocs", "mkdocs-material", "mkdocstrings")
 
     if "serve" in session.posargs:

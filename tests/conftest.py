@@ -10,6 +10,8 @@ from typing import Dict, Union
 import pytest
 import yaml
 
+from pytoil.api import APIResponse
+
 
 @pytest.fixture
 def temp_config_file(tmp_path_factory):
@@ -20,9 +22,9 @@ def temp_config_file(tmp_path_factory):
     config_file = tmp_path_factory.mktemp("temp").joinpath(".pytoil.yml")
 
     yaml_dict: Dict[str, str] = {
-        "username": "me",
-        "token": "definitelynotatoken",
-        "projects_dir": "Users/me/projects",
+        "username": "tempfileuser",
+        "token": "tempfiletoken",
+        "projects_dir": "Users/tempfileuser/projects",
     }
 
     with open(config_file, "w") as f:
@@ -41,8 +43,8 @@ def temp_config_file_missing_key(tmp_path_factory):
     config_file = tmp_path_factory.mktemp("temp").joinpath(".pytoil.yml")
 
     yaml_dict: Dict[str, str] = {
-        "username": "me",
-        "projects_dir": "Users/me/projects",
+        "username": "tempfileuser",
+        "projects_dir": "Users/tempfileuser/projects",
     }
 
     with open(config_file, "w") as f:
@@ -65,9 +67,9 @@ def temp_config_file_key_with_blank_value(tmp_path_factory):
     config_file = tmp_path_factory.mktemp("temp").joinpath(".pytoil.yml")
 
     yaml_dict: Dict[str, Union[str, None]] = {
-        "username": "me",
+        "username": "tempfileuser",
         "token": None,
-        "projects_dir": "Users/me/projects",
+        "projects_dir": "Users/tempfileuser/projects",
     }
 
     with open(config_file, "w") as f:
@@ -86,12 +88,70 @@ def temp_config_file_misspelled_key(tmp_path_factory):
     config_file = tmp_path_factory.mktemp("temp").joinpath(".pytoil.yml")
 
     yaml_dict: Dict[str, str] = {
-        "username": "me",
-        "terrrken": "definitelynotatoken",
-        "projects_dir": "Users/me/projects",
+        "username": "tempfileuser",
+        "terrrken": "tempfiletoken",
+        "projects_dir": "Users/tempfileuser/projects",
     }
 
     with open(config_file, "w") as f:
         yaml.dump(yaml_dict, f)
 
     return config_file
+
+
+@pytest.fixture
+def temp_config_file_missing_username(tmp_path_factory):
+    """
+    Returns an otherwise-valid config file but the username key
+    is blank
+
+    A blank value is interpreted by pyyaml as None.
+    """
+
+    config_file = tmp_path_factory.mktemp("temp").joinpath(".pytoil.yml")
+
+    yaml_dict: Dict[str, Union[str, None]] = {
+        "username": None,
+        "token": "tempfiletoken",
+        "projects_dir": "Users/tempfileuser/projects",
+    }
+
+    with open(config_file, "w") as f:
+        yaml.dump(yaml_dict, f)
+
+    return config_file
+
+
+@pytest.fixture
+def temp_config_file_missing_token(tmp_path_factory):
+    """
+    Returns an otherwise-valid config file but the token key
+    is blank
+
+    A blank value is interpreted by pyyaml as None.
+    """
+
+    config_file = tmp_path_factory.mktemp("temp").joinpath(".pytoil.yml")
+
+    yaml_dict: Dict[str, Union[str, None]] = {
+        "username": "tempfileuser",
+        "token": None,
+        "projects_dir": "Users/tempfileuser/projects",
+    }
+
+    with open(config_file, "w") as f:
+        yaml.dump(yaml_dict, f)
+
+    return config_file
+
+
+@pytest.fixture
+def fake_api_response():
+
+    response: APIResponse = [
+        {"name": "repo1", "owner": "me", "blah": "bleh"},
+        {"name": "repo2", "owner": "someguy", "blah": "bluh"},
+        {"name": "repo3", "owner": "somegirl", "blah": "blah"},
+    ]
+
+    return response

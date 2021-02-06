@@ -84,9 +84,9 @@ def test_config_get_good_file(temp_config_file, mocker):
 
         config = Config.get()
 
-        assert config.username == "me"
-        assert config.token == "definitelynotatoken"
-        assert config.projects_dir == pathlib.Path("Users/me/projects")
+        assert config.username == "tempfileuser"
+        assert config.token == "tempfiletoken"
+        assert config.projects_dir == pathlib.Path("Users/tempfileuser/projects")
 
 
 def test_config_get_raises_on_missing_file(mocker):
@@ -116,10 +116,10 @@ def test_config_interprets_missing_keys_as_none(mocker, temp_config_file_missing
     ):
         config = Config.get()
 
-    assert config.username == "me"
+    assert config.username == "tempfileuser"
     # token is missing in the temp file
     assert config.token is None
-    assert config.projects_dir == pathlib.Path("Users/me/projects")
+    assert config.projects_dir == pathlib.Path("Users/tempfileuser/projects")
 
 
 def test_config_interprets_blank_value_as_none(
@@ -135,10 +135,10 @@ def test_config_interprets_blank_value_as_none(
     ):
         config = Config.get()
 
-    assert config.username == "me"
+    assert config.username == "tempfileuser"
     # token key is present but value is blank
     assert config.token is None
-    assert config.projects_dir == pathlib.Path("Users/me/projects")
+    assert config.projects_dir == pathlib.Path("Users/tempfileuser/projects")
 
 
 def test_config_raises_on_misspelled_key(mocker, temp_config_file_misspelled_key):
