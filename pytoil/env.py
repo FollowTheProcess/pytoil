@@ -19,6 +19,16 @@ class VirtualEnv:
         """
         Representation of a virtualenv.
 
+        The path to the virtualenv directory is accessible through the
+        `.path` property which returns a pathlib.Path pointing to the
+        virtualenv directory.
+
+        Once the instantiated virtualenv has been created, its `.executable`
+        property (also a pathlib.Path) will point to the python executable
+        of the newly created virtualenv.
+
+        Until creation, the instantiated virtualenv's `.executable` is None.
+
         Args:
             basepath (pathlib.Path): The root path of the current project.
             name (str, optional): The name of the virtualenv directory.

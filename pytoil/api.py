@@ -10,29 +10,66 @@ import urllib.error
 import urllib.request
 from typing import Dict, List, Optional, Union
 
+from pytoil.exceptions import MissingTokenError, MissingUsernameError
+
+from .config import Config
+
 # Type hint for generic JSON API response
-JSONBlob = Dict[str, Union[List[str], str]]
+# Looks complicated but basically means APIResponse is
+# either a single JSON blob or a list of JSON blobs
+JSONBlob = Dict[str, Union[str, int, bool, Dict[str, Union[str, int, bool]]]]
 APIResponse = Union[JSONBlob, List[JSONBlob]]
 
 
 class API:
-    def __init__(self, token: Optional[str] = None) -> None:
+    def __init__(
+        self, token: Optional[str] = None, username: Optional[str] = None
+    ) -> None:
         """
         Representation of the GitHub API.
 
         Args:
             token (Optional[str], optional): GitHub Personal Access Token.
-                Defaults to None.
+                Defaults to value from config file.
+
+            username (Optional[str], optional): Users GitHub username.
+                Defaults to value from config file.
         """
-        self.token = token
+        # If token passed, set it
+        # if not, get from config
+        self._token = token or Config.get().token
+        # If username passed, set it
+        # if not, get from config
+        self._username = username or Config.get().username
+
         self.baseurl: str = "https://api.github.com/"
         self._headers: Dict[str, str] = {
             "Accept": "application/vnd.github.v3+json",
-            "Authorization": f"token {self.token}",
+            "Authorization": f"token {self._token}",
         }
 
     def __repr__(self) -> str:
-        return self.__class__.__qualname__ + f"(token={self.token!r})"
+        return (
+            self.__class__.__qualname__
+            + f"(token={self._token!r}, "
+            + f"username={self.username!r})"
+        )
+
+    @property
+    def token(self) -> Union[str, None]:
+        return self._token
+
+    @token.setter
+    def token(self, value: str) -> None:
+        self._token = value
+
+    @property
+    def username(self) -> Union[str, None]:
+        return self._username
+
+    @username.setter
+    def username(self, value: str) -> None:
+        self._username = value
 
     @property
     def headers(self) -> Dict[str, str]:
@@ -45,19 +82,29 @@ class API:
         """
         self._headers = value
 
-    # We set no coverage here because this method is almost completely patched out
-    # during testing
-    def get(self, endpoint: str) -> APIResponse:  # pragma: no cover
+    def get(self, endpoint: str) -> APIResponse:
         """
         Makes an authenticated request to a GitHub API endpoint
         e.g. 'users/repos'.
 
+        Generic base for more specific get methods below.
+
         Args:
             endpoint (str): Valid GitHub API endpoint.
+
+        Raises:
+            HTTPError: If any HTTP error occurs, will raise an exception
+                and give a description and standard HTTP status code.
 
         Returns:
             ApiResponse: JSON API response.
         """
+        # By this point if there's no token, something is wrong
+        if not self.token:
+            raise MissingTokenError(
+                """No GitHub personal access token set in .pytoil.yml.
+            Cannot access the GitHub API."""
+            )
 
         request = urllib.request.Request(
             url=self.baseurl + endpoint, method="GET", headers=self.headers
@@ -70,3 +117,52 @@ class API:
                 raise
 
         return response
+
+    def get_repo(self, repo: str) -> APIResponse:
+        """
+        Hits the GitHub REST API 'repos/{owner}/repo' endpoint
+        and parses the response.
+
+        In other words it gets the JSON representing a particular `repo`
+        belonging to {owner}. In our case, {owner} is `self.username`.
+
+        Args:
+            repo (str): The name of the repo to fetch JSON for.
+
+        Raises:
+            MissingUsernameError: If `self.username` is None indicating it has
+                not been set in the ~/.pytoil.yml config file.
+
+        Returns:
+            APIResponse: JSON response for a particular repo.
+        """
+
+        # By this point if there is no username, something is wrong
+        if not self.username:
+            raise MissingUsernameError(
+                f"""No GitHub username set in .pytoil.yml.
+            Cannot access repo: {repo!r}."""
+            )
+        else:
+            return self.get(f"repos/{self.username}/{repo}")
+
+    def get_repos(self) -> APIResponse:
+        """
+        Hits the GitHub REST API 'user/repos' endpoint and parses
+        the response.
+
+        Function similar to `get_repo` the difference being `get_repos` returns
+        a list of JSON blobs each representing a repo belonging to `self.username`
+
+        This endpoint requires no parameters because it is the
+        'get repos for authenticated user' endpoint and since at this point we have
+        `self.token` this automatically fills in the {owner} for us.
+
+        Returns:
+            APIResponse: JSON response for a list of all users repos.
+        """
+
+        # Because the user is authenticated (token)
+        # This gets their repos
+        # get will raise if missing token
+        return self.get("user/repos")
