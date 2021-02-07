@@ -102,6 +102,7 @@ class API:
             url=self.baseurl + endpoint, method="GET", headers=self.headers
         )
 
+        # TODO: Figure out a good way of testing the below block
         with urllib.request.urlopen(request) as r:
             try:
                 response: APIResponse = json.loads(r.read())

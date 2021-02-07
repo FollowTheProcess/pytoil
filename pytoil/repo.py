@@ -7,11 +7,14 @@ Created: 05/02/2021
 """
 
 import pathlib
+import shutil
+import subprocess
 import urllib.error
-from typing import Optional, Union
+from typing import Optional
 
 from .api import API
 from .config import Config
+from .exceptions import GitNotInstalledError, LocalRepoExistsError
 
 
 class Repo:
@@ -39,7 +42,8 @@ class Repo:
         self.name = name
 
         self._url: str = f"https://github.com/{self.owner}/{self.name}.git"
-        self._path: Union[pathlib.Path, None] = None
+        # The path this repo would have were it to be cloned locally
+        self._path: pathlib.Path = Config.get().projects_dir.joinpath(self.name)
 
     def __repr__(self) -> str:
         return (
@@ -51,7 +55,7 @@ class Repo:
         return self._url
 
     @property
-    def path(self) -> Union[pathlib.Path, None]:
+    def path(self) -> pathlib.Path:
         return self._path
 
     @path.setter
@@ -66,10 +70,7 @@ class Repo:
         Returns:
             bool: True if repo exists locally, else False.
         """
-        if self.path is not None:
-            return self.path.exists()
-        else:
-            return False
+        return self.path.exists()
 
     def exists_remote(self) -> bool:
         """
@@ -95,9 +96,32 @@ class Repo:
             return True
 
     def clone(self) -> pathlib.Path:
-        # Clone the repo 'owner'/'name' to a local folder
-        # also called 'name' located in user configured
-        # projects_dir
-        # return pathlib.Path to root of the cloned repo
-        # set self.path to this path
-        pass
+
+        # Get the user config from file
+        config = Config.get()
+
+        if not bool(shutil.which("git")):
+            # Check if git is installed
+
+            raise GitNotInstalledError(
+                """'git' executable not installed or not found on $PATH.
+        Check your git installation."""
+            )
+        elif self.exists_local():
+            # Check if its already been cloned
+            raise LocalRepoExistsError(
+                f"""The repo {self.name} already exists at {self.path}.
+        Cannot clone a repo that already exists."""
+            )
+        else:
+            # If we get here, we can safely clone
+            try:
+                subprocess.run(
+                    ["git", "clone", f"{self.url}"], check=True, cwd=config.projects_dir
+                )
+            except subprocess.CalledProcessError:
+                raise
+            else:
+                # If clone succeeded, set self.path and return
+                self.path = config.projects_dir.joinpath(self.name)
+                return self.path

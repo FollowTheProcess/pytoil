@@ -20,7 +20,8 @@ def test_config_init_default():
 
     assert config.username is None
     assert config.token is None
-    assert config.projects_dir is None
+    # Default development path
+    assert config.projects_dir == pathlib.Path.home().joinpath("Development")
 
 
 def test_config_init_passed():
@@ -63,7 +64,7 @@ def test_config_setters():
     # Assert before
     assert config.username is None
     assert config.token is None
-    assert config.projects_dir is None
+    assert config.projects_dir == pathlib.Path.home().joinpath("Development")
 
     # Change value using setters
     config.username = "me"
@@ -82,6 +83,12 @@ def test_config_get_good_file(temp_config_file, mocker):
     """
     # Patch out the default pointer to the config file for our temp fixture
     with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
+
+        # Also patch out the return from pathlib.Path.exists to trick
+        # it into thinking the projects_dir exists
+        mocker.patch(
+            "pytoil.config.pathlib.Path.exists", autospec=True, return_value=True
+        )
 
         config = Config.get()
 
@@ -137,12 +144,8 @@ def test_config_raises_on_missing_token(mocker, temp_config_file_missing_token):
             Config.get()
 
 
-def test_config_raises_on_missing_projects_dir(
-    mocker, temp_config_file_missing_projects_dir
-):
+def test_config_raises_on_projects_dir_that_doesnt_exist(mocker, temp_config_file):
 
-    with mocker.patch.object(
-        pytoil.config.Config, "CONFIG_PATH", temp_config_file_missing_projects_dir
-    ):
+    with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
         with pytest.raises(InvalidConfigError):
             Config.get()
