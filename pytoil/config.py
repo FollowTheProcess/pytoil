@@ -12,6 +12,8 @@ from typing import Dict, Optional, Union
 
 import yaml
 
+from .exceptions import InvalidConfigError
+
 
 class Config:
 
@@ -135,8 +137,30 @@ class Config:
             raise
         else:
             try:
-                # Return the config from unpacking the dict
-                return Config(**config_dict)
+                # Get the config from unpacking the dict
+                config = Config(**config_dict)
             except TypeError:
                 # If one of the keys is wrong
                 raise
+            else:
+                if config.token is None:
+                    raise InvalidConfigError(
+                        """GitHub personal access token is unset
+                in pytoil.yml config file. Please set a valid token in the key
+                `token`."""
+                    )
+                elif config.username is None:
+                    raise InvalidConfigError(
+                        """GitHub username is unset in
+                pytoil.yml config file. Please set a valid username in the key
+                `username`."""
+                    )
+                elif config.projects_dir is None:
+                    raise InvalidConfigError(
+                        """Projects dir is unset in pytoil.yml
+                config file. Please set the absolute path to your projects directory in
+                key `projects_dir`."""
+                    )
+                else:
+                    # If we get here, the config is valid
+                    return config

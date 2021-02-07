@@ -10,8 +10,6 @@ import urllib.error
 import urllib.request
 from typing import Dict, List, Optional, Union
 
-from pytoil.exceptions import MissingTokenError, MissingUsernameError
-
 from .config import Config
 
 # Type hint for generic JSON API response
@@ -99,12 +97,6 @@ class API:
         Returns:
             ApiResponse: JSON API response.
         """
-        # By this point if there's no token, something is wrong
-        if not self.token:
-            raise MissingTokenError(
-                """No GitHub personal access token set in .pytoil.yml.
-            Cannot access the GitHub API."""
-            )
 
         request = urllib.request.Request(
             url=self.baseurl + endpoint, method="GET", headers=self.headers
@@ -137,14 +129,7 @@ class API:
             APIResponse: JSON response for a particular repo.
         """
 
-        # By this point if there is no username, something is wrong
-        if not self.username:
-            raise MissingUsernameError(
-                f"""No GitHub username set in .pytoil.yml.
-            Cannot access repo: {repo!r}."""
-            )
-        else:
-            return self.get(f"repos/{self.username}/{repo}")
+        return self.get(f"repos/{self.username}/{repo}")
 
     def get_repos(self) -> APIResponse:
         """
