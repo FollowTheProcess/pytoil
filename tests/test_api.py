@@ -11,7 +11,6 @@ import pytest
 
 import pytoil
 from pytoil.api import API
-from pytoil.exceptions import MissingTokenError, MissingUsernameError
 
 
 def test_api_init_passed():
@@ -80,18 +79,6 @@ def test_api_setters():
     assert api.username == "someoneelse"
 
 
-def test_get_raises_on_missing_token(mocker, temp_config_file_missing_token):
-
-    with mocker.patch.object(
-        pytoil.config.Config, "CONFIG_PATH", temp_config_file_missing_token
-    ):
-
-        api = API()
-
-        with pytest.raises(MissingTokenError):
-            api.get("fake/endpoint")
-
-
 def test_get_raises_on_invalid_request(mocker, temp_config_file):
 
     with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
@@ -112,20 +99,6 @@ def test_get_raises_on_invalid_request(mocker, temp_config_file):
 
         with pytest.raises(urllib.error.HTTPError):
             api.get("not/here")
-
-
-def test_get_user_repo_raises_on_missing_username(
-    mocker, temp_config_file_missing_username
-):
-
-    with mocker.patch.object(
-        pytoil.config.Config, "CONFIG_PATH", temp_config_file_missing_username
-    ):
-
-        api = API()
-
-        with pytest.raises(MissingUsernameError):
-            api.get_repo(repo="fakerepo")
 
 
 def test_get_user_repo_correctly_calls_get(mocker, fake_api_response):
