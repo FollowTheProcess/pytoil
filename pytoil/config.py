@@ -14,6 +14,9 @@ import yaml
 
 from .exceptions import InvalidConfigError
 
+# Default value for projects_dir
+DEFAULT_PROJECTS_DIR = pathlib.Path.home().joinpath("Development")
+
 
 class Config:
 
@@ -77,7 +80,7 @@ class Config:
         self._token = value
 
     @property
-    def projects_dir(self) -> Union[pathlib.Path, None]:
+    def projects_dir(self) -> pathlib.Path:
         """
         Primary accessor for the `projects_dir` property.
         If the key is populated in the config file, this will
@@ -85,11 +88,11 @@ class Config:
         for OS-independent pathing.
 
         Returns:
-            Union[pathlib.Path, None]: Path to the projects directory if passed,
-                else None.
+            (pathlib.Path): Path to the projects directory if passed,
+                else ~/Development.
         """
         if not self._projects_dir:
-            return None
+            return DEFAULT_PROJECTS_DIR
         else:
             return pathlib.Path(self._projects_dir)
 
@@ -155,11 +158,10 @@ class Config:
                 pytoil.yml config file. Please set a valid username in the key
                 `username`."""
                     )
-                elif config.projects_dir is None:
+                elif not config.projects_dir.exists():
                     raise InvalidConfigError(
-                        """Projects dir is unset in pytoil.yml
-                config file. Please set the absolute path to your projects directory in
-                key `projects_dir`."""
+                        """Projects dir set in pytoil.yml does not
+                exist on the filesystem. Please create and try again."""
                     )
                 else:
                     # If we get here, the config is valid

@@ -30,6 +30,13 @@ def test_api_init_default(mocker, temp_config_file):
 
     # Patch out the default CONFIG_PATH for our temp file
     with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
+
+        # Also patch out the return from pathlib.Path.exists to trick
+        # it into thinking the projects_dir exists
+        mocker.patch(
+            "pytoil.config.pathlib.Path.exists", autospec=True, return_value=True
+        )
+
         api = API()
 
         assert api.token == "tempfiletoken"
@@ -51,6 +58,13 @@ def test_api_repr_passed():
 def test_api_repr_default(mocker, temp_config_file):
 
     with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
+
+        # Also patch out the return from pathlib.Path.exists to trick
+        # it into thinking the projects_dir exists
+        mocker.patch(
+            "pytoil.config.pathlib.Path.exists", autospec=True, return_value=True
+        )
+
         api = API()
 
         assert api.__repr__() == "API(token='tempfiletoken', username='tempfileuser')"
@@ -82,6 +96,12 @@ def test_api_setters():
 def test_get_raises_on_invalid_request(mocker, temp_config_file):
 
     with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
+
+        # Also patch out the return from pathlib.Path.exists to trick
+        # it into thinking the projects_dir exists
+        mocker.patch(
+            "pytoil.config.pathlib.Path.exists", autospec=True, return_value=True
+        )
 
         api = API()
 

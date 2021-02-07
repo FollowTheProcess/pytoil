@@ -29,6 +29,12 @@ def test_repo_init_defaults(mocker, temp_config_file):
     # Patch out to our fake config file to make sure it grabs from the config
     with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
 
+        # Also patch out the return from pathlib.Path.exists to trick
+        # it into thinking the projects_dir exists
+        mocker.patch(
+            "pytoil.config.pathlib.Path.exists", autospec=True, return_value=True
+        )
+
         # name is required
         repo = Repo(name="diffproject")
 
@@ -104,6 +110,12 @@ def test_repo_exists_remote_returns_false_on_missing_repo(mocker, temp_config_fi
             ),
         )
 
+        # Also patch out the return from pathlib.Path.exists to trick
+        # it into thinking the projects_dir exists
+        mocker.patch(
+            "pytoil.config.pathlib.Path.exists", autospec=True, return_value=True
+        )
+
         # Rest of the params will be filled in by our patched config file
         repo = Repo(name="missingproject")
 
@@ -121,6 +133,12 @@ def test_repo_exists_remote_returns_true_on_valid_repo(mocker, temp_config_file)
             "pytoil.api.API.get_repo",
             autospec=True,
             return_value={"repo": "yes", "name": "myproject"},
+        )
+
+        # Also patch out the return from pathlib.Path.exists to trick
+        # it into thinking the projects_dir exists
+        mocker.patch(
+            "pytoil.config.pathlib.Path.exists", autospec=True, return_value=True
         )
 
         repo = Repo(name="myproject")
@@ -157,6 +175,12 @@ def test_repo_exists_remote_raises_on_other_http_error(
                 {"header": "yes"},
                 None,
             ),
+        )
+
+        # Also patch out the return from pathlib.Path.exists to trick
+        # it into thinking the projects_dir exists
+        mocker.patch(
+            "pytoil.config.pathlib.Path.exists", autospec=True, return_value=True
         )
 
         repo = Repo(name="myproject")

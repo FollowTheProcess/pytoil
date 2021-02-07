@@ -7,11 +7,14 @@ Created: 05/02/2021
 """
 
 import pathlib
+import shutil
+import subprocess
 import urllib.error
 from typing import Optional, Union
 
 from .api import API
 from .config import Config
+from .exceptions import GitNotInstalledError, LocalRepoExistsError
 
 
 class Repo:
@@ -66,7 +69,7 @@ class Repo:
         Returns:
             bool: True if repo exists locally, else False.
         """
-        if self.path is not None:
+        if self.path:
             return self.path.exists()
         else:
             return False
@@ -100,4 +103,31 @@ class Repo:
         # projects_dir
         # return pathlib.Path to root of the cloned repo
         # set self.path to this path
-        pass
+
+        config = Config.get()
+
+        if not bool(shutil.which("git")):
+            # Check if git is installed
+
+            raise GitNotInstalledError(
+                """'git' executable not installed or not found on $PATH.
+        Check your git installation."""
+            )
+        elif self.exists_local():
+            # Check if its already been cloned
+            raise LocalRepoExistsError(
+                f"""The repo {self.name} already exists at {self.path}.
+        Cannot clone a repo that already exists."""
+            )
+        else:
+            # If we get here, we can safely clone
+            try:
+                subprocess.run(
+                    ["git", "clone", f"{self.url}"], check=True, cwd=config.projects_dir
+                )
+            except subprocess.CalledProcessError:
+                raise
+            else:
+                # If clone succeeded, set self.path and return
+                self.path = config.projects_dir.joinpath(self.name)
+                return self.path
