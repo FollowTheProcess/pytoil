@@ -7,6 +7,7 @@ Created: 04/02/2021
 """
 
 import pathlib
+import subprocess
 from typing import Optional, Union
 
 import virtualenv
@@ -121,3 +122,38 @@ class VirtualEnv:
             # Update the instance executable with the newly created one
             # resolve so can be safely invoked later
             self.executable = self.path.joinpath("bin/python").resolve()
+
+    def update_seeds(self) -> None:
+        """
+        VirtualEnv will install 'seed' packages to a new
+        environment: 'pip', 'setuptools' and 'wheel'.
+
+        It is good practice to keep these packages fully up to date
+        this method does exactly that by invoking pip from
+        the virtualenvs executable.
+
+        This is equivalent to running:
+        'python -m pip install --upgrade pip setuptools wheel'
+        from the command line with the virtualenv activated.
+        """
+
+        # Validate the executable
+        self.raise_for_executable()
+
+        try:
+            # Don't need to specify a 'cwd' because we have a resolved interpreter
+            subprocess.run(
+                [
+                    f"{str(self.executable)}",
+                    "-m",
+                    "pip",
+                    "install",
+                    "--upgrade",
+                    "pip",
+                    "setuptools",
+                    "wheel",
+                ],
+                check=True,
+            )
+        except subprocess.CalledProcessError:
+            raise

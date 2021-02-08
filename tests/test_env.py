@@ -6,6 +6,7 @@ Created: 04/02/2021
 """
 
 import pathlib
+import subprocess
 
 import pytest
 
@@ -170,3 +171,39 @@ def test_virtualenv_raise_for_executable_doesnt_raise_when_not_required(mocker):
 
         # If this raises, the test will fail
         env.raise_for_executable()
+
+
+def test_virtualenv_update_seeds_raises_on_subprocess_error(mocker):
+
+    # Patch out env.executable so raise_for_executable doesnt raise
+    with mocker.patch.object(
+        pytoil.env.VirtualEnv,
+        "executable",
+        pathlib.Path("made/up/dir/.venv/bin/python"),
+    ):
+
+        # Mock calling pip but have it raise
+        mock_subprocess = mocker.patch(
+            "pytoil.env.subprocess.run",
+            autospec=True,
+            side_effect=[subprocess.CalledProcessError(-1, "cmd")],
+        )
+
+        with pytest.raises(subprocess.CalledProcessError):
+            env = VirtualEnv(basepath=pathlib.Path("made/up/dir"))
+            env.update_seeds()
+
+            # Assert pip would have been called with correct args
+            mock_subprocess.assert_called_once_with(
+                [
+                    f"{str(env.executable)}",
+                    "-m",
+                    "pip",
+                    "install",
+                    "--upgrade",
+                    "pip",
+                    "setuptools",
+                    "wheel",
+                ],
+                check=True,
+            )
