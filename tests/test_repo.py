@@ -12,7 +12,11 @@ import urllib.error
 import pytest
 
 import pytoil
-from pytoil.exceptions import GitNotInstalledError, LocalRepoExistsError
+from pytoil.exceptions import (
+    GitNotInstalledError,
+    LocalRepoExistsError,
+    RepoNotFoundError,
+)
 from pytoil.repo import Repo
 
 
@@ -290,6 +294,9 @@ def test_repo_clone_correctly_calls_git(mocker, temp_config_file):
         # Ensure the repo doesnt already exist
         mocker.patch("pytoil.repo.Repo.exists_local", autospec=True, return_value=False)
 
+        # Ensure the repo "exists" on github
+        mocker.patch("pytoil.repo.Repo.exists_remote", autospec=True, return_value=True)
+
         # Finally, make it think the configured projects_dir exists
         mocker.patch(
             "pytoil.config.pathlib.Path.exists", autospec=True, return_value=True
@@ -327,6 +334,9 @@ def test_repo_clone_raises_subprocess_error_if_anything_goes_wrong(
         # Ensure the repo doesnt already exist
         mocker.patch("pytoil.repo.Repo.exists_local", autospec=True, return_value=False)
 
+        # Ensure the repo "exists" on github
+        mocker.patch("pytoil.repo.Repo.exists_remote", autospec=True, return_value=True)
+
         # Finally, make it think the configured projects_dir exists
         mocker.patch(
             "pytoil.config.pathlib.Path.exists", autospec=True, return_value=True
@@ -351,3 +361,30 @@ def test_repo_clone_raises_subprocess_error_if_anything_goes_wrong(
                 cwd=pathlib.Path("Users/tempfileuser/projects"),
                 check=True,
             )
+
+
+def test_repo_clone_raises_on_missing_remote_repo(mocker, temp_config_file):
+
+    with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
+
+        # Make it look like we have a valid git
+        mocker.patch("pytoil.repo.shutil.which", autospec=True, return_value=True)
+
+        # Ensure the repo doesnt already exist
+        mocker.patch("pytoil.repo.Repo.exists_local", autospec=True, return_value=False)
+
+        # Ensure the repo doesnt already exist
+        mocker.patch(
+            "pytoil.repo.Repo.exists_remote", autospec=True, return_value=False
+        )
+
+        # Finally, make it think the configured projects_dir exists
+        # Hacky by pointing it to our config file but it works
+        with mocker.patch.object(
+            pytoil.config.Config, "projects_dir", temp_config_file
+        ):
+
+            repo = Repo(name="fakerepo")
+
+            with pytest.raises(RepoNotFoundError):
+                repo.clone()

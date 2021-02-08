@@ -37,7 +37,7 @@ class Config:
         Used as the global configuration management class for the
         whole project.
 
-        Arguments are passed in as Optional[str] and every argument
+        Arguments are passed in as Optional[str] and every parameter
         other than `projects_dir` retains this type.
 
         `projects_dir` however will return a pathlib.Path instance of the str
@@ -120,12 +120,21 @@ class Config:
         the file.
 
         If a key is not present in the file, or if the value associated to
-        that key is blank. The associated parameter will be None.
+        that key is blank. An InvalidConfigError will be raised.
+
+        As such this method acts as both fetching and validation of user config.
 
         If the file does not exist, a FileNotFoundError will be raised.
 
         If a key is misspelled in the file a TypeError will be raised
         pointing to the bad parameter.
+
+        Raises:
+            FileNotFoundError: If config file `~/.pytoil.yml` does not exist.
+            TypeError: If any of the keys in the config file are misspelled
+                or there are additional keys.
+            InvalidConfigError: If the config described in `~/.pytoil.yml`
+                is in any way invalid.
 
         Returns:
             Config: Config object with parameters parsed from the file.
