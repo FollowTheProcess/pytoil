@@ -11,7 +11,7 @@ from typing import Optional, Union
 
 import virtualenv
 
-from .exceptions import VirtualenvAlreadyExistsError
+from .exceptions import TargetDirDoesNotExistError, VirtualenvAlreadyExistsError
 
 
 class VirtualEnv:
@@ -64,6 +64,9 @@ class VirtualEnv:
     def executable(self, value: pathlib.Path) -> None:
         self._executable = value
 
+    def basepath_exists(self) -> bool:
+        return self.basepath.exists()
+
     def exists(self) -> bool:
         return self.path.exists()
 
@@ -79,6 +82,10 @@ class VirtualEnv:
         if self.exists():
             raise VirtualenvAlreadyExistsError(
                 f"Virtualenv with path: {self.path} already exists"
+            )
+        elif not self.basepath_exists():
+            raise TargetDirDoesNotExistError(
+                f"The directory: {self.basepath} does not exist."
             )
         else:
             # Create a new virtualenv at `path`

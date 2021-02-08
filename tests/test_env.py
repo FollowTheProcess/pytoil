@@ -10,7 +10,7 @@ import pathlib
 import pytest
 
 from pytoil.env import VirtualEnv
-from pytoil.exceptions import VirtualenvAlreadyExistsError
+from pytoil.exceptions import TargetDirDoesNotExistError, VirtualenvAlreadyExistsError
 
 
 def test_virtualenv_init():
@@ -70,6 +70,22 @@ def test_virtualenv_exists_returns_correct_value(mocker, pathlib_exists, pytoil_
     assert env.exists() == pytoil_exists
 
 
+@pytest.mark.parametrize(
+    "pathlib_exists, pytoil_exists", [(True, True), (False, False)]
+)
+def test_virtualenv_basepath_exists_returns_correct_value(
+    mocker, pathlib_exists, pytoil_exists
+):
+
+    mocker.patch(
+        "pytoil.env.pathlib.Path.exists", autospec=True, return_value=pathlib_exists
+    )
+
+    env = VirtualEnv(basepath=pathlib.Path("made/up/dir"))
+
+    assert env.basepath_exists() == pytoil_exists
+
+
 def test_virtualenv_create_raises_if_already_exists(mocker):
 
     env = VirtualEnv(basepath=pathlib.Path("made/up/dir"))
@@ -91,7 +107,26 @@ def test_virtualenv_create_updates_executable_on_success(mocker):
     # Make it think the virtualenv does not already exist
     mocker.patch("pytoil.env.VirtualEnv.exists", autospec=True, return_value=False)
 
+    # Make it think the basepath does exist
+    mocker.patch(
+        "pytoil.env.VirtualEnv.basepath_exists", autospec=True, return_value=True
+    )
+
     # Create the virtualenv
     env.create()
 
     assert env.executable == pathlib.Path("made/up/dir/.venv/bin/python")
+
+
+def test_virtualenv_create_raises_if_basepath_doesnt_exist(mocker):
+
+    env = VirtualEnv(basepath=pathlib.Path("made/up/dir"))
+
+    # Make it think the basepath doesn't exist
+    # It doesn't anyway because we've made it up but better to explicitly do it
+    mocker.patch(
+        "pytoil.env.VirtualEnv.basepath_exists", autospec=True, return_value=False
+    )
+
+    with pytest.raises(TargetDirDoesNotExistError):
+        env.create()
