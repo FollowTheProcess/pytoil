@@ -14,7 +14,7 @@ from typing import Optional
 
 from .api import API
 from .config import Config
-from .exceptions import GitNotInstalledError, LocalRepoExistsError
+from .exceptions import GitNotInstalledError, LocalRepoExistsError, RepoNotFoundError
 
 
 class Repo:
@@ -96,6 +96,19 @@ class Repo:
             return True
 
     def clone(self) -> pathlib.Path:
+        """
+        Invokes git in a subprocess to clone the repo
+        represented by the instance.
+
+        Raises:
+            GitNotInstalledError: If 'git' not found on $PATH.
+            LocalRepoExistsError: If repo already exists in configured
+                projects_dir.
+            RepoNotFoundError: If repo not found on GitHub.
+
+        Returns:
+            pathlib.Path: Path to cloned repo.
+        """
 
         # Get the user config from file
         config = Config.get()
@@ -113,6 +126,9 @@ class Repo:
                 f"""The repo {self.name} already exists at {self.path}.
         Cannot clone a repo that already exists."""
             )
+        elif not self.exists_remote():
+            # Check if the remote repo actually exists
+            raise RepoNotFoundError(f"Repo: {self.url} not found on GitHub")
         else:
             # If we get here, we can safely clone
             try:
