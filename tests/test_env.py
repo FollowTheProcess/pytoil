@@ -9,8 +9,13 @@ import pathlib
 
 import pytest
 
+import pytoil
 from pytoil.env import VirtualEnv
-from pytoil.exceptions import TargetDirDoesNotExistError, VirtualenvAlreadyExistsError
+from pytoil.exceptions import (
+    MissingInterpreterError,
+    TargetDirDoesNotExistError,
+    VirtualenvAlreadyExistsError,
+)
 
 
 def test_virtualenv_init():
@@ -115,7 +120,7 @@ def test_virtualenv_create_updates_executable_on_success(mocker):
     # Create the virtualenv
     env.create()
 
-    assert env.executable == pathlib.Path("made/up/dir/.venv/bin/python")
+    assert env.executable == pathlib.Path("made/up/dir/.venv/bin/python").resolve()
 
 
 def test_virtualenv_create_raises_if_basepath_doesnt_exist(mocker):
@@ -130,3 +135,38 @@ def test_virtualenv_create_raises_if_basepath_doesnt_exist(mocker):
 
     with pytest.raises(TargetDirDoesNotExistError):
         env.create()
+
+
+def test_virtualenv_raise_for_executable_raises_when_required(mocker):
+
+    env = VirtualEnv(basepath=pathlib.Path("made/up/dir"))
+
+    # Make it think the basepath doesn't exist
+    # It doesn't anyway because we've made it up but better to explicitly do it
+    mocker.patch(
+        "pytoil.env.VirtualEnv.basepath_exists", autospec=True, return_value=False
+    )
+
+    with pytest.raises(MissingInterpreterError):
+        env.raise_for_executable()
+
+
+def test_virtualenv_raise_for_executable_doesnt_raise_when_not_required(mocker):
+
+    # Make it think the basepath doesn't exist
+    # It doesn't anyway because we've made it up but better to explicitly do it
+    mocker.patch(
+        "pytoil.env.VirtualEnv.basepath_exists", autospec=True, return_value=False
+    )
+
+    # Patch out env.executable to be anything other than None and it shouldnt raise
+    with mocker.patch.object(
+        pytoil.env.VirtualEnv,
+        "executable",
+        pathlib.Path("made/up/dir/.venv/bin/python"),
+    ):
+
+        env = VirtualEnv(basepath=pathlib.Path("made/up/dir"))
+
+        # If this raises, the test will fail
+        env.raise_for_executable()

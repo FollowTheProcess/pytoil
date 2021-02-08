@@ -11,7 +11,11 @@ from typing import Optional, Union
 
 import virtualenv
 
-from .exceptions import TargetDirDoesNotExistError, VirtualenvAlreadyExistsError
+from .exceptions import (
+    MissingInterpreterError,
+    TargetDirDoesNotExistError,
+    VirtualenvAlreadyExistsError,
+)
 
 
 class VirtualEnv:
@@ -70,6 +74,29 @@ class VirtualEnv:
     def exists(self) -> bool:
         return self.path.exists()
 
+    def raise_for_executable(self) -> None:
+        """
+        Helper method analagous to requests 'raise_for_status'.
+
+        A virtualenvs executable is only created if all the checks in
+        `.create()` pass.
+
+        This method is a convenient way of checking all those conditions
+        by proxy in one step. If the property `self.executable` is not None,
+        then the executable is valid.
+
+        Raises:
+            MissingInterpreterError: If `self.executable` is not found.
+        """
+
+        if not self.executable:
+            raise MissingInterpreterError(
+                f"""Virtualenv: {self.path!r} does not exist. Cannot install
+                until it has been created. Create by using the `.create()` method."""
+            )
+        else:
+            return None
+
     def create(self) -> None:
         """
         Create a new virtualenv in `basepath` with `name`
@@ -78,17 +105,19 @@ class VirtualEnv:
 
         Raises:
             VirtualenvAlreadyExistsError: If virtualenv with `path` already exists.
+            TargetDirDoesNotExistError: If basepath does not exist.
         """
         if self.exists():
             raise VirtualenvAlreadyExistsError(
-                f"Virtualenv with path: {self.path} already exists"
+                f"Virtualenv with path: {self.path!r} already exists"
             )
         elif not self.basepath_exists():
             raise TargetDirDoesNotExistError(
-                f"The directory: {self.basepath} does not exist."
+                f"The directory: {self.basepath!r} does not exist."
             )
         else:
             # Create a new virtualenv at `path`
             virtualenv.cli_run([f"{self.path}"])
             # Update the instance executable with the newly created one
-            self.executable = self.path.joinpath("bin/python")
+            # resolve so can be safely invoked later
+            self.executable = self.path.joinpath("bin/python").resolve()
