@@ -36,6 +36,12 @@ class GitNotInstalledError(Exception):
         super().__init__(self.message)
 
 
+class CondaNotInstalledError(Exception):
+    def __init__(self, message: str) -> None:
+        self.message = message
+        super().__init__(self.message)
+
+
 class LocalRepoExistsError(Exception):
     def __init__(self, message: str) -> None:
         self.message = message

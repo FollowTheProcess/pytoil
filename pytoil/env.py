@@ -7,12 +7,14 @@ Created: 04/02/2021
 """
 
 import pathlib
+import shutil
 import subprocess
 from typing import List, Optional, Union
 
 import virtualenv
 
 from .exceptions import (
+    CondaNotInstalledError,
     MissingInterpreterError,
     TargetDirDoesNotExistError,
     VirtualenvAlreadyExistsError,
@@ -249,3 +251,100 @@ class VirtualEnv:
             raise
         else:
             return cmd
+
+
+class CondaEnv:
+    def __init__(self, name: str) -> None:
+        """
+        Representation of a conda virtual environment.
+
+        Conda environments are simpler in a lot of ways because
+        it's all managed under the hood by the `conda` command.
+
+        We don't need to worry about interpreters or paths etc.
+        Just the environment name is enough to identify it.
+
+        Args:
+            name (str): The name of the conda environment.
+        """
+        self.name = name
+
+    def __repr__(self) -> str:
+        return self.__class__.__qualname__ + f"(name={self.name!r})"
+
+    def raise_for_conda(self) -> None:
+        """
+        Helper method which either raises if no `conda` found.
+        Or does nothing if it is found.
+
+        Because we end up relying on `conda` for most of the logic
+        it makes sense to abstract this step.
+
+        Raises:
+            CondaNotInstalledError: If `conda` not found on $PATH
+        """
+        if not bool(shutil.which("conda")):
+            raise CondaNotInstalledError(
+                """`conda` executable not installed or not found on $PATH.
+            Check your installation."""
+            )
+
+    def exists(self) -> bool:
+        """
+        Determines whether a conda environment called `name`
+        exists on the current system by parsing the stdout of the
+        `conda env list` command.
+
+        Raises:
+            CondaNotInstalledError: If `conda` not found on $PATH.
+            CalledProcessError: If an unknown error occurs in the
+                `conda env list` command.
+
+        Returns:
+            bool: True if the environment exists on system, else False.
+        """
+
+        self.raise_for_conda()
+
+        try:
+            envs = subprocess.run(
+                ["conda", "env", "list"],
+                check=True,
+                capture_output=True,
+                encoding="utf-8",
+            )
+        except subprocess.CalledProcessError:
+            raise
+        else:
+            return self.name.strip().lower() in envs.stdout.strip().lower()
+
+    def create(self, packages: Optional[List[str]] = None) -> None:
+        """
+        Creates the conda environment described by the instance.
+
+        If `packages` are specified, these will be included at creation.
+
+        Args:
+            packages (Optional[List[str]], optional): List of valid packages
+                for conda to install on environment creation. Passed through to
+                conda so any versioning syntax will work as expected.
+                Defaults to None.
+
+        Raises:
+            VirtualenvAlreadyExistsError: If the conda environment already exists.
+        """
+
+        if self.exists():
+            raise VirtualenvAlreadyExistsError(
+                f"Conda env: {self.name} already exists."
+            )
+
+        cmd: List[str] = ["conda", "create", "-y", "--name", f"{self.name}", "python=3"]
+
+        if packages:
+            cmd.extend(packages)
+
+        try:
+            subprocess.run(cmd, check=True)
+        except subprocess.CalledProcessError:
+            raise
