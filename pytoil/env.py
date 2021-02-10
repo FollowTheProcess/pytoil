@@ -7,11 +7,16 @@ Created: 04/02/2021
 """
 
 import pathlib
-from typing import Optional, Union
+import subprocess
+from typing import List, Optional, Union
 
 import virtualenv
 
-from .exceptions import VirtualenvAlreadyExistsError
+from .exceptions import (
+    MissingInterpreterError,
+    TargetDirDoesNotExistError,
+    VirtualenvAlreadyExistsError,
+)
 
 
 class VirtualEnv:
@@ -64,8 +69,37 @@ class VirtualEnv:
     def executable(self, value: pathlib.Path) -> None:
         self._executable = value
 
+    def basepath_exists(self) -> bool:
+        return self.basepath.exists()
+
     def exists(self) -> bool:
         return self.path.exists()
+
+    def raise_for_executable(self) -> None:
+        """
+        Helper method analagous to requests `raise_for_status`.
+
+        Should be called before any method that is supposed to act
+        from within a virtual environment.
+
+        A virtualenvs executable is only created if all the checks in
+        `.create()` pass.
+
+        This method is a convenient way of checking all those conditions
+        by proxy in one step. If the property `self.executable` is not None,
+        then the executable is valid.
+
+        Raises:
+            MissingInterpreterError: If `self.executable` is not found.
+        """
+
+        if not self.executable:
+            raise MissingInterpreterError(
+                f"""Virtualenv: {self.path!r} does not exist. Cannot install
+                until it has been created. Create by using the `.create()` method."""
+            )
+        else:
+            return None
 
     def create(self) -> None:
         """
@@ -75,13 +109,143 @@ class VirtualEnv:
 
         Raises:
             VirtualenvAlreadyExistsError: If virtualenv with `path` already exists.
+            TargetDirDoesNotExistError: If basepath does not exist.
         """
         if self.exists():
             raise VirtualenvAlreadyExistsError(
-                f"Virtualenv with path: {self.path} already exists"
+                f"Virtualenv with path: {self.path!r} already exists"
+            )
+        elif not self.basepath_exists():
+            raise TargetDirDoesNotExistError(
+                f"The directory: {self.basepath!r} does not exist."
             )
         else:
             # Create a new virtualenv at `path`
             virtualenv.cli_run([f"{self.path}"])
             # Update the instance executable with the newly created one
-            self.executable = self.path.joinpath("bin/python")
+            # resolve so can be safely invoked later
+            self.executable = self.path.joinpath("bin/python").resolve()
+
+    def update_seeds(self) -> None:
+        """
+        VirtualEnv will install 'seed' packages to a new
+        environment: `pip`, `setuptools` and `wheel`.
+
+        It is good practice to keep these packages fully up to date
+        this method does exactly that by invoking pip from
+        the virtualenvs executable.
+
+        This is equivalent to running:
+        `python -m pip install --upgrade pip setuptools wheel`
+        from the command line with the virtualenv activated.
+        """
+
+        # Validate the executable
+        self.raise_for_executable()
+
+        try:
+            # Don't need to specify a 'cwd' because we have a resolved interpreter
+            subprocess.run(
+                [
+                    f"{str(self.executable)}",
+                    "-m",
+                    "pip",
+                    "install",
+                    "--upgrade",
+                    "pip",
+                    "setuptools",
+                    "wheel",
+                ],
+                check=True,
+            )
+        except subprocess.CalledProcessError:
+            raise
+
+    def install(
+        self,
+        packages: Optional[List[str]] = None,
+        prefix: Optional[str] = None,
+        editable: bool = False,
+    ) -> List[str]:
+        """
+        Generic `pip install` method.
+
+        If a list of packages is specified, the method is
+        analagous to calling `pip install *packages` from within
+        the virtual environment. The packages are effectively passed straight
+        through to pip so any versioning syntax e.g. `>=3.2.6` will work as
+        expected. If `packages` is specified, `prefix` and `editable` must not be.
+
+        A prefix is the syntax used if a project has declared groups of dependencies
+        as labelled groups e.g. `.[all]` or `.[dev]` in files like setup.py,
+        pyproject.toml etc. If a prefix is specified, this is used for the install.
+        If `prefix` is specified, packages must not but editable can be.
+
+        If editable is specified (only applicable on installs like `.[dev]`)
+        this is analogous to calling `pip install -e {something}`.
+        If `editable` is specified, packages must not be.
+
+        Args:
+            packages (Optional[List[str]], optional): A list of valid packages
+                to install. Analogous to simply calling `pip install *packages`.
+                `packages` cannot be used in tandem with `prefix` or `editable`.
+                If only 1 package, still must be in a list e.g. `["black"]`.
+                Defaults to None.
+
+            prefix (Optional[str], optional): A valid shorthand prefix e.g. `.[dev]`.
+                `prefix` cannot be used in tandem with `packages` but may be used
+                with `editable` for example like `pip install -e .[dev]` for installing
+                the current project and its specified `dev` dependencies.
+                Defaults to None.
+
+            editable (bool, optional): Whether to install `prefix` in editable mode
+                `pip install -e`. Cannot be used in tandem with `packages`.
+                Defaults to False.
+
+        Raises:
+            ValueError: If mutually exclusive arguments are used together,
+                or if no arguments are used at all.
+
+        Returns:
+            List[str]: The command sent to pip. Side effect, primarily only used
+                for testing.
+        """
+
+        if packages and (prefix or editable):
+            # If packages, prefix and editable must be default
+            raise ValueError(
+                "Argument `packages` may not be used with `prefix` or `editable`."
+            )
+
+        if not packages and not prefix and not editable:
+            # Must pass at least one
+            raise ValueError(
+                "At least one of `packages`, `prefix` or `editable` must be specified."
+            )
+
+        # Ensure seed packages are updated, also checks interpreter
+        self.update_seeds()
+
+        cmd: List[str] = [f"{str(self.executable)}", "-m", "pip", "install"]
+
+        if packages:
+            # i.e. `python -m pip install requests pandas numpy` etc.
+            cmd.extend(packages)
+        elif prefix:  # pragma: no cover
+            # We specify no cover here because this logic is actually
+            # tested in the call to subprocess.run below in
+            # test_env.py::test_virtualenv_install_passes_correct_command
+            # but coverage does not recognise a call by proxy.
+            # i.e. `python -m pip install .[dev]`
+            cmd.append(prefix)
+            if editable:
+                # i.e. `python -m pip install -e .[dev]`
+                cmd.insert(4, "-e")
+
+        # Run the constructed pip command
+        try:
+            subprocess.run(cmd, check=True)
+        except subprocess.CalledProcessError:
+            raise
+        else:
+            return cmd
