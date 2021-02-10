@@ -207,3 +207,167 @@ def test_virtualenv_update_seeds_raises_on_subprocess_error(mocker):
                 ],
                 check=True,
             )
+
+
+# All conditions that should cause a raise
+@pytest.mark.parametrize(
+    "packages, prefix, editable",
+    [
+        (["black", "mypy", "madeup"], ".[dev]", True),
+        (["black", "mypy", "madeup"], ".[dev]", False),
+        (["black", "mypy", "madeup"], None, True),
+        (None, None, False),
+    ],
+)
+def test_virtualenv_install_raises_on_mutually_exclusive_arguments(
+    packages, prefix, editable
+):
+
+    env = VirtualEnv(basepath=pathlib.Path("made/up/dir"))
+
+    with pytest.raises(ValueError):
+        env.install(packages=packages, prefix=prefix, editable=editable)
+
+
+# Data for pip command construction
+@pytest.mark.parametrize(
+    "packages, prefix, editable, expected_cmd",
+    [
+        (
+            ["black", "mypy", "madeup"],
+            None,
+            False,
+            [
+                f"{str(pathlib.Path('made/up/dir/.venv/bin/python').resolve())}",
+                "-m",
+                "pip",
+                "install",
+                "black",
+                "mypy",
+                "madeup",
+            ],
+        ),
+        (
+            None,
+            ".[dev]",
+            False,
+            [
+                f"{str(pathlib.Path('made/up/dir/.venv/bin/python').resolve())}",
+                "-m",
+                "pip",
+                "install",
+                ".[dev]",
+            ],
+        ),
+        (
+            None,
+            ".[dev]",
+            True,
+            [
+                f"{str(pathlib.Path('made/up/dir/.venv/bin/python').resolve())}",
+                "-m",
+                "pip",
+                "install",
+                "-e",
+                ".[dev]",
+            ],
+        ),
+    ],
+)
+def test_virtualenv_install_passes_correct_command(
+    mocker, packages, prefix, editable, expected_cmd
+):
+    """
+    Tests that the correct command is constructed and sent to pip.
+
+    We of course don't actually create a virtualenv, we just mock env.executable to be
+    the pathlib.Path of this file because then it will exist and not raise any
+    exceptions.
+
+    We also patch out the actual call to pip so nothing is performed.
+    The purpose of this test is to ensure the method correctly constructs
+    the arguments to pass into subprocess.run.
+    """
+
+    # Force the executable property to be what we want so we can check output
+    with mocker.patch.object(
+        pytoil.env.VirtualEnv,
+        "executable",
+        pathlib.Path("made/up/dir/.venv/bin/python").resolve(),
+    ):
+        # This doesnt actually matter, just has to be something
+        env = VirtualEnv(basepath=pathlib.Path("made/up/dir"))
+
+        # Mock the call to update_seeds contained within install
+        mocker.patch(
+            "pytoil.env.VirtualEnv.update_seeds", autospec=True, return_value=None
+        )
+
+        # Mock calling pip
+        mock_subprocess = mocker.patch(
+            "pytoil.env.subprocess.run",
+            autospec=True,
+        )
+
+        # Call our install method with the parametrized arguments
+        env.install(packages=packages, prefix=prefix, editable=editable)
+
+        # Assert pip would have been called with correct args
+        mock_subprocess.assert_called_once_with(
+            expected_cmd,
+            check=True,
+        )
+
+
+@pytest.mark.parametrize(
+    "packages, prefix, editable",
+    [
+        (
+            ["black", "mypy", "madeup"],
+            None,
+            False,
+        ),
+        (
+            None,
+            ".[dev]",
+            False,
+        ),
+        (
+            None,
+            ".[dev]",
+            True,
+        ),
+    ],
+)
+def test_virtualenv_install_raises_on_subprocess_error(
+    mocker, packages, prefix, editable
+):
+    """
+    Done as a parametrized test so that we can be sure it raises regardless
+    of what args passed so long as the args are valid.
+    """
+
+    # Force the executable property to be what we want so we can check output
+    with mocker.patch.object(
+        pytoil.env.VirtualEnv,
+        "executable",
+        pathlib.Path("made/up/dir/.venv/bin/python").resolve(),
+    ):
+
+        # Mock the call to update_seeds contained within install
+        mocker.patch(
+            "pytoil.env.VirtualEnv.update_seeds", autospec=True, return_value=None
+        )
+
+        # Mock calling pip, but have it raise
+        mocker.patch(
+            "pytoil.env.subprocess.run",
+            autospec=True,
+            side_effect=[subprocess.CalledProcessError(-1, "cmd")],
+        )
+
+        with pytest.raises(subprocess.CalledProcessError):
+            # This doesnt actually matter, just has to be something
+            env = VirtualEnv(basepath=pathlib.Path("made/up/dir"))
+
+            env.install(packages=packages, prefix=prefix, editable=editable)
