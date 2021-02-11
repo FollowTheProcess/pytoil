@@ -12,6 +12,12 @@ class VirtualenvAlreadyExistsError(Exception):
         super().__init__(self.message)
 
 
+class VirtualenvDoesNotExistError(Exception):
+    def __init__(self, message: str) -> None:
+        self.message = message
+        super().__init__(self.message)
+
+
 class MissingTokenError(Exception):
     def __init__(self, message: str) -> None:
         self.message = message
@@ -61,6 +67,12 @@ class TargetDirDoesNotExistError(Exception):
 
 
 class MissingInterpreterError(Exception):
+    def __init__(self, message: str) -> None:
+        self.message = message
+        super().__init__(self.message)
+
+
+class BadEnvironmentFileError(Exception):
     def __init__(self, message: str) -> None:
         self.message = message
         super().__init__(self.message)

@@ -5,13 +5,19 @@ Author: Tom Fleet
 Created: 10/02/2021
 """
 
+import pathlib
 import subprocess
-from typing import NamedTuple
+from typing import List, NamedTuple
 
 import pytest
 
 from pytoil.env import CondaEnv
-from pytoil.exceptions import CondaNotInstalledError, VirtualenvAlreadyExistsError
+from pytoil.exceptions import (
+    BadEnvironmentFileError,
+    CondaNotInstalledError,
+    VirtualenvAlreadyExistsError,
+    VirtualenvDoesNotExistError,
+)
 
 
 def test_condaenv_init():
@@ -96,7 +102,18 @@ def test_condaenv_exists_raises_on_subprocess_error(mocker):
 @pytest.mark.parametrize(
     "packages, name, expected_cmd",
     [
-        (None, "sillyenv", ["conda", "create", "-y", "--name", "sillyenv", "python=3"]),
+        (
+            None,
+            "sillyenv",
+            [
+                "conda",
+                "create",
+                "-y",
+                "--name",
+                "sillyenv",
+                "python=3",
+            ],
+        ),
         (
             ["black", "pandas>=1.1.3", "numpy"],
             "dingleenv",
@@ -151,3 +168,129 @@ def test_condaenv_create_raises_on_subprocess_error(mocker):
     with pytest.raises(subprocess.CalledProcessError):
         env = CondaEnv(name="error")
         env.create()
+
+
+def test_condaenv_create_from_yml_passes_correct_command(mocker, temp_environment_yml):
+
+    # Make it think the environment doesn't already exist
+    mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=False)
+
+    # Mock out the actual call to conda
+    mock_subprocess = mocker.patch("pytoil.env.subprocess.run", autospec=True)
+
+    expected_cmd: List[str] = [
+        "conda",
+        "env",
+        "create",
+        "-y",
+        "--file",
+        f"{str(temp_environment_yml.resolve())}",
+    ]
+
+    CondaEnv.create_from_yml(fp=temp_environment_yml)
+
+    mock_subprocess.assert_called_once_with(expected_cmd, check=True)
+
+
+def test_condaenv_create_from_yml_raises_on_missing_file(mocker):
+
+    mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=False)
+
+    missing_env_file = pathlib.Path("definitely/not/here.yml")
+
+    with pytest.raises(FileNotFoundError):
+        CondaEnv.create_from_yml(fp=missing_env_file)
+
+
+def test_condaenv_create_from_yml_raises_on_invalid_formatted_yml(
+    mocker, bad_temp_environment_yml, bad_temp_environment_yml_2
+):
+
+    mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=False)
+
+    with pytest.raises(BadEnvironmentFileError):
+        CondaEnv.create_from_yml(fp=bad_temp_environment_yml)
+
+    with pytest.raises(BadEnvironmentFileError):
+        CondaEnv.create_from_yml(fp=bad_temp_environment_yml_2)
+
+
+def test_condaenv_create_from_yml_raises_if_env_already_exists(
+    mocker, temp_environment_yml
+):
+
+    mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=True)
+
+    with pytest.raises(VirtualenvAlreadyExistsError):
+        CondaEnv.create_from_yml(temp_environment_yml)
+
+
+def test_condaenv_create_from_yml_raises_on_subprocess_error(
+    mocker, temp_environment_yml
+):
+
+    mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=False)
+
+    mocker.patch(
+        "pytoil.env.subprocess.run",
+        autospec=True,
+        side_effect=[subprocess.CalledProcessError(-1, "cmd")],
+    )
+
+    with pytest.raises(subprocess.CalledProcessError):
+        CondaEnv.create_from_yml(fp=temp_environment_yml)
+
+
+@pytest.mark.parametrize(
+    "name, packages",
+    [
+        ("sillyenv", ["numpy", "pandas", "requests"]),
+        ("dingleenv", ["black", "mypy", "dinglepython"]),
+        ("blah", ["altair", "matplotlib", "seaborn"]),
+    ],
+)
+def test_condaenv_install_passes_correct_command(mocker, name, packages):
+
+    mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=True)
+
+    mock_subprocess = mocker.patch("pytoil.env.subprocess.run", autospec=True)
+
+    expected_cmd: List[str] = [
+        "conda",
+        "install",
+        "-n",
+        name,
+        "-y",
+    ]
+
+    expected_cmd.extend(packages)
+
+    env = CondaEnv(name=name)
+
+    env.install(packages=packages)
+
+    mock_subprocess.assert_called_once_with(expected_cmd, check=True)
+
+
+def test_condaenv_install_raises_if_environment_doesnt_exist(mocker):
+
+    mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=False)
+
+    with pytest.raises(VirtualenvDoesNotExistError):
+        env = CondaEnv(name="missing")
+        env.install(["black", "mypy", "pandas"])
+
+
+def test_condaenv_install_raises_on_subprocess_error(mocker):
+
+    mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=True)
+
+    mocker.patch(
+        "pytoil.env.subprocess.run",
+        autospec=True,
+        side_effect=[subprocess.CalledProcessError(-1, "cmd")],
+    )
+
+    with pytest.raises(subprocess.CalledProcessError):
+        env = CondaEnv(name="error")
+        env.install(["pandas", "numpy"])

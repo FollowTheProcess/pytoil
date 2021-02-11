@@ -9,15 +9,18 @@ Created: 04/02/2021
 import pathlib
 import shutil
 import subprocess
-from typing import List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 import virtualenv
+import yaml
 
 from .exceptions import (
+    BadEnvironmentFileError,
     CondaNotInstalledError,
     MissingInterpreterError,
     TargetDirDoesNotExistError,
     VirtualenvAlreadyExistsError,
+    VirtualenvDoesNotExistError,
 )
 
 
@@ -238,7 +241,6 @@ class VirtualEnv:
             # tested in the call to subprocess.run below in
             # test_env.py::test_virtualenv_install_passes_correct_command
             # but coverage does not recognise a call by proxy.
-            # i.e. `python -m pip install .[dev]`
             cmd.append(prefix)
             if editable:
                 # i.e. `python -m pip install -e .[dev]`
@@ -324,6 +326,8 @@ class CondaEnv:
 
         If `packages` are specified, these will be included at creation.
 
+        Only default package is `python=3`.
+
         Args:
             packages (Optional[List[str]], optional): List of valid packages
                 for conda to install on environment creation. Passed through to
@@ -343,6 +347,87 @@ class CondaEnv:
 
         if packages:
             cmd.extend(packages)
+
+        try:
+            subprocess.run(cmd, check=True)
+        except subprocess.CalledProcessError:
+            raise
+
+    @staticmethod
+    def create_from_yml(fp: pathlib.Path) -> None:
+        """
+        Creates a conda environment from the `environment.yml`
+        file passed as a pathlib.Path in `fp`.
+
+        Args:
+            fp (pathlib.Path): Filepath of the `environment.yml` file.
+
+        Raises:
+            FileNotFoundError: If the `environment.yml` file does not exist.
+            BadEnvironmentFileError: If the `environment.yml` file is
+                formatted incorrectly.
+            VirtualenvAlreadyExistsError: If the conda environment described
+                by the `environment.yml` file already exists on system.
+        """
+
+        # Ensure we have a resolved yml filepath
+        resolved_fp = fp.resolve()
+
+        try:
+            with open(resolved_fp) as f:
+                env_dict: Dict[str, Union[List[str], str]] = yaml.full_load(f)
+        except FileNotFoundError:
+            raise
+
+        env_name = env_dict["name"]
+
+        if not isinstance(env_name, str):
+            raise BadEnvironmentFileError(
+                """The environment yml file has an invalid format.
+                Cannot determine the value for key: `name`."""
+            )
+        else:
+            env = CondaEnv(name=env_name)
+
+        if env.exists():
+            raise VirtualenvAlreadyExistsError(f"Conda env: {env.name} already exists.")
+        else:
+            try:
+                subprocess.run(
+                    ["conda", "env", "create", "-y", "--file", f"{str(resolved_fp)}"],
+                    check=True,
+                )
+            except subprocess.CalledProcessError:
+                raise
+
+    def install(self, packages: List[str]) -> None:
+        """
+        Installs `packages` into the conda environment
+        described by `name`.
+
+        Packages are passed straight through to conda so any versioning
+        syntax will work as expected.
+
+        Args:
+            packages (List[str]): List of packages to install.
+                If only one package, still must be a list
+                e.g. ["numpy"],
+
+        Raises:
+            VirtualenvDoesNotExistError: If the conda environment does not exist.
+        """
+
+        if not self.exists():
+            raise VirtualenvDoesNotExistError(
+                f"""Conda env: {self.name} does not exist.
+        Create it first before installing packages."""
+            )
+
+        # Install into specified env
+        cmd: List[str] = ["conda", "install", "-n", f"{self.name}", "-y"]
+
+        # Add specified packages
+        cmd.extend(packages)
 
         try:
             subprocess.run(cmd, check=True)

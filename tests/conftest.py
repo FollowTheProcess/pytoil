@@ -5,7 +5,8 @@ Author: Tom Fleet
 Created: 05/02/2021
 """
 
-from typing import Dict, Union
+import pathlib
+from typing import Dict, List, Union
 
 import pytest
 import yaml
@@ -178,3 +179,98 @@ def fake_api_response():
     ]
 
     return response
+
+
+@pytest.fixture
+def temp_environment_yml(tmp_path_factory):
+    """
+    Returns a valid temporary environment.yml file
+    """
+
+    env_file: pathlib.Path = tmp_path_factory.mktemp("temp").joinpath("environment.yml")
+
+    fake_env_info: Dict[str, Union[str, List[str]]] = {
+        "name": "my_yml_env",
+        "channels": ["defaults", "conda-forge"],
+        "dependencies": [
+            "python>3.7",
+            "invoke",
+            "black",
+            "flake8",
+            "isort",
+            "mypy",
+            "rich",
+            "requests",
+            "numpy",
+            "pandas",
+        ],
+    }
+
+    with open(env_file, "w") as f:
+        yaml.dump(fake_env_info, f)
+
+    return env_file
+
+
+@pytest.fixture
+def bad_temp_environment_yml(tmp_path_factory):
+    """
+    Returns an invalid temporary environment.yml file
+    """
+
+    env_file: pathlib.Path = tmp_path_factory.mktemp("temp").joinpath("environment.yml")
+
+    # name must be a string
+    fake_env_info = {
+        "name": 300,
+        "channels": ["defaults", "conda-forge"],
+        "dependencies": [
+            "python>3.7",
+            "invoke",
+            "black",
+            "flake8",
+            "isort",
+            "mypy",
+            "rich",
+            "requests",
+            "numpy",
+            "pandas",
+        ],
+    }
+
+    with open(env_file, "w") as f:
+        yaml.dump(fake_env_info, f)
+
+    return env_file
+
+
+@pytest.fixture
+def bad_temp_environment_yml_2(tmp_path_factory):
+    """
+    Returns an invalid temporary environment.yml file
+    """
+
+    env_file: pathlib.Path = tmp_path_factory.mktemp("temp").joinpath("environment.yml")
+
+    # name must be a string
+    fake_env_info = {
+        "name": ["list", "of", "names"],
+        "channels": ["defaults", "conda-forge"],
+        "dependencies": [
+            "python>3.7",
+            "invoke",
+            "black",
+            "flake8",
+            "isort",
+            "mypy",
+            "rich",
+            "requests",
+            "numpy",
+            "pandas",
+        ],
+    }
+
+    with open(env_file, "w") as f:
+        yaml.dump(fake_env_info, f)
+
+    return env_file
