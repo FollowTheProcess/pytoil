@@ -93,7 +93,7 @@ class API:
             endpoint (str): Valid GitHub API endpoint.
 
         Raises:
-            HTTPError: If any HTTP error occurs, will raise an exception
+            APIRequestError: If any HTTP error occurs, will raise an exception
                 and give a description and standard HTTP status code.
 
         Returns:
@@ -105,9 +105,45 @@ class API:
         )
         if r.status != 200:
             raise APIRequestError(
-                f"GitHub API endpoint: {endpoint} gave HTTP Response: {r.status}.",
+                f"""GitHub API endpoint: {endpoint} gave HTTP Response: {r.status}.
+                Method: GET""",
                 status_code=r.status,
             )
+        else:
+            response: APIResponse = json.loads(r.data.decode("utf-8"))
+
+        return response
+
+    def post(self, endpoint: str) -> APIResponse:
+        """
+        Makes an authenticated POST request to a GitHub API
+        endpoint e.g. '/repos/{owner}/{repo}/forks'.
+
+        Generic base for more specific post methods below.
+
+        Args:
+            endpoint (str): Valid GitHub API endpoint.
+
+        Raises:
+            APIRequestError: If any HTTP error occurs, will raise an exception
+                and give a description and standard HTTP status code.
+
+        Returns:
+            APIResponse: JSON API response.
+        """
+
+        r = self.http.request(
+            method="POST", url=self.baseurl + endpoint, headers=self.headers
+        )
+
+        # POSTs could return 202's
+        if r.status > 202:
+            raise APIRequestError(
+                f"""GitHub API endpoint: {endpoint} gave HTTP Response: {r.status}.
+                Method: POST.""",
+                status_code=r.status,
+            )
+
         else:
             response: APIResponse = json.loads(r.data.decode("utf-8"))
 

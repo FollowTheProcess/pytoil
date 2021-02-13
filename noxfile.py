@@ -11,7 +11,7 @@ import nox
 PROJECT_ROOT = Path(__file__).parent.resolve()
 
 
-def poetry_install(session, *args: str, **kwargs: Any) -> None:
+def poetry_install(session: nox.Session, *args: str, **kwargs: Any) -> None:
     """
     Function that allows using poetry's lock file as the root dependency
     management system from which to install dependencies.
