@@ -6,11 +6,12 @@ Created: 04/02/2021
 """
 
 import json
-import urllib.error
-import urllib.request
 from typing import Dict, List, Optional, Union
 
+import urllib3
+
 from .config import Config
+from .exceptions import APIRequestError
 
 # Type hint for generic JSON API response
 # Looks complicated but basically means APIResponse is
@@ -45,6 +46,7 @@ class API:
             "Accept": "application/vnd.github.v3+json",
             "Authorization": f"token {self._token}",
         }
+        self.http = urllib3.PoolManager()
 
     def __repr__(self) -> str:
         return (
@@ -98,16 +100,16 @@ class API:
             ApiResponse: JSON API response.
         """
 
-        request = urllib.request.Request(
-            url=self.baseurl + endpoint, method="GET", headers=self.headers
+        r = self.http.request(
+            method="GET", url=self.baseurl + endpoint, headers=self.headers
         )
-
-        # TODO: Figure out a good way of testing the below block
-        with urllib.request.urlopen(request) as r:
-            try:
-                response: APIResponse = json.loads(r.read())
-            except urllib.error.HTTPError:
-                raise
+        if r.status != 200:
+            raise APIRequestError(
+                f"GitHub API endpoint: {endpoint} gave HTTP Response: {r.status}.",
+                status_code=r.status,
+            )
+        else:
+            response: APIResponse = json.loads(r.data.decode("utf-8"))
 
         return response
 

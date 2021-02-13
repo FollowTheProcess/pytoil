@@ -5,12 +5,14 @@ Author: Tom Fleet
 Created: 05/02/2021
 """
 
-import urllib.error
+
+from typing import NamedTuple
 
 import pytest
 
 import pytoil
 from pytoil.api import API
+from pytoil.exceptions import APIRequestError
 
 
 def test_api_init_passed():
@@ -93,7 +95,8 @@ def test_api_setters():
     assert api.username == "someoneelse"
 
 
-def test_get_raises_on_invalid_request(mocker, temp_config_file):
+@pytest.mark.parametrize("status_code", [300, 302, 404, 400, 401, 408, 502, 500])
+def test_get_raises_on_invalid_request(mocker, temp_config_file, status_code):
 
     with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
 
@@ -103,22 +106,72 @@ def test_get_raises_on_invalid_request(mocker, temp_config_file):
             "pytoil.config.pathlib.Path.exists", autospec=True, return_value=True
         )
 
+        class FakeResponseObject(NamedTuple):
+            """
+            Fake HTTP response so our mock request has a response
+            with a `.status` attribute.
+            """
+
+            status: int = status_code
+
         api = API()
 
         mocker.patch(
-            "pytoil.api.urllib.request.urlopen",
+            "pytoil.api.urllib3.PoolManager.request",
             autospec=True,
-            side_effect=urllib.error.HTTPError(
-                "https://api.github.com/not/here",
-                404,
-                "Not Found",
-                api.headers,
-                None,
-            ),
+            return_value=FakeResponseObject(),
         )
 
-        with pytest.raises(urllib.error.HTTPError):
+        with pytest.raises(APIRequestError) as err:
             api.get("not/here")
+            assert err.status_code == status_code
+
+
+def test_get_doesnt_raise_on_valid_request(mocker, temp_config_file):
+
+    with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
+
+        # Also patch out the return from pathlib.Path.exists to trick
+        # it into thinking the projects_dir exists
+        mocker.patch(
+            "pytoil.config.pathlib.Path.exists", autospec=True, return_value=True
+        )
+
+        class FakeResponseData(NamedTuple):
+            """
+            Fake response data class with a decode method so
+            that `r.data.decode` works as expected.
+            """
+
+            data: str = '{"fake": "json"}'
+
+            def decode(self, encoding: str = "utf-8"):
+                return self.data
+
+        class FakeResponseObject:
+            """
+            Fake HTTP response so our mock request has a response
+            with a `.status` attribute.
+            """
+
+            def __init__(
+                self, data: FakeResponseData = FakeResponseData(), status: int = 200
+            ):
+                self.data = data
+                self.status = status
+
+        api = API()
+
+        mocker.patch(
+            "pytoil.api.urllib3.PoolManager.request",
+            autospec=True,
+            return_value=FakeResponseObject(),
+        )
+
+        # If this raises, the test fails
+        resp = api.get("fake/endpoint")
+
+        assert resp == {"fake": "json"}
 
 
 def test_get_user_repo_correctly_calls_get(mocker, fake_api_response):
