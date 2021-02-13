@@ -112,3 +112,4 @@ docs/site
 
 # IDE settings
 .vscode/
+.idea/

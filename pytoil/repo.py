@@ -6,8 +6,10 @@ Author: Tom Fleet
 Created: 05/02/2021
 """
 
+from __future__ import annotations
 
 import pathlib
+import re
 import shutil
 import subprocess
 import urllib.error
@@ -15,7 +17,15 @@ from typing import Optional
 
 from .api import API
 from .config import Config
-from .exceptions import GitNotInstalledError, LocalRepoExistsError, RepoNotFoundError
+from .exceptions import (
+    GitNotInstalledError,
+    InvalidURLError,
+    LocalRepoExistsError,
+    RepoNotFoundError,
+)
+
+# Stupidly basic regex, I'm bad at these
+REPO_REGEX = re.compile(r"https://github.com/[\w]*/[\w]*.git")
 
 
 class Repo:
@@ -58,6 +68,30 @@ class Repo:
     @path.setter
     def path(self, value: pathlib.Path) -> None:
         self._path = value
+
+    @classmethod
+    def from_url(cls, url: str) -> Repo:
+        """
+        Constructs a Repo by extracting `owner` and `name`
+        from a valid GitHub Repo URL.
+
+        Args:
+            url (str): Valid GitHub Repo URL.
+
+        Raises:
+            InvalidURLError: If URL does not match valid REGEX.
+
+        Returns:
+            Repo: Repo with `owner` and `name` set from `url`.
+        """
+
+        if not REPO_REGEX.match(url):
+            raise InvalidURLError(f"The URL: {url} is not a valid GitHub repo URL.")
+        else:
+            owner = url.rsplit(".git")[0].split("/")[-2]
+            name = url.rsplit(".git")[0].split("/")[-1]
+
+            return Repo(name=name, owner=owner)
 
     def exists_local(self) -> bool:
         """

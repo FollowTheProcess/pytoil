@@ -14,6 +14,7 @@ import pytest
 import pytoil
 from pytoil.exceptions import (
     GitNotInstalledError,
+    InvalidURLError,
     LocalRepoExistsError,
     RepoNotFoundError,
 )
@@ -98,6 +99,71 @@ def test_repo_setters(mocker, temp_config_file):
         # Assert values after
         assert repo.url == "https://github.com/tempfileuser/myproject.git"
         assert repo.path == pathlib.Path("fake/local/path/myproject")
+
+
+@pytest.mark.parametrize(
+    "url, owner, name",
+    [
+        ("https://github.com/dingleuser/dinglerepo.git", "dingleuser", "dinglerepo"),
+        (
+            "https://github.com/MySuperUser/s1llypr0ject.git",
+            "MySuperUser",
+            "s1llypr0ject",
+        ),
+        (
+            "https://github.com/FollowTheProcess/pytoil.git",
+            "FollowTheProcess",
+            "pytoil",
+        ),
+        ("https://github.com/W31rdUsern4m3/blah.git", "W31rdUsern4m3", "blah"),
+        ("https://github.com/HelloDave/dave.git", "HelloDave", "dave"),
+    ],
+)
+def test_repo_from_url(mocker, temp_config_file, url, owner, name):
+
+    # Patch out to our fake config file to make sure it grabs from the config
+    with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
+
+        # Also patch out the return from pathlib.Path.exists to trick
+        # it into thinking the projects_dir exists
+        mocker.patch(
+            "pytoil.config.pathlib.Path.exists", autospec=True, return_value=True
+        )
+
+        repo = Repo.from_url(url=url)
+
+        assert repo.owner == owner
+        assert repo.name == name
+
+        # Make sure it reconstructs the url properly
+        assert repo.url == url
+        assert repo.path == pathlib.Path(f"Users/tempfileuser/projects/{name}")
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "https://nothub.com/me/project.git",
+        "",
+        "http://github.com/me/project.git",
+        "https://github.com/What5wk91yn-msbnu-t/what.git",
+        "https://github.com/:::punctuation[]';]'[-=]/project.git"
+        "https://github.com/doesntend/indotgit",
+    ],
+)
+def test_repo_from_url_raises_on_bad_url(mocker, temp_config_file, url):
+
+    # Patch out to our fake config file to make sure it grabs from the config
+    with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
+
+        # Also patch out the return from pathlib.Path.exists to trick
+        # it into thinking the projects_dir exists
+        mocker.patch(
+            "pytoil.config.pathlib.Path.exists", autospec=True, return_value=True
+        )
+
+        with pytest.raises(InvalidURLError):
+            Repo.from_url(url=url)
 
 
 def test_repo_exists_local_returns_true_if_path_exists(mocker, temp_config_file):
