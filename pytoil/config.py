@@ -8,7 +8,7 @@ Created: 05/02/2021
 from __future__ import annotations
 
 import pathlib
-from typing import Dict, Optional, Union
+from typing import TYPE_CHECKING, Dict, Optional, Union
 
 import yaml
 
@@ -62,6 +62,20 @@ class Config:
             + f"token={self._token!r}, "
             + f"projects_dir={self._projects_dir!r})"
         )
+
+    # Ref: https://github.com/python/mypy/issues/6523
+    if TYPE_CHECKING:  # pragma: no cover
+        __dict__ = {}  # type: Dict[str, Optional[str]]
+    else:
+
+        @property
+        def __dict__(self) -> Dict[str, Optional[str]]:
+
+            return {
+                "username": self.username,
+                "token": self.token,
+                "projects_dir": str(self.projects_dir),
+            }
 
     @property
     def username(self) -> Union[str, None]:
@@ -175,3 +189,14 @@ class Config:
                 else:
                     # If we get here, the config is valid
                     return config
+
+    def to_dict(self) -> Dict[str, Optional[str]]:
+        """
+        Generates a properly formatted dictionary of the current
+        config.
+
+        Returns:
+            Dict[str, Optional[str]]: Dictionary showing the current config state.
+        """
+
+        return self.__dict__

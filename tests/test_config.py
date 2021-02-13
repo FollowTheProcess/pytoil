@@ -10,7 +10,7 @@ import pathlib
 import pytest
 
 import pytoil
-from pytoil.config import Config
+from pytoil.config import DEFAULT_PROJECTS_DIR, Config
 from pytoil.exceptions import InvalidConfigError
 
 
@@ -27,12 +27,12 @@ def test_config_init_default():
 def test_config_init_passed():
 
     config = Config(
-        username="me", token="definitelynotatoken", projects_dir="Users/me/projects"
+        username="me", token="definitelynotatoken", projects_dir="/Users/me/projects"
     )
 
     assert config.username == "me"
     assert config.token == "definitelynotatoken"
-    assert config.projects_dir == pathlib.Path("Users/me/projects")
+    assert config.projects_dir == pathlib.Path("/Users/me/projects")
 
 
 def test_config_repr_default():
@@ -45,16 +45,40 @@ def test_config_repr_default():
 def test_config_repr_passed():
 
     config = Config(
-        username="me", token="definitelynotatoken", projects_dir="Users/me/projects"
+        username="me", token="definitelynotatoken", projects_dir="/Users/me/projects"
     )
 
     expected = (
         "Config(username='me', "
         + "token='definitelynotatoken', "
-        + "projects_dir='Users/me/projects')"
+        + "projects_dir='/Users/me/projects')"
     )
 
     assert config.__repr__() == expected
+
+
+def test_config_dict_default():
+
+    config = Config()
+
+    assert config.__dict__ == {
+        "username": None,
+        "token": None,
+        "projects_dir": str(DEFAULT_PROJECTS_DIR),
+    }
+
+
+def test_config_dict_passed():
+
+    config = Config(
+        username="me", token="definitelynotatoken", projects_dir="/Users/me/projects"
+    )
+
+    assert config.__dict__ == {
+        "username": "me",
+        "token": "definitelynotatoken",
+        "projects_dir": "/Users/me/projects",
+    }
 
 
 def test_config_setters():
@@ -69,12 +93,12 @@ def test_config_setters():
     # Change value using setters
     config.username = "me"
     config.token = "definitelynotatoken"
-    config.projects_dir = "Users/me/projects"
+    config.projects_dir = "/Users/me/projects"
 
     # Assert after
     assert config.username == "me"
     assert config.token == "definitelynotatoken"
-    assert config.projects_dir == pathlib.Path("Users/me/projects")
+    assert config.projects_dir == pathlib.Path("/Users/me/projects")
 
 
 def test_config_get_good_file(temp_config_file, mocker):
@@ -149,3 +173,47 @@ def test_config_raises_on_projects_dir_that_doesnt_exist(mocker, temp_config_fil
     with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
         with pytest.raises(InvalidConfigError):
             Config.get()
+
+
+@pytest.mark.parametrize(
+    "name, token, projects_dir, expected_dict",
+    [
+        (
+            "me",
+            "sillytoken",
+            "/Users/me/projects",
+            {
+                "username": "me",
+                "token": "sillytoken",
+                "projects_dir": "/Users/me/projects",
+            },
+        ),
+        (
+            "someguy",
+            "loltoken",
+            "/Users/someguy/dingleprojects",
+            {
+                "username": "someguy",
+                "token": "loltoken",
+                "projects_dir": "/Users/someguy/dingleprojects",
+            },
+        ),
+        (
+            "dave",
+            "hahahatoken",
+            "/Users/dave/hahaprojects",
+            {
+                "username": "dave",
+                "token": "hahahatoken",
+                "projects_dir": "/Users/dave/hahaprojects",
+            },
+        ),
+    ],
+)
+def test_config_to_dict_returns_correct_values(
+    name, token, projects_dir, expected_dict
+):
+
+    config = Config(username=name, token=token, projects_dir=projects_dir)
+
+    assert config.to_dict() == expected_dict

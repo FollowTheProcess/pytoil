@@ -6,6 +6,7 @@ Author: Tom Fleet
 Created: 05/02/2021
 """
 
+
 import pathlib
 import shutil
 import subprocess
@@ -18,11 +19,7 @@ from .exceptions import GitNotInstalledError, LocalRepoExistsError, RepoNotFound
 
 
 class Repo:
-    def __init__(
-        self,
-        name: str,
-        owner: Optional[str] = None,
-    ) -> None:
+    def __init__(self, name: str, owner: Optional[str] = None) -> None:
         """
         Representation of a Git/GitHub repo.
 
