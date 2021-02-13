@@ -7,12 +7,12 @@ Created: 05/02/2021
 
 import pathlib
 import subprocess
-import urllib.error
 
 import pytest
 
 import pytoil
 from pytoil.exceptions import (
+    APIRequestError,
     GitNotInstalledError,
     InvalidURLError,
     LocalRepoExistsError,
@@ -214,18 +214,12 @@ def test_repo_exists_remote_returns_false_on_missing_repo(mocker, temp_config_fi
     # Patch out the config file to point to our temporary one
     with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
 
-        # Patch out urllib.request.urllopen to always raise a 404 not found
+        # Patch out api.get to always raise a 404 not found
         # which is our indication in `exists_remote` that the repo doesn't exist
         mocker.patch(
-            "pytoil.api.urllib.request.urlopen",
+            "pytoil.api.API.get",
             autospec=True,
-            side_effect=urllib.error.HTTPError(
-                "https://api.github.com/not/here",
-                404,
-                "Not Found",
-                {"header": "yes"},
-                None,
-            ),
+            side_effect=APIRequestError(message="Not Found", status_code=404),
         )
 
         # Also patch out the return from pathlib.Path.exists to trick
@@ -281,18 +275,12 @@ def test_repo_exists_remote_raises_on_other_http_error(
     # Same trick with the config file
     with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
 
-        # Patch out urllib.request.urlopen to raise
+        # Patch out urllib3.request to raise
         # other HTTP errors from our parametrize
         mocker.patch(
-            "pytoil.api.urllib.request.urlopen",
+            "pytoil.api.API.get",
             autospec=True,
-            side_effect=urllib.error.HTTPError(
-                "https://api.nothub.com/not/here",
-                error_code,
-                message,
-                {"header": "yes"},
-                None,
-            ),
+            side_effect=APIRequestError(message=message, status_code=error_code),
         )
 
         # Also patch out the return from pathlib.Path.exists to trick
@@ -303,7 +291,7 @@ def test_repo_exists_remote_raises_on_other_http_error(
 
         repo = Repo(name="myproject")
 
-        with pytest.raises(urllib.error.HTTPError):
+        with pytest.raises(APIRequestError):
             repo.exists_remote()
 
 

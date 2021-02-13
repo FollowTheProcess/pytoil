@@ -12,12 +12,12 @@ import pathlib
 import re
 import shutil
 import subprocess
-import urllib.error
 from typing import Optional
 
 from .api import API
 from .config import Config
 from .exceptions import (
+    APIRequestError,
     GitNotInstalledError,
     InvalidURLError,
     LocalRepoExistsError,
@@ -114,9 +114,9 @@ class Repo:
         try:
             api = API()
             api.get_repo(repo=self.name)
-        except urllib.error.HTTPError as err:
-            # Any HTTPError
-            if err.code == 404:
+        except APIRequestError as err:
+            # Any non 200 response status
+            if err.status_code == 404:
                 # If specifically 404 not found
                 # repo doesn't exist
                 return False
