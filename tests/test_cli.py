@@ -38,9 +38,12 @@ def test_new():
 
 @pytest.mark.parametrize("option", ["--cookiecutter", "-c"])
 def test_new_with_cookiecutter(option):
-    result = runner.invoke(app, ["new", option, "dingle"])
+    result = runner.invoke(app, ["new", "dingle", option, "https://someurl.com"])
     assert result.exit_code == 0
-    assert "Creating project: dingle with cookiecutter." in result.stdout
+    assert (
+        "Creating project: dingle with cookiecutter url: https://someurl.com"
+        in result.stdout
+    )
 
 
 def test_resume():
