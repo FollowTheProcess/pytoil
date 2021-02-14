@@ -442,3 +442,46 @@ def test_repo_clone_raises_on_missing_remote_repo(mocker, temp_config_file):
 
             with pytest.raises(RepoNotFoundError):
                 repo.clone()
+
+
+def test_repo_fork_raises_on_API_error(mocker, temp_config_file):
+
+    with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
+
+        # Finally, make it think the configured projects_dir exists
+        # Hacky by pointing it to our config file but it works
+        with mocker.patch.object(
+            pytoil.config.Config, "projects_dir", temp_config_file
+        ):
+
+            # Best way of making an APIError is attempting to fork
+            # a repo you already own
+            repo = Repo(name="fakerepo", owner="tempfileuser")
+
+            with pytest.raises(APIRequestError):
+                repo.fork()
+
+
+def test_repo_fork_returns_correct_url(mocker, temp_config_file):
+
+    with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
+
+        # Finally, make it think the configured projects_dir exists
+        # Hacky by pointing it to our config file but it works
+        with mocker.patch.object(
+            pytoil.config.Config, "projects_dir", temp_config_file
+        ):
+
+            # Patch out the return from api.fork_repo
+            # so it doesn't hit the API
+            mocker.patch(
+                "pytoil.api.API.fork_repo",
+                autospec=True,
+                return_value={"some": "arbitrary", "json": "blob"},
+            )
+
+            repo = Repo(name="coolproject", owner="someoneelse")
+
+            # Should return the url of the users fork
+            # ie same project name but now with new owner
+            assert repo.fork() == "https://github.com/tempfileuser/coolproject.git"

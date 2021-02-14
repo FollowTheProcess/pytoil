@@ -196,7 +196,11 @@ class Repo:
             str: The URL of the user's new fork.
         """
 
-        if not self.owner:
+        if not self.owner:  # pragma: no cover
+            # No cover here because this scenario will never happen
+            # If no owner passed, will get from config, if None there it will raise
+            # but mypy complains if we assign this to owner below without
+            # a None check first
             raise ValueError("In order to fork, must specify a repo owner.")
 
         api = API()
