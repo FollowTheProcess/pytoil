@@ -190,3 +190,33 @@ class API:
         # This gets their repos
         # get will raise if missing token
         return self.get("user/repos")
+
+    def fork_repo(self, owner: str, name: str) -> APIResponse:
+        """
+        Fork a repo called `name` owned by `owner` to the users
+        GitHub repos.
+
+        Don't have to specify the user because this is an authenticated
+        only request, user identification is provided by the `token`
+        in `self.headers`.
+
+        Args:
+            owner (str): Owner of the repo to be forked.
+            name (str): Name of the repo to be forked.
+
+        Raises:
+            APIRequestError: If any HTTP error occurs.
+
+        Returns:
+            APIResponse: JSON API response.
+        """
+
+        # Can't fork your own repo
+        if self.username == owner:
+            raise APIRequestError(
+                f"""Forking of repo: {owner}/{name} invalid.
+            Cannot fork a repo that you already own.""",
+                status_code=400,
+            )
+        else:
+            return self.post(f"repos/{owner}/{name}/forks")
