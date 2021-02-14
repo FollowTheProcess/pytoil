@@ -23,7 +23,7 @@ from pytoil.repo import Repo
 
 def test_repo_init(mocker, temp_config_file):
 
-    with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
         # Also patch out the return from pathlib.Path.exists to trick
         # it into thinking the projects_dir exists
@@ -42,7 +42,7 @@ def test_repo_init(mocker, temp_config_file):
 def test_repo_init_defaults(mocker, temp_config_file):
 
     # Patch out to our fake config file to make sure it grabs from the config
-    with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
         # Also patch out the return from pathlib.Path.exists to trick
         # it into thinking the projects_dir exists
@@ -62,7 +62,7 @@ def test_repo_init_defaults(mocker, temp_config_file):
 def test_repo_repr(mocker, temp_config_file):
 
     # Patch out to our fake config file to make sure it grabs from the config
-    with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
         # Also patch out the return from pathlib.Path.exists to trick
         # it into thinking the projects_dir exists
@@ -78,7 +78,7 @@ def test_repo_repr(mocker, temp_config_file):
 def test_repo_setters(mocker, temp_config_file):
 
     # Patch out to our fake config file to make sure it grabs from the config
-    with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
         # Also patch out the return from pathlib.Path.exists to trick
         # it into thinking the projects_dir exists
@@ -122,7 +122,7 @@ def test_repo_setters(mocker, temp_config_file):
 def test_repo_from_url(mocker, temp_config_file, url, owner, name):
 
     # Patch out to our fake config file to make sure it grabs from the config
-    with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
         # Also patch out the return from pathlib.Path.exists to trick
         # it into thinking the projects_dir exists
@@ -154,7 +154,7 @@ def test_repo_from_url(mocker, temp_config_file, url, owner, name):
 def test_repo_from_url_raises_on_bad_url(mocker, temp_config_file, url):
 
     # Patch out to our fake config file to make sure it grabs from the config
-    with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
         # Also patch out the return from pathlib.Path.exists to trick
         # it into thinking the projects_dir exists
@@ -169,7 +169,7 @@ def test_repo_from_url_raises_on_bad_url(mocker, temp_config_file, url):
 def test_repo_exists_local_returns_true_if_path_exists(mocker, temp_config_file):
 
     # Patch out the config file to point to our temporary one
-    with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
         # Also patch out the return from pathlib.Path.exists to trick
         # it into thinking the projects_dir in the config file exists
@@ -188,7 +188,7 @@ def test_repo_exists_local_returns_true_if_path_exists(mocker, temp_config_file)
 def test_repo_exists_local_returns_false_if_path_doesnt_exist(mocker, temp_config_file):
 
     # Patch out the config file to point to our temporary one
-    with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
         # Patch out the projects_dir to our temp config file, purely so
         # it thinks project_dir exists
@@ -212,7 +212,7 @@ def test_repo_exists_local_returns_false_if_path_doesnt_exist(mocker, temp_confi
 def test_repo_exists_remote_returns_false_on_missing_repo(mocker, temp_config_file):
 
     # Patch out the config file to point to our temporary one
-    with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
         # Patch out api.get to always raise a 404 not found
         # which is our indication in `exists_remote` that the repo doesn't exist
@@ -237,7 +237,7 @@ def test_repo_exists_remote_returns_false_on_missing_repo(mocker, temp_config_fi
 def test_repo_exists_remote_returns_true_on_valid_repo(mocker, temp_config_file):
 
     # Same trick with the config file
-    with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
         # Now patch out API.get_repo to return some arbitrary dict
         # Indication that everything worked okay
@@ -273,7 +273,7 @@ def test_repo_exists_remote_raises_on_other_http_error(
 ):
 
     # Same trick with the config file
-    with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
         # Patch out urllib3.request to raise
         # other HTTP errors from our parametrize
@@ -299,7 +299,7 @@ def test_repo_exists_remote_raises_on_other_http_error(
 def test_repo_clone_raises_on_invalid_git(mocker, temp_config_file, which_return):
 
     # Same trick with the config file
-    with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
         # Patch out shutil.which
         mocker.patch(
@@ -319,7 +319,7 @@ def test_repo_clone_raises_on_invalid_git(mocker, temp_config_file, which_return
 def test_repo_clone_raises_if_local_repo_already_exists(mocker, temp_config_file):
 
     # Same trick with the config file
-    with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
         # Make it look like we have a valid git
         mocker.patch("pytoil.repo.shutil.which", autospec=True, return_value=True)
@@ -340,7 +340,7 @@ def test_repo_clone_raises_if_local_repo_already_exists(mocker, temp_config_file
 def test_repo_clone_correctly_calls_git(mocker, temp_config_file):
 
     # Same trick with the config file
-    with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
         # Make it look like we have a valid git
         mocker.patch("pytoil.repo.shutil.which", autospec=True, return_value=True)
@@ -380,7 +380,7 @@ def test_repo_clone_raises_subprocess_error_if_anything_goes_wrong(
 ):
 
     # Same trick with the config file
-    with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
         # Make it look like we have a valid git
         mocker.patch("pytoil.repo.shutil.which", autospec=True, return_value=True)
@@ -419,7 +419,7 @@ def test_repo_clone_raises_subprocess_error_if_anything_goes_wrong(
 
 def test_repo_clone_raises_on_missing_remote_repo(mocker, temp_config_file):
 
-    with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
         # Make it look like we have a valid git
         mocker.patch("pytoil.repo.shutil.which", autospec=True, return_value=True)
@@ -446,7 +446,7 @@ def test_repo_clone_raises_on_missing_remote_repo(mocker, temp_config_file):
 
 def test_repo_fork_raises_on_API_error(mocker, temp_config_file):
 
-    with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
         # Finally, make it think the configured projects_dir exists
         # Hacky by pointing it to our config file but it works
@@ -464,7 +464,7 @@ def test_repo_fork_raises_on_API_error(mocker, temp_config_file):
 
 def test_repo_fork_returns_correct_url(mocker, temp_config_file):
 
-    with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
         # Finally, make it think the configured projects_dir exists
         # Hacky by pointing it to our config file but it works

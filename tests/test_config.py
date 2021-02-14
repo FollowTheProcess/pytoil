@@ -106,7 +106,7 @@ def test_config_get_good_file(temp_config_file, mocker):
     Tests config.get on a file with valid key value pairs.
     """
     # Patch out the default pointer to the config file for our temp fixture
-    with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
         # Also patch out the return from pathlib.Path.exists to trick
         # it into thinking the projects_dir exists
@@ -128,7 +128,7 @@ def test_config_get_raises_on_missing_file(mocker):
     """
 
     with mocker.patch.object(
-        pytoil.config.Config,
+        pytoil.config,
         "CONFIG_PATH",
         pathlib.Path("definitely/not/here/.pytoil.yml"),
     ):
@@ -144,7 +144,7 @@ def test_config_raises_on_misspelled_key(mocker, temp_config_file_misspelled_key
     """
 
     with mocker.patch.object(
-        pytoil.config.Config, "CONFIG_PATH", temp_config_file_misspelled_key
+        pytoil.config, "CONFIG_PATH", temp_config_file_misspelled_key
     ):
         with pytest.raises(TypeError):
             Config.get()
@@ -153,7 +153,7 @@ def test_config_raises_on_misspelled_key(mocker, temp_config_file_misspelled_key
 def test_config_raises_on_missing_username(mocker, temp_config_file_missing_username):
 
     with mocker.patch.object(
-        pytoil.config.Config, "CONFIG_PATH", temp_config_file_missing_username
+        pytoil.config, "CONFIG_PATH", temp_config_file_missing_username
     ):
         with pytest.raises(InvalidConfigError):
             Config.get()
@@ -162,7 +162,7 @@ def test_config_raises_on_missing_username(mocker, temp_config_file_missing_user
 def test_config_raises_on_missing_token(mocker, temp_config_file_missing_token):
 
     with mocker.patch.object(
-        pytoil.config.Config, "CONFIG_PATH", temp_config_file_missing_token
+        pytoil.config, "CONFIG_PATH", temp_config_file_missing_token
     ):
         with pytest.raises(InvalidConfigError):
             Config.get()
@@ -170,7 +170,7 @@ def test_config_raises_on_missing_token(mocker, temp_config_file_missing_token):
 
 def test_config_raises_on_projects_dir_that_doesnt_exist(mocker, temp_config_file):
 
-    with mocker.patch.object(pytoil.config.Config, "CONFIG_PATH", temp_config_file):
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
         with pytest.raises(InvalidConfigError):
             Config.get()
 

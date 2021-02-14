@@ -16,14 +16,11 @@ from .exceptions import InvalidConfigError
 
 # Default value for projects_dir
 DEFAULT_PROJECTS_DIR = pathlib.Path.home().joinpath("Development")
+# Default config path location
+CONFIG_PATH = pathlib.Path.home().joinpath(".pytoil.yml")
 
 
 class Config:
-
-    # Default config path location
-    # Having it here makes it easily patched out in tests
-    CONFIG_PATH = pathlib.Path.home().joinpath(".pytoil.yml")
-
     def __init__(
         self,
         username: Optional[str] = None,
@@ -154,7 +151,7 @@ class Config:
             Config: Config object with parameters parsed from the file.
         """
         # Doing it this way makes CONFIG_PATH easily patched out during tests
-        fp = cls.CONFIG_PATH
+        fp = CONFIG_PATH
 
         try:
             with open(fp) as f:
