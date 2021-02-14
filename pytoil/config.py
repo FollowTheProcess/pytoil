@@ -8,11 +8,9 @@ Created: 05/02/2021
 from __future__ import annotations
 
 import pathlib
-from typing import TYPE_CHECKING, Dict, Optional, Union
+from typing import TYPE_CHECKING, Dict, Optional
 
 import yaml
-
-from .exceptions import InvalidConfigError
 
 # Default value for projects_dir
 DEFAULT_PROJECTS_DIR = pathlib.Path.home().joinpath("Development")
@@ -23,9 +21,9 @@ CONFIG_PATH = pathlib.Path.home().joinpath(".pytoil.yml")
 class Config:
     def __init__(
         self,
-        username: Optional[str] = None,
-        token: Optional[str] = None,
-        projects_dir: Optional[str] = None,
+        username: str = "UNSET",
+        token: str = "UNSET",
+        projects_dir: str = "UNSET",
     ) -> None:
         """
         Representation of the pytoil config.
@@ -34,19 +32,26 @@ class Config:
         Used as the global configuration management class for the
         whole project.
 
-        Arguments are passed in as Optional[str] and every parameter
+        Arguments are passed in as str and every parameter
         other than `projects_dir` retains this type.
 
         `projects_dir` however will return a pathlib.Path instance of the str
         path passed in. This is accessible through the `.projects_dir` property.
 
+        This is so that the class can be instantiated by parsing the config file
+        but then what the `projects_dir` attribute is accessed, it is converted
+        to a pathlib.Path for OS independent pathing.
+
+        This means that so long as the user enters the absolute path as a string
+        in the config file, this will all work regardless of OS.
+
         Args:
-            username (Optional[str], optional): Users GitHub username.
-                Defaults to None.
-            token (Optional[str], optional): Users GitHub personal access token.
-                Defaults to None.
-            projects_dir (Optional[str], optional): Directory in which user stores
-                their development projects. Defaults to None.
+            username (str): Users GitHub username.
+                Defaults to "UNSET".
+            token (str): Users GitHub personal access token.
+                Defaults to "UNSET".
+            projects_dir (str): Directory in which user stores
+                their development projects. Defaults to "UNSET".
         """
         self._username = username
         self._token = token
@@ -75,7 +80,7 @@ class Config:
             }
 
     @property
-    def username(self) -> Union[str, None]:
+    def username(self) -> str:
         return self._username
 
     @username.setter
@@ -83,7 +88,7 @@ class Config:
         self._username = value
 
     @property
-    def token(self) -> Union[str, None]:
+    def token(self) -> str:
         return self._token
 
     @token.setter
@@ -102,7 +107,7 @@ class Config:
             (pathlib.Path): Path to the projects directory if passed,
                 else ~/Development.
         """
-        if not self._projects_dir:
+        if self._projects_dir == "UNSET":
             return DEFAULT_PROJECTS_DIR
         else:
             return pathlib.Path(self._projects_dir)
@@ -131,9 +136,7 @@ class Config:
         the file.
 
         If a key is not present in the file, or if the value associated to
-        that key is blank. An InvalidConfigError will be raised.
-
-        As such this method acts as both fetching and validation of user config.
+        that key is blank. The default value for that key will be used.
 
         If the file does not exist, a FileNotFoundError will be raised.
 
@@ -144,8 +147,6 @@ class Config:
             FileNotFoundError: If config file `~/.pytoil.yml` does not exist.
             TypeError: If any of the keys in the config file are misspelled
                 or there are additional keys.
-            InvalidConfigError: If the config described in `~/.pytoil.yml`
-                is in any way invalid.
 
         Returns:
             Config: Config object with parameters parsed from the file.
@@ -155,7 +156,7 @@ class Config:
 
         try:
             with open(fp) as f:
-                config_dict: Dict[str, Union[str, None]] = yaml.full_load(f)
+                config_dict: Dict[str, str] = yaml.full_load(f)
         except FileNotFoundError:
             raise
         else:
@@ -166,26 +167,7 @@ class Config:
                 # If one of the keys is wrong
                 raise
             else:
-                if config.token is None:
-                    raise InvalidConfigError(
-                        """GitHub personal access token is unset
-                in pytoil.yml config file. Please set a valid token in the key
-                `token`."""
-                    )
-                elif config.username is None:
-                    raise InvalidConfigError(
-                        """GitHub username is unset in
-                pytoil.yml config file. Please set a valid username in the key
-                `username`."""
-                    )
-                elif not config.projects_dir.exists():
-                    raise InvalidConfigError(
-                        """Projects dir set in pytoil.yml does not
-                exist on the filesystem. Please create and try again."""
-                    )
-                else:
-                    # If we get here, the config is valid
-                    return config
+                return config
 
     def to_dict(self) -> Dict[str, Optional[str]]:
         """
