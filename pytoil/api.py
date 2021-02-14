@@ -93,7 +93,7 @@ class API:
             endpoint (str): Valid GitHub API endpoint.
 
         Raises:
-            HTTPError: If any HTTP error occurs, will raise an exception
+            APIRequestError: If any HTTP error occurs, will raise an exception
                 and give a description and standard HTTP status code.
 
         Returns:
@@ -105,9 +105,45 @@ class API:
         )
         if r.status != 200:
             raise APIRequestError(
-                f"GitHub API endpoint: {endpoint} gave HTTP Response: {r.status}.",
+                f"""GitHub API endpoint: {endpoint} gave HTTP Response: {r.status}.
+                Method: GET""",
                 status_code=r.status,
             )
+        else:
+            response: APIResponse = json.loads(r.data.decode("utf-8"))
+
+        return response
+
+    def post(self, endpoint: str) -> APIResponse:
+        """
+        Makes an authenticated POST request to a GitHub API
+        endpoint e.g. '/repos/{owner}/{repo}/forks'.
+
+        Generic base for more specific post methods below.
+
+        Args:
+            endpoint (str): Valid GitHub API endpoint.
+
+        Raises:
+            APIRequestError: If any HTTP error occurs, will raise an exception
+                and give a description and standard HTTP status code.
+
+        Returns:
+            APIResponse: JSON API response.
+        """
+
+        r = self.http.request(
+            method="POST", url=self.baseurl + endpoint, headers=self.headers
+        )
+
+        # POSTs could return 202's
+        if r.status > 202:
+            raise APIRequestError(
+                f"""GitHub API endpoint: {endpoint} gave HTTP Response: {r.status}.
+                Method: POST.""",
+                status_code=r.status,
+            )
+
         else:
             response: APIResponse = json.loads(r.data.decode("utf-8"))
 
@@ -154,3 +190,33 @@ class API:
         # This gets their repos
         # get will raise if missing token
         return self.get("user/repos")
+
+    def fork_repo(self, owner: str, name: str) -> APIResponse:
+        """
+        Fork a repo called `name` owned by `owner` to the users
+        GitHub repos.
+
+        Don't have to specify the user because this is an authenticated
+        only request, user identification is provided by the `token`
+        in `self.headers`.
+
+        Args:
+            owner (str): Owner of the repo to be forked.
+            name (str): Name of the repo to be forked.
+
+        Raises:
+            APIRequestError: If any HTTP error occurs.
+
+        Returns:
+            APIResponse: JSON API response.
+        """
+
+        # Can't fork your own repo
+        if self.username == owner:
+            raise APIRequestError(
+                f"""Forking of repo: {owner}/{name} invalid.
+            Cannot fork a repo that you already own.""",
+                status_code=400,
+            )
+        else:
+            return self.post(f"repos/{owner}/{name}/forks")

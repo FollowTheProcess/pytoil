@@ -172,3 +172,43 @@ class Repo:
                 # If clone succeeded, set self.path and return
                 self.path = config.projects_dir.joinpath(self.name)
                 return self.path
+
+    def fork(self) -> str:
+        """
+        Forks the repo described by the instance as long
+        as the repo owner is not the current user.
+
+        In order to fork, the user must specify class attribute `owner`
+        as well as `name`.
+
+        If the fork is successful, will return the URL of the user's
+        new fork.
+
+        i.e. if user forks "someoneelse/repo" the returned url will
+        be: "https://github.com/theuser/repo.git"
+
+        Raises:
+            ValueError: If user did not pass `owner` on instantiation of
+                the object.
+            APIRequestError: If any HTTP error occurs during the fork.
+
+        Returns:
+            str: The URL of the user's new fork.
+        """
+
+        if not self.owner:  # pragma: no cover
+            # No cover here because this scenario will never happen
+            # If no owner passed, will get from config, if None there it will raise
+            # but mypy complains if we assign this to owner below without
+            # a None check first
+            raise ValueError("In order to fork, must specify a repo owner.")
+
+        api = API()
+
+        try:
+            api.fork_repo(owner=self.owner, name=self.name)
+        except APIRequestError:
+            raise
+        else:
+            # Return the URL of the users new fork
+            return f"https://github.com/{Config.get().username}/{self.name}.git"
