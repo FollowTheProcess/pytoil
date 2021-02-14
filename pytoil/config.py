@@ -8,7 +8,7 @@ Created: 05/02/2021
 from __future__ import annotations
 
 import pathlib
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import TYPE_CHECKING, Dict
 
 import yaml
 
@@ -67,11 +67,11 @@ class Config:
 
     # Ref: https://github.com/python/mypy/issues/6523
     if TYPE_CHECKING:  # pragma: no cover
-        __dict__ = {}  # type: Dict[str, Optional[str]]
+        __dict__ = {}  # type: Dict[str, str]
     else:
 
         @property
-        def __dict__(self) -> Dict[str, Optional[str]]:
+        def __dict__(self) -> Dict[str, str]:
 
             return {
                 "username": self.username,
@@ -169,7 +169,7 @@ class Config:
             else:
                 return config
 
-    def to_dict(self) -> Dict[str, Optional[str]]:
+    def to_dict(self) -> Dict[str, str]:
         """
         Generates a properly formatted dictionary of the current
         config.
