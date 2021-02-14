@@ -20,7 +20,7 @@ def test_config_init_default():
     assert config.username == "UNSET"
     assert config.token == "UNSET"
     # Default development path
-    assert config.projects_dir == pathlib.Path.home().joinpath("Development")
+    assert config.projects_dir == DEFAULT_PROJECTS_DIR
 
 
 def test_config_init_passed():
@@ -32,6 +32,33 @@ def test_config_init_passed():
     assert config.username == "me"
     assert config.token == "definitelynotatoken"
     assert config.projects_dir == pathlib.Path("/Users/me/projects")
+
+
+def test_config_init_username():
+
+    config = Config(username="me")
+
+    assert config.username == "me"
+    assert config.token == "UNSET"
+    assert config.projects_dir == DEFAULT_PROJECTS_DIR
+
+
+def test_config_init_token():
+
+    config = Config(token="definitelynotatoken")
+
+    assert config.username == "UNSET"
+    assert config.token == "definitelynotatoken"
+    assert config.projects_dir == DEFAULT_PROJECTS_DIR
+
+
+def test_config_init_projects_dir():
+
+    config = Config(projects_dir="/Users/madeup/path")
+
+    assert config.username == "UNSET"
+    assert config.token == "UNSET"
+    assert config.projects_dir == pathlib.Path("/Users/madeup/path")
 
 
 def test_config_repr_default():
@@ -110,12 +137,6 @@ def test_config_get_good_file(temp_config_file, mocker):
     # Patch out the default pointer to the config file for our temp fixture
     with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
-        # Also patch out the return from pathlib.Path.exists to trick
-        # it into thinking the projects_dir exists
-        mocker.patch(
-            "pytoil.config.pathlib.Path.exists", autospec=True, return_value=True
-        )
-
         config = Config.get()
 
         assert config.username == "tempfileuser"
@@ -130,9 +151,7 @@ def test_config_get_raises_on_missing_file(mocker):
     """
 
     with mocker.patch.object(
-        pytoil.config,
-        "CONFIG_PATH",
-        pathlib.Path("definitely/not/here/.pytoil.yml"),
+        pytoil.config, "CONFIG_PATH", pathlib.Path("definitely/not/here/.pytoil.yml")
     ):
 
         with pytest.raises(FileNotFoundError):

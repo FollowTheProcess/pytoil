@@ -107,9 +107,7 @@ def test_virtualenv_create_updates_executable_on_success(mocker):
     env = VirtualEnv(basepath=pathlib.Path("made/up/dir"))
 
     # Patch out the actual virtualenv cli run
-    mocker.patch(
-        "pytoil.env.virtualenv.cli_run", autospec=True, return_value="Success!"
-    )
+    mocker.patch("pytoil.env.virtualenv.cli_run", autospec=True)
     # Make it think the virtualenv does not already exist
     mocker.patch("pytoil.env.VirtualEnv.exists", autospec=True, return_value=False)
 
@@ -121,6 +119,7 @@ def test_virtualenv_create_updates_executable_on_success(mocker):
     # Create the virtualenv
     env.create()
 
+    # Ensure the executable is correctly pathed and resolved
     assert env.executable == pathlib.Path("made/up/dir/.venv/bin/python").resolve()
 
 

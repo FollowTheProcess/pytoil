@@ -42,6 +42,7 @@ class API:
         self._username = username or Config.get().username
 
         self.baseurl: str = "https://api.github.com/"
+
         self._headers: Dict[str, str] = {
             "Accept": "application/vnd.github.v3+json",
             "Authorization": f"token {self._token}",

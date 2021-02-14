@@ -11,6 +11,7 @@ import subprocess
 import pytest
 
 import pytoil
+from pytoil.config import DEFAULT_PROJECTS_DIR
 from pytoil.exceptions import (
     APIRequestError,
     GitNotInstalledError,
@@ -21,34 +22,20 @@ from pytoil.exceptions import (
 from pytoil.repo import Repo
 
 
-def test_repo_init(mocker, temp_config_file):
+def test_repo_init():
 
-    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
+    repo = Repo(owner="me", name="myproject")
 
-        # Also patch out the return from pathlib.Path.exists to trick
-        # it into thinking the projects_dir exists
-        mocker.patch(
-            "pytoil.config.pathlib.Path.exists", autospec=True, return_value=True
-        )
-
-        repo = Repo(owner="me", name="myproject")
-
-        assert repo.owner == "me"
-        assert repo.name == "myproject"
-        assert repo.url == "https://github.com/me/myproject.git"
-        assert repo.path == pathlib.Path("Users/tempfileuser/projects/myproject")
+    assert repo.owner == "me"
+    assert repo.name == "myproject"
+    assert repo.url == "https://github.com/me/myproject.git"
+    assert repo.path == DEFAULT_PROJECTS_DIR.joinpath("myproject")
 
 
 def test_repo_init_defaults(mocker, temp_config_file):
 
-    # Patch out to our fake config file to make sure it grabs from the config
+    # Patch out the config path to be our temp file
     with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
-
-        # Also patch out the return from pathlib.Path.exists to trick
-        # it into thinking the projects_dir exists
-        mocker.patch(
-            "pytoil.config.pathlib.Path.exists", autospec=True, return_value=True
-        )
 
         # name is required
         repo = Repo(name="diffproject")
@@ -64,12 +51,6 @@ def test_repo_repr(mocker, temp_config_file):
     # Patch out to our fake config file to make sure it grabs from the config
     with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
-        # Also patch out the return from pathlib.Path.exists to trick
-        # it into thinking the projects_dir exists
-        mocker.patch(
-            "pytoil.config.pathlib.Path.exists", autospec=True, return_value=True
-        )
-
         repo = Repo(owner="me", name="myproject")
 
         assert repo.__repr__() == "Repo(owner='me', name='myproject')"
@@ -79,12 +60,6 @@ def test_repo_setters(mocker, temp_config_file):
 
     # Patch out to our fake config file to make sure it grabs from the config
     with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
-
-        # Also patch out the return from pathlib.Path.exists to trick
-        # it into thinking the projects_dir exists
-        mocker.patch(
-            "pytoil.config.pathlib.Path.exists", autospec=True, return_value=True
-        )
 
         repo = Repo(name="myproject")
 
@@ -124,12 +99,6 @@ def test_repo_from_url(mocker, temp_config_file, url, owner, name):
     # Patch out to our fake config file to make sure it grabs from the config
     with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
-        # Also patch out the return from pathlib.Path.exists to trick
-        # it into thinking the projects_dir exists
-        mocker.patch(
-            "pytoil.config.pathlib.Path.exists", autospec=True, return_value=True
-        )
-
         repo = Repo.from_url(url=url)
 
         assert repo.owner == owner
@@ -156,12 +125,6 @@ def test_repo_from_url_raises_on_bad_url(mocker, temp_config_file, url):
     # Patch out to our fake config file to make sure it grabs from the config
     with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
-        # Also patch out the return from pathlib.Path.exists to trick
-        # it into thinking the projects_dir exists
-        mocker.patch(
-            "pytoil.config.pathlib.Path.exists", autospec=True, return_value=True
-        )
-
         with pytest.raises(InvalidURLError):
             Repo.from_url(url=url)
 
@@ -170,12 +133,6 @@ def test_repo_exists_local_returns_true_if_path_exists(mocker, temp_config_file)
 
     # Patch out the config file to point to our temporary one
     with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
-
-        # Also patch out the return from pathlib.Path.exists to trick
-        # it into thinking the projects_dir in the config file exists
-        mocker.patch(
-            "pytoil.config.pathlib.Path.exists", autospec=True, return_value=True
-        )
 
         # Patch out Repo.path to something we know exists: this file
         with mocker.patch.object(pytoil.repo.Repo, "path", pathlib.Path(__file__)):
@@ -190,23 +147,12 @@ def test_repo_exists_local_returns_false_if_path_doesnt_exist(mocker, temp_confi
     # Patch out the config file to point to our temporary one
     with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
-        # Patch out the projects_dir to our temp config file, purely so
-        # it thinks project_dir exists
-        with mocker.patch.object(
-            pytoil.config.Config, "projects_dir", temp_config_file
-        ):
+        # Patch out Repo.path to something we know doesn't exist
+        with mocker.patch.object(pytoil.repo.Repo, "path", pathlib.Path("not/here")):
 
-            # Also patch out the return from pathlib.Path.exists to trick
-            # it into thinking the projects_dir in the config file exists
+            repo = Repo(name="fakerepo")
 
-            # Patch out Repo.path to something we know doesn't exist
-            with mocker.patch.object(
-                pytoil.repo.Repo, "path", pathlib.Path("not/here")
-            ):
-
-                repo = Repo(name="fakerepo")
-
-                assert repo.exists_local() is False
+            assert repo.exists_local() is False
 
 
 def test_repo_exists_remote_returns_false_on_missing_repo(mocker, temp_config_file):
@@ -220,12 +166,6 @@ def test_repo_exists_remote_returns_false_on_missing_repo(mocker, temp_config_fi
             "pytoil.api.API.get",
             autospec=True,
             side_effect=APIRequestError(message="Not Found", status_code=404),
-        )
-
-        # Also patch out the return from pathlib.Path.exists to trick
-        # it into thinking the projects_dir exists
-        mocker.patch(
-            "pytoil.config.pathlib.Path.exists", autospec=True, return_value=True
         )
 
         # Rest of the params will be filled in by our patched config file
@@ -245,12 +185,6 @@ def test_repo_exists_remote_returns_true_on_valid_repo(mocker, temp_config_file)
             "pytoil.api.API.get_repo",
             autospec=True,
             return_value={"repo": "yes", "name": "myproject"},
-        )
-
-        # Also patch out the return from pathlib.Path.exists to trick
-        # it into thinking the projects_dir exists
-        mocker.patch(
-            "pytoil.config.pathlib.Path.exists", autospec=True, return_value=True
         )
 
         repo = Repo(name="myproject")
@@ -283,12 +217,6 @@ def test_repo_exists_remote_raises_on_other_http_error(
             side_effect=APIRequestError(message=message, status_code=error_code),
         )
 
-        # Also patch out the return from pathlib.Path.exists to trick
-        # it into thinking the projects_dir exists
-        mocker.patch(
-            "pytoil.config.pathlib.Path.exists", autospec=True, return_value=True
-        )
-
         repo = Repo(name="myproject")
 
         with pytest.raises(APIRequestError):
@@ -306,11 +234,6 @@ def test_repo_clone_raises_on_invalid_git(mocker, temp_config_file, which_return
             "pytoil.repo.shutil.which", autospec=True, return_value=which_return
         )
 
-        # Patch out pathlib.exists to trick the test into thinking `projects_dir` exists
-        mocker.patch(
-            "pytoil.config.pathlib.Path.exists", autospec=True, return_value=True
-        )
-
         with pytest.raises(GitNotInstalledError):
             repo = Repo(owner="me", name="myproject")
             repo.clone()
@@ -326,11 +249,6 @@ def test_repo_clone_raises_if_local_repo_already_exists(mocker, temp_config_file
 
         # Make it think the repo already exists locally
         mocker.patch("pytoil.repo.Repo.exists_local", autospec=True, return_value=True)
-
-        # Finally, make it think the configured projects_dir exists
-        mocker.patch(
-            "pytoil.config.pathlib.Path.exists", autospec=True, return_value=True
-        )
 
         with pytest.raises(LocalRepoExistsError):
             repo = Repo(owner="me", name="myproject")
@@ -350,11 +268,6 @@ def test_repo_clone_correctly_calls_git(mocker, temp_config_file):
 
         # Ensure the repo "exists" on github
         mocker.patch("pytoil.repo.Repo.exists_remote", autospec=True, return_value=True)
-
-        # Finally, make it think the configured projects_dir exists
-        mocker.patch(
-            "pytoil.config.pathlib.Path.exists", autospec=True, return_value=True
-        )
 
         # Mock the subprocess of calling git
         mock_subprocess = mocker.patch("pytoil.repo.subprocess.run", autospec=True)
@@ -390,11 +303,6 @@ def test_repo_clone_raises_subprocess_error_if_anything_goes_wrong(
 
         # Ensure the repo "exists" on github
         mocker.patch("pytoil.repo.Repo.exists_remote", autospec=True, return_value=True)
-
-        # Finally, make it think the configured projects_dir exists
-        mocker.patch(
-            "pytoil.config.pathlib.Path.exists", autospec=True, return_value=True
-        )
 
         # Mock the subprocess of calling git, but have it raise an error
         mock_subprocess = mocker.patch(
@@ -432,56 +340,38 @@ def test_repo_clone_raises_on_missing_remote_repo(mocker, temp_config_file):
             "pytoil.repo.Repo.exists_remote", autospec=True, return_value=False
         )
 
-        # Finally, make it think the configured projects_dir exists
-        # Hacky by pointing it to our config file but it works
-        with mocker.patch.object(
-            pytoil.config.Config, "projects_dir", temp_config_file
-        ):
+        repo = Repo(name="fakerepo")
 
-            repo = Repo(name="fakerepo")
-
-            with pytest.raises(RepoNotFoundError):
-                repo.clone()
+        with pytest.raises(RepoNotFoundError):
+            repo.clone()
 
 
 def test_repo_fork_raises_on_API_error(mocker, temp_config_file):
 
     with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
-        # Finally, make it think the configured projects_dir exists
-        # Hacky by pointing it to our config file but it works
-        with mocker.patch.object(
-            pytoil.config.Config, "projects_dir", temp_config_file
-        ):
+        # Best way of making an APIError is attempting to fork
+        # a repo you already own
+        repo = Repo(name="fakerepo", owner="tempfileuser")
 
-            # Best way of making an APIError is attempting to fork
-            # a repo you already own
-            repo = Repo(name="fakerepo", owner="tempfileuser")
-
-            with pytest.raises(APIRequestError):
-                repo.fork()
+        with pytest.raises(APIRequestError):
+            repo.fork()
 
 
 def test_repo_fork_returns_correct_url(mocker, temp_config_file):
 
     with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
-        # Finally, make it think the configured projects_dir exists
-        # Hacky by pointing it to our config file but it works
-        with mocker.patch.object(
-            pytoil.config.Config, "projects_dir", temp_config_file
-        ):
+        # Patch out the return from api.fork_repo
+        # so it doesn't hit the API
+        mocker.patch(
+            "pytoil.api.API.fork_repo",
+            autospec=True,
+            return_value={"some": "arbitrary", "json": "blob"},
+        )
 
-            # Patch out the return from api.fork_repo
-            # so it doesn't hit the API
-            mocker.patch(
-                "pytoil.api.API.fork_repo",
-                autospec=True,
-                return_value={"some": "arbitrary", "json": "blob"},
-            )
+        repo = Repo(name="coolproject", owner="someoneelse")
 
-            repo = Repo(name="coolproject", owner="someoneelse")
-
-            # Should return the url of the users fork
-            # ie same project name but now with new owner
-            assert repo.fork() == "https://github.com/tempfileuser/coolproject.git"
+        # Should return the url of the users fork
+        # ie same project name but now with new owner
+        assert repo.fork() == "https://github.com/tempfileuser/coolproject.git"
