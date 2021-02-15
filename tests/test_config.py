@@ -11,6 +11,7 @@ import pytest
 
 import pytoil
 from pytoil.config import DEFAULT_PROJECTS_DIR, Config
+from pytoil.exceptions import InvalidConfigError
 
 
 def test_config_init_default():
@@ -213,3 +214,21 @@ def test_config_to_dict_returns_correct_values(
     config = Config(username=name, token=token, projects_dir=projects_dir)
 
     assert config.to_dict() == expected_dict
+
+
+def test_config_raise_if_unset_raises_on_unset_username():
+
+    config = Config(
+        username="UNSET", token="definitelynotatoken", projects_dir="/Users/me/projects"
+    )
+
+    with pytest.raises(InvalidConfigError):
+        config.raise_if_unset()
+
+
+def test_config_raise_if_unset_raises_on_unset_token():
+
+    config = Config(username="me", token="UNSET", projects_dir="/Users/me/projects")
+
+    with pytest.raises(InvalidConfigError):
+        config.raise_if_unset()

@@ -12,6 +12,8 @@ from typing import TYPE_CHECKING, Dict
 
 import yaml
 
+from .exceptions import InvalidConfigError
+
 # Default value for projects_dir
 DEFAULT_PROJECTS_DIR = pathlib.Path.home().joinpath("Development").resolve()
 # Default config path location
@@ -44,6 +46,9 @@ class Config:
 
         This means that so long as the user enters the absolute path as a string
         in the config file, this will all work regardless of OS.
+
+        If the projects_dir is not set in the config file, DEFAULT_PROJECTS_DIR will
+        be returned.
 
         Args:
             username (str): Users GitHub username.
@@ -127,6 +132,30 @@ class Config:
             value (str): String representation of the path to change to.
         """
         self._projects_dir = value
+
+    def raise_if_unset(self) -> None:
+        """
+        Helper method to validate the config.
+
+        If either `username` or `token` are the fallback value
+        "UNSET" this will raise and InvalidConfigError.
+
+        Call before anything where these are required.
+        """
+
+        if self.username == "UNSET":
+            raise InvalidConfigError(
+                """No GitHub username set in ~/.pytoil.yml.
+        Please set your GitHub username in the config file with the key: `username`."""
+            )
+        elif self.token == "UNSET":
+            raise InvalidConfigError(
+                """No GitHub personal access token set in ~/.pytoil.yml.
+        Please set your GitHub personal access token in the config file with
+        the key: `token`."""
+            )
+        else:
+            return None
 
     @classmethod
     def get(cls) -> Config:

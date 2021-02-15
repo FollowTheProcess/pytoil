@@ -100,6 +100,8 @@ class API:
         Returns:
             ApiResponse: JSON API response.
         """
+        # Validate the config
+        Config.get().raise_if_unset()
 
         r = self.http.request(
             method="GET", url=self.baseurl + endpoint, headers=self.headers
@@ -132,6 +134,9 @@ class API:
         Returns:
             APIResponse: JSON API response.
         """
+
+        # Validate the config
+        Config.get().raise_if_unset()
 
         r = self.http.request(
             method="POST", url=self.baseurl + endpoint, headers=self.headers
@@ -211,6 +216,9 @@ class API:
         Returns:
             APIResponse: JSON API response.
         """
+
+        # Validate the config
+        Config.get().raise_if_unset()
 
         # Can't fork your own repo
         if self.username == owner:
