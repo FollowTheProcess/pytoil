@@ -13,9 +13,9 @@ from typing import TYPE_CHECKING, Dict
 import yaml
 
 # Default value for projects_dir
-DEFAULT_PROJECTS_DIR = pathlib.Path.home().joinpath("Development")
+DEFAULT_PROJECTS_DIR = pathlib.Path.home().joinpath("Development").resolve()
 # Default config path location
-CONFIG_PATH = pathlib.Path.home().joinpath(".pytoil.yml")
+CONFIG_PATH = pathlib.Path.home().joinpath(".pytoil.yml").resolve()
 
 
 class Config:
@@ -151,7 +151,7 @@ class Config:
         Returns:
             Config: Config object with parameters parsed from the file.
         """
-        # Doing it this way makes CONFIG_PATH easily patched out during tests
+
         fp = CONFIG_PATH
 
         try:

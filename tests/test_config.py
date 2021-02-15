@@ -141,7 +141,7 @@ def test_config_get_good_file(temp_config_file, mocker):
 
         assert config.username == "tempfileuser"
         assert config.token == "tempfiletoken"
-        assert config.projects_dir == pathlib.Path("Users/tempfileuser/projects")
+        assert config.projects_dir == pathlib.Path("/Users/tempfileuser/projects")
 
 
 def test_config_get_raises_on_missing_file(mocker):

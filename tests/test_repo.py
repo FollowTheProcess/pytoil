@@ -11,7 +11,6 @@ import subprocess
 import pytest
 
 import pytoil
-from pytoil.config import DEFAULT_PROJECTS_DIR
 from pytoil.exceptions import (
     APIRequestError,
     GitNotInstalledError,
@@ -22,14 +21,16 @@ from pytoil.exceptions import (
 from pytoil.repo import Repo
 
 
-def test_repo_init():
+def test_repo_init(mocker, temp_config_file):
 
-    repo = Repo(owner="me", name="myproject")
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
-    assert repo.owner == "me"
-    assert repo.name == "myproject"
-    assert repo.url == "https://github.com/me/myproject.git"
-    assert repo.path == DEFAULT_PROJECTS_DIR.joinpath("myproject")
+        repo = Repo(owner="me", name="myproject")
+
+        assert repo.owner == "me"
+        assert repo.name == "myproject"
+        assert repo.url == "https://github.com/me/myproject.git"
+        assert repo.path == pathlib.Path("/Users/tempfileuser/projects/myproject")
 
 
 def test_repo_init_defaults(mocker, temp_config_file):
@@ -43,7 +44,7 @@ def test_repo_init_defaults(mocker, temp_config_file):
         assert repo.owner == "tempfileuser"
         assert repo.name == "diffproject"
         assert repo.url == "https://github.com/tempfileuser/diffproject.git"
-        assert repo.path == pathlib.Path("Users/tempfileuser/projects/diffproject")
+        assert repo.path == pathlib.Path("/Users/tempfileuser/projects/diffproject")
 
 
 def test_repo_repr(mocker, temp_config_file):
@@ -65,7 +66,7 @@ def test_repo_setters(mocker, temp_config_file):
 
         # Assert values before
         assert repo.url == "https://github.com/tempfileuser/myproject.git"
-        assert repo.path == pathlib.Path("Users/tempfileuser/projects/myproject")
+        assert repo.path == pathlib.Path("/Users/tempfileuser/projects/myproject")
 
         # Set the values
         # repo.url is read only
@@ -106,7 +107,7 @@ def test_repo_from_url(mocker, temp_config_file, url, owner, name):
 
         # Make sure it reconstructs the url properly
         assert repo.url == url
-        assert repo.path == pathlib.Path(f"Users/tempfileuser/projects/{name}")
+        assert repo.path == pathlib.Path(f"/Users/tempfileuser/projects/{name}")
 
 
 @pytest.mark.parametrize(
@@ -279,13 +280,13 @@ def test_repo_clone_correctly_calls_git(mocker, temp_config_file):
         # Assert git would have been called with correct args
         mock_subprocess.assert_called_once_with(
             ["git", "clone", "https://github.com/tempfileuser/fakerepo.git"],
-            cwd=pathlib.Path("Users/tempfileuser/projects"),
+            cwd=pathlib.Path("/Users/tempfileuser/projects"),
             check=True,
         )
 
         # Assert the path was updated
-        assert path == pathlib.Path("Users/tempfileuser/projects/fakerepo")
-        assert repo.path == pathlib.Path("Users/tempfileuser/projects/fakerepo")
+        assert path == pathlib.Path("/Users/tempfileuser/projects/fakerepo")
+        assert repo.path == pathlib.Path("/Users/tempfileuser/projects/fakerepo")
 
 
 def test_repo_clone_raises_subprocess_error_if_anything_goes_wrong(
@@ -320,7 +321,7 @@ def test_repo_clone_raises_subprocess_error_if_anything_goes_wrong(
             # Assert git would have been called with correct args
             mock_subprocess.assert_called_once_with(
                 ["git", "clone", "https://github.com/tempfileuser/fakerepo.git"],
-                cwd=pathlib.Path("Users/tempfileuser/projects"),
+                cwd=pathlib.Path("/Users/tempfileuser/projects"),
                 check=True,
             )
 
