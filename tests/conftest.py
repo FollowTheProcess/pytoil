@@ -25,7 +25,7 @@ def temp_config_file(tmp_path_factory):
     yaml_dict: Dict[str, str] = {
         "username": "tempfileuser",
         "token": "tempfiletoken",
-        "projects_dir": "Users/tempfileuser/projects",
+        "projects_dir": "/Users/tempfileuser/projects",
     }
 
     with open(config_file, "w") as f:
@@ -45,7 +45,7 @@ def temp_config_file_missing_key(tmp_path_factory):
 
     yaml_dict: Dict[str, str] = {
         "username": "tempfileuser",
-        "projects_dir": "Users/tempfileuser/projects",
+        "projects_dir": "/Users/tempfileuser/projects",
     }
 
     with open(config_file, "w") as f:
@@ -70,7 +70,7 @@ def temp_config_file_key_with_blank_value(tmp_path_factory):
     yaml_dict: Dict[str, Union[str, None]] = {
         "username": "tempfileuser",
         "token": None,
-        "projects_dir": "Users/tempfileuser/projects",
+        "projects_dir": "/Users/tempfileuser/projects",
     }
 
     with open(config_file, "w") as f:
@@ -91,7 +91,7 @@ def temp_config_file_misspelled_key(tmp_path_factory):
     yaml_dict: Dict[str, str] = {
         "username": "tempfileuser",
         "terrrken": "tempfiletoken",
-        "projects_dir": "Users/tempfileuser/projects",
+        "projects_dir": "/Users/tempfileuser/projects",
     }
 
     with open(config_file, "w") as f:
@@ -114,7 +114,7 @@ def temp_config_file_missing_username(tmp_path_factory):
     yaml_dict: Dict[str, Union[str, None]] = {
         "username": None,
         "token": "tempfiletoken",
-        "projects_dir": "Users/tempfileuser/projects",
+        "projects_dir": "/Users/tempfileuser/projects",
     }
 
     with open(config_file, "w") as f:
@@ -137,7 +137,7 @@ def temp_config_file_missing_token(tmp_path_factory):
     yaml_dict: Dict[str, Union[str, None]] = {
         "username": "tempfileuser",
         "token": None,
-        "projects_dir": "Users/tempfileuser/projects",
+        "projects_dir": "/Users/tempfileuser/projects",
     }
 
     with open(config_file, "w") as f:
