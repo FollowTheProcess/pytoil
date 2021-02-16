@@ -12,7 +12,7 @@ exclude =
     *.egg,
     *.egg-info,
     build
-max-complexity = 10
+max-complexity = 12
 max-line-length = 88
 extend-ignore =
     E203, # Black compatability: whitespace before :

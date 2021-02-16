@@ -170,6 +170,7 @@ class VirtualEnv:
         self,
         packages: Optional[List[str]] = None,
         prefix: Optional[str] = None,
+        requirements: Optional[str] = None,
         editable: bool = False,
     ) -> List[str]:
         """
@@ -179,21 +180,27 @@ class VirtualEnv:
         analagous to calling `pip install *packages` from within
         the virtual environment. The packages are effectively passed straight
         through to pip so any versioning syntax e.g. `>=3.2.6` will work as
-        expected. If `packages` is specified, `prefix` and `editable` must not be.
+        expected. If `packages` is specified, `prefix`, `editable` and `requirements`
+        must not be.
 
         A prefix is the syntax used if a project has declared groups of dependencies
         as labelled groups e.g. `.[all]` or `.[dev]` in files like setup.py,
         pyproject.toml etc. If a prefix is specified, this is used for the install.
         If `prefix` is specified, packages must not but editable can be.
 
+        Requirements is the string path of a valid pip requirements file relative
+        to the project root.
+        e.g. `requirements.txt`. If it is specified, `packages`, `prefix` and `editable`
+        must not be.
+
         If editable is specified (only applicable on installs like `.[dev]`)
         this is analogous to calling `pip install -e {something}`.
-        If `editable` is specified, packages must not be.
+        If `editable` is specified, `packages` and `requirements` must not be.
 
         Args:
             packages (Optional[List[str]], optional): A list of valid packages
                 to install. Analogous to simply calling `pip install *packages`.
-                `packages` cannot be used in tandem with `prefix` or `editable`.
+                `packages` cannot be used in tandem with any other arguments.
                 If only 1 package, still must be in a list e.g. `["black"]`.
                 Defaults to None.
 
@@ -202,6 +209,10 @@ class VirtualEnv:
                 with `editable` for example like `pip install -e .[dev]` for installing
                 the current project and its specified `dev` dependencies.
                 Defaults to None.
+
+            requirements (Optional[str], optional): A string path relative to project
+                root of a valid pip requirements file. May not be used in tandem with
+                any other arguments. Defaults to None.
 
             editable (bool, optional): Whether to install `prefix` in editable mode
                 `pip install -e`. Cannot be used in tandem with `packages`.
@@ -216,16 +227,27 @@ class VirtualEnv:
                 for testing.
         """
 
-        if packages and (prefix or editable):
-            # If packages, prefix and editable must be default
+        if packages and (prefix or editable or requirements):
+            # If packages, all others must be falsy
             raise ValueError(
-                "Argument `packages` may not be used with `prefix` or `editable`."
+                "Argument `packages` may not be used with any other arguments."
             )
 
-        if not packages and not prefix and not editable:
+        if requirements and (prefix or editable or packages):
+            # If requirements, all others must be falsy
+            raise ValueError(
+                "Argument `requirements` may not be used with any other arguments."
+            )
+
+        if editable and not (prefix or requirements or packages):
+            # Editable can't be used on its own
+            raise ValueError("Argument `editable` may not be used by itself.")
+
+        if not (packages or prefix or editable or requirements):
             # Must pass at least one
             raise ValueError(
-                "At least one of `packages`, `prefix` or `editable` must be specified."
+                """At least one of `packages`, `prefix`, `editable`, or `requirements`
+                must be specified."""
             )
 
         # Ensure seed packages are updated, also checks interpreter
@@ -245,6 +267,11 @@ class VirtualEnv:
             if editable:
                 # i.e. `python -m pip install -e .[dev]`
                 cmd.insert(4, "-e")
+        elif requirements:  # pragma: no cover
+            # Again, no cover but this logic is actually tested as above
+            # If we have a requirements.txt file in the project root
+            resolved_fp = self.basepath.joinpath(requirements).resolve()
+            cmd.extend(["-r", f"{str(resolved_fp)}"])
 
         # Run the constructed pip command
         try:
