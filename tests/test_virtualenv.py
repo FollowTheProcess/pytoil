@@ -210,30 +210,47 @@ def test_virtualenv_update_seeds_raises_on_subprocess_error(mocker):
 
 # All conditions that should cause a raise
 @pytest.mark.parametrize(
-    "packages, prefix, editable",
+    "packages, prefix, requirements, editable",
     [
-        (["black", "mypy", "madeup"], ".[dev]", True),
-        (["black", "mypy", "madeup"], ".[dev]", False),
-        (["black", "mypy", "madeup"], None, True),
-        (None, None, False),
+        (["black", "mypy", "madeup"], ".[dev]", "requirements.txt", True),
+        (
+            ["black", "mypy", "madeup"],
+            ".[dev]",
+            "requirements.txt",
+            False,
+        ),
+        (["black", "mypy", "madeup"], ".[dev]", None, True),
+        (["black", "mypy", "madeup"], ".[dev]", None, False),
+        (["black", "mypy", "madeup"], None, None, True),
+        (None, "[.dev]", "requirements.txt", True),
+        (None, "[.dev]", "requirements.txt", False),
+        (None, None, "requirements.txt", True),
+        (None, None, None, True),
+        (None, None, None, False),
     ],
 )
 def test_virtualenv_install_raises_on_mutually_exclusive_arguments(
-    packages, prefix, editable
+    packages, prefix, requirements, editable
 ):
 
     env = VirtualEnv(basepath=pathlib.Path("made/up/dir"))
 
     with pytest.raises(ValueError):
-        env.install(packages=packages, prefix=prefix, editable=editable)
+        env.install(
+            packages=packages,
+            prefix=prefix,
+            requirements=requirements,
+            editable=editable,
+        )
 
 
 # Data for pip command construction
 @pytest.mark.parametrize(
-    "packages, prefix, editable, expected_cmd",
+    "packages, prefix, requirements, editable, expected_cmd",
     [
         (
             ["black", "mypy", "madeup"],
+            None,
             None,
             False,
             [
@@ -249,6 +266,7 @@ def test_virtualenv_install_raises_on_mutually_exclusive_arguments(
         (
             None,
             ".[dev]",
+            None,
             False,
             [
                 f"{str(pathlib.Path('made/up/dir/.venv/bin/python').resolve())}",
@@ -261,6 +279,7 @@ def test_virtualenv_install_raises_on_mutually_exclusive_arguments(
         (
             None,
             ".[dev]",
+            None,
             True,
             [
                 f"{str(pathlib.Path('made/up/dir/.venv/bin/python').resolve())}",
@@ -271,10 +290,24 @@ def test_virtualenv_install_raises_on_mutually_exclusive_arguments(
                 ".[dev]",
             ],
         ),
+        (
+            None,
+            None,
+            "requirements.txt",
+            False,
+            [
+                f"{str(pathlib.Path('made/up/dir/.venv/bin/python').resolve())}",
+                "-m",
+                "pip",
+                "install",
+                "-r",
+                f"{str(pathlib.Path('made/up/dir/requirements.txt').resolve())}",
+            ],
+        ),
     ],
 )
 def test_virtualenv_install_passes_correct_command(
-    mocker, packages, prefix, editable, expected_cmd
+    mocker, packages, prefix, requirements, editable, expected_cmd
 ):
     """
     Tests that the correct command is constructed and sent to pip.
@@ -309,7 +342,12 @@ def test_virtualenv_install_passes_correct_command(
         )
 
         # Call our install method with the parametrized arguments
-        env.install(packages=packages, prefix=prefix, editable=editable)
+        env.install(
+            packages=packages,
+            prefix=prefix,
+            requirements=requirements,
+            editable=editable,
+        )
 
         # Assert pip would have been called with correct args
         mock_subprocess.assert_called_once_with(
