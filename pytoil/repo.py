@@ -36,8 +36,11 @@ class Repo:
         The GitHub url is constructed from `owner` and `name` and is accesible
         through the `.url` read-only property.
 
-        If the repo has been cloned and exists locally, the `.path` property
+        If the repo has been cloned and/or exists locally, the `.path` property
         will be set to a pathlib.Path pointing to the root of the cloned repo.
+
+        In this sense, the `Repo` object can represent both a remote GitHub
+        repo and a local project.
 
         Args:
             owner (Optional[str], optional): The owner of the GitHub repo.
@@ -91,7 +94,7 @@ class Repo:
             owner = url.rsplit(".git")[0].split("/")[-2]
             name = url.rsplit(".git")[0].split("/")[-1]
 
-            return Repo(name=name, owner=owner)
+            return cls(name=name, owner=owner)
 
     def exists_local(self) -> bool:
         """
@@ -189,8 +192,6 @@ class Repo:
         be: "https://github.com/theuser/repo.git"
 
         Raises:
-            ValueError: If user did not pass `owner` on instantiation of
-                the object.
             APIRequestError: If any HTTP error occurs during the fork.
 
         Returns:
@@ -210,3 +211,72 @@ class Repo:
         else:
             # Return the URL of the users new fork
             return f"https://github.com/{config.username}/{self.name}.git"
+
+    def _does_file_exist(self, file: str) -> bool:
+        """
+        Helper method to determine whether or not a particular file
+        exists in the root of the local repo.
+
+        Args:
+            file (str): Name of the file to check for.
+
+        Raises:
+            RepoNotFoundError: If the repo does not exist locally.
+
+        Returns:
+            bool: True if file exists, else False.
+        """
+
+        if not self.exists_local():
+            raise RepoNotFoundError(f"Repo: {self.path!r} not found locally.")
+        else:
+            return self.path.joinpath(file).exists()
+
+    def is_setuptools(self) -> bool:
+        """
+        Is the project based on setuptools.
+
+        i.e. does it contain a `setup.py` or a `setup.cfg`
+
+        Returns:
+            bool: True if project is setuptools, else False.
+        """
+
+        return self._does_file_exist("setup.cfg") or self._does_file_exist("setup.py")
+
+    def is_conda(self) -> bool:
+        """
+        Is the project based on conda.
+
+        i.e. does it contain an `environment.yml`
+
+        Returns:
+            bool: True if project is conda, else False.
+        """
+
+        return self._does_file_exist("environment.yml")
+
+    def is_editable(self) -> bool:
+        """
+        Does the project support `pip install -e .`
+
+        Must have a `setup.py` for this, `setup.cfg` on its own
+        is not sufficient.
+
+        Returns:
+            bool: True if project is editable, else False.
+        """
+
+        return self._does_file_exist("setup.py")
+
+    def is_pep517(self) -> bool:
+        """
+        Does the project comply with PEP517/518.
+
+        i.e. does it have a `pyproject.toml`
+
+        Returns:
+            bool: True if project supports PEP517, else False.
+        """
+
+        return self._does_file_exist("pyproject.toml")

@@ -1,6 +1,6 @@
 # TODO
 
-- [ ] VirtualEnv.install should also take a requirements file which it passes to `pip install -r {file}`. This argument should be mutually exclusive to all other arguments.
+- [x] VirtualEnv.install should also take a requirements file which it passes to `pip install -r {file}`. This argument should be mutually exclusive to all other arguments.
 - [ ] Detecting whether a project should use virtualenv/pip/requirements.txt or conda or a PEP517 compatible virtualenv/pip or something else like poetry/flit etc.
 
 ## Optional

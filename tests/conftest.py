@@ -274,3 +274,22 @@ def bad_temp_environment_yml_2(tmp_path_factory):
         yaml.dump(fake_env_info, f)
 
     return env_file
+
+
+@pytest.fixture
+def repo_folder_with_random_existing_files(tmp_path_factory):
+    """
+    Returns a temporary directory containing a few random files
+    to test methods which check for a files existence within
+    a certain directory.
+    """
+
+    folder: pathlib.Path = tmp_path_factory.mktemp("myrepo")
+
+    files: List[str] = ["here.txt", "i_exist.yml", "hello.py", "me_too.json"]
+
+    for file in files:
+        # Create each file under the myrepo folder
+        folder.joinpath(file).touch()
+
+    return folder
