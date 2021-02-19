@@ -44,7 +44,7 @@ class VirtualEnv:
             name (str, optional): The name of the virtualenv directory.
                 Defaults to ".venv".
         """
-        self.basepath = basepath
+        self.basepath = basepath.resolve()
         self.name = name
         self._path: pathlib.Path = self.basepath.joinpath(self.name)
         self._executable: Optional[pathlib.Path] = None
