@@ -376,3 +376,179 @@ def test_repo_fork_returns_correct_url(mocker, temp_config_file):
         # Should return the url of the users fork
         # ie same project name but now with new owner
         assert repo.fork() == "https://github.com/tempfileuser/coolproject.git"
+
+
+@pytest.mark.parametrize(
+    "file, exists",
+    [
+        ("here.txt", True),
+        ("i_exist.yml", True),
+        ("hello.py", True),
+        ("me_too.json", True),
+        ("not_me_though.csv", False),
+        ("me_neither.toml", False),
+        ("i_never_existed.cfg", False),
+        ("what_file.ini", False),
+    ],
+)
+def test_does_file_exist(
+    mocker, temp_config_file, repo_folder_with_random_existing_files, file, exists
+):
+
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
+
+        # Trick it into thinking a repo exists
+        mocker.patch("pytoil.repo.Repo.exists_local", autospec=True, return_value=True)
+
+        folder: pathlib.Path = repo_folder_with_random_existing_files
+
+        repo = Repo(name="myrepo")
+
+        # Set the repo path to point to our folder
+        repo.path = folder
+
+        # Test the file exists method
+        assert repo._does_file_exist(file) is exists
+
+
+def test_does_file_exist_raises_on_non_existent_repo(
+    mocker, temp_config_file, repo_folder_with_random_existing_files
+):
+
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
+
+        # Return False for repo.exists_local
+        mocker.patch("pytoil.repo.Repo.exists_local", autospec=True, return_value=False)
+
+        folder: pathlib.Path = repo_folder_with_random_existing_files
+
+        repo = Repo(name="myrepo")
+
+        # Set the repo path to point to our folder
+        repo.path = folder
+
+        with pytest.raises(RepoNotFoundError):
+            repo._does_file_exist("here.txt")
+
+
+def test_is_setuptools(
+    mocker, temp_config_file, repo_folder_with_random_existing_files
+):
+
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
+
+        # Return True for repo.exists_local
+        mocker.patch("pytoil.repo.Repo.exists_local", autospec=True, return_value=True)
+
+        folder: pathlib.Path = repo_folder_with_random_existing_files
+
+        repo = Repo(name="myrepo")
+
+        # Set the repo path to point to our folder
+        repo.path = folder
+
+        # Add in a setup.py and setup.cfg
+        folder.joinpath("setup.py").touch()
+        folder.joinpath("setup.cfg").touch()
+
+        # Should now return True
+        assert repo.is_setuptools() is True
+
+        # Now remove setup.py
+        folder.joinpath("setup.py").unlink()
+
+        # Should still return True
+        assert repo.is_setuptools() is True
+
+        # Now remove setup.cfg
+        folder.joinpath("setup.cfg").unlink()
+
+        # Should now return False
+        assert repo.is_setuptools() is False
+
+        # Now just a setup.py
+        folder.joinpath("setup.py").touch()
+
+        # Should again return True
+        assert repo.is_setuptools() is True
+
+
+def test_is_editable(mocker, temp_config_file, repo_folder_with_random_existing_files):
+
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
+
+        # Return True for repo.exists_local
+        mocker.patch("pytoil.repo.Repo.exists_local", autospec=True, return_value=True)
+
+        folder: pathlib.Path = repo_folder_with_random_existing_files
+
+        repo = Repo(name="myrepo")
+
+        # Set the repo path to point to our folder
+        repo.path = folder
+
+        # Add in a setup.py
+        folder.joinpath("setup.py").touch()
+
+        # Should now return True
+        assert repo.is_editable() is True
+
+        # Now remove setup.py
+        folder.joinpath("setup.py").unlink()
+
+        # Should now return False
+        assert repo.is_setuptools() is False
+
+
+def test_is_conda(mocker, temp_config_file, repo_folder_with_random_existing_files):
+
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
+
+        # Return True for repo.exists_local
+        mocker.patch("pytoil.repo.Repo.exists_local", autospec=True, return_value=True)
+
+        folder: pathlib.Path = repo_folder_with_random_existing_files
+
+        repo = Repo(name="myrepo")
+
+        # Set the repo path to point to our folder
+        repo.path = folder
+
+        # Add in an environment.yml
+        folder.joinpath("environment.yml").touch()
+
+        # Should now return True
+        assert repo.is_conda() is True
+
+        # Now remove environment.yml
+        folder.joinpath("environment.yml").unlink()
+
+        # Should now return False
+        assert repo.is_conda() is False
+
+
+def test_is_pep517(mocker, temp_config_file, repo_folder_with_random_existing_files):
+
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
+
+        # Return True for repo.exists_local
+        mocker.patch("pytoil.repo.Repo.exists_local", autospec=True, return_value=True)
+
+        folder: pathlib.Path = repo_folder_with_random_existing_files
+
+        repo = Repo(name="myrepo")
+
+        # Set the repo path to point to our folder
+        repo.path = folder
+
+        # Add in an pyproject.toml
+        folder.joinpath("pyproject.toml").touch()
+
+        # Should now return True
+        assert repo.is_pep517() is True
+
+        # Now remove pyproject.toml
+        folder.joinpath("pyproject.toml").unlink()
+
+        # Should now return False
+        assert repo.is_pep517() is False
