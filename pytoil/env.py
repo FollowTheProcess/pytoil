@@ -427,6 +427,43 @@ class CondaEnv:
             except subprocess.CalledProcessError:
                 raise
 
+    def export_yml(self, fp: pathlib.Path) -> None:
+        """
+        Exports an environment.yml file for the conda environment
+        described by the instance.
+
+        Args:
+            fp (pathlib.Path): Path to desired export location
+                (excluding the filename).
+                i.e. to get `/Users/me/projects/myproject/environment.yml`
+                `fp` would be `/Users/me/projects/myproject`.
+
+        Raises:
+            VirtualenvDoesNotExistError: If the conda env does not exist,
+                an environment file cannot be created.
+        """
+
+        if not self.exists():
+            raise VirtualenvDoesNotExistError(
+                f"""Conda env: {self.name} does not exist.
+        Create it first before exporting the environment file."""
+            )
+
+        cmd: List[str] = [
+            "conda",
+            "env",
+            "export",
+            "--name",
+            f"{self.name}",
+            ">",
+            f"{str(fp.joinpath('environment.yml'))}",
+        ]
+
+        try:
+            subprocess.run(cmd, check=True)
+        except subprocess.CalledProcessError:
+            raise
+
     def install(self, packages: List[str]) -> None:
         """
         Installs `packages` into the conda environment
@@ -451,7 +488,7 @@ class CondaEnv:
             )
 
         # Install into specified env
-        cmd: List[str] = ["conda", "install", "-n", f"{self.name}", "-y"]
+        cmd: List[str] = ["conda", "install", "--name", f"{self.name}", "-y"]
 
         # Add specified packages
         cmd.extend(packages)
