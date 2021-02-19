@@ -24,14 +24,14 @@ def test_virtualenv_init():
     env = VirtualEnv(basepath=pathlib.Path("made/up/dir"))
     env2 = VirtualEnv(basepath=pathlib.Path("made/up/dir"), name="dinglevenv")
 
-    assert env.basepath == pathlib.Path("made/up/dir")
+    assert env.basepath == pathlib.Path("made/up/dir").resolve()
     assert env.name == ".venv"  # Default name
-    assert env.path == pathlib.Path("made/up/dir").joinpath(".venv")
+    assert env.path == pathlib.Path("made/up/dir").joinpath(".venv").resolve()
     assert env.executable is None
 
-    assert env2.basepath == pathlib.Path("made/up/dir")
+    assert env2.basepath == pathlib.Path("made/up/dir").resolve()
     assert env2.name == "dinglevenv"  # Specified name
-    assert env2.path == pathlib.Path("made/up/dir").joinpath("dinglevenv")
+    assert env2.path == pathlib.Path("made/up/dir").joinpath("dinglevenv").resolve()
     assert env2.executable is None
 
 
@@ -42,8 +42,10 @@ def test_virtualenv_repr():
     env = VirtualEnv(basepath=path)
     env2 = VirtualEnv(basepath=path, name="dinglevenv")
 
-    assert env.__repr__() == f"VirtualEnv(basepath={path!r}, name='.venv')"
-    assert env2.__repr__() == f"VirtualEnv(basepath={path!r}, name='dinglevenv')"
+    assert env.__repr__() == f"VirtualEnv(basepath={path.resolve()!r}, name='.venv')"
+    assert (
+        env2.__repr__() == f"VirtualEnv(basepath={path.resolve()!r}, name='dinglevenv')"
+    )
 
 
 def test_virtualenv_executable_setter():
