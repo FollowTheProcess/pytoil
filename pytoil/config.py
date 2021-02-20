@@ -208,3 +208,23 @@ class Config:
         """
 
         return self.__dict__
+
+    def show(self) -> None:
+        """
+        Pretty prints the current config.
+        """
+
+        print(f"\nusername: {self.username!r}\n")
+        print(f"token: {self.token!r}\n")
+        print(f"projects_dir: {str(self.projects_dir)!r}\n")
+
+    def write(self) -> None:
+        """
+        Overwrites the config file with the attributes
+        from the calling instance.
+        """
+
+        config_dict = self.to_dict()
+
+        with open(CONFIG_PATH, "w") as f:
+            yaml.dump(config_dict, f)

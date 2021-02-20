@@ -6,7 +6,6 @@ Created: 04/02/2021
 """
 
 
-from pprint import pprint
 from typing import Tuple
 
 import typer
@@ -40,6 +39,14 @@ def main(
 ) -> None:  # pragma: no cover
     """
     Helpful CLI to automate the development workflow!
+
+    Create, and easily resume work on, local or remote
+    development projects.
+
+    Automatically creates and manages the correct virtual environment
+    for your project.
+
+    Minimal configuration required!
     """
     if version:
         typer.echo(f"pytoil version: {__version__}")
@@ -62,8 +69,11 @@ def new(
     If cookiecutter is specified it must be followed by a url to a
     valid cookiecutter template repo from which to construct the project.
 
-    If not, it will simply create an empty project directory named
-    PROJECT in your configured location.
+    If you have url abbreviations configured for cookiecutter, these
+    will work as expected.
+
+    If cookiecutter not specified, pytoil will simply create an empty project
+    directory named PROJECT in your configured location.
 
     Examples:
 
@@ -77,25 +87,26 @@ def new(
     config = Config.get()
     config.raise_if_unset()
 
-    project_path = config.projects_dir.joinpath(project)
+    project_path = config.projects_dir.joinpath(project).resolve()
 
     if project_path.exists():
         typer.secho(
-            f"The project {project!r} already exists locally at {project_path!r}",
+            f"Project: {project!r} already exists locally at {str(project_path)!r}",
             fg=typer.colors.YELLOW,
         )
-        typer.echo(
-            f"""To resume an existing project, use pytoil resume.
-            '$ pytoil resume {project}'."""
-        )
+        typer.echo("To resume an existing project, use pytoil resume.")
+        typer.echo(f"Example: '$ pytoil resume {project}'.")
         raise typer.Abort()
 
     if cookie:
-        typer.echo(f"Creating project: {project} with cookiecutter template: {cookie}")
+        typer.echo(
+            f"Creating project: {project!r} with cookiecutter template: {cookie!r}."
+        )
         cookiecutter(template=cookie, output_dir=config.projects_dir)
     else:
-        typer.echo(f"Creating project: {project}")
-        config.projects_dir.joinpath(project).mkdir()
+        typer.echo(f"Creating project: {project!r} at {str(project_path)!r}")
+        project_path.mkdir()
+        typer.secho("Done!", fg=typer.colors.GREEN)
 
 
 @app.command()
@@ -140,38 +151,66 @@ def resume(
     $ pytoil resume --url https://github.com/someoneelse/their_cool_project.git
     """
 
+    config = Config.get()
+    config.raise_if_unset()
+
     if url:
-        typer.echo(f"Resuming project: {url}")
+        typer.echo(f"Resuming project from url: {url}")
+        repo = Repo.from_url(url=url)
+        if repo.owner == config.username:
+            typer.echo(f"It looks like you own the repo: '{repo.owner}/{repo.name}'.")
+            typer.echo(f"Cloning '{repo.owner}/{repo.name}'")
+            repo.clone()
+            typer.secho(
+                f"Project: {project!r} now available locally at {str(repo.path)!r}.",
+                fg=typer.colors.GREEN,
+            )
+        else:
+            typer.echo(
+                f"It looks like the repo: '{repo.owner}/{repo.name}' isn't yours."
+            )
+            typer.echo(f"Creating fork: '{config.username}/{repo.name}'")
+            user_fork = repo.fork()
+            typer.secho(
+                f"Your fork: {user_fork!r} has been requested.", fg=typer.colors.GREEN
+            )
+            typer.echo(
+                "Forking happens asynchronously and your fork may not be available"
+                + " for a few moments."
+            )
+
     else:
-        typer.echo(f"Resuming project: {project}")
+        typer.echo(f"Resuming project: {project!r}\n")
 
         repo = Repo(name=project)
 
         if repo.exists_local():
             typer.secho(
-                f"Project: {project} is already available locally at {repo.path!r}.",
+                f"Project: {project!r} is already available locally at"
+                f" {str(repo.path)!r}.",
                 fg=typer.colors.GREEN,
             )
         else:
             typer.secho(
-                f"Project: {project} not found locally. Checking user's GitHub...",
+                f"Project: {project!r} not found locally. Checking user's GitHub...\n",
                 fg=typer.colors.YELLOW,
             )
             if repo.exists_remote():
-                typer.echo(f"Project: {project} found on user's GitHub. Cloning...")
+                typer.echo(f"Project: {project!r} found on user's GitHub. Cloning...\n")
                 repo.clone()
                 typer.secho(
-                    f"Project: {project} now available locally at {repo.path!r}.",
+                    f"\nProject: {project!r} now available locally at"
+                    f" {str(repo.path)!r}.",
                     fg=typer.colors.GREEN,
                 )
             else:
                 typer.secho(
-                    f"Project: {project} not found locally or on user's GitHub.",
+                    f"Project: {project!r} not found on user's GitHub.\n",
                     fg=typer.colors.RED,
                 )
                 typer.echo(
-                    f"""Does the project exist? If not, create a new project:
-                    '$ pytoil new {project}'."""
+                    f"Does the project exist? If not, create a new project:"
+                    f" '$ pytoil new {project}'."
                 )
 
 
@@ -198,7 +237,18 @@ def config(
 
     "--set" accepts a valid key, value pair to set a configuration parameter.
 
-    Examples:
+    Schema:
+
+    username (string): Your GitHub username.
+    e.g. 'FollowTheProcess'
+
+    token (string): Your GitHub personal access token.
+    e.g. '917hab19asbso181h91y' (totally made up)
+
+    projects_dir (string): The absolute path to where you keep development projects.
+    e.g. '/Users/you/projects'
+
+    Usage:
 
     $ pytoil config --show
 
@@ -207,11 +257,31 @@ def config(
     $ pytoil config --set token "mynewtoken"
     """
 
+    # Get the config but don't raise on UNSET
+    config = Config.get()
+
     if show:
-        # config = Config.get().to_dict()
-        config = {"made up": "config", "is it made up": "yes", "really": "definitely"}
-        typer.echo("Current pytoil config...\n")
-        pprint(config)
+        typer.secho("\nCurrent pytoil config:", fg=typer.colors.BLUE, bold=True)
+        config.show()
 
     elif set:
-        typer.echo(f"setting {set[0]} to {set[1]}")
+        old_config_dict = config.to_dict()
+        key, val = set
+
+        if key not in old_config_dict.keys():
+            typer.secho(
+                f"Key: {key!r} is not a valid pytoil config key.", fg=typer.colors.RED
+            )
+            raise typer.Abort()
+
+        new_config_dict = old_config_dict.copy()
+        new_config_dict.update({key: val})
+
+        typer.secho(f"Key: {key!r} not a valid configuration key.", fg=typer.colors.RED)
+
+        new_config = Config(**new_config_dict)
+        new_config.write()
+
+        typer.secho(
+            f"Configuration updated: {key!r} is now {val!r}.", fg=typer.colors.GREEN
+        )

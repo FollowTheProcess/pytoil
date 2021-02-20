@@ -181,8 +181,11 @@ class Repo:
         In order to fork, the user must specify class attribute `owner`
         as well as `name`.
 
-        If the fork is successful, will return the URL of the user's
+        If the fork is accepted, will return the URL of the user's
         new fork.
+
+        Forking happens asynchronously on the GitHub API so the users
+        fork may not be immediately ready to clone.
 
         i.e. if user forks "someoneelse/repo" the returned url will
         be: "https://github.com/theuser/repo.git"
