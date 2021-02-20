@@ -10,8 +10,12 @@ from pprint import pprint
 from typing import Tuple
 
 import typer
+from cookiecutter.main import cookiecutter
+
+from pytoil.repo import Repo
 
 from . import __version__
+from .config import Config
 
 app = typer.Typer(name="pytoil", no_args_is_help=True)
 
@@ -70,11 +74,28 @@ def new(
     $ pytoil new my_cool_project -c https://github.com/me/my_cookie_template.git
     """
 
+    config = Config.get()
+    config.raise_if_unset()
+
+    project_path = config.projects_dir.joinpath(project)
+
+    if project_path.exists():
+        typer.secho(
+            f"The project {project!r} already exists locally at {project_path!r}",
+            fg=typer.colors.YELLOW,
+        )
+        typer.echo(
+            f"""To resume an existing project, use pytoil resume.
+            '$ pytoil resume {project}'."""
+        )
+        raise typer.Abort()
+
     if cookie:
-        typer.echo(f"Creating project: {project} with cookiecutter url: {cookie}")
-        # cookiecutter(template=cookie, output_dir=PROJECTS_DIR)
+        typer.echo(f"Creating project: {project} with cookiecutter template: {cookie}")
+        cookiecutter(template=cookie, output_dir=config.projects_dir)
     else:
         typer.echo(f"Creating project: {project}")
+        config.projects_dir.joinpath(project).mkdir()
 
 
 @app.command()
@@ -118,10 +139,40 @@ def resume(
 
     $ pytoil resume --url https://github.com/someoneelse/their_cool_project.git
     """
+
     if url:
         typer.echo(f"Resuming project: {url}")
     else:
         typer.echo(f"Resuming project: {project}")
+
+        repo = Repo(name=project)
+
+        if repo.exists_local():
+            typer.secho(
+                f"Project: {project} is already available locally at {repo.path!r}.",
+                fg=typer.colors.GREEN,
+            )
+        else:
+            typer.secho(
+                f"Project: {project} not found locally. Checking user's GitHub...",
+                fg=typer.colors.YELLOW,
+            )
+            if repo.exists_remote():
+                typer.echo(f"Project: {project} found on user's GitHub. Cloning...")
+                repo.clone()
+                typer.secho(
+                    f"Project: {project} now available locally at {repo.path!r}.",
+                    fg=typer.colors.GREEN,
+                )
+            else:
+                typer.secho(
+                    f"Project: {project} not found locally or on user's GitHub.",
+                    fg=typer.colors.RED,
+                )
+                typer.echo(
+                    f"""Does the project exist? If not, create a new project:
+                    '$ pytoil new {project}'."""
+                )
 
 
 @app.command()

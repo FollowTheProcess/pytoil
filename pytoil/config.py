@@ -191,7 +191,7 @@ class Config:
         else:
             try:
                 # Get the config from unpacking the dict
-                config = Config(**config_dict)
+                config = cls(**config_dict)
             except TypeError:
                 # If one of the keys is wrong
                 raise

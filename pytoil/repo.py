@@ -43,10 +43,10 @@ class Repo:
         repo and a local project.
 
         Args:
+            name (str): The name of the GitHub repo.
+
             owner (Optional[str], optional): The owner of the GitHub repo.
                 Defaults to value `username` from config file.
-            name (Optional[str], optional): The name of the GitHub repo.
-                Defaults to None.
         """
         self.owner = owner or Config.get().username
         self.name = name
@@ -129,7 +129,7 @@ class Repo:
         else:
             return True
 
-    def clone(self) -> pathlib.Path:
+    def clone(self) -> None:
         """
         Invokes git in a subprocess to clone the repo
         represented by the instance.
@@ -139,9 +139,6 @@ class Repo:
             LocalRepoExistsError: If repo already exists in configured
                 projects_dir.
             RepoNotFoundError: If repo not found on GitHub.
-
-        Returns:
-            pathlib.Path: Path to cloned repo.
         """
 
         # Get the user config from file and validate
@@ -173,9 +170,8 @@ class Repo:
             except subprocess.CalledProcessError:
                 raise
             else:
-                # If clone succeeded, set self.path and return
+                # If clone succeeded, set self.path
                 self.path = config.projects_dir.joinpath(self.name)
-                return self.path
 
     def fork(self) -> str:
         """
