@@ -275,7 +275,7 @@ def test_repo_clone_correctly_calls_git(mocker, temp_config_file):
 
         repo = Repo(name="fakerepo")
 
-        path = repo.clone()
+        repo.clone()
 
         # Assert git would have been called with correct args
         mock_subprocess.assert_called_once_with(
@@ -285,7 +285,6 @@ def test_repo_clone_correctly_calls_git(mocker, temp_config_file):
         )
 
         # Assert the path was updated
-        assert path == pathlib.Path("/Users/tempfileuser/projects/fakerepo")
         assert repo.path == pathlib.Path("/Users/tempfileuser/projects/fakerepo")
 
 

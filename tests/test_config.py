@@ -232,3 +232,49 @@ def test_config_raise_if_unset_raises_on_unset_token():
 
     with pytest.raises(InvalidConfigError):
         config.raise_if_unset()
+
+
+def test_config_show_outputs_correct_text(capsys):
+
+    config = Config(username="me", token="UNSET", projects_dir="/Users/me/projects")
+
+    config.show()
+
+    captured = capsys.readouterr()
+
+    expected_output: str = (
+        "\nusername: 'me'\n\ntoken: 'UNSET'\n\nprojects_dir: '/Users/me/projects'\n\n"
+    )
+
+    assert captured.out == expected_output
+
+
+def test_config_write(mocker, temp_config_file):
+
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
+
+        original_config = Config.get()
+
+        # Check config values before change
+        assert original_config.username == "tempfileuser"
+        assert original_config.token == "tempfiletoken"
+        assert original_config.projects_dir == pathlib.Path(
+            "/Users/tempfileuser/projects"
+        )
+
+        config = Config(
+            username="me",
+            token="definitelynotatoken",
+            projects_dir="/Users/me/projects",
+        )
+
+        # Write these new attributes to the temp config file (overwriting)
+        config.write()
+
+        # Check config values after change
+
+        new_config = Config.get()
+
+        assert new_config.username == "me"
+        assert new_config.token == "definitelynotatoken"
+        assert new_config.projects_dir == pathlib.Path("/Users/me/projects")
