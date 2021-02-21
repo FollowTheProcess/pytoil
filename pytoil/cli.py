@@ -6,6 +6,7 @@ Created: 04/02/2021
 """
 
 
+from enum import Enum
 from typing import Tuple
 
 import typer
@@ -15,6 +16,18 @@ from pytoil.repo import Repo
 
 from . import __version__
 from .config import Config
+from .env import CondaEnv, VirtualEnv
+
+
+class Venv(str, Enum):
+    """
+    Choice of virtualenvs to create in a new project.
+    """
+
+    virtualenv = "virtualenv"
+    conda = "conda"
+    none = None
+
 
 app = typer.Typer(name="pytoil", no_args_is_help=True)
 
@@ -38,15 +51,17 @@ def main(
     )
 ) -> None:  # pragma: no cover
     """
-    Helpful CLI to automate the development workflow!
+    Helpful CLI to automate the development workflow.
 
     Create, and easily resume work on, local or remote
     development projects.
 
-    Automatically creates and manages the correct virtual environment
+    Build projects from cookiecutter templates.
+
+    Automatically creates the correct virtual environment
     for your project.
 
-    Minimal configuration required!
+    Minimal configuration required.
     """
     if version:
         typer.echo(f"pytoil version: {__version__}")
@@ -62,6 +77,14 @@ def new(
         "-c",
         help="URL to a cookiecutter template repo from which to create the project.",
     ),
+    venv: Venv = typer.Option(
+        ...,
+        "--venv",
+        "-v",
+        help="Which type of virtual environment to create for the project.",
+        prompt=True,
+        case_sensitive=False,
+    ),
 ) -> None:
     """
     Create a new development project.
@@ -75,6 +98,19 @@ def new(
     If cookiecutter not specified, pytoil will simply create an empty project
     directory named PROJECT in your configured location.
 
+    If venv is specified, it must be one of "virtualenv" or "conda" and the
+    corresponding environment will be created for your project.
+
+    You may also specify venv as "none" in which case, environment creation will be
+    skipped. The inputs to venv are not case sensitive so "none" works just as well
+    as "None". If you do not specify venv, it will be prompted for.
+
+    You must have the conda package manager installed on your system to create conda
+    environments. The conda environment will have the same name as your project. The
+    virtualenv environment will be located in the root of your project under the folder
+    '.venv'.
+
+
     Examples:
 
     $ pytoil new my_cool_project
@@ -82,16 +118,21 @@ def new(
     OR
 
     $ pytoil new my_cool_project -c https://github.com/me/my_cookie_template.git
+
+    OR
+
+    $ pytoil new my_cool_project -v virtualenv -c https://github.com/me/cookie.git
     """
 
     config = Config.get()
     config.raise_if_unset()
 
-    project_path = config.projects_dir.joinpath(project).resolve()
+    # Create the project repo object
+    repo = Repo(name=project)
 
-    if project_path.exists():
+    if repo.exists_local():
         typer.secho(
-            f"Project: {project!r} already exists locally at {str(project_path)!r}",
+            f"Project: {project!r} already exists locally at {str(repo.path)!r}",
             fg=typer.colors.YELLOW,
         )
         typer.echo("To resume an existing project, use pytoil resume.")
@@ -99,14 +140,57 @@ def new(
         raise typer.Abort()
 
     if cookie:
-        typer.echo(
-            f"Creating project: {project!r} with cookiecutter template: {cookie!r}."
+        typer.secho(
+            f"Creating project: {project!r} with cookiecutter template: {cookie!r}.",
+            fg=typer.colors.BLUE,
+            bold=True,
         )
         cookiecutter(template=cookie, output_dir=config.projects_dir)
     else:
-        typer.echo(f"Creating project: {project!r} at {str(project_path)!r}")
-        project_path.mkdir()
-        typer.secho("Done!", fg=typer.colors.GREEN)
+        typer.secho(
+            f"Creating project: {project!r} at {str(repo.path)!r}",
+            fg=typer.colors.BLUE,
+            bold=True,
+        )
+        repo.path.mkdir()
+
+    if venv.value == venv.conda:
+        typer.secho(
+            f"Creating conda environment for {project!r}.",
+            fg=typer.colors.BLUE,
+            bold=True,
+        )
+        conda_env = CondaEnv(name=project)
+        conda_env.create()
+
+        typer.echo("Exporting 'environment.yml' file.")
+        conda_env.export_yml(fp=repo.path)
+
+    elif venv.value == venv.virtualenv:
+        typer.secho(
+            f"Creating virtualenv environment for {project!r}.",
+            fg=typer.colors.BLUE,
+            bold=True,
+        )
+
+        env = VirtualEnv(basepath=repo.path)
+        env.create()
+
+        typer.echo("Ensuring seed packages (pip, setuptools, wheel) are up to date.")
+        # env.update_seeds()
+
+    elif venv.value == venv.none:
+        typer.secho(
+            "Virtual environment not requested. Skipping environment creation.",
+            fg=typer.colors.YELLOW,
+        )
+    else:
+        # This should never happen as we're using an Enum
+        # But just incase, let's abort
+        typer.secho("Unrecognised option for venv.", fg=typer.colors.RED)
+        raise typer.Abort()
+
+    typer.secho("Done!", fg=typer.colors.GREEN)
 
 
 @app.command()
@@ -155,7 +239,9 @@ def resume(
     config.raise_if_unset()
 
     if url:
-        typer.echo(f"Resuming project from url: {url}")
+        typer.secho(
+            f"Resuming project from url: {url}", fg=typer.colors.BLUE, bold=True
+        )
         repo = Repo.from_url(url=url)
         if repo.owner == config.username:
             typer.echo(f"It looks like you own the repo: '{repo.owner}/{repo.name}'.")
@@ -169,18 +255,22 @@ def resume(
             typer.echo(
                 f"It looks like the repo: '{repo.owner}/{repo.name}' isn't yours."
             )
-            typer.echo(f"Creating fork: '{config.username}/{repo.name}'")
+            typer.secho(
+                f"Creating fork: '{config.username}/{repo.name}'",
+                fg=typer.colors.BLUE,
+                bold=True,
+            )
             user_fork = repo.fork()
             typer.secho(
                 f"Your fork: {user_fork!r} has been requested.", fg=typer.colors.GREEN
             )
             typer.echo(
-                "Forking happens asynchronously and your fork may not be available"
-                + " for a few moments."
+                "FYI: Forking happens asynchronously and your fork may not be available"
+                + " to clone for a few moments."
             )
 
     else:
-        typer.echo(f"Resuming project: {project!r}\n")
+        typer.secho(f"Resuming project: {project!r}\n", fg=typer.colors.BLUE, bold=True)
 
         repo = Repo(name=project)
 
@@ -211,6 +301,8 @@ def resume(
                 typer.echo(
                     f"Does the project exist? If not, create a new project:"
                     f" '$ pytoil new {project}'."
+                    "Or specify a url to a repo directly with the --url option:"
+                    " '$pytoil new --url https://github.com/someone/coolproject.git"
                 )
 
 

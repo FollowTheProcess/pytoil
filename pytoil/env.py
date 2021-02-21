@@ -100,7 +100,7 @@ class VirtualEnv:
 
         if not self.executable:
             raise MissingInterpreterError(
-                f"""Virtualenv: {self.path!r} does not exist. Cannot install
+                f"""Virtualenv: {str(self.path)!r} does not exist. Cannot install
                 until it has been created. Create by using the `.create()` method."""
             )
         else:
