@@ -443,6 +443,7 @@ class CondaEnv:
             VirtualenvDoesNotExistError: If the conda env does not exist,
                 an environment file cannot be created.
         """
+        # TODO: Figure out good way of testing the below
 
         if not self.exists():
             raise VirtualenvDoesNotExistError(

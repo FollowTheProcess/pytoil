@@ -19,13 +19,15 @@ from .config import Config
 from .exceptions import (
     APIRequestError,
     GitNotInstalledError,
+    InvalidRepoPathError,
     InvalidURLError,
     LocalRepoExistsError,
     RepoNotFoundError,
 )
 
 # Stupidly basic regex, I'm bad at these
-REPO_REGEX = re.compile(r"https://github.com/[\w]*/[\w]*.git")
+REPO_REGEX = re.compile(r"https://github.com/[\w]+/[\w]+.git")
+REPO_PATH_REGEX = re.compile(r"[\w]+/[\w]+")
 
 
 class Repo:
@@ -89,10 +91,22 @@ class Repo:
         """
 
         if not REPO_REGEX.match(url):
-            raise InvalidURLError(f"The URL: {url} is not a valid GitHub repo URL.")
+            raise InvalidURLError(f"The URL: {url!r} is not a valid GitHub repo URL.")
         else:
             owner = url.rsplit(".git")[0].split("/")[-2]
             name = url.rsplit(".git")[0].split("/")[-1]
+
+            return cls(name=name, owner=owner)
+
+    @classmethod
+    def from_path(cls, path: str) -> Repo:
+
+        if not REPO_PATH_REGEX.match(path):
+            raise InvalidRepoPathError(
+                f"The repo path: {path!r} is not a valid GitHub repo path."
+            )
+        else:
+            owner, name = path.split("/")
 
             return cls(name=name, owner=owner)
 

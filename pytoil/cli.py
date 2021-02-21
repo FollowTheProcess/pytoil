@@ -200,7 +200,7 @@ def resume(
         None,
         "--url",
         "-u",
-        help="URL of a project to resume work on (skips searching locally and GitHub).",
+        help="URL of a project to resume work on (skips searching).",
     ),
 ) -> None:
     """
@@ -246,8 +246,10 @@ def resume(
             f"Resuming project from url: {url}", fg=typer.colors.BLUE, bold=True
         )
         repo = Repo.from_url(url=url)
+
         if repo.owner == config.username:
             typer.echo(f"It looks like you own the repo: '{repo.owner}/{repo.name}'.")
+            typer.echo(f"FYI: You could have just said: '$ pytoil resume {repo.name}'.")
             typer.echo(f"Cloning '{repo.owner}/{repo.name}'")
             repo.clone()
             typer.secho(
@@ -271,7 +273,6 @@ def resume(
                 "FYI: Forking happens asynchronously and your fork may not be available"
                 + " to clone for a few moments."
             )
-
     else:
         typer.secho(f"Resuming project: {project!r}\n", fg=typer.colors.BLUE, bold=True)
 
