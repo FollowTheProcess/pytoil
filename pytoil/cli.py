@@ -132,7 +132,7 @@ def new(
 
     if repo.exists_local():
         typer.secho(
-            f"Project: {project!r} already exists locally at {str(repo.path)!r}",
+            f"Project: {project!r} already exists locally at {repo.path}",
             fg=typer.colors.YELLOW,
         )
         typer.echo("To resume an existing project, use pytoil resume.")
@@ -141,14 +141,14 @@ def new(
 
     if cookie:
         typer.secho(
-            f"Creating project: {project!r} with cookiecutter template: {cookie!r}.",
+            f"Creating project: {project!r} with cookiecutter template: {cookie!r}.\n",
             fg=typer.colors.BLUE,
             bold=True,
         )
         cookiecutter(template=cookie, output_dir=config.projects_dir)
     else:
         typer.secho(
-            f"Creating project: {project!r} at {str(repo.path)!r}",
+            f"Creating project: {project!r} at {repo.path}.\n",
             fg=typer.colors.BLUE,
             bold=True,
         )
@@ -156,7 +156,7 @@ def new(
 
     if venv.value == venv.conda:
         typer.secho(
-            f"Creating conda environment for {project!r}.",
+            f"Creating conda environment for {project!r}.\n",
             fg=typer.colors.BLUE,
             bold=True,
         )
@@ -168,7 +168,7 @@ def new(
 
     elif venv.value == venv.virtualenv:
         typer.secho(
-            f"Creating virtualenv environment for {project!r}.",
+            f"Creating virtualenv environment for {project!r}.\n",
             fg=typer.colors.BLUE,
             bold=True,
         )
@@ -177,7 +177,7 @@ def new(
         env.create()
 
         typer.echo("Ensuring seed packages (pip, setuptools, wheel) are up to date.")
-        # env.update_seeds()
+        env.update_seeds()
 
     elif venv.value == venv.none:
         typer.secho(
@@ -235,6 +235,9 @@ def resume(
     $ pytoil resume --url https://github.com/someoneelse/their_cool_project.git
     """
 
+    # TODO: Add a owner/name construction too
+    # or instead of url
+
     config = Config.get()
     config.raise_if_unset()
 
@@ -248,7 +251,7 @@ def resume(
             typer.echo(f"Cloning '{repo.owner}/{repo.name}'")
             repo.clone()
             typer.secho(
-                f"Project: {project!r} now available locally at {str(repo.path)!r}.",
+                f"\nProject: {project!r} now available locally at {str(repo.path)!r}.",
                 fg=typer.colors.GREEN,
             )
         else:
@@ -256,13 +259,13 @@ def resume(
                 f"It looks like the repo: '{repo.owner}/{repo.name}' isn't yours."
             )
             typer.secho(
-                f"Creating fork: '{config.username}/{repo.name}'",
+                f"Creating fork: '{config.username}/{repo.name}'\n",
                 fg=typer.colors.BLUE,
                 bold=True,
             )
             user_fork = repo.fork()
             typer.secho(
-                f"Your fork: {user_fork!r} has been requested.", fg=typer.colors.GREEN
+                f"Your fork: {user_fork!r} has been requested.\n", fg=typer.colors.GREEN
             )
             typer.echo(
                 "FYI: Forking happens asynchronously and your fork may not be available"
