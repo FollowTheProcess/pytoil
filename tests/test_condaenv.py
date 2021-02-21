@@ -296,29 +296,6 @@ def test_condaenv_install_raises_on_subprocess_error(mocker):
         env.install(["pandas", "numpy"])
 
 
-def test_condaenv_export_yml_correctly_calls_conda_env(mocker):
-
-    mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=True)
-
-    mock_subprocess = mocker.patch("pytoil.env.subprocess.run", autospec=True)
-
-    expected_cmd: List[str] = [
-        "conda",
-        "env",
-        "export",
-        "--name",
-        "condingle",
-        ">",
-        "/Users/me/projects/condaproject/environment.yml",
-    ]
-
-    env = CondaEnv(name="condingle")
-
-    env.export_yml(fp=pathlib.Path("/Users/me/projects/condaproject"))
-
-    mock_subprocess.assert_called_once_with(expected_cmd, check=True)
-
-
 def test_condaenv_export_yml_raises_on_missing_env(mocker):
 
     mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=False)
@@ -326,20 +303,5 @@ def test_condaenv_export_yml_raises_on_missing_env(mocker):
     mocker.patch("pytoil.env.subprocess.run", autospec=True)
 
     with pytest.raises(VirtualenvDoesNotExistError):
-        env = CondaEnv(name="condingle")
-        env.export_yml(fp=pathlib.Path("/Users/me/projects/condaproject"))
-
-
-def test_condaenv_export_yml_raises_on_subprocess_error(mocker):
-
-    mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=True)
-
-    mocker.patch(
-        "pytoil.env.subprocess.run",
-        autospec=True,
-        side_effect=[subprocess.CalledProcessError(-1, "cmd")],
-    )
-
-    with pytest.raises(subprocess.CalledProcessError):
         env = CondaEnv(name="condingle")
         env.export_yml(fp=pathlib.Path("/Users/me/projects/condaproject"))

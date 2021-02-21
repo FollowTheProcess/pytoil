@@ -14,6 +14,7 @@ import pytoil
 from pytoil.exceptions import (
     APIRequestError,
     GitNotInstalledError,
+    InvalidRepoPathError,
     InvalidURLError,
     LocalRepoExistsError,
     RepoNotFoundError,
@@ -128,6 +129,69 @@ def test_repo_from_url_raises_on_bad_url(mocker, temp_config_file, url):
 
         with pytest.raises(InvalidURLError):
             Repo.from_url(url=url)
+
+
+@pytest.mark.parametrize(
+    "path, owner, name, url",
+    [
+        (
+            "dingleuser/dinglerepo",
+            "dingleuser",
+            "dinglerepo",
+            "https://github.com/dingleuser/dinglerepo.git",
+        ),
+        (
+            "MySuperUser/s1llypr0ject",
+            "MySuperUser",
+            "s1llypr0ject",
+            "https://github.com/MySuperUser/s1llypr0ject.git",
+        ),
+        (
+            "FollowTheProcess/pytoil",
+            "FollowTheProcess",
+            "pytoil",
+            "https://github.com/FollowTheProcess/pytoil.git",
+        ),
+        (
+            "W31rdUsern4m3/blah",
+            "W31rdUsern4m3",
+            "blah",
+            "https://github.com/W31rdUsern4m3/blah.git",
+        ),
+        (
+            "HelloDave/dave",
+            "HelloDave",
+            "dave",
+            "https://github.com/HelloDave/dave.git",
+        ),
+    ],
+)
+def test_repo_from_path(mocker, temp_config_file, path, owner, name, url):
+
+    # Patch out to our fake config file to make sure it grabs from the config
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
+
+        repo = Repo.from_path(path=path)
+
+        assert repo.owner == owner
+        assert repo.name == name
+
+        # Make sure it reconstructs the url properly
+        assert repo.url == url
+        assert repo.path == pathlib.Path(f"/Users/tempfileuser/projects/{name}")
+
+
+@pytest.mark.parametrize(
+    "path",
+    ["", "What5wk91yn-msbnu-t/what", ":::punctuation[]';]'[-=]/project"],
+)
+def test_repo_from_path_raises_on_bad_path(mocker, temp_config_file, path):
+
+    # Patch out to our fake config file to make sure it grabs from the config
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
+
+        with pytest.raises(InvalidRepoPathError):
+            Repo.from_path(path=path)
 
 
 def test_repo_exists_local_returns_true_if_path_exists(mocker, temp_config_file):

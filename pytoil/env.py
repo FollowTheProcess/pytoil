@@ -46,7 +46,7 @@ class VirtualEnv:
         """
         self.basepath = basepath.resolve()
         self.name = name
-        self._path: pathlib.Path = self.basepath.joinpath(self.name)
+        self._path: pathlib.Path = self.basepath.joinpath(self.name).resolve()
         self._executable: Optional[pathlib.Path] = None
 
     def __repr__(self) -> str:
@@ -100,7 +100,7 @@ class VirtualEnv:
 
         if not self.executable:
             raise MissingInterpreterError(
-                f"""Virtualenv: {self.path!r} does not exist. Cannot install
+                f"""Virtualenv: {str(self.path)!r} does not exist. Cannot install
                 until it has been created. Create by using the `.create()` method."""
             )
         else:
@@ -128,8 +128,9 @@ class VirtualEnv:
             # Create a new virtualenv at `path`
             virtualenv.cli_run([f"{self.path}"])
             # Update the instance executable with the newly created one
-            # resolve so can be safely invoked later
-            self.executable = self.path.joinpath("bin/python").resolve()
+            # Note: DO NOT resolve self.executable
+            # For some reason this will set it to the global python
+            self.executable = self.path.joinpath("bin/python")
 
     def update_seeds(self) -> None:
         """
@@ -442,6 +443,7 @@ class CondaEnv:
             VirtualenvDoesNotExistError: If the conda env does not exist,
                 an environment file cannot be created.
         """
+        # TODO: Figure out good way of testing the below
 
         if not self.exists():
             raise VirtualenvDoesNotExistError(
@@ -453,14 +455,15 @@ class CondaEnv:
             "conda",
             "env",
             "export",
+            "--from-history",
             "--name",
-            f"{self.name}",
-            ">",
-            f"{str(fp.joinpath('environment.yml'))}",
+            self.name,
         ]
 
         try:
-            subprocess.run(cmd, check=True)
+            yml_file = fp.joinpath("environment.yml")
+            with open(yml_file, "w") as f:
+                subprocess.run(cmd, check=True, cwd=fp, stdout=f)
         except subprocess.CalledProcessError:
             raise
 
