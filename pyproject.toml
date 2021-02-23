@@ -20,6 +20,8 @@ packages = [
     {include = "pytoil"}
 ]
 
+include = ["pytoil/py.typed", "LICENSE", "README.md", "pyproject.toml"]
+
 [tool.poetry.scripts]
 pytoil = "pytoil.cli:app"
 

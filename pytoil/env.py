@@ -129,7 +129,10 @@ class VirtualEnv:
             virtualenv.cli_run([f"{self.path}"])
             # Update the instance executable with the newly created one
             # Note: DO NOT resolve self.executable
-            # For some reason this will set it to the global python
+            # Path.resolve() follows symlinks and a venv's python
+            # is often a symlink of the global system python
+            # Instead resolve the path up to "bin/python" then join
+            # as we do here
             self.executable = self.path.joinpath("bin/python")
 
     def update_seeds(self) -> None:
