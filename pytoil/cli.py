@@ -12,11 +12,10 @@ from typing import Tuple
 import typer
 from cookiecutter.main import cookiecutter
 
-from pytoil.repo import Repo
-
 from . import __version__
 from .config import Config
 from .env import CondaEnv, VirtualEnv
+from .repo import Repo
 
 
 class Venv(str, Enum):
@@ -26,7 +25,7 @@ class Venv(str, Enum):
 
     virtualenv = "virtualenv"
     conda = "conda"
-    none = None
+    none = "none"
 
 
 app = typer.Typer(name="pytoil", no_args_is_help=True)
@@ -49,7 +48,7 @@ def main(
         is_eager=True,
         show_default=False,
     )
-) -> None:  # pragma: no cover
+) -> None:
     """
     Helpful CLI to automate the development workflow.
 
@@ -63,9 +62,6 @@ def main(
 
     Minimal configuration required.
     """
-    if version:
-        typer.echo(f"pytoil version: {__version__}")
-        raise typer.Exit()
 
 
 @app.command()
@@ -152,6 +148,7 @@ def new(
             fg=typer.colors.BLUE,
             bold=True,
         )
+        # Create an empty project dir
         repo.path.mkdir()
 
     if venv.value == venv.conda:
@@ -202,6 +199,12 @@ def resume(
         "-u",
         help="URL of a project to resume work on (skips searching).",
     ),
+    path: str = typer.Option(
+        None,
+        "--path",
+        "-p",
+        help="Shorthand repo path of a project to resume work on (skips searching).",
+    ),
 ) -> None:
     """
     Resume a development project, either locally or from GitHub.
@@ -235,18 +238,25 @@ def resume(
     $ pytoil resume --url https://github.com/someoneelse/their_cool_project.git
     """
 
-    # TODO: Add a owner/name construction too
-    # or instead of url
-
     config = Config.get()
     config.raise_if_unset()
 
-    if url:
-        typer.secho(
-            f"Resuming project from url: {url}", fg=typer.colors.BLUE, bold=True
-        )
-        repo = Repo.from_url(url=url)
+    if url or path:
+        # Meaning most likely it's not the users repo
+        # url or path will need the same actions
+        # configure the repo object upfront with either url or path
+        if url:
+            typer.secho(
+                f"Resuming project from url: {url!r}", fg=typer.colors.BLUE, bold=True
+            )
+            repo = Repo.from_url(url=url)
+        elif path:
+            typer.secho(
+                f"Resuming project from path: {path!r}", fg=typer.colors.BLUE, bold=True
+            )
+            repo = Repo.from_path(path=path)
 
+        # Now handle all the clone/fork logic
         if repo.owner == config.username:
             typer.echo(f"It looks like you own the repo: '{repo.owner}/{repo.name}'.")
             typer.echo(f"FYI: You could have just said: '$ pytoil resume {repo.name}'.")
@@ -260,6 +270,8 @@ def resume(
             typer.echo(
                 f"It looks like the repo: '{repo.owner}/{repo.name}' isn't yours."
             )
+            # TODO: Confirm the repo exists before attempting to fork it
+            # Could have made a typo for example
             typer.secho(
                 f"Creating fork: '{config.username}/{repo.name}'\n",
                 fg=typer.colors.BLUE,
@@ -270,7 +282,7 @@ def resume(
                 f"Your fork: {user_fork!r} has been requested.\n", fg=typer.colors.GREEN
             )
             typer.echo(
-                "FYI: Forking happens asynchronously and your fork may not be available"
+                "FYI: Forking happens asynchronously so your fork may not be available"
                 + " to clone for a few moments."
             )
     else:

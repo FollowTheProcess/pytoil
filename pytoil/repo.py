@@ -100,6 +100,20 @@ class Repo:
 
     @classmethod
     def from_path(cls, path: str) -> Repo:
+        """
+        Constructs a Repo by extracting `owner` and `name`
+        from a valid shorthand repo path.
+
+        Args:
+            path (str): Valid shorthand path
+                e.g. 'FollowTheProcess/pytoil'
+
+        Raises:
+            InvalidRepoPathError: If path does match valid REGEX.
+
+        Returns:
+            Repo: Repo with `owner` and `name` set from `path`.
+        """
 
         if not REPO_PATH_REGEX.match(path):
             raise InvalidRepoPathError(
