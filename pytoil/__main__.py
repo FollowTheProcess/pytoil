@@ -1,3 +1,3 @@
-from .cli import app
+from .cli.main import app
 
 app(prog_name="pytoil")
