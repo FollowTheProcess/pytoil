@@ -6,7 +6,7 @@ Created: 04/02/2021
 """
 
 import json
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import urllib3
 
@@ -14,10 +14,9 @@ from .config import Config
 from .exceptions import APIRequestError
 
 # Type hint for generic JSON API response
-# Looks complicated but basically means APIResponse is
 # either a single JSON blob or a list of JSON blobs
-JSONBlob = Dict[str, Union[str, int, bool, Dict[str, Union[str, int, bool]]]]
-APIResponse = Union[JSONBlob, List[JSONBlob]]
+RepoBlob = Dict[str, Any]
+APIResponse = List[RepoBlob]
 
 
 class API:
@@ -178,7 +177,7 @@ class API:
 
     def get_repos(self) -> APIResponse:
         """
-        Hits the GitHub REST API 'user/repos' endpoint and parses
+        Hits the GitHub REST API 'user/{username}/repos' endpoint and parses
         the response.
 
         Function similar to `get_repo` the difference being `get_repos` returns
@@ -186,7 +185,7 @@ class API:
 
         This endpoint requires no parameters because it is the
         'get repos for authenticated user' endpoint and since at this point we have
-        `self.token` this automatically fills in the {owner} for us.
+        `self.token` this automatically fills in the {username} for us.
 
         Returns:
             APIResponse: JSON response for a list of all users repos.
@@ -196,6 +195,22 @@ class API:
         # This gets their repos
         # get will raise if missing token
         return self.get("user/repos")
+
+    def get_repo_names(self) -> List[str]:
+        """
+        Hits the GitHub REST API 'user/{username}/repos' endpoint, parses
+        the response, extracts the name of each repo and returns
+        a list of these names.
+
+        Returns:
+            List[str]: List of user's repo names.
+        """
+
+        raw_repo_data = self.get_repos()
+
+        names = [repo["name"] for repo in raw_repo_data]
+
+        return names
 
     def fork_repo(self, owner: str, name: str) -> APIResponse:
         """
