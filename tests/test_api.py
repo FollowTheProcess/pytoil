@@ -170,6 +170,18 @@ def test_get_user_repos_correctly_calls_get(mocker, fake_api_response):
     assert api.get_repos() == fake_api_response
 
 
+def test_get_repo_names_correctly_calls_get_repos(mocker, fake_api_response):
+
+    mocker.patch(
+        "pytoil.api.API.get_repos", autospec=True, return_value=fake_api_response
+    )
+
+    api = API(token="definitelynotatoken", username="me")
+
+    # The names are contained in the fake_api_response fixture in conftest.py
+    assert api.get_repo_names() == ["repo1", "repo2", "repo3"]
+
+
 @pytest.mark.parametrize(
     "status_code", [204, 206, 300, 302, 404, 400, 401, 408, 502, 500]
 )

@@ -6,10 +6,12 @@ Created: 24/02/2021
 """
 
 from enum import Enum
+from typing import List
 
 import typer
 from cookiecutter.main import cookiecutter
 
+from pytoil.api import API
 from pytoil.config import Config
 from pytoil.env import CondaEnv, VirtualEnv
 from pytoil.repo import Repo
@@ -196,8 +198,10 @@ def checkout(
     If neither of these finds a match, you will be asked to specify a url
     to a GitHub repo of the project you want to work on.
 
-    You can also specify this at the beginning with the "-u/--url" option.
-    If this is specified, the local and remote repo searching is skipped
+    You can also specify this at the beginning with the "-u/--url"
+    or "-p/--path" options.
+
+    If either of these are specified, the local and remote repo searching is skipped
     and the specified repo will be forked and cloned.
 
     Examples:
@@ -295,3 +299,70 @@ def checkout(
                     " '$pytoil new --url https://github.com/someone/coolproject.git"
                     " '$pytoil new --path someone/coolproject"
                 )
+
+
+@app.command()
+def list(
+    remote: bool = typer.Option(
+        False, "--remote", "-r", help="List projects on your GitHub."
+    ),
+    both: bool = typer.Option(
+        False, "--all", "-a", help="List all projects, local and on your GitHub."
+    ),
+) -> None:
+    """
+    Show your development projects.
+
+    By default will only list the names of projects that exist locally
+    in the configured "projects_dir" location.
+
+    If "remote" is specified, the projects belonging to you on GitHub
+    will be shown.
+
+    If "all" is specified, all projects both local and remote will be shown
+    separated by local and remote.
+
+    Examples:
+
+    $ pytoil project list
+
+    $ pytoil project list --remote
+
+    $ pytoil project list --all
+    """
+
+    # Should automatically fetch details from config
+    api = API()
+
+    # Where are we looking
+    projects_folder = Config.get().projects_dir
+
+    # Since local is default, iterdir is a generator, and list comps are fast
+    # We can do this upfront with minimal cost
+    local_projects: List[str] = [
+        f.name for f in projects_folder.iterdir() if not f.name.startswith(".")
+    ]
+
+    if remote:
+        remote_projects: List[str] = api.get_repo_names()
+        typer.secho("Remote Projects:\n", fg=typer.colors.BLUE, bold=True)
+        for project in remote_projects:
+            typer.echo(project)
+
+    elif both:
+        # First show locals
+        typer.secho("Local Projects:\n", fg=typer.colors.BLUE, bold=True)
+        for project in local_projects:
+            typer.echo(project)
+
+        # Now show remotes
+        remote_projects = api.get_repo_names()
+        typer.secho("\nRemote Projects:\n", fg=typer.colors.BLUE, bold=True)
+        for project in remote_projects:
+            typer.echo(project)
+
+    else:
+        # Just locals as default
+        typer.secho("Local Projects:\n", fg=typer.colors.BLUE, bold=True)
+        for project in local_projects:
+            typer.echo(project)
