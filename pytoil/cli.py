@@ -74,12 +74,12 @@ def new(
         help="URL to a cookiecutter template repo from which to create the project.",
     ),
     venv: Venv = typer.Option(
-        ...,
+        Venv.none,
         "--venv",
         "-v",
         help="Which type of virtual environment to create for the project.",
-        prompt=True,
         case_sensitive=False,
+        show_default=True,
     ),
 ) -> None:
     """
@@ -95,11 +95,8 @@ def new(
     directory named PROJECT in your configured location.
 
     If venv is specified, it must be one of "virtualenv" or "conda" and the
-    corresponding environment will be created for your project.
-
-    You may also specify venv as "none" in which case, environment creation will be
-    skipped. The inputs to venv are not case sensitive so "none" works just as well
-    as "None". If you do not specify venv, it will be prompted for.
+    corresponding environment will be created for your project. If venv is not
+    specified, environment creation will be skipped.
 
     You must have the conda package manager installed on your system to create conda
     environments. The conda environment will have the same name as your project. The
@@ -177,17 +174,14 @@ def new(
         env.update_seeds()
 
     elif venv.value == venv.none:
-        typer.secho(
-            "Virtual environment not requested. Skipping environment creation.",
-            fg=typer.colors.YELLOW,
-        )
+        typer.echo("Virtual environment not requested. Skipping environment creation.")
     else:
         # This should never happen as we're using an Enum
         # But just incase, let's abort
         typer.secho("Unrecognised option for venv.", fg=typer.colors.RED)
         raise typer.Abort()
 
-    typer.secho("Done!", fg=typer.colors.GREEN)
+    typer.secho("\nDone!", fg=typer.colors.GREEN)
 
 
 @app.command()
@@ -362,7 +356,7 @@ def config(
 
     OR
 
-    $ pytoil config --set token "mynewtoken"
+    $ pytoil config --set token mynewtoken
     """
 
     # Get the config but don't raise on UNSET
