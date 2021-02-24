@@ -1,21 +1,18 @@
 """
-Main CLI module.
+CLI project command.
 
 Author: Tom Fleet
-Created: 04/02/2021
+Created: 24/02/2021
 """
 
-
 from enum import Enum
-from typing import Tuple
 
 import typer
 from cookiecutter.main import cookiecutter
 
-from . import __version__
-from .config import Config
-from .env import CondaEnv, VirtualEnv
-from .repo import Repo
+from pytoil.config import Config
+from pytoil.env import CondaEnv, VirtualEnv
+from pytoil.repo import Repo
 
 
 class Venv(str, Enum):
@@ -28,39 +25,17 @@ class Venv(str, Enum):
     none = "none"
 
 
-app = typer.Typer(name="pytoil", no_args_is_help=True)
+app = typer.Typer(no_args_is_help=True)
 
 
-def version_callback(value: bool) -> None:
-    if value:
-        typer.echo(f"pytoil version: {__version__}")
-        raise typer.Exit()
-
-
+# Callback for documentation only
 @app.callback()
-def main(
-    version: bool = typer.Option(
-        None,
-        "--version",
-        "-V",
-        help="Display pytoil version.",
-        callback=version_callback,
-        is_eager=True,
-        show_default=False,
-    )
-) -> None:
+def project() -> None:
     """
-    Helpful CLI to automate the development workflow.
+    Manage your local and remote development projects.
 
-    Create, and easily resume work on, local or remote
-    development projects.
-
-    Build projects from cookiecutter templates.
-
-    Automatically creates the correct virtual environment
-    for your project.
-
-    Minimal configuration required.
+    Set the "projects_dir" key in the config to control
+    where this command looks.
     """
 
 
@@ -106,15 +81,15 @@ def new(
 
     Examples:
 
-    $ pytoil new my_cool_project
+    $ pytoil project new my_cool_project
 
     OR
 
-    $ pytoil new my_cool_project -c https://github.com/me/my_cookie_template.git
+    $ pytoil project new my_cool_project -c https://github.com/me/my_cookie_template.git
 
     OR
 
-    $ pytoil new my_cool_project -v virtualenv -c https://github.com/me/cookie.git
+    $ pytoil project new my_cool_project -v conda -c https://github.com/me/cookie.git
     """
 
     config = Config.get()
@@ -128,8 +103,8 @@ def new(
             f"Project: {project!r} already exists locally at {repo.path}",
             fg=typer.colors.YELLOW,
         )
-        typer.echo("To resume an existing project, use pytoil resume.")
-        typer.echo(f"Example: '$ pytoil resume {project}'.")
+        typer.echo("To checkout an existing project, use pytoil checkout.")
+        typer.echo(f"Example: '$ pytoil checkout {project}'.")
         raise typer.Abort()
 
     if cookie:
@@ -185,34 +160,36 @@ def new(
 
 
 @app.command()
-def resume(
-    project: str = typer.Argument(default=None, help="Name of the project to resume."),
+def checkout(
+    project: str = typer.Argument(
+        default=None, help="Name of the project to checkout."
+    ),
     url: str = typer.Option(
         None,
         "--url",
         "-u",
-        help="URL of a project to resume work on (skips searching).",
+        help="URL of a project to checkout (skips searching).",
     ),
     path: str = typer.Option(
         None,
         "--path",
         "-p",
-        help="Shorthand repo path of a project to resume work on (skips searching).",
+        help="Shorthand repo path of a project to checkout (skips searching).",
     ),
 ) -> None:
     """
-    Resume a development project, either locally or from GitHub.
+    Checkout a development project, either locally or from GitHub.
 
     pytoil will first check your configured projects directory
     for a matching name, falling back to searching your GitHub repositories,
-    and finally asking you to specify what project you want to resume work on.
+    and finally asking you to specify what project you want to checkout work on.
     e.g. if you want to work on a new repo owned by someone else.
 
-    If resume finds the project locally, it will ensure any virtual environments
+    If checkout finds the project locally, it will ensure any virtual environments
     are configured properly if required (e.g. a python project) and open the
     root of the project in your chosen editor.
 
-    If resume finds a match, not locally but in your GitHub repos, it will
+    If checkout finds a match, not locally but in your GitHub repos, it will
     first clone the repo to your projects directory before proceeding as if
     it existed locally.
 
@@ -225,11 +202,11 @@ def resume(
 
     Examples:
 
-    $ pytoil resume my_cool_project
+    $ pytoil project checkout my_cool_project
 
-    OR
+    $ pytoil project checkout --url https://github.com/someone/their_cool_project.git
 
-    $ pytoil resume --url https://github.com/someoneelse/their_cool_project.git
+    $ pytoil project checkout --path someone/their_cool_project
     """
 
     config = Config.get()
@@ -253,7 +230,9 @@ def resume(
         # Now handle all the clone/fork logic
         if repo.owner == config.username:
             typer.echo(f"It looks like you own the repo: '{repo.owner}/{repo.name}'.")
-            typer.echo(f"FYI: You could have just said: '$ pytoil resume {repo.name}'.")
+            typer.echo(
+                f"FYI: You could have just said: '$ pytoil checkout {repo.name}'."
+            )
             typer.echo(f"Cloning '{repo.owner}/{repo.name}'")
             repo.clone()
             typer.secho(
@@ -311,79 +290,8 @@ def resume(
                 typer.echo(
                     f"Does the project exist? If not, create a new project:"
                     f" '$ pytoil new {project}'."
-                    "Or specify a url to a repo directly with the --url option:"
+                    "Or specify a url/path to a repo directly with the "
+                    "--url/--path option:"
                     " '$pytoil new --url https://github.com/someone/coolproject.git"
+                    " '$pytoil new --path someone/coolproject"
                 )
-
-
-@app.command()
-def config(
-    show: bool = typer.Option(
-        False,
-        "--show",
-        help="Show currently set configuration.",
-        show_default=False,
-    ),
-    set: Tuple[str, str] = typer.Option(
-        [None, None],
-        "--set",
-        help="Set a configuration key: value pair.",
-        show_default=False,
-    ),
-) -> None:
-    """
-    Interact with pytoil's configuration.
-
-    "--show" will display the currently set configuration from your
-    config file.
-
-    "--set" accepts a valid key, value pair to set a configuration parameter.
-
-    Schema:
-
-    username (string): Your GitHub username.
-    e.g. 'FollowTheProcess'
-
-    token (string): Your GitHub personal access token.
-    e.g. '917hab19asbso181h91y' (totally made up)
-
-    projects_dir (string): The absolute path to where you keep development projects.
-    e.g. '/Users/you/projects'
-
-    Usage:
-
-    $ pytoil config --show
-
-    OR
-
-    $ pytoil config --set token mynewtoken
-    """
-
-    # Get the config but don't raise on UNSET
-    config = Config.get()
-
-    if show:
-        typer.secho("\nCurrent pytoil config:", fg=typer.colors.BLUE, bold=True)
-        config.show()
-
-    elif set:
-        old_config_dict = config.to_dict()
-        key, val = set
-
-        if key not in old_config_dict.keys():
-            typer.secho(
-                f"Key: {key!r} is not a valid pytoil config key.", fg=typer.colors.RED
-            )
-            raise typer.Abort()
-
-        new_config_dict = old_config_dict.copy()
-        new_config_dict.update({key: val})
-
-        typer.secho(f"Key: {key!r} not a valid configuration key.", fg=typer.colors.RED)
-
-        new_config = Config(**new_config_dict)
-        new_config.write()
-
-        typer.secho(
-            f"Configuration updated: {key!r} is now {val!r}.", fg=typer.colors.GREEN
-        )

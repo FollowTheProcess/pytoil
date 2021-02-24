@@ -23,7 +23,7 @@ packages = [
 include = ["pytoil/py.typed", "LICENSE", "README.md", "pyproject.toml"]
 
 [tool.poetry.scripts]
-pytoil = "pytoil.cli:app"
+pytoil = "pytoil.cli.main:app"
 
 [tool.poetry.urls]
 "Documentation" = "https://FollowTheProcess.github.io/pytoil/"
@@ -59,7 +59,7 @@ profile = "black"
 multi_line_output = 3
 
 [tool.coverage.run]
-omit = ["*__init__.py", "*exceptions.py", "*__main__.py", "*cli.py"]
+omit = ["*__init__.py", "*exceptions.py", "*__main__.py", "pytoil/cli/*"]
 branch = true
 
 [build-system]
