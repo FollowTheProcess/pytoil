@@ -51,6 +51,7 @@ mkdocs = "^1.1"
 mkdocs-material = "^6.2"
 mkdocstrings = "^0"
 pytest-mock = "^3.5.1"
+markdown-include = "^0.6.0"
 
 [tool.isort]
 # Added for compatability with black

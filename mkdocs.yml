@@ -7,6 +7,7 @@ use_directory_urls: false
 nav:
   - Home:
       - Index: index.md
+  - Changelog: changelog.md
 plugins:
   - mkdocstrings:
       watch:
@@ -24,6 +25,8 @@ theme:
     accent: blue
 markdown_extensions:
   - codehilite
+  - markdown_include.include:
+      base_path: docs
   - pymdownx.highlight:
       use_pygments: true
   - pymdownx.inlinehilite

@@ -88,7 +88,9 @@ def docs(session: nox.Session) -> None:
     nox -s docs -- serve
     """
     session.install("--upgrade", "pip", "setuptools", "wheel")
-    poetry_install(session, "mkdocs", "mkdocs-material", "mkdocstrings")
+    poetry_install(
+        session, "mkdocs", "mkdocs-material", "mkdocstrings", "markdown_include"
+    )
 
     if "serve" in session.posargs:
         session.run("mkdocs", "serve")
