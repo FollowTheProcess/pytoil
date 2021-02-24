@@ -35,7 +35,7 @@ def poetry_install(session: nox.Session, *args: str, **kwargs: Any) -> None:
 
 
 @nox.session(python=["3.7", "3.8", "3.9"])
-def test(session):
+def test(session: nox.Session) -> None:
     """
     Runs the test suite against all supported python versions.
     """
@@ -48,7 +48,7 @@ def test(session):
 
 
 @nox.session()
-def coverage(session):
+def coverage(session: nox.Session) -> None:
     """
     Test coverage analysis.
     """
@@ -66,7 +66,7 @@ def coverage(session):
 
 
 @nox.session()
-def lint(session):
+def lint(session: nox.Session) -> None:
     """
     Formats project with black and isort, then runs flake8 and mypy linting.
     """
@@ -79,7 +79,7 @@ def lint(session):
 
 
 @nox.session()
-def docs(session):
+def docs(session: nox.Session) -> None:
     """
     Builds the project documentation.
 
