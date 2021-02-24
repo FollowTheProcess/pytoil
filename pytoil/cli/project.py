@@ -331,32 +331,39 @@ def list(
     $ pytoil project list --all
     """
 
+    # Everything here requires a valid and filled out config
+    config = Config.get()
+    config.raise_if_unset()
+
     # Should automatically fetch details from config
     api = API()
 
-    # Where are we looking
-    projects_folder = Config.get().projects_dir
-
     # Since local is default, iterdir is a generator, and list comps are fast
+    # Also someone is unlikely to have thousands of local project directories
     # We can do this upfront with minimal cost
     local_projects: List[str] = [
-        f.name for f in projects_folder.iterdir() if not f.name.startswith(".")
+        f.name
+        for f in config.projects_dir.iterdir()
+        if f.is_dir() and not f.name.startswith(".")
     ]
 
     if remote:
+        # Only grab remotes if specifically requested
+        # Avoid hitting the API if we don't have to
         remote_projects: List[str] = api.get_repo_names()
         typer.secho("Remote Projects:\n", fg=typer.colors.BLUE, bold=True)
         for project in remote_projects:
             typer.echo(project)
 
     elif both:
+        # Grab remotes upfront
+        remote_projects = api.get_repo_names()
         # First show locals
         typer.secho("Local Projects:\n", fg=typer.colors.BLUE, bold=True)
         for project in local_projects:
             typer.echo(project)
 
         # Now show remotes
-        remote_projects = api.get_repo_names()
         typer.secho("\nRemote Projects:\n", fg=typer.colors.BLUE, bold=True)
         for project in remote_projects:
             typer.echo(project)
