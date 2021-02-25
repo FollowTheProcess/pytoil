@@ -5,8 +5,9 @@ Author: Tom Fleet
 Created: 24/02/2021
 """
 
+import shutil
 from enum import Enum
-from typing import List
+from typing import List, Set
 
 import typer
 from cookiecutter.main import cookiecutter
@@ -38,11 +39,14 @@ def project() -> None:
 
     Set the "projects_dir" key in the config to control
     where this command looks on your local file system.
+
+    Set the "token" key in the config to give pytoil access
+    to your GitHub via the API.
     """
 
 
 @app.command()
-def new(
+def create(
     project: str = typer.Argument(..., help="Name of the project to create."),
     cookie: str = typer.Option(
         None,
@@ -80,14 +84,13 @@ def new(
     virtualenv environment will be located in the root of your project under the folder
     '.venv'.
 
-
     Examples:
 
-    $ pytoil project new my_cool_project
+    $ pytoil project create my_project
 
-    $ pytoil project new my_cool_project -c https://github.com/me/my_cookie_template.git
+    $ pytoil project create my_project -c https://github.com/me/my_cookie_template.git
 
-    $ pytoil project new my_cool_project -v conda -c https://github.com/me/cookie.git
+    $ pytoil project create my_project -v conda -c https://github.com/me/cookie.git
     """
 
     # Everything below requires a valid config
@@ -99,23 +102,24 @@ def new(
 
     if repo.exists_local():
         typer.secho(
-            f"Project: {project!r} already exists locally at '{repo.path}'.",
+            f"\nProject: {project!r} already exists locally at '{repo.path}'.",
             fg=typer.colors.YELLOW,
         )
-        typer.echo("To resume an existing project, use pytoil checkout.")
-        typer.echo(f"Example: '$ pytoil checkout {project}'.")
+        typer.echo("To resume an existing project, use 'checkout'.")
+        typer.echo(f"Example: '$ pytoil project checkout {project}'.")
         raise typer.Abort()
 
     if cookie:
         typer.secho(
-            f"Creating project: {project!r} with cookiecutter template: {cookie!r}.\n",
+            f"\nCreating project: {project!r} with cookiecutter template:"
+            + f" {cookie!r}.\n",
             fg=typer.colors.BLUE,
             bold=True,
         )
         cookiecutter(template=cookie, output_dir=config.projects_dir)
     else:
         typer.secho(
-            f"Creating project: {project!r} at {repo.path}.\n",
+            f"\nCreating project: {project!r} at {repo.path}.\n",
             fg=typer.colors.BLUE,
             bold=True,
         )
@@ -124,19 +128,19 @@ def new(
 
     if venv.value == venv.conda:
         typer.secho(
-            f"Creating conda environment for {project!r}.\n",
+            f"\nCreating conda environment for {project!r}.\n",
             fg=typer.colors.BLUE,
             bold=True,
         )
         conda_env = CondaEnv(name=project)
         conda_env.create()
 
-        typer.echo("Exporting 'environment.yml' file.")
+        typer.echo("\nExporting 'environment.yml' file.")
         conda_env.export_yml(fp=repo.path)
 
     elif venv.value == venv.virtualenv:
         typer.secho(
-            f"Creating virtualenv environment for {project!r}.\n",
+            f"\nCreating virtualenv environment for {project!r}.\n",
             fg=typer.colors.BLUE,
             bold=True,
         )
@@ -144,7 +148,7 @@ def new(
         env = VirtualEnv(basepath=repo.path)
         env.create()
 
-        typer.echo("Ensuring seed packages (pip, setuptools, wheel) are up to date.")
+        typer.echo("\nEnsuring seed packages (pip, setuptools, wheel) are up to date.")
         env.update_seeds()
 
     elif venv.value == venv.none:
@@ -215,39 +219,59 @@ def checkout(
     config.raise_if_unset()
 
     if url or path:
+
+        # Guard against invalid usage
+        if url and path:
+            raise typer.BadParameter("'--url' and '--path' cannot be used together.")
+
         # Meaning most likely it's not the users repo
         # url or path will both use the same logic
         # configure the repo object upfront with either url or path
         if url:
             typer.secho(
-                f"Resuming project from url: {url!r}", fg=typer.colors.BLUE, bold=True
+                f"\nResuming project from url: {url!r}.",
+                fg=typer.colors.BLUE,
+                bold=True,
             )
             repo = Repo.from_url(url=url)
         elif path:
             typer.secho(
-                f"Resuming project from path: {path!r}", fg=typer.colors.BLUE, bold=True
+                f"\nResuming project from path: {path!r}.",
+                fg=typer.colors.BLUE,
+                bold=True,
             )
             repo = Repo.from_path(path=path)
 
         # Now handle all the clone/fork logic
         if repo.owner == config.username:
+            # i.e. the requested repo belongs to the user
             typer.echo(f"It looks like you own the repo: '{repo.owner}/{repo.name}'.")
             typer.echo(
-                f"FYI: You could have just said: '$ pytoil checkout {repo.name}'."
+                "FYI: You could have just said: "
+                + f"'$ pytoil project checkout {repo.name}'."
             )
-            typer.echo(f"Cloning '{repo.owner}/{repo.name}'.")
-            repo.clone()
-            typer.secho(
-                f"\nProject: {project!r} now available locally at '{repo.path}'.",
-                fg=typer.colors.GREEN,
-            )
+            if not repo.exists_local():
+                typer.echo(f"Cloning '{repo.owner}/{repo.name}'.")
+                repo.clone()
+                typer.secho(
+                    f"\nProject: {project!r} now available locally at '{repo.path}'.",
+                    fg=typer.colors.GREEN,
+                )
+                # TODO: Handle project setup actions e.g. virtualenvs, determine
+                # which env from file content
+            else:
+                typer.secho(
+                    f"\nProject: {project!r} already available at '{repo.path}'.",
+                    fg=typer.colors.GREEN,
+                )
         else:
+            # Requested repo does not belong to the user
             typer.echo(
                 f"It looks like the repo: '{repo.owner}/{repo.name}' isn't yours."
             )
             if repo.exists_remote():
                 typer.secho(
-                    f"Creating fork: '{config.username}/{repo.name}'\n",
+                    f"\nCreating fork: '{config.username}/{repo.name}'\n",
                     fg=typer.colors.BLUE,
                     bold=True,
                 )
@@ -259,6 +283,8 @@ def checkout(
                 typer.echo(
                     "FYI: Forking happens asynchronously so your fork may not be"
                     + " available to clone for a few moments."
+                    + " It's best to wait for 30 seconds or so"
+                    + f" then run '$ pytoil project checkout {project}'."
                 )
             else:
                 typer.secho(
@@ -267,51 +293,75 @@ def checkout(
                 )
                 raise typer.Abort()
     else:
-        typer.secho(f"Resuming project: {project!r}\n", fg=typer.colors.BLUE, bold=True)
-
-        repo = Repo(name=project)
-
-        if repo.exists_local():
+        # Project exists either locally or on users GitHub
+        # and is to be grabbed by name only
+        if not project:
             typer.secho(
-                f"Project: {project!r} is already available locally at"
-                f" '{repo.path}'.",
-                fg=typer.colors.GREEN,
-            )
-        else:
-            typer.secho(
-                f"Project: {project!r} not found locally. Checking user's GitHub...\n",
+                "If not checking out from a url or path"
+                + ", you must specify a project name.",
                 fg=typer.colors.YELLOW,
             )
-            if repo.exists_remote():
-                typer.echo(f"Project: {project!r} found on user's GitHub. Cloning...\n")
-                repo.clone()
+            raise typer.Abort()
+        else:
+            # We have a project name
+            typer.secho(
+                f"\nResuming project: {project!r}\n", fg=typer.colors.BLUE, bold=True
+            )
+
+            repo = Repo(name=project)
+
+            if repo.exists_local():
                 typer.secho(
-                    f"\nProject: {project!r} now available locally at"
+                    f"\nProject: {project!r} is already available locally at"
                     f" '{repo.path}'.",
                     fg=typer.colors.GREEN,
                 )
             else:
                 typer.secho(
-                    f"Project: {project!r} not found on user's GitHub.\n",
-                    fg=typer.colors.RED,
+                    f"\nProject: {project!r} not found locally."
+                    + " Checking user's GitHub...\n",
+                    fg=typer.colors.YELLOW,
                 )
-                typer.echo(
-                    f"Does the project exist? If not, create a new project:"
-                    f" '$ pytoil new {project}'."
-                    "Or specify a url/path to a repo directly with the "
-                    "--url/--path option:"
-                    " '$pytoil new --url https://github.com/someone/coolproject.git"
-                    " '$pytoil new --path someone/coolproject"
-                )
+                if repo.exists_remote():
+                    typer.echo(
+                        f"Project: {project!r} found on user's GitHub. Cloning...\n"
+                    )
+                    repo.clone()
+                    typer.secho(
+                        f"Project: {project!r} now available locally at"
+                        f" '{repo.path}'.",
+                        fg=typer.colors.GREEN,
+                    )
+                else:
+                    typer.secho(
+                        f"Project: {project!r} not found on user's GitHub.\n",
+                        fg=typer.colors.RED,
+                    )
+                    typer.echo(
+                        "Does the project exist? If not, create a new project:"
+                        + f" '$ pytoil project create {project}'."
+                    )
+                    typer.echo(
+                        "Or specify a url/path to a repo directly with the "
+                        + "--url/--path option"
+                    )
 
 
 @app.command()
 def list(
     remote: bool = typer.Option(
-        False, "--remote", "-r", help="List projects on your GitHub."
+        False,
+        "--remote",
+        "-r",
+        help="List projects on your GitHub.",
+        show_default=False,
     ),
     all_: bool = typer.Option(
-        False, "--all", "-a", help="List all projects, local and on your GitHub."
+        False,
+        "--all",
+        "-a",
+        help="List all projects, local and on your GitHub.",
+        show_default=False,
     ),
 ) -> None:
     """
@@ -342,6 +392,10 @@ def list(
     # Should automatically fetch details from config
     api = API()
 
+    # Shouldnt specify remote and all
+    if remote and all_:
+        raise typer.BadParameter("'--remote' and '--all' cannot be used together.")
+
     # Since local is default, iterdir is a generator, and list comps are fast
     # we can do this upfront with minimal cost
     # also someone is unlikely to have thousands of local project directories
@@ -361,13 +415,13 @@ def list(
         remote_projects: List[str] = sorted(api.get_repo_names(), key=str.casefold)
 
         if remote:
-            typer.secho("Remote Projects:\n", fg=typer.colors.BLUE, bold=True)
+            typer.secho("\nRemote Projects:\n", fg=typer.colors.BLUE, bold=True)
             for project in remote_projects:
                 typer.echo(project)
         else:
             # Must be all
             # First show locals
-            typer.secho("Local Projects:\n", fg=typer.colors.BLUE, bold=True)
+            typer.secho("\nLocal Projects:\n", fg=typer.colors.BLUE, bold=True)
             for project in local_projects:
                 typer.echo(project)
 
@@ -377,6 +431,67 @@ def list(
                 typer.echo(project)
     else:
         # Just locals as default
-        typer.secho("Local Projects:\n", fg=typer.colors.BLUE, bold=True)
+        typer.secho("\nLocal Projects:\n", fg=typer.colors.BLUE, bold=True)
         for project in local_projects:
             typer.echo(project)
+
+
+@app.command()
+def remove(
+    project: str = typer.Argument(..., help="Name of the project to remove."),
+    force: bool = typer.Option(
+        False,
+        "--force",
+        "-f",
+        help="Remove project without prompting for confirmation.",
+        show_default=False,
+    ),
+) -> None:
+    """
+    Deletes a project from your local filesystem.
+
+    Deletion is done recursively, roughly equivalent to '$ rm -r {project}'.
+
+    User will be prompted for confirmation unless "--force/-f" flag is used.
+    """
+
+    # Everything below needs a valid config
+    config = Config.get()
+    config.raise_if_unset()
+
+    # Set because we don't care about sorting or printing
+    # but we want fast membership checking
+    local_projects: Set[str] = {
+        f.name
+        for f in config.projects_dir.iterdir()
+        if f.is_dir() and not f.name.startswith(".")
+    }
+
+    if project not in local_projects:
+        typer.secho(
+            f"Project: {project!r} not found in local filesystem.", fg=typer.colors.RED
+        )
+        raise typer.Abort()
+
+    if not force:
+        # Confirm with user and abort if they say no
+        typer.confirm(
+            f"\nThis will remove {project!r} from your local filesystem."
+            + " This is IRREVERSIBLE! Are you sure?",
+            abort=True,
+        )
+
+        # If user said no, typer will abort and this statement will not run
+        typer.secho(
+            f"\nRemoving project: {project!r}.", fg=typer.colors.BLUE, bold=True
+        )
+        shutil.rmtree(config.projects_dir.joinpath(project))
+        typer.secho("\nDone!", fg=typer.colors.GREEN)
+
+    else:
+        # If user specifies force flag, just go ahead and remove
+        typer.secho(
+            f"\nRemoving project: {project!r}.", fg=typer.colors.BLUE, bold=True
+        )
+        shutil.rmtree(config.projects_dir.joinpath(project))
+        typer.secho("\nDone!", fg=typer.colors.GREEN)
