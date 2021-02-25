@@ -176,7 +176,7 @@ class VirtualEnv:
         prefix: Optional[str] = None,
         requirements: Optional[str] = None,
         editable: bool = False,
-    ) -> List[str]:
+    ) -> None:
         """
         Generic `pip install` method.
 
@@ -225,10 +225,6 @@ class VirtualEnv:
         Raises:
             ValueError: If mutually exclusive arguments are used together,
                 or if no arguments are used at all.
-
-        Returns:
-            List[str]: The command sent to pip. Side effect, primarily only used
-                for testing.
         """
 
         if packages and (prefix or editable or requirements):
@@ -282,8 +278,6 @@ class VirtualEnv:
             subprocess.run(cmd, check=True)
         except subprocess.CalledProcessError:
             raise
-        else:
-            return cmd
 
 
 class CondaEnv:

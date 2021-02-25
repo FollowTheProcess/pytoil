@@ -37,7 +37,7 @@ def project() -> None:
     Manage your local and remote development projects.
 
     Set the "projects_dir" key in the config to control
-    where this command looks.
+    where this command looks on your local file system.
     """
 
 
@@ -85,15 +85,12 @@ def new(
 
     $ pytoil project new my_cool_project
 
-    OR
-
     $ pytoil project new my_cool_project -c https://github.com/me/my_cookie_template.git
-
-    OR
 
     $ pytoil project new my_cool_project -v conda -c https://github.com/me/cookie.git
     """
 
+    # Everything below requires a valid config
     config = Config.get()
     config.raise_if_unset()
 
@@ -102,10 +99,10 @@ def new(
 
     if repo.exists_local():
         typer.secho(
-            f"Project: {project!r} already exists locally at {repo.path}",
+            f"Project: {project!r} already exists locally at '{repo.path}'.",
             fg=typer.colors.YELLOW,
         )
-        typer.echo("To checkout an existing project, use pytoil checkout.")
+        typer.echo("To resume an existing project, use pytoil checkout.")
         typer.echo(f"Example: '$ pytoil checkout {project}'.")
         raise typer.Abort()
 
@@ -213,12 +210,13 @@ def checkout(
     $ pytoil project checkout --path someone/their_cool_project
     """
 
+    # Everything below requires a valid config
     config = Config.get()
     config.raise_if_unset()
 
     if url or path:
         # Meaning most likely it's not the users repo
-        # url or path will need the same actions
+        # url or path will both use the same logic
         # configure the repo object upfront with either url or path
         if url:
             typer.secho(
@@ -237,31 +235,37 @@ def checkout(
             typer.echo(
                 f"FYI: You could have just said: '$ pytoil checkout {repo.name}'."
             )
-            typer.echo(f"Cloning '{repo.owner}/{repo.name}'")
+            typer.echo(f"Cloning '{repo.owner}/{repo.name}'.")
             repo.clone()
             typer.secho(
-                f"\nProject: {project!r} now available locally at {str(repo.path)!r}.",
+                f"\nProject: {project!r} now available locally at '{repo.path}'.",
                 fg=typer.colors.GREEN,
             )
         else:
             typer.echo(
                 f"It looks like the repo: '{repo.owner}/{repo.name}' isn't yours."
             )
-            # TODO: Confirm the repo exists before attempting to fork it
-            # Could have made a typo for example
-            typer.secho(
-                f"Creating fork: '{config.username}/{repo.name}'\n",
-                fg=typer.colors.BLUE,
-                bold=True,
-            )
-            user_fork = repo.fork()
-            typer.secho(
-                f"Your fork: {user_fork!r} has been requested.\n", fg=typer.colors.GREEN
-            )
-            typer.echo(
-                "FYI: Forking happens asynchronously so your fork may not be available"
-                + " to clone for a few moments."
-            )
+            if repo.exists_remote():
+                typer.secho(
+                    f"Creating fork: '{config.username}/{repo.name}'\n",
+                    fg=typer.colors.BLUE,
+                    bold=True,
+                )
+                user_fork = repo.fork()
+                typer.secho(
+                    f"Your fork: {user_fork!r} has been requested.\n",
+                    fg=typer.colors.GREEN,
+                )
+                typer.echo(
+                    "FYI: Forking happens asynchronously so your fork may not be"
+                    + " available to clone for a few moments."
+                )
+            else:
+                typer.secho(
+                    f"Repo: '{repo.owner}/{repo.name}' not found on GitHub.",
+                    fg=typer.colors.RED,
+                )
+                raise typer.Abort()
     else:
         typer.secho(f"Resuming project: {project!r}\n", fg=typer.colors.BLUE, bold=True)
 
@@ -270,7 +274,7 @@ def checkout(
         if repo.exists_local():
             typer.secho(
                 f"Project: {project!r} is already available locally at"
-                f" {str(repo.path)!r}.",
+                f" '{repo.path}'.",
                 fg=typer.colors.GREEN,
             )
         else:
@@ -283,7 +287,7 @@ def checkout(
                 repo.clone()
                 typer.secho(
                     f"\nProject: {project!r} now available locally at"
-                    f" {str(repo.path)!r}.",
+                    f" '{repo.path}'.",
                     fg=typer.colors.GREEN,
                 )
             else:
@@ -306,7 +310,7 @@ def list(
     remote: bool = typer.Option(
         False, "--remote", "-r", help="List projects on your GitHub."
     ),
-    both: bool = typer.Option(
+    all_: bool = typer.Option(
         False, "--all", "-a", help="List all projects, local and on your GitHub."
     ),
 ) -> None:
@@ -331,7 +335,7 @@ def list(
     $ pytoil project list --all
     """
 
-    # Everything here requires a valid and filled out config
+    # Everything below requires a valid config
     config = Config.get()
     config.raise_if_unset()
 
@@ -339,35 +343,38 @@ def list(
     api = API()
 
     # Since local is default, iterdir is a generator, and list comps are fast
-    # Also someone is unlikely to have thousands of local project directories
-    # We can do this upfront with minimal cost
-    local_projects: List[str] = [
-        f.name
-        for f in config.projects_dir.iterdir()
-        if f.is_dir() and not f.name.startswith(".")
-    ]
+    # we can do this upfront with minimal cost
+    # also someone is unlikely to have thousands of local project directories
+    # that might slow this down
+    local_projects: List[str] = sorted(
+        [
+            f.name
+            for f in config.projects_dir.iterdir()
+            if f.is_dir() and not f.name.startswith(".")
+        ],
+        key=str.casefold,  # casefold means sorting works independent of case
+    )
 
-    if remote:
+    if remote or all_:
         # Only grab remotes if specifically requested
         # Avoid hitting the API if we don't have to
-        remote_projects: List[str] = api.get_repo_names()
-        typer.secho("Remote Projects:\n", fg=typer.colors.BLUE, bold=True)
-        for project in remote_projects:
-            typer.echo(project)
+        remote_projects: List[str] = sorted(api.get_repo_names(), key=str.casefold)
 
-    elif both:
-        # Grab remotes upfront
-        remote_projects = api.get_repo_names()
-        # First show locals
-        typer.secho("Local Projects:\n", fg=typer.colors.BLUE, bold=True)
-        for project in local_projects:
-            typer.echo(project)
+        if remote:
+            typer.secho("Remote Projects:\n", fg=typer.colors.BLUE, bold=True)
+            for project in remote_projects:
+                typer.echo(project)
+        else:
+            # Must be all
+            # First show locals
+            typer.secho("Local Projects:\n", fg=typer.colors.BLUE, bold=True)
+            for project in local_projects:
+                typer.echo(project)
 
-        # Now show remotes
-        typer.secho("\nRemote Projects:\n", fg=typer.colors.BLUE, bold=True)
-        for project in remote_projects:
-            typer.echo(project)
-
+            # Now show remotes
+            typer.secho("\nRemote Projects:\n", fg=typer.colors.BLUE, bold=True)
+            for project in remote_projects:
+                typer.echo(project)
     else:
         # Just locals as default
         typer.secho("Local Projects:\n", fg=typer.colors.BLUE, bold=True)
