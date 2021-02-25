@@ -119,7 +119,7 @@ def create(
         cookiecutter(template=cookie, output_dir=config.projects_dir)
     else:
         typer.secho(
-            f"\nCreating project: {project!r} at {repo.path}.\n",
+            f"\nCreating project: {project!r} at '{repo.path}'.\n",
             fg=typer.colors.BLUE,
             bold=True,
         )
@@ -223,6 +223,10 @@ def checkout(
         # Guard against invalid usage
         if url and path:
             raise typer.BadParameter("'--url' and '--path' cannot be used together.")
+        elif project:
+            raise typer.BadParameter(
+                "Arg: PROJECT cannot be used with either '--url' or '--path'."
+            )
 
         # Meaning most likely it's not the users repo
         # url or path will both use the same logic
@@ -266,6 +270,11 @@ def checkout(
                 )
         else:
             # Requested repo does not belong to the user
+            # NOTE: No cloning is done here because forking is
+            # asynchronous meaning we might not have anything to clone
+            # at execution time
+            # Instead we report that to the user and ask them to clone
+            # by using 'checkout' in a few moments.
             typer.echo(
                 f"It looks like the repo: '{repo.owner}/{repo.name}' isn't yours."
             )

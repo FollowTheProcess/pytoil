@@ -2,35 +2,42 @@
 name: Bug report
 about: Create a report to help us improve
 title: "[BUG]"
-labels: ''
+labels: bug
 assignees: ''
 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+### Describe the bug
 
-**To Reproduce**
-Steps to reproduce the behavior:
+Write here a clear and concise description of what the bug is.
 
-1. ...
-2. ...
-3. ...
-4. ...
+### To Reproduce
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+Steps to reproduce the behavior with a minimum self-contained file (if possible).
 
-**Screenshots**
+### Expected behavior
+
+Add a clear and concise description of what you expected to happen.
+
+### Screenshots
+
 If applicable, add screenshots to help explain your problem.
 
-**Desktop (please complete the following information):**
+### Environment
 
-* OS: [e.g. MacOS, Linux, Windows]
+* OS: [e.g. Linux / Windows / macOS]
+* pytoil Version [e.g. 0.3.0], get it with:
 
-* Python: [e.g. 3.8.3]
+```bash
+pytoil --version
+```
 
-* pytoil [e.g. 0.1.0]
+* Python version, get it with:
 
-**Additional context**
+```bash
+python --version
+```
+
+### Additional context
+
 Add any other context about the problem here.
