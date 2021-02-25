@@ -267,42 +267,55 @@ def checkout(
                 )
                 raise typer.Abort()
     else:
-        typer.secho(f"Resuming project: {project!r}\n", fg=typer.colors.BLUE, bold=True)
-
-        repo = Repo(name=project)
-
-        if repo.exists_local():
+        if not project:
             typer.secho(
-                f"Project: {project!r} is already available locally at"
-                f" '{repo.path}'.",
-                fg=typer.colors.GREEN,
-            )
-        else:
-            typer.secho(
-                f"Project: {project!r} not found locally. Checking user's GitHub...\n",
+                "If not checking out from a url or path"
+                + ", you must specify a project name.",
                 fg=typer.colors.YELLOW,
             )
-            if repo.exists_remote():
-                typer.echo(f"Project: {project!r} found on user's GitHub. Cloning...\n")
-                repo.clone()
+            raise typer.Abort()
+        else:
+            typer.secho(
+                f"Resuming project: {project!r}\n", fg=typer.colors.BLUE, bold=True
+            )
+
+            repo = Repo(name=project)
+
+            if repo.exists_local():
                 typer.secho(
-                    f"\nProject: {project!r} now available locally at"
+                    f"Project: {project!r} is already available locally at"
                     f" '{repo.path}'.",
                     fg=typer.colors.GREEN,
                 )
             else:
                 typer.secho(
-                    f"Project: {project!r} not found on user's GitHub.\n",
-                    fg=typer.colors.RED,
+                    f"Project: {project!r} not found locally."
+                    + " Checking user's GitHub...\n",
+                    fg=typer.colors.YELLOW,
                 )
-                typer.echo(
-                    f"Does the project exist? If not, create a new project:"
-                    f" '$ pytoil new {project}'."
-                    "Or specify a url/path to a repo directly with the "
-                    "--url/--path option:"
-                    " '$pytoil new --url https://github.com/someone/coolproject.git"
-                    " '$pytoil new --path someone/coolproject"
-                )
+                if repo.exists_remote():
+                    typer.echo(
+                        f"Project: {project!r} found on user's GitHub. Cloning...\n"
+                    )
+                    repo.clone()
+                    typer.secho(
+                        f"\nProject: {project!r} now available locally at"
+                        f" '{repo.path}'.",
+                        fg=typer.colors.GREEN,
+                    )
+                else:
+                    typer.secho(
+                        f"Project: {project!r} not found on user's GitHub.\n",
+                        fg=typer.colors.RED,
+                    )
+                    typer.echo(
+                        f"Does the project exist? If not, create a new project:"
+                        f" '$ pytoil new {project}'."
+                        "Or specify a url/path to a repo directly with the "
+                        "--url/--path option:"
+                        " '$pytoil new --url https://github.com/someone/coolproject.git"
+                        " '$pytoil new --path someone/coolproject"
+                    )
 
 
 @app.command()
