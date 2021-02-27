@@ -84,55 +84,75 @@ def test_api_setters():
 
 
 @pytest.mark.parametrize("bad_status_code", [400, 401, 403, 404, 500, 504, 505])
-def test_get_raises_on_bad_status(httpx_mock: HTTPXMock, bad_status_code):
+def test_get_raises_on_bad_status(
+    httpx_mock: HTTPXMock, bad_status_code, mocker, temp_config_file
+):
 
-    httpx_mock.add_response(
-        url="https://api.github.com/user/repos", status_code=bad_status_code
-    )
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
-    api = API(token="definitelynotatoken", username="me")
+        httpx_mock.add_response(
+            url="https://api.github.com/user/repos", status_code=bad_status_code
+        )
 
-    with pytest.raises(httpx.HTTPStatusError):
-        api.get("user/repos")
+        api = API(token="definitelynotatoken", username="me")
+
+        with pytest.raises(httpx.HTTPStatusError):
+            api.get("user/repos")
 
 
-def test_get_returns_correct_response(httpx_mock: HTTPXMock, fake_api_response):
+def test_get_returns_correct_response(
+    httpx_mock: HTTPXMock, fake_api_response, mocker, temp_config_file
+):
 
-    httpx_mock.add_response(
-        url="https://api.github.com/user/repos", json=fake_api_response, status_code=200
-    )
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
-    api = API(token="definitelynotatoken", username="me")
+        httpx_mock.add_response(
+            url="https://api.github.com/user/repos",
+            json=fake_api_response,
+            status_code=200,
+        )
 
-    r = api.get("user/repos")
+        api = API(token="definitelynotatoken", username="me")
 
-    assert r == fake_api_response
+        r = api.get("user/repos")
+
+        assert r == fake_api_response
 
 
 @pytest.mark.parametrize("bad_status_code", [400, 401, 403, 404, 500, 504, 505])
-def test_post_raises_on_bad_status(httpx_mock: HTTPXMock, bad_status_code):
+def test_post_raises_on_bad_status(
+    httpx_mock: HTTPXMock, mocker, temp_config_file, bad_status_code
+):
 
-    httpx_mock.add_response(
-        url="https://api.github.com/user/repos", status_code=bad_status_code
-    )
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
-    api = API(token="definitelynotatoken", username="me")
+        httpx_mock.add_response(
+            url="https://api.github.com/user/repos", status_code=bad_status_code
+        )
 
-    with pytest.raises(httpx.HTTPStatusError):
-        api.post("user/repos")
+        api = API(token="definitelynotatoken", username="me")
+
+        with pytest.raises(httpx.HTTPStatusError):
+            api.post("user/repos")
 
 
-def test_post_returns_correct_response(httpx_mock: HTTPXMock, fake_api_response):
+def test_post_returns_correct_response(
+    httpx_mock: HTTPXMock, fake_api_response, mocker, temp_config_file
+):
 
-    httpx_mock.add_response(
-        url="https://api.github.com/user/repos", json=fake_api_response, status_code=200
-    )
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
-    api = API(token="definitelynotatoken", username="me")
+        httpx_mock.add_response(
+            url="https://api.github.com/user/repos",
+            json=fake_api_response,
+            status_code=200,
+        )
 
-    r = api.post("user/repos")
+        api = API(token="definitelynotatoken", username="me")
 
-    assert r == fake_api_response
+        r = api.post("user/repos")
+
+        assert r == fake_api_response
 
 
 def test_get_user_repo_correctly_calls_get(mocker, fake_api_response):
