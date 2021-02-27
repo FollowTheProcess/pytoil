@@ -218,20 +218,23 @@ def checkout(
     config = Config.get()
     config.raise_if_unset()
 
-    if url or path:
+    # Guard against invalid usage upfront
+    if url and path:
+        raise typer.BadParameter("'--url' and '--path' cannot be used together.")
 
-        # Guard against invalid usage
-        if url and path:
-            raise typer.BadParameter("'--url' and '--path' cannot be used together.")
-        elif project:
+    if url or path:
+        # Meaning most likely it's not the users repo
+        # url or path will both use the same logic later
+        # configure the repo object upfront with either url or path
+
+        # Cant specify project and path/url
+        if project:
             raise typer.BadParameter(
                 "Arg: PROJECT cannot be used with either '--url' or '--path'."
             )
 
-        # Meaning most likely it's not the users repo
-        # url or path will both use the same logic
-        # configure the repo object upfront with either url or path
         if url:
+            # Set the repo object from a url
             typer.secho(
                 f"\nResuming project from url: {url!r}.",
                 fg=typer.colors.BLUE,
@@ -239,6 +242,7 @@ def checkout(
             )
             repo = Repo.from_url(url=url)
         elif path:
+            # Set the repo object from a path
             typer.secho(
                 f"\nResuming project from path: {path!r}.",
                 fg=typer.colors.BLUE,
