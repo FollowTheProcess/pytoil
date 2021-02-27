@@ -6,9 +6,9 @@ Created: 05/02/2021
 """
 
 
-from typing import NamedTuple
-
+import httpx
 import pytest
+from pytest_httpx import HTTPXMock
 
 import pytoil
 from pytoil.api import API
@@ -83,73 +83,76 @@ def test_api_setters():
     assert api.username == "someoneelse"
 
 
-@pytest.mark.parametrize("status_code", [300, 302, 404, 400, 401, 408, 502, 500])
-def test_get_raises_on_invalid_request(mocker, status_code, temp_config_file):
+@pytest.mark.parametrize("bad_status_code", [400, 401, 403, 404, 500, 504, 505])
+def test_get_raises_on_bad_status(
+    httpx_mock: HTTPXMock, bad_status_code, mocker, temp_config_file
+):
 
-    # Patch the default config file location to our temp file
     with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
-        class FakeResponseObject(NamedTuple):
-            """
-            Fake HTTP response so our mock request has a response
-            with a `.status` attribute.
-            """
-
-            status: int = status_code
-
-        api = API(token="notatoken", username="hello")
-
-        mocker.patch(
-            "pytoil.api.urllib3.PoolManager.request",
-            autospec=True,
-            return_value=FakeResponseObject(),
+        httpx_mock.add_response(
+            url="https://api.github.com/user/repos", status_code=bad_status_code
         )
 
-        with pytest.raises(APIRequestError) as err:
-            api.get("not/here")
-            assert err.status_code == status_code
+        api = API(token="definitelynotatoken", username="me")
+
+        with pytest.raises(httpx.HTTPStatusError):
+            api.get("user/repos")
 
 
-def test_get_doesnt_raise_on_valid_request(mocker, temp_config_file):
+def test_get_returns_correct_response(
+    httpx_mock: HTTPXMock, fake_api_response, mocker, temp_config_file
+):
 
-    # Patch the default config file location to our temp file
     with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
-        class FakeResponseData(NamedTuple):
-            """
-            Fake response data class with a decode method so
-            that `r.data.decode` works as expected.
-            """
-
-            data: str = '{"fake": "json"}'
-
-            def decode(self, encoding: str = "utf-8"):
-                return self.data
-
-        class FakeResponseObject:
-            """
-            Fake HTTP response so our mock request has a response
-            with a `.status` attribute.
-            """
-
-            def __init__(
-                self, data: FakeResponseData = FakeResponseData(), status: int = 200
-            ):
-                self.data = data
-                self.status = status
-
-        api = API(token="notatoken", username="hello")
-
-        mocker.patch(
-            "pytoil.api.urllib3.PoolManager.request",
-            autospec=True,
-            return_value=FakeResponseObject(),
+        httpx_mock.add_response(
+            url="https://api.github.com/user/repos",
+            json=fake_api_response,
+            status_code=200,
         )
 
-        # If this raises, the test fails
-        resp = api.get("fake/endpoint")
+        api = API(token="definitelynotatoken", username="me")
 
-        assert resp == {"fake": "json"}
+        r = api.get("user/repos")
+
+        assert r == fake_api_response
+
+
+@pytest.mark.parametrize("bad_status_code", [400, 401, 403, 404, 500, 504, 505])
+def test_post_raises_on_bad_status(
+    httpx_mock: HTTPXMock, mocker, temp_config_file, bad_status_code
+):
+
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
+
+        httpx_mock.add_response(
+            url="https://api.github.com/user/repos", status_code=bad_status_code
+        )
+
+        api = API(token="definitelynotatoken", username="me")
+
+        with pytest.raises(httpx.HTTPStatusError):
+            api.post("user/repos")
+
+
+def test_post_returns_correct_response(
+    httpx_mock: HTTPXMock, fake_api_response, mocker, temp_config_file
+):
+
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
+
+        httpx_mock.add_response(
+            url="https://api.github.com/user/repos",
+            json=fake_api_response,
+            status_code=200,
+        )
+
+        api = API(token="definitelynotatoken", username="me")
+
+        r = api.post("user/repos")
+
+        assert r == fake_api_response
 
 
 def test_get_user_repo_correctly_calls_get(mocker, fake_api_response):
@@ -180,77 +183,6 @@ def test_get_repo_names_correctly_calls_get_repos(mocker, fake_api_response):
 
     # The names are contained in the fake_api_response fixture in conftest.py
     assert api.get_repo_names() == ["repo1", "repo2", "repo3"]
-
-
-@pytest.mark.parametrize(
-    "status_code", [204, 206, 300, 302, 404, 400, 401, 408, 502, 500]
-)
-def test_post_raises_on_invalid_request(mocker, status_code, temp_config_file):
-
-    # Patch the default config file location to our temp file
-    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
-
-        class FakeResponseObject(NamedTuple):
-            """
-            Fake HTTP response so our mock request has a response
-            with a `.status` attribute.
-            """
-
-            status: int = status_code
-
-        api = API(token="notatoken", username="hello")
-
-        mocker.patch(
-            "pytoil.api.urllib3.PoolManager.request",
-            autospec=True,
-            return_value=FakeResponseObject(),
-        )
-
-        with pytest.raises(APIRequestError) as err:
-            api.post("not/here")
-            assert err.status_code == status_code
-
-
-def test_post_doesnt_raise_on_valid_request(mocker, temp_config_file):
-
-    # Patch the default config file location to our temp file
-    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
-
-        class FakeResponseData(NamedTuple):
-            """
-            Fake response data class with a decode method so
-            that `r.data.decode` works as expected.
-            """
-
-            data: str = '{"fake": "json"}'
-
-            def decode(self, encoding: str = "utf-8"):
-                return self.data
-
-        class FakeResponseObject:
-            """
-            Fake HTTP response so our mock request has a response
-            with a `.status` attribute.
-            """
-
-            def __init__(
-                self, data: FakeResponseData = FakeResponseData(), status: int = 200
-            ):
-                self.data = data
-                self.status = status
-
-        api = API(token="notatoken", username="hello")
-
-        mocker.patch(
-            "pytoil.api.urllib3.PoolManager.request",
-            autospec=True,
-            return_value=FakeResponseObject(),
-        )
-
-        # If this raises, the test fails
-        resp = api.post("fake/endpoint")
-
-        assert resp == {"fake": "json"}
 
 
 def test_fork_repo_raises_if_owner_matches_username(mocker, temp_config_file):

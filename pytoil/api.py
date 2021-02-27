@@ -5,10 +5,9 @@ Author: Tom Fleet
 Created: 04/02/2021
 """
 
-import json
 from typing import Any, Dict, List, Optional, Union
 
-import urllib3
+import httpx
 
 from .config import Config
 from .exceptions import APIRequestError
@@ -46,7 +45,6 @@ class API:
             "Accept": "application/vnd.github.v3+json",
             "Authorization": f"token {self._token}",
         }
-        self.http = urllib3.PoolManager()
 
     def __repr__(self) -> str:
         return (
@@ -99,20 +97,12 @@ class API:
         Returns:
             ApiResponse: JSON API response.
         """
-        # Validate the config
+        # This needs the token from the config
         Config.get().raise_if_unset()
 
-        r = self.http.request(
-            method="GET", url=self.baseurl + endpoint, headers=self.headers
-        )
-        if r.status != 200:
-            raise APIRequestError(
-                f"""GitHub API endpoint: {endpoint} gave HTTP Response: {r.status}.
-                Method: GET""",
-                status_code=r.status,
-            )
-        else:
-            response: APIResponse = json.loads(r.data.decode("utf-8"))
+        r = httpx.get(url=self.baseurl + endpoint, headers=self.headers)
+        r.raise_for_status()
+        response: APIResponse = r.json()
 
         return response
 
@@ -134,23 +124,14 @@ class API:
             APIResponse: JSON API response.
         """
 
-        # Validate the config
+        # This needs the token from the config
         Config.get().raise_if_unset()
 
-        r = self.http.request(
-            method="POST", url=self.baseurl + endpoint, headers=self.headers
-        )
+        r = httpx.post(url=self.baseurl + endpoint, headers=self.headers)
 
         # POSTs could return 202's
-        if r.status > 202:
-            raise APIRequestError(
-                f"""GitHub API endpoint: {endpoint} gave HTTP Response: {r.status}.
-                Method: POST.""",
-                status_code=r.status,
-            )
-
-        else:
-            response: APIResponse = json.loads(r.data.decode("utf-8"))
+        r.raise_for_status()
+        response: APIResponse = r.json()
 
         return response
 

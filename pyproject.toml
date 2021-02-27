@@ -34,7 +34,7 @@ typer = {extras = ["all"], version = "^0.3.2"}
 virtualenv = "^20.4.2"
 PyYAML = "^5.4.1"
 cookiecutter = "^1.7.2"
-urllib3 = "^1.26.3"
+httpx = "^0.16.1"
 
 [tool.poetry.dev-dependencies]
 bump2version = "^1.0"
@@ -52,6 +52,7 @@ mkdocs-material = "^6.2"
 mkdocstrings = "^0"
 pytest-mock = "^3.5.1"
 markdown-include = "^0.6.0"
+pytest-httpx = "^0.10.1"
 
 [tool.isort]
 # Added for compatability with black
