@@ -8,11 +8,13 @@ Created: 24/02/2021
 import typer
 
 from pytoil import __version__
-from pytoil.cli import config, project
+from pytoil.cli import config, project, show, sync
 
 app = typer.Typer(name="pytoil", no_args_is_help=True)
 app.add_typer(config.app, name="config")
 app.add_typer(project.app, name="project")
+app.add_typer(sync.app, name="sync")
+app.add_typer(show.app, name="show")
 
 
 def version_callback(value: bool) -> None:

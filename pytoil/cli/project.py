@@ -7,12 +7,11 @@ Created: 24/02/2021
 
 import shutil
 from enum import Enum
-from typing import List, Set
+from typing import Set
 
 import typer
 from cookiecutter.main import cookiecutter
 
-from pytoil.api import API
 from pytoil.config import Config
 from pytoil.env import CondaEnv, VirtualEnv
 from pytoil.repo import Repo
@@ -35,7 +34,7 @@ app = typer.Typer(no_args_is_help=True)
 @app.callback()
 def project() -> None:
     """
-    Manage your local and remote development projects.
+    Operate on a specific project.
 
     Set the "projects_dir" key in the config to control
     where this command looks on your local file system.
@@ -219,96 +218,7 @@ def checkout(
             "Does the project exist? If not, create a new project:"
             + f" '$ pytoil project create {project}'."
         )
-        typer.echo("Or specify a path to a repo directly with the " + "--repo option")
-
-
-@app.command()
-def list(
-    remote: bool = typer.Option(
-        False,
-        "--remote",
-        "-r",
-        help="List projects on your GitHub.",
-        show_default=False,
-    ),
-    all_: bool = typer.Option(
-        False,
-        "--all",
-        "-a",
-        help="List all projects, local and on your GitHub.",
-        show_default=False,
-    ),
-) -> None:
-    """
-    Show your development projects.
-
-    By default will only list the names of projects that exist locally
-    in the configured "projects_dir" location.
-
-    If "remote" is specified, the projects belonging to you on GitHub
-    will be shown.
-
-    If "all" is specified, all projects both local and remote will be shown
-    separated by local and remote.
-
-    Examples:
-
-    $ pytoil project list
-
-    $ pytoil project list --remote
-
-    $ pytoil project list --all
-    """
-
-    # Everything below requires a valid config
-    config = Config.get()
-    config.raise_if_unset()
-
-    # Should automatically fetch details from config
-    api = API()
-
-    # Shouldnt specify remote and all
-    if remote and all_:
-        raise typer.BadParameter("'--remote' and '--all' cannot be used together.")
-
-    # Since local is default, iterdir is a generator, and list comps are fast
-    # we can do this upfront with minimal cost
-    # also someone is unlikely to have thousands of local project directories
-    # that might slow this down
-    local_projects: List[str] = sorted(
-        [
-            f.name
-            for f in config.projects_dir.iterdir()
-            if f.is_dir() and not f.name.startswith(".")
-        ],
-        key=str.casefold,  # casefold means sorting works independent of case
-    )
-
-    if remote or all_:
-        # Only grab remotes if specifically requested
-        # Avoid hitting the API if we don't have to
-        remote_projects: List[str] = sorted(api.get_repo_names(), key=str.casefold)
-
-        if remote:
-            typer.secho("\nRemote Projects:\n", fg=typer.colors.BLUE, bold=True)
-            for project in remote_projects:
-                typer.echo(f"- {project}")
-        else:
-            # Must be all
-            # First show locals
-            typer.secho("\nLocal Projects:\n", fg=typer.colors.BLUE, bold=True)
-            for project in local_projects:
-                typer.echo(f"- {project}")
-
-            # Now show remotes
-            typer.secho("\nRemote Projects:\n", fg=typer.colors.BLUE, bold=True)
-            for project in remote_projects:
-                typer.echo(f"- {project}")
-    else:
-        # Just locals as default
-        typer.secho("\nLocal Projects:\n", fg=typer.colors.BLUE, bold=True)
-        for project in local_projects:
-            typer.echo(f"- {project}")
+        typer.echo("Or specify a path to a repo directly with the '--repo' option")
 
 
 @app.command()
