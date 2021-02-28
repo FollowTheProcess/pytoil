@@ -12,7 +12,7 @@ import pathlib
 import re
 import shutil
 import subprocess
-from typing import Optional
+from typing import Optional, Set
 
 from .api import API
 from .config import Config
@@ -142,20 +142,11 @@ class Repo:
         Returns:
             bool: True if repo exists on GitHub, else False.
         """
-        try:
-            api = API()
-            api.get_repo(repo=self.name)
-        except APIRequestError as err:
-            # Any non 200 response status
-            if err.status_code == 404:
-                # If specifically 404 not found
-                # repo doesn't exist
-                return False
-            else:
-                # Some other HTTP error
-                raise
-        else:
-            return True
+
+        api = API()
+        repos: Set[str] = set(api.get_repo_names())
+
+        return self.name in repos
 
     def clone(self) -> None:
         """
@@ -234,6 +225,7 @@ class Repo:
         try:
             api.fork_repo(owner=self.owner, name=self.name)
         except APIRequestError:
+            # Only raises if the fork belongs to the user
             raise
         else:
             # Return the URL of the users new fork

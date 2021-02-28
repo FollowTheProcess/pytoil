@@ -220,7 +220,12 @@ def test_repo_exists_local_returns_false_if_path_doesnt_exist(mocker, temp_confi
             assert repo.exists_local() is False
 
 
-def test_repo_exists_remote_returns_false_on_missing_repo(mocker, temp_config_file):
+@pytest.mark.parametrize(
+    "non_existing_repo_name", ["noexist1", "noexist2", "noexist3", "noexist4"]
+)
+def test_repo_exists_remote_returns_false_on_missing_repo(
+    mocker, temp_config_file, non_existing_repo_name
+):
 
     # Patch out the config file to point to our temporary one
     with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
@@ -228,18 +233,21 @@ def test_repo_exists_remote_returns_false_on_missing_repo(mocker, temp_config_fi
         # Patch out api.get to always raise a 404 not found
         # which is our indication in `exists_remote` that the repo doesn't exist
         mocker.patch(
-            "pytoil.api.API.get",
+            "pytoil.api.API.get_repo_names",
             autospec=True,
-            side_effect=APIRequestError(message="Not Found", status_code=404),
+            return_value={"exist1", "exist2", "exist3", "exist4"},
         )
 
         # Rest of the params will be filled in by our patched config file
-        repo = Repo(name="missingproject")
+        repo = Repo(name=non_existing_repo_name)
 
         assert repo.exists_remote() is False
 
 
-def test_repo_exists_remote_returns_true_on_valid_repo(mocker, temp_config_file):
+@pytest.mark.parametrize("existing_repo_name", ["exist1", "exist2", "exist3", "exist4"])
+def test_repo_exists_remote_returns_true_on_valid_repo(
+    mocker, temp_config_file, existing_repo_name
+):
 
     # Same trick with the config file
     with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
@@ -247,12 +255,12 @@ def test_repo_exists_remote_returns_true_on_valid_repo(mocker, temp_config_file)
         # Now patch out API.get_repo to return some arbitrary dict
         # Indication that everything worked okay
         mocker.patch(
-            "pytoil.api.API.get_repo",
+            "pytoil.api.API.get_repo_names",
             autospec=True,
-            return_value={"repo": "yes", "name": "myproject"},
+            return_value={"exist1", "exist2", "exist3", "exist4"},
         )
 
-        repo = Repo(name="myproject")
+        repo = Repo(name=existing_repo_name)
 
         assert repo.exists_remote() is True
 
