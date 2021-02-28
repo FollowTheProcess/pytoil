@@ -1,5 +1,5 @@
 """
-CLI list command.
+CLI show command.
 
 Author: Tom Fleet
 Created: 28/02/2021
@@ -125,5 +125,5 @@ def diff() -> None:
     typer.secho(
         "\nRemote projects that are not local:\n", fg=typer.colors.BLUE, bold=True
     )
-    for project in difference:
+    for project in sorted(list(difference), key=str.casefold):
         typer.echo(f"- {project}")

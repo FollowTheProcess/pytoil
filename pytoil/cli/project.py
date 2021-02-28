@@ -42,7 +42,7 @@ def project() -> None:
     Set the "token" key in the config to give pytoil access
     to your GitHub via the API.
 
-    We only make GET requests! Your repos are safe with pytoil!
+    We only make GET requests, your repos are safe with pytoil!
     """
 
 
