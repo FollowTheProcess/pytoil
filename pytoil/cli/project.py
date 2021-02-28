@@ -15,6 +15,7 @@ from cookiecutter.main import cookiecutter
 from pytoil.api import API
 from pytoil.config import Config
 from pytoil.env import CondaEnv, VirtualEnv
+from pytoil.exceptions import LocalRepoExistsError
 from pytoil.repo import Repo
 
 
@@ -167,16 +168,10 @@ def checkout(
     project: str = typer.Argument(
         default=None, help="Name of the project to checkout."
     ),
-    url: str = typer.Option(
+    gh_path: str = typer.Option(
         None,
-        "--url",
-        "-u",
-        help="URL of a project to checkout (skips searching).",
-    ),
-    path: str = typer.Option(
-        None,
-        "--path",
-        "-p",
+        "--repo",
+        "-r",
         help="Shorthand repo path of a project to checkout (skips searching).",
     ),
 ) -> None:
@@ -184,9 +179,7 @@ def checkout(
     Checkout a development project, either locally or from GitHub.
 
     pytoil will first check your configured projects directory
-    for a matching name, falling back to searching your GitHub repositories,
-    and finally asking you to specify what project you want to checkout work on.
-    e.g. if you want to work on a new repo owned by someone else.
+    for a matching name, falling back to searching your GitHub repositories.
 
     If checkout finds the project locally, it will ensure any virtual environments
     are configured properly if required (e.g. a python project) and open the
@@ -196,59 +189,32 @@ def checkout(
     first clone the repo to your projects directory before proceeding as if
     it existed locally.
 
-    If neither of these finds a match, you will be asked to specify a url
-    to a GitHub repo of the project you want to work on.
+    If neither of these finds a match, you will be asked to specify a
+    GitHub repo of the project you want to work on.
 
-    You can also specify this at the beginning with the "-u/--url"
-    or "-p/--path" options.
+    You can also specify this at the beginning with the "-r/--repo" option.
 
-    If either of these are specified, the local and remote repo searching is skipped
+    If a repo is specified this way, the local and remote repo searching is skipped
     and the specified repo will be forked and cloned.
 
     Examples:
 
     $ pytoil project checkout my_cool_project
 
-    $ pytoil project checkout --url https://github.com/someone/their_cool_project.git
-
-    $ pytoil project checkout --path someone/their_cool_project
+    $ pytoil project checkout --repo someone/their_cool_project
     """
 
     # Everything below requires a valid config
     config = Config.get()
     config.raise_if_unset()
 
-    # Guard against invalid usage upfront
-    if url and path:
-        raise typer.BadParameter("'--url' and '--path' cannot be used together.")
-
-    if url or path:
+    if gh_path:
         # Meaning most likely it's not the users repo
-        # url or path will both use the same logic later
-        # configure the repo object upfront with either url or path
-
-        # Cant specify project and path/url
+        # Cant specify project and gh_path
         if project:
-            raise typer.BadParameter(
-                "Arg: PROJECT cannot be used with either '--url' or '--path'."
-            )
+            raise typer.BadParameter("Arg: PROJECT cannot be used with '--repo'.")
 
-        if url:
-            # Set the repo object from a url
-            typer.secho(
-                f"\nResuming project from url: {url!r}.",
-                fg=typer.colors.BLUE,
-                bold=True,
-            )
-            repo = Repo.from_url(url=url)
-        elif path:
-            # Set the repo object from a path
-            typer.secho(
-                f"\nResuming project from path: {path!r}.",
-                fg=typer.colors.BLUE,
-                bold=True,
-            )
-            repo = Repo.from_path(path=path)
+        repo = Repo.from_path(path=gh_path)
 
         # Now handle all the clone/fork logic
         if repo.owner == config.username:
@@ -258,20 +224,24 @@ def checkout(
                 "FYI: You could have just said: "
                 + f"'$ pytoil project checkout {repo.name}'."
             )
-            if not repo.exists_local():
+            try:
                 typer.echo(f"Cloning '{repo.owner}/{repo.name}'.")
                 repo.clone()
+            except LocalRepoExistsError:
+                # If repo has already been cloned
+                typer.secho(
+                    f"\nProject: {project!r} already available at '{repo.path}'.",
+                    fg=typer.colors.YELLOW,
+                )
+                raise typer.Abort()
+            else:
                 typer.secho(
                     f"\nProject: {project!r} now available locally at '{repo.path}'.",
                     fg=typer.colors.GREEN,
                 )
                 # TODO: Handle project setup actions e.g. virtualenvs, determine
                 # which env from file content
-            else:
-                typer.secho(
-                    f"\nProject: {project!r} already available at '{repo.path}'.",
-                    fg=typer.colors.GREEN,
-                )
+
         else:
             # Requested repo does not belong to the user
             # NOTE: No cloning is done here because forking is
@@ -282,7 +252,13 @@ def checkout(
             typer.echo(
                 f"It looks like the repo: '{repo.owner}/{repo.name}' isn't yours."
             )
-            if repo.exists_remote():
+            if not repo.exists_remote():
+                typer.secho(
+                    f"Repo: '{repo.owner}/{repo.name}' not found on GitHub.",
+                    fg=typer.colors.RED,
+                )
+                raise typer.Abort()
+            else:
                 typer.secho(
                     f"\nCreating fork: '{config.username}/{repo.name}'\n",
                     fg=typer.colors.BLUE,
@@ -299,27 +275,19 @@ def checkout(
                     + " It's best to wait for 30 seconds or so"
                     + f" then run '$ pytoil project checkout {project}'."
                 )
-            else:
-                typer.secho(
-                    f"Repo: '{repo.owner}/{repo.name}' not found on GitHub.",
-                    fg=typer.colors.RED,
-                )
-                raise typer.Abort()
+
     else:
         # Project exists either locally or on users GitHub
         # and is to be grabbed by name only
         if not project:
             typer.secho(
-                "If not checking out from a url or path"
+                "If not checking out from a '--repo'"
                 + ", you must specify a project name.",
-                fg=typer.colors.YELLOW,
+                fg=typer.colors.RED,
             )
             raise typer.Abort()
         else:
             # We have a project name
-            typer.secho(
-                f"\nResuming project: {project!r}\n", fg=typer.colors.BLUE, bold=True
-            )
 
             repo = Repo(name=project)
 
@@ -355,8 +323,8 @@ def checkout(
                         + f" '$ pytoil project create {project}'."
                     )
                     typer.echo(
-                        "Or specify a url/path to a repo directly with the "
-                        + "--url/--path option"
+                        "Or specify a path to a repo directly with the "
+                        + "--repo option"
                     )
 
 
