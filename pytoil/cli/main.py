@@ -10,6 +10,7 @@ import typer
 from pytoil import __version__
 from pytoil.cli import config, project, show, sync
 
+# Add all the subcommands
 app = typer.Typer(name="pytoil", no_args_is_help=True)
 app.add_typer(config.app, name="config")
 app.add_typer(project.app, name="project")
