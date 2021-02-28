@@ -12,7 +12,6 @@ import pytest
 
 import pytoil
 from pytoil.exceptions import (
-    APIRequestError,
     GitNotInstalledError,
     InvalidRepoPathError,
     InvalidURLError,
@@ -265,37 +264,6 @@ def test_repo_exists_remote_returns_true_on_valid_repo(
         assert repo.exists_remote() is True
 
 
-@pytest.mark.parametrize(
-    "error_code, message",
-    [
-        (400, "Bad Request"),
-        (401, "Unauthorized"),
-        (408, "Request Timeout"),
-        (502, "Bad Gateway"),
-        (500, "Internal Server Error"),
-    ],
-)
-def test_repo_exists_remote_raises_on_other_http_error(
-    mocker, temp_config_file, error_code, message
-):
-
-    # Same trick with the config file
-    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
-
-        # Patch out urllib3.request to raise
-        # other HTTP errors from our parametrize
-        mocker.patch(
-            "pytoil.api.API.get",
-            autospec=True,
-            side_effect=APIRequestError(message=message, status_code=error_code),
-        )
-
-        repo = Repo(name="myproject")
-
-        with pytest.raises(APIRequestError):
-            repo.exists_remote()
-
-
 @pytest.mark.parametrize("which_return", ["", None, False])
 def test_repo_clone_raises_on_invalid_git(mocker, temp_config_file, which_return):
 
@@ -416,37 +384,6 @@ def test_repo_clone_raises_on_missing_remote_repo(mocker, temp_config_file):
 
         with pytest.raises(RepoNotFoundError):
             repo.clone()
-
-
-def test_repo_fork_raises_on_API_error(mocker, temp_config_file):
-
-    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
-
-        # Best way of making an APIError is attempting to fork
-        # a repo you already own
-        repo = Repo(name="fakerepo", owner="tempfileuser")
-
-        with pytest.raises(APIRequestError):
-            repo.fork()
-
-
-def test_repo_fork_returns_correct_url(mocker, temp_config_file):
-
-    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
-
-        # Patch out the return from api.fork_repo
-        # so it doesn't hit the API
-        mocker.patch(
-            "pytoil.api.API.fork_repo",
-            autospec=True,
-            return_value={"some": "arbitrary", "json": "blob"},
-        )
-
-        repo = Repo(name="coolproject", owner="someoneelse")
-
-        # Should return the url of the users fork
-        # ie same project name but now with new owner
-        assert repo.fork() == "https://github.com/tempfileuser/coolproject.git"
 
 
 @pytest.mark.parametrize(

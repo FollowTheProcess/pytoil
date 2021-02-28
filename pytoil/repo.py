@@ -17,7 +17,6 @@ from typing import Optional, Set
 from .api import API
 from .config import Config
 from .exceptions import (
-    APIRequestError,
     GitNotInstalledError,
     InvalidRepoPathError,
     InvalidURLError,
@@ -137,7 +136,7 @@ class Repo:
     def exists_remote(self) -> bool:
         """
         Determines whether or not the repo called
-        `self.name` exists under owner `self.owner`.
+        `self.name` exists under configured username.
 
         Returns:
             bool: True if repo exists on GitHub, else False.
@@ -191,45 +190,6 @@ class Repo:
             else:
                 # If clone succeeded, set self.path
                 self.path = config.projects_dir.joinpath(self.name)
-
-    def fork(self) -> str:
-        """
-        Forks the repo described by the instance as long
-        as the repo owner is not the current user.
-
-        In order to fork, the user must specify class attribute `owner`
-        as well as `name`.
-
-        If the fork is accepted, will return the URL of the user's
-        new fork.
-
-        Forking happens asynchronously on the GitHub API so the users
-        fork may not be immediately ready to clone.
-
-        i.e. if user forks "someoneelse/repo" the returned url will
-        be: "https://github.com/theuser/repo.git"
-
-        Raises:
-            APIRequestError: If any HTTP error occurs during the fork.
-
-        Returns:
-            str: The URL of the user's new fork.
-        """
-
-        # Validate user config
-        config = Config.get()
-        config.raise_if_unset()
-
-        api = API()
-
-        try:
-            api.fork_repo(owner=self.owner, name=self.name)
-        except APIRequestError:
-            # Only raises if the fork belongs to the user
-            raise
-        else:
-            # Return the URL of the users new fork
-            return f"https://github.com/{config.username}/{self.name}.git"
 
     def _does_file_exist(self, file: str) -> bool:
         """

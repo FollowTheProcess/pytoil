@@ -37,12 +37,11 @@ def main(
     """
     Helpful CLI to automate the development workflow.
 
-    Create and easily resume local or remote
-    development projects.
+    - Create and manage your local and remote projects
 
-    Build projects from cookiecutter templates.
+    - Build projects from cookiecutter templates.
 
-    Easily create/manage virtual environments.
+    - Easily create/manage virtual environments.
 
-    Minimal configuration required.
+    - Minimal configuration required.
     """

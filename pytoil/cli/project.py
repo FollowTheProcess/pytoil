@@ -15,7 +15,6 @@ from cookiecutter.main import cookiecutter
 from pytoil.api import API
 from pytoil.config import Config
 from pytoil.env import CondaEnv, VirtualEnv
-from pytoil.exceptions import LocalRepoExistsError
 from pytoil.repo import Repo
 
 
@@ -43,6 +42,8 @@ def project() -> None:
 
     Set the "token" key in the config to give pytoil access
     to your GitHub via the API.
+
+    We only make GET requests! Your repos are safe with pytoil!
     """
 
 
@@ -65,7 +66,7 @@ def create(
     ),
 ) -> None:
     """
-    Create a new development project.
+    Create a new development project locally.
 
     If cookiecutter is specified it must be followed by a url to a
     valid cookiecutter template repo from which to construct the project.
@@ -165,15 +166,7 @@ def create(
 
 @app.command()
 def checkout(
-    project: str = typer.Argument(
-        default=None, help="Name of the project to checkout."
-    ),
-    gh_path: str = typer.Option(
-        None,
-        "--repo",
-        "-r",
-        help="Shorthand repo path of a project to checkout (skips searching).",
-    ),
+    project: str = typer.Argument(..., help="Name of the project to checkout.")
 ) -> None:
     """
     Checkout a development project, either locally or from GitHub.
@@ -189,143 +182,44 @@ def checkout(
     first clone the repo to your projects directory before proceeding as if
     it existed locally.
 
-    If neither of these finds a match, you will be asked to specify a
-    GitHub repo of the project you want to work on.
-
-    You can also specify this at the beginning with the "-r/--repo" option.
-
-    If a repo is specified this way, the local and remote repo searching is skipped
-    and the specified repo will be forked and cloned.
+    If neither of these finds a match, an error message will be shown.
 
     Examples:
 
     $ pytoil project checkout my_cool_project
-
-    $ pytoil project checkout --repo someone/their_cool_project
     """
 
     # Everything below requires a valid config
     config = Config.get()
     config.raise_if_unset()
 
-    if gh_path:
-        # Meaning most likely it's not the users repo
-        # Cant specify project and gh_path
-        if project:
-            raise typer.BadParameter("Arg: PROJECT cannot be used with '--repo'.")
+    # Project exists either locally or on users GitHub
+    # and is to be grabbed by name only
+    repo = Repo(name=project)
 
-        repo = Repo.from_path(path=gh_path)
-
-        # Now handle all the clone/fork logic
-        if repo.owner == config.username:
-            # i.e. the requested repo belongs to the user
-            typer.echo(f"It looks like you own the repo: '{repo.owner}/{repo.name}'.")
-            typer.echo(
-                "FYI: You could have just said: "
-                + f"'$ pytoil project checkout {repo.name}'."
-            )
-            try:
-                typer.echo(f"Cloning '{repo.owner}/{repo.name}'.")
-                repo.clone()
-            except LocalRepoExistsError:
-                # If repo has already been cloned
-                typer.secho(
-                    f"\nProject: {project!r} already available at '{repo.path}'.",
-                    fg=typer.colors.YELLOW,
-                )
-                raise typer.Abort()
-            else:
-                typer.secho(
-                    f"\nProject: {project!r} now available locally at '{repo.path}'.",
-                    fg=typer.colors.GREEN,
-                )
-                # TODO: Handle project setup actions e.g. virtualenvs, determine
-                # which env from file content
-
-        else:
-            # Requested repo does not belong to the user
-            # NOTE: No cloning is done here because forking is
-            # asynchronous meaning we might not have anything to clone
-            # at execution time
-            # Instead we report that to the user and ask them to clone
-            # by using 'checkout' in a few moments.
-            typer.echo(
-                f"It looks like the repo: '{repo.owner}/{repo.name}' isn't yours."
-            )
-            if not repo.exists_remote():
-                typer.secho(
-                    f"Repo: '{repo.owner}/{repo.name}' not found on GitHub.",
-                    fg=typer.colors.RED,
-                )
-                raise typer.Abort()
-            else:
-                typer.secho(
-                    f"\nCreating fork: '{config.username}/{repo.name}'\n",
-                    fg=typer.colors.BLUE,
-                    bold=True,
-                )
-                user_fork = repo.fork()
-                typer.secho(
-                    f"Your fork: {user_fork!r} has been requested.\n",
-                    fg=typer.colors.GREEN,
-                )
-                typer.echo(
-                    "FYI: Forking happens asynchronously so your fork may not be"
-                    + " available to clone for a few moments."
-                    + " It's best to wait for 30 seconds or so"
-                    + f" then run '$ pytoil project checkout {project}'."
-                )
-
+    if repo.exists_local():
+        typer.secho(
+            f"\nProject: {project!r} is already available locally at"
+            f" '{repo.path}'.",
+            fg=typer.colors.GREEN,
+        )
+    elif repo.exists_remote():
+        typer.echo(f"Project: {project!r} found on user's GitHub. Cloning...\n")
+        repo.clone()
+        typer.secho(
+            f"Project: {project!r} now available locally at" f" '{repo.path}'.",
+            fg=typer.colors.GREEN,
+        )
     else:
-        # Project exists either locally or on users GitHub
-        # and is to be grabbed by name only
-        if not project:
-            typer.secho(
-                "If not checking out from a '--repo'"
-                + ", you must specify a project name.",
-                fg=typer.colors.RED,
-            )
-            raise typer.Abort()
-        else:
-            # We have a project name
-
-            repo = Repo(name=project)
-
-            if repo.exists_local():
-                typer.secho(
-                    f"\nProject: {project!r} is already available locally at"
-                    f" '{repo.path}'.",
-                    fg=typer.colors.GREEN,
-                )
-            else:
-                typer.secho(
-                    f"\nProject: {project!r} not found locally."
-                    + " Checking user's GitHub...\n",
-                    fg=typer.colors.YELLOW,
-                )
-                if repo.exists_remote():
-                    typer.echo(
-                        f"Project: {project!r} found on user's GitHub. Cloning...\n"
-                    )
-                    repo.clone()
-                    typer.secho(
-                        f"Project: {project!r} now available locally at"
-                        f" '{repo.path}'.",
-                        fg=typer.colors.GREEN,
-                    )
-                else:
-                    typer.secho(
-                        f"Project: {project!r} not found on user's GitHub.\n",
-                        fg=typer.colors.RED,
-                    )
-                    typer.echo(
-                        "Does the project exist? If not, create a new project:"
-                        + f" '$ pytoil project create {project}'."
-                    )
-                    typer.echo(
-                        "Or specify a path to a repo directly with the "
-                        + "--repo option"
-                    )
+        typer.secho(
+            f"Project: {project!r} not found on user's GitHub.\n",
+            fg=typer.colors.RED,
+        )
+        typer.echo(
+            "Does the project exist? If not, create a new project:"
+            + f" '$ pytoil project create {project}'."
+        )
+        typer.echo("Or specify a path to a repo directly with the " + "--repo option")
 
 
 @app.command()
@@ -398,23 +292,23 @@ def list(
         if remote:
             typer.secho("\nRemote Projects:\n", fg=typer.colors.BLUE, bold=True)
             for project in remote_projects:
-                typer.echo(project)
+                typer.echo(f"- {project}")
         else:
             # Must be all
             # First show locals
             typer.secho("\nLocal Projects:\n", fg=typer.colors.BLUE, bold=True)
             for project in local_projects:
-                typer.echo(project)
+                typer.echo(f"- {project}")
 
             # Now show remotes
             typer.secho("\nRemote Projects:\n", fg=typer.colors.BLUE, bold=True)
             for project in remote_projects:
-                typer.echo(project)
+                typer.echo(f"- {project}")
     else:
         # Just locals as default
         typer.secho("\nLocal Projects:\n", fg=typer.colors.BLUE, bold=True)
         for project in local_projects:
-            typer.echo(project)
+            typer.echo(f"- {project}")
 
 
 @app.command()
@@ -440,7 +334,7 @@ def remove(
     config = Config.get()
     config.raise_if_unset()
 
-    # Set because we don't care about sorting or printing
+    # Set because we don't care about sorting
     # but we want fast membership checking
     local_projects: Set[str] = {
         f.name
