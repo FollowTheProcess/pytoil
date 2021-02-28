@@ -10,7 +10,6 @@ from typing import Any, Dict, List, Optional, Union
 import httpx
 
 from .config import Config
-from .exceptions import APIRequestError
 
 # Type hint for generic JSON API response
 # either a single JSON blob or a list of JSON blobs
@@ -106,49 +105,16 @@ class API:
 
         return response
 
-    def post(self, endpoint: str) -> APIResponse:
-        """
-        Makes an authenticated POST request to a GitHub API
-        endpoint e.g. '/repos/{owner}/{repo}/forks'.
-
-        Generic base for more specific post methods below.
-
-        Args:
-            endpoint (str): Valid GitHub API endpoint.
-
-        Raises:
-            APIRequestError: If any HTTP error occurs, will raise an exception
-                and give a description and standard HTTP status code.
-
-        Returns:
-            APIResponse: JSON API response.
-        """
-
-        # This needs the token from the config
-        Config.get().raise_if_unset()
-
-        r = httpx.post(url=self.baseurl + endpoint, headers=self.headers)
-
-        # POSTs could return 202's
-        r.raise_for_status()
-        response: APIResponse = r.json()
-
-        return response
-
     def get_repo(self, repo: str) -> APIResponse:
         """
-        Hits the GitHub REST API 'repos/{owner}/repo' endpoint
+        Hits the GitHub REST API 'repos/{owner}/{repo}' endpoint
         and parses the response.
 
         In other words it gets the JSON representing a particular `repo`
-        belonging to {owner}. In our case, {owner} is `self.username`.
+        belonging to `username`.
 
         Args:
             repo (str): The name of the repo to fetch JSON for.
-
-        Raises:
-            MissingUsernameError: If `self.username` is None indicating it has
-                not been set in the ~/.pytoil.yml config file.
 
         Returns:
             APIResponse: JSON response for a particular repo.
@@ -192,36 +158,3 @@ class API:
         names = [repo["name"] for repo in raw_repo_data]
 
         return names
-
-    def fork_repo(self, owner: str, name: str) -> APIResponse:
-        """
-        Fork a repo called `name` owned by `owner` to the users
-        GitHub repos.
-
-        Don't have to specify the user because this is an authenticated
-        only request, user identification is provided by the `token`
-        in `self.headers`.
-
-        Args:
-            owner (str): Owner of the repo to be forked.
-            name (str): Name of the repo to be forked.
-
-        Raises:
-            APIRequestError: If any HTTP error occurs.
-
-        Returns:
-            APIResponse: JSON API response.
-        """
-
-        # Validate the config
-        Config.get().raise_if_unset()
-
-        # Can't fork your own repo
-        if self.username == owner:
-            raise APIRequestError(
-                f"""Forking of repo: {owner}/{name} invalid.
-            Cannot fork a repo that you already own.""",
-                status_code=400,
-            )
-        else:
-            return self.post(f"repos/{owner}/{name}/forks")
