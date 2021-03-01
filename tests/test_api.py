@@ -9,6 +9,7 @@ Created: 05/02/2021
 import httpx
 import pytest
 from pytest_httpx import HTTPXMock
+from pytest_mock import MockerFixture
 
 import pytoil
 from pytoil.api import API
@@ -27,7 +28,7 @@ def test_api_init_passed():
     }
 
 
-def test_api_init_default(mocker, temp_config_file):
+def test_api_init_default(mocker: MockerFixture, temp_config_file):
 
     # Patch out the default CONFIG_PATH for our temp file
     with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
@@ -50,7 +51,7 @@ def test_api_repr_passed():
     assert api.__repr__() == "API(token='definitelynotatoken', username='me')"
 
 
-def test_api_repr_default(mocker, temp_config_file):
+def test_api_repr_default(mocker: MockerFixture, temp_config_file):
 
     with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 
@@ -84,7 +85,7 @@ def test_api_setters():
 
 @pytest.mark.parametrize("bad_status_code", [400, 401, 403, 404, 500, 504, 505])
 def test_get_raises_on_bad_status(
-    httpx_mock: HTTPXMock, bad_status_code, mocker, temp_config_file
+    httpx_mock: HTTPXMock, bad_status_code, mocker: MockerFixture, temp_config_file
 ):
 
     with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
@@ -100,7 +101,7 @@ def test_get_raises_on_bad_status(
 
 
 def test_get_returns_correct_response(
-    httpx_mock: HTTPXMock, fake_api_response, mocker, temp_config_file
+    httpx_mock: HTTPXMock, fake_api_response, mocker: MockerFixture, temp_config_file
 ):
 
     with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
@@ -118,7 +119,7 @@ def test_get_returns_correct_response(
         assert r == fake_api_response
 
 
-def test_get_user_repo_correctly_calls_get(mocker, fake_api_response):
+def test_get_user_repo_correctly_calls_get(mocker: MockerFixture, fake_api_response):
 
     mocker.patch("pytoil.api.API.get", autospec=True, return_value=fake_api_response)
 
@@ -127,7 +128,7 @@ def test_get_user_repo_correctly_calls_get(mocker, fake_api_response):
     assert api.get_repo(repo="fakey") == fake_api_response
 
 
-def test_get_user_repos_correctly_calls_get(mocker, fake_api_response):
+def test_get_user_repos_correctly_calls_get(mocker: MockerFixture, fake_api_response):
 
     mocker.patch("pytoil.api.API.get", autospec=True, return_value=fake_api_response)
 
@@ -136,7 +137,9 @@ def test_get_user_repos_correctly_calls_get(mocker, fake_api_response):
     assert api.get_repos() == fake_api_response
 
 
-def test_get_repo_names_correctly_calls_get_repos(mocker, fake_api_response):
+def test_get_repo_names_correctly_calls_get_repos(
+    mocker: MockerFixture, fake_api_response
+):
 
     mocker.patch(
         "pytoil.api.API.get_repos", autospec=True, return_value=fake_api_response
@@ -178,7 +181,7 @@ def test_get_repo_names_correctly_calls_get_repos(mocker, fake_api_response):
     ],
 )
 def test_get_repo_info_correctly_calls_get_repo(
-    mocker,
+    mocker: MockerFixture,
     repo_name,
     description,
     created_at,

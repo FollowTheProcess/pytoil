@@ -202,6 +202,7 @@ def checkout(
             f" '{repo.path}'.",
             fg=typer.colors.GREEN,
         )
+        # TODO: Open editor maybe?
     elif repo.exists_remote():
         typer.echo(f"Project: {project!r} found on user's GitHub. Cloning...\n")
         repo.clone()
@@ -209,6 +210,7 @@ def checkout(
             f"Project: {project!r} now available locally at" f" '{repo.path}'.",
             fg=typer.colors.GREEN,
         )
+        # TODO: Same here, open editor?
     else:
         typer.secho(
             f"Project: {project!r} not found on user's GitHub.\n",
@@ -218,7 +220,6 @@ def checkout(
             "Does the project exist? If not, create a new project:"
             + f" '$ pytoil project create {project}'."
         )
-        typer.echo("Or specify a path to a repo directly with the '--repo' option")
 
 
 @app.command()
@@ -238,6 +239,12 @@ def remove(
     Deletion is done recursively, roughly equivalent to '$ rm -r {project}'.
 
     User will be prompted for confirmation unless "--force/-f" flag is used.
+
+    Example
+
+    $ pytoil project remove my_project
+
+    $ pytoil project remove --force my_project
     """
 
     # Everything below needs a valid config

@@ -8,6 +8,7 @@ Created: 05/02/2021
 import pathlib
 
 import pytest
+from pytest_mock import MockerFixture
 
 import pytoil
 from pytoil.config import DEFAULT_PROJECTS_DIR, Config
@@ -131,7 +132,7 @@ def test_config_setters():
     assert config.projects_dir == pathlib.Path("/Users/me/projects")
 
 
-def test_config_get_good_file(temp_config_file, mocker):
+def test_config_get_good_file(temp_config_file, mocker: MockerFixture):
     """
     Tests config.get on a file with valid key value pairs.
     """
@@ -145,7 +146,7 @@ def test_config_get_good_file(temp_config_file, mocker):
         assert config.projects_dir == pathlib.Path("/Users/tempfileuser/projects")
 
 
-def test_config_get_raises_on_missing_file(mocker):
+def test_config_get_raises_on_missing_file(mocker: MockerFixture):
     """
     Tests config.get raises the correct exception if the config
     file is missing.
@@ -159,7 +160,9 @@ def test_config_get_raises_on_missing_file(mocker):
             Config.get()
 
 
-def test_config_raises_on_misspelled_key(mocker, temp_config_file_misspelled_key):
+def test_config_raises_on_misspelled_key(
+    mocker: MockerFixture, temp_config_file_misspelled_key
+):
     """
     Checks that config.get will raise a TypeError when one of the keys in
     the yml file is misspelled.
@@ -243,13 +246,13 @@ def test_config_show_outputs_correct_text(capsys):
     captured = capsys.readouterr()
 
     expected_output: str = (
-        "\nusername: 'me'\n\ntoken: 'UNSET'\n\nprojects_dir: '/Users/me/projects'\n\n"
+        "username: 'me'\ntoken: 'UNSET'\nprojects_dir: '/Users/me/projects'\n"
     )
 
     assert captured.out == expected_output
 
 
-def test_config_write(mocker, temp_config_file):
+def test_config_write(mocker: MockerFixture, temp_config_file):
 
     with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
 

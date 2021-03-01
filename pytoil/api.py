@@ -13,7 +13,6 @@ from .config import Config
 
 # Type hint for generic JSON API response
 # either a single JSON blob or a list of JSON blobs
-RepoBlob = Dict[str, Any]
 APIResponse = Any
 
 
@@ -25,19 +24,20 @@ class API:
         Representation of the GitHub API.
 
         Args:
-            token (Optional[str], optional): GitHub Personal Access Token.
+            token (str, optional): GitHub Personal Access Token.
                 Defaults to value from config file.
 
-            username (Optional[str], optional): Users GitHub username.
+            username (str, optional): Users GitHub username.
                 Defaults to value from config file.
         """
         # If token passed, set it
         # if not, get from config
         self._token = token or Config.get().token
-        # If username passed, set it
-        # if not, get from config
+        # Same with username
         self._username = username or Config.get().username
 
+        # NOTE: we might support gitlab or others in future
+        # PR's welcome!
         self.baseurl: str = "https://api.github.com/"
 
         self._headers: Dict[str, str] = {
@@ -81,22 +81,23 @@ class API:
 
     def get(self, endpoint: str) -> APIResponse:
         """
-        Makes an authenticated request to a GitHub API endpoint
-        e.g. 'users/repos'.
+        Makes an authenticated request to a GitHub API endpoint.
 
         Generic base for more specific get methods below.
 
         Args:
             endpoint (str): Valid GitHub API endpoint.
+                e.g. 'users/repos'.
 
         Raises:
-            APIRequestError: If any HTTP error occurs, will raise an exception
+            HTTPStatusError: If any HTTP error occurs, will raise an exception
                 and give a description and standard HTTP status code.
 
         Returns:
             ApiResponse: JSON API response.
         """
         # This needs the token from the config
+        # it could be invalid, we haven't checked until now
         Config.get().raise_if_unset()
 
         r = httpx.get(url=self.baseurl + endpoint, headers=self.headers)
@@ -110,8 +111,7 @@ class API:
         Hits the GitHub REST API 'repos/{owner}/{repo}' endpoint
         and parses the response.
 
-        In other words it gets the JSON representing a particular `repo`
-        belonging to `username`.
+        In our case `owner` is `username`.
 
         Args:
             repo (str): The name of the repo to fetch JSON for.
@@ -138,9 +138,6 @@ class API:
             APIResponse: JSON response for a list of all users repos.
         """
 
-        # Because the user is authenticated (token)
-        # This gets their repos
-        # get will raise if missing token
         return self.get("user/repos")
 
     def get_repo_names(self) -> List[str]:
@@ -153,11 +150,7 @@ class API:
             List[str]: List of user's repo names.
         """
 
-        raw_repo_data = self.get_repos()
-
-        names = [repo["name"] for repo in raw_repo_data]
-
-        return names
+        return [repo["name"] for repo in self.get_repos()]
 
     def get_repo_info(self, repo: str) -> Dict[str, Union[str, int]]:
         """

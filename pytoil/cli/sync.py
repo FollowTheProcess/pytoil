@@ -67,6 +67,9 @@ def all_(
 
     to_clone: Set[str] = remote_projects.difference(local_projects)
 
+    # Internal correctness check
+    assert len(to_clone) >= 0
+
     if len(to_clone) == 0:
         typer.secho(
             "\nAll your remote repos already exist locally. Nothing to do.",
@@ -82,7 +85,6 @@ def all_(
 
             # If user said no, typer will abort and the following will not run
             # If they said yes, it will run
-            typer.echo("You said yes")
             for repo_name in to_clone:
                 # Create the repo object and clone
                 repo = Repo(name=repo_name)
@@ -136,6 +138,9 @@ def these(
     remote_projects: Set[str] = set(repos)
 
     to_clone: Set[str] = remote_projects.difference(local_projects)
+
+    # Internal correctness check
+    assert len(to_clone) >= 0
 
     if len(to_clone) == 0:
         typer.secho(

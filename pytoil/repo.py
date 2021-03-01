@@ -54,6 +54,7 @@ class Repo:
         self.name = name
 
         self._url: str = f"https://github.com/{self.owner}/{self.name}.git"
+
         # The path this repo would have were it to be cloned locally
         self._path: pathlib.Path = Config.get().projects_dir.joinpath(self.name)
 
@@ -164,21 +165,20 @@ class Repo:
         config = Config.get()
         config.raise_if_unset()
 
+        # Check if git is installed
         if not bool(shutil.which("git")):
-            # Check if git is installed
-
             raise GitNotInstalledError(
                 """'git' executable not installed or not found on $PATH.
         Check your git installation."""
             )
+        # Check if its already been cloned
         elif self.exists_local():
-            # Check if its already been cloned
             raise LocalRepoExistsError(
                 f"""The repo {self.name} already exists at {self.path}.
         Cannot clone a repo that already exists."""
             )
+        # Check if the remote repo actually exists
         elif not self.exists_remote():
-            # Check if the remote repo actually exists
             raise RepoNotFoundError(f"Repo: {self.url} not found on GitHub")
         else:
             # If we get here, we can safely clone
@@ -195,10 +195,10 @@ class Repo:
     def info(self) -> Dict[str, Union[str, int, bool]]:
         """
         Returns summary information about the repo
-        from the API or os.stat.
+        from the API or Path.stat.
 
         Prefers the API info as it is more detailed.
-        Will fall back to os.stat only if the project
+        Will fall back to Path.stat only if the project
         is not available remotely.
 
         Returns:
@@ -206,6 +206,9 @@ class Repo:
         """
 
         info_dict: Dict[str, Union[str, int, bool]] = {}
+
+        # Path.stat returns a UNIX timestamp for dates/times
+        str_time_format: str = r"%Y-%m-%d %H:%M:%S"
 
         if self.exists_remote():
             # If remote, the API does all the work
@@ -220,10 +223,10 @@ class Repo:
                     "name": self.path.name,
                     "created_at": datetime.utcfromtimestamp(
                         self.path.stat().st_ctime
-                    ).strftime(r"%Y-%m-%d %H:%M:%S"),
+                    ).strftime(str_time_format),
                     "updated_at": datetime.utcfromtimestamp(
                         self.path.stat().st_mtime
-                    ).strftime(r"%Y-%m-%d %H:%M:%S"),
+                    ).strftime(str_time_format),
                     "size": self.path.stat().st_size,
                     "local": True,
                     "remote": self.exists_remote(),
