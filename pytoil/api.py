@@ -14,7 +14,7 @@ from .config import Config
 # Type hint for generic JSON API response
 # either a single JSON blob or a list of JSON blobs
 RepoBlob = Dict[str, Any]
-APIResponse = List[RepoBlob]
+APIResponse = Any
 
 
 class API:
@@ -158,3 +158,45 @@ class API:
         names = [repo["name"] for repo in raw_repo_data]
 
         return names
+
+    def get_repo_info(self, repo: str) -> Dict[str, Union[str, int]]:
+        """
+        Returns a dictionary of key information about a particular repo.
+
+        Info Keys:
+        - name
+        - description
+        - created_at
+        - updated_at
+        - size
+        - license
+
+        Args:
+            repo (str): Name of the repo to get info for.
+
+        Returns:
+            Dict[str, Union[str, int]]: Dict of repo information.
+        """
+
+        raw_repo_data = self.get_repo(repo=repo)
+
+        keys_to_get: List[str] = [
+            "name",
+            "description",
+            "created_at",
+            "updated_at",
+            "size",
+            "license",
+        ]
+
+        display_dict: Dict[str, Union[str, int]] = {
+            key: raw_repo_data.get(key, "Not Found") for key in keys_to_get
+        }
+
+        # License is itself a dict
+        # Couldn't be bothered doing some clever recursive thing for one key
+        display_dict["license"] = raw_repo_data.get("license", "Not Found").get(
+            "name", "Not Found"
+        )
+
+        return display_dict
