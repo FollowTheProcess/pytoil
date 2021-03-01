@@ -9,6 +9,7 @@ import typer
 
 from pytoil import __version__
 from pytoil.cli import config, project, show, sync
+from pytoil.config import CONFIG_PATH, Config
 
 # Add all the subcommands
 app = typer.Typer(name="pytoil", no_args_is_help=True)
@@ -48,3 +49,30 @@ def main(
 
     - Minimal configuration required.
     """
+
+
+@app.command()
+def init() -> None:
+    """
+    Initialise pytoil (first run only).
+
+    Will guide user through the config setup
+    interactively.
+    """
+
+    # Make config file
+    if not CONFIG_PATH.exists():
+        CONFIG_PATH.touch()
+        default_config = Config()
+        default_config.write()
+
+        username: str = typer.prompt("GitHub username")
+        token: str = typer.prompt("GitHub personal access token")
+        projects_dir: str = typer.prompt("Absolute path to your projects directory")
+
+        user_config = Config(username=username, token=token, projects_dir=projects_dir)
+        user_config.write()
+
+        typer.secho("Config written, you're good to go!", fg=typer.colors.GREEN)
+    else:
+        typer.secho("You're all set!", fg=typer.colors.GREEN)
