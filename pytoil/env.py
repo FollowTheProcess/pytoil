@@ -444,7 +444,6 @@ class CondaEnv:
             VirtualenvDoesNotExistError: If the conda env does not exist,
                 an environment file cannot be created.
         """
-        # TODO: Figure out good way of testing the below
 
         if not self.exists():
             raise VirtualenvDoesNotExistError(
@@ -462,11 +461,15 @@ class CondaEnv:
         ]
 
         try:
-            yml_file = fp.joinpath("environment.yml")
-            with open(yml_file, "w") as f:
-                subprocess.run(cmd, check=True, cwd=fp, stdout=f)
+            yml_out = subprocess.run(
+                cmd, check=True, capture_output=True, encoding="utf-8"
+            )
         except subprocess.CalledProcessError:
             raise
+        else:
+            yml_file = fp.joinpath("environment.yml")
+            with open(yml_file, "w") as f:
+                f.write(yml_out.stdout)
 
     def install(self, packages: List[str]) -> None:
         """

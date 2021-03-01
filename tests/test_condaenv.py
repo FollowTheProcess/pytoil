@@ -310,3 +310,73 @@ def test_condaenv_export_yml_raises_on_missing_env(mocker: MockerFixture):
     with pytest.raises(VirtualenvDoesNotExistError):
         env = CondaEnv(name="condingle")
         env.export_yml(fp=pathlib.Path("/Users/me/projects/condaproject"))
+
+
+def test_condaenv_export_yml_raises_on_subprocess_error(mocker: MockerFixture):
+
+    mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=True)
+
+    mocker.patch(
+        "pytoil.env.subprocess.run",
+        autospec=True,
+        side_effect=[subprocess.CalledProcessError(-1, "cmd")],
+    )
+
+    with pytest.raises(subprocess.CalledProcessError):
+        env = CondaEnv(name="blah")
+        env.export_yml(fp=pathlib.Path("fake/environment/lol"))
+
+
+def test_condaenv_export_yml_exports_correct_content(
+    mocker: MockerFixture, temp_environment_yml
+):
+
+    mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=True)
+
+    class FakeStdOut(NamedTuple):
+        # we need this so the returned object from subprocess.run
+        # has a `.stdout` attribute
+        stdout: str = """
+        name: fake_conda_env
+        channels:
+        - defaults
+        - conda-forge
+        dependencies:
+        - python=3
+        - invoke
+        - black
+        - flake8
+        - isort
+        - mypy
+        - rich
+        - numpy
+        - requests
+        - pandas
+        - matplotlib
+        - seaborn
+        - altair
+        - altair_data_server
+        - altair_saver
+        - ipykernel
+        - jupyterlab
+        - sqlalchemy
+        - pandas-profiling
+        - hiplot
+        """
+
+    mock_subprocess = mocker.patch(
+        "pytoil.env.subprocess.run", autospec=True, return_value=FakeStdOut()
+    )
+
+    env = CondaEnv(name="fake_conda_env")
+
+    env.export_yml(temp_environment_yml.parent)
+
+    assert temp_environment_yml.read_text(encoding="utf-8") == FakeStdOut().stdout
+
+    mock_subprocess.assert_called_once_with(
+        ["conda", "env", "export", "--from-history", "--name", "fake_conda_env"],
+        check=True,
+        capture_output=True,
+        encoding="utf-8",
+    )
