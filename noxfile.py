@@ -62,7 +62,7 @@ def coverage(session: nox.Session) -> None:
     poetry_install(session, "coverage[toml]", "coverage-badge")
 
     session.run("coverage", "report", "--show-missing")
-    session.run("coverage-badge", "-fo", f"{str(img_path)}")
+    session.run("coverage-badge", "-fo", f"{img_path}")
 
 
 @nox.session()

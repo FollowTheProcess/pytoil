@@ -24,6 +24,7 @@ test:
 
 cov: test
 	coverage report --show-missing
+	coverage-badge -fo ./docs/img/coverage.svg
 
 style:
 	isort .
