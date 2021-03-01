@@ -39,8 +39,7 @@ def all_(
     )
 ) -> None:
     """
-    Pull down all your remote projects that don't already
-    exist.
+    Pull down all your remote projects that aren't already local.
 
     Will not operate on or modify in any way the projects that
     already exist.

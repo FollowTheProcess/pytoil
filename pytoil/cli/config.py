@@ -46,7 +46,7 @@ def show() -> None:
     config_dict = config.to_dict()
 
     for key, val in config_dict.items():
-        typer.echo(f"{key}: {val}")
+        typer.echo(f"{key}: {val!r}")
 
 
 @app.command()
