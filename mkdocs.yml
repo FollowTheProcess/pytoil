@@ -16,8 +16,8 @@ plugins:
 theme:
   name: material
   font:
-    text: Ubuntu
-    code: Ubuntu Mono
+    text: Roboto
+    code: SF Mono
   feature:
     tabs: true
   palette:
