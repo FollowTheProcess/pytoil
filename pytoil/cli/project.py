@@ -280,3 +280,35 @@ def remove(
         )
         shutil.rmtree(config.projects_dir.joinpath(project))
         typer.secho("\nDone!", fg=typer.colors.GREEN)
+
+
+@app.command()
+def info(
+    project: str = typer.Argument(..., help="Name of the project to fetch info for.")
+) -> None:
+    """
+    Show useful information about a project.
+
+    If the requested project is local only, a
+    small subset of info will be shown to do with
+    the local directory.
+
+    However if the project is available on GitHub
+    a more comprehensive info set is shown.
+
+    Example
+
+    $ pytoil project info my_project
+    """
+
+    config = Config.get()
+    config.raise_if_unset()
+
+    repo = Repo(name=project)
+
+    info_dict = repo.info()
+
+    typer.secho(f"\nInfo for: {project}", fg=typer.colors.BLUE, bold=True)
+    typer.echo("")
+    for key, val in info_dict.items():
+        typer.echo(f"{key}: {val}")

@@ -146,3 +146,68 @@ def test_get_repo_names_correctly_calls_get_repos(mocker, fake_api_response):
 
     # The names are contained in the fake_api_response fixture in conftest.py
     assert api.get_repo_names() == ["repo1", "repo2", "repo3"]
+
+
+@pytest.mark.parametrize(
+    "repo_name, description, created_at, updated_at, size, license_dict",
+    [
+        (
+            "repo1",
+            "my project",
+            "2020-02-27",
+            "2020-04-02",
+            4096,
+            {"id": "some_id", "name": "MIT License"},
+        ),
+        (
+            "repo2",
+            "someguys project",
+            "2021-01-18",
+            "2021-01-23",
+            1024,
+            {"id": "some_id", "name": "Apache 2.0"},
+        ),
+        (
+            "repo3",
+            "somegirls project",
+            "2020-07-01",
+            "2021-02-28",
+            2048,
+            {"id": "some_id", "name": "GPL v3"},
+        ),
+    ],
+)
+def test_get_repo_info_correctly_calls_get_repo(
+    mocker,
+    repo_name,
+    description,
+    created_at,
+    updated_at,
+    size,
+    license_dict,
+):
+
+    # Have the get_repo method just return our made up dict
+    mocker.patch(
+        "pytoil.api.API.get_repo",
+        autospec=True,
+        return_value={
+            "name": repo_name,
+            "description": description,
+            "created_at": created_at,
+            "updated_at": updated_at,
+            "size": size,
+            "license": license_dict,
+        },
+    )
+
+    api = API(token="definitelynotatoken", username="me")
+
+    assert api.get_repo_info(repo=repo_name) == {
+        "name": repo_name,
+        "description": description,
+        "created_at": created_at,
+        "updated_at": updated_at,
+        "size": size,
+        "license": license_dict["name"],
+    }

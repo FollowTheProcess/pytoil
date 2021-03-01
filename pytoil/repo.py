@@ -12,7 +12,8 @@ import pathlib
 import re
 import shutil
 import subprocess
-from typing import Optional, Set
+from datetime import datetime
+from typing import Dict, Optional, Set, Union
 
 from .api import API
 from .config import Config
@@ -190,6 +191,50 @@ class Repo:
             else:
                 # If clone succeeded, set self.path
                 self.path = config.projects_dir.joinpath(self.name)
+
+    def info(self) -> Dict[str, Union[str, int, bool]]:
+        """
+        Returns summary information about the repo
+        from the API or os.stat.
+
+        Prefers the API info as it is more detailed.
+        Will fall back to os.stat only if the project
+        is not available remotely.
+
+        Returns:
+            Dict[str, Union[str, int]]: Summary info.
+        """
+
+        info_dict: Dict[str, Union[str, int, bool]] = {}
+
+        if self.exists_remote():
+            # If remote, the API does all the work
+            api = API()
+            info_dict.update(api.get_repo_info(repo=self.name))
+            info_dict["remote"] = True
+            info_dict["local"] = self.exists_local()
+        elif self.exists_local():
+            # If local, we can get a bit of info from os.stat
+            info_dict.update(
+                {
+                    "name": self.path.name,
+                    "created_at": datetime.utcfromtimestamp(
+                        self.path.stat().st_ctime
+                    ).strftime(r"%Y-%m-%d %H:%M:%S"),
+                    "updated_at": datetime.utcfromtimestamp(
+                        self.path.stat().st_mtime
+                    ).strftime(r"%Y-%m-%d %H:%M:%S"),
+                    "size": self.path.stat().st_size,
+                    "local": True,
+                    "remote": self.exists_remote(),
+                },
+            )
+        else:
+            raise RepoNotFoundError(
+                f"Repo: {self.name!r} does not exist locally or remotely."
+            )
+
+        return info_dict
 
     def _does_file_exist(self, file: str) -> bool:
         """

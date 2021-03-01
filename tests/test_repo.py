@@ -560,3 +560,96 @@ def test_is_pep517(mocker, temp_config_file, repo_folder_with_random_existing_fi
 
         # Should now return False
         assert repo.is_pep517() is False
+
+
+@pytest.mark.parametrize(
+    "repo_name, description, created_at, updated_at, size, license_name, exist_local,"
+    + " exist_remote",
+    [
+        (
+            "repo1",
+            "my project",
+            "2020-02-27",
+            "2020-04-02",
+            4096,
+            "MIT License",
+            True,
+            True,
+        ),
+        (
+            "repo2",
+            "someguys project",
+            "2021-01-18",
+            "2021-01-23",
+            1024,
+            "Apache 2.0",
+            False,
+            True,
+        ),
+        (
+            "repo3",
+            "somegirls project",
+            "2020-07-01",
+            "2021-02-28",
+            2048,
+            "GPL v3",
+            True,
+            True,
+        ),
+    ],
+)
+def test_info_on_remote_only_repo(
+    mocker,
+    temp_config_file,
+    repo_name,
+    description,
+    created_at,
+    updated_at,
+    size,
+    license_name,
+    exist_remote,
+    exist_local,
+):
+    """
+    If a repo exists remotely, regardless of whether or not it is also
+    local. info should return info from the API as it is more detailed.
+    """
+
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
+
+        # Convince it the repo exists remotely and locally
+        mocker.patch(
+            "pytoil.repo.Repo.exists_remote", autospec=True, return_value=exist_remote
+        )
+        mocker.patch(
+            "pytoil.repo.Repo.exists_local", autospec=True, return_value=exist_local
+        )
+
+        # Have the get_repo_info method just return our made up dict
+        mocker.patch(
+            "pytoil.api.API.get_repo_info",
+            autospec=True,
+            return_value={
+                "name": repo_name,
+                "description": description,
+                "created_at": created_at,
+                "updated_at": updated_at,
+                "size": size,
+                "license": license_name,
+                "local": exist_local,
+                "remote": exist_remote,
+            },
+        )
+
+        repo = Repo(name=repo_name)
+
+        assert repo.info() == {
+            "name": repo_name,
+            "description": description,
+            "created_at": created_at,
+            "updated_at": updated_at,
+            "size": size,
+            "license": license_name,
+            "local": exist_local,
+            "remote": exist_remote,
+        }
