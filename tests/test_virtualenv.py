@@ -9,6 +9,7 @@ import pathlib
 import subprocess
 
 import pytest
+from pytest_mock import MockerFixture
 
 import pytoil
 from pytoil.env import VirtualEnv
@@ -67,7 +68,9 @@ def test_virtualenv_executable_setter():
 @pytest.mark.parametrize(
     "pathlib_exists, pytoil_exists", [(True, True), (False, False)]
 )
-def test_virtualenv_exists_returns_correct_value(mocker, pathlib_exists, pytoil_exists):
+def test_virtualenv_exists_returns_correct_value(
+    mocker: MockerFixture, pathlib_exists, pytoil_exists
+):
 
     mocker.patch(
         "pytoil.env.pathlib.Path.exists", autospec=True, return_value=pathlib_exists
@@ -94,7 +97,7 @@ def test_virtualenv_basepath_exists_returns_correct_value(
     assert env.basepath_exists() == pytoil_exists
 
 
-def test_virtualenv_create_raises_if_already_exists(mocker):
+def test_virtualenv_create_raises_if_already_exists(mocker: MockerFixture):
 
     env = VirtualEnv(basepath=pathlib.Path("made/up/dir"))
 
@@ -104,7 +107,7 @@ def test_virtualenv_create_raises_if_already_exists(mocker):
         env.create()
 
 
-def test_virtualenv_create_updates_executable_on_success(mocker):
+def test_virtualenv_create_updates_executable_on_success(mocker: MockerFixture):
 
     env = VirtualEnv(basepath=pathlib.Path("made/up/dir"))
 
@@ -125,7 +128,7 @@ def test_virtualenv_create_updates_executable_on_success(mocker):
     assert env.executable == pathlib.Path("made/up/dir/.venv/bin/python").resolve()
 
 
-def test_virtualenv_create_raises_if_basepath_doesnt_exist(mocker):
+def test_virtualenv_create_raises_if_basepath_doesnt_exist(mocker: MockerFixture):
 
     env = VirtualEnv(basepath=pathlib.Path("made/up/dir"))
 
@@ -139,7 +142,7 @@ def test_virtualenv_create_raises_if_basepath_doesnt_exist(mocker):
         env.create()
 
 
-def test_virtualenv_raise_for_executable_raises_when_required(mocker):
+def test_virtualenv_raise_for_executable_raises_when_required(mocker: MockerFixture):
 
     env = VirtualEnv(basepath=pathlib.Path("made/up/dir"))
 
@@ -153,7 +156,9 @@ def test_virtualenv_raise_for_executable_raises_when_required(mocker):
         env.raise_for_executable()
 
 
-def test_virtualenv_raise_for_executable_doesnt_raise_when_not_required(mocker):
+def test_virtualenv_raise_for_executable_doesnt_raise_when_not_required(
+    mocker: MockerFixture,
+):
 
     # Make it think the basepath doesn't exist
     # It doesn't anyway because we've made it up but better to explicitly do it
@@ -174,7 +179,7 @@ def test_virtualenv_raise_for_executable_doesnt_raise_when_not_required(mocker):
         env.raise_for_executable()
 
 
-def test_virtualenv_update_seeds_raises_on_subprocess_error(mocker):
+def test_virtualenv_update_seeds_raises_on_subprocess_error(mocker: MockerFixture):
 
     # Patch out env.executable so raise_for_executable doesnt raise
     with mocker.patch.object(
@@ -309,7 +314,7 @@ def test_virtualenv_install_raises_on_mutually_exclusive_arguments(
     ],
 )
 def test_virtualenv_install_passes_correct_command(
-    mocker, packages, prefix, requirements, editable, expected_cmd
+    mocker: MockerFixture, packages, prefix, requirements, editable, expected_cmd
 ):
     """
     Tests that the correct command is constructed and sent to pip.
@@ -379,7 +384,7 @@ def test_virtualenv_install_passes_correct_command(
     ],
 )
 def test_virtualenv_install_raises_on_subprocess_error(
-    mocker, packages, prefix, editable
+    mocker: MockerFixture, packages, prefix, editable
 ):
     """
     Done as a parametrized test so that we can be sure it raises regardless

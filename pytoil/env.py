@@ -39,6 +39,9 @@ class VirtualEnv:
 
         Until creation, the instantiated virtualenv's `.executable` is None.
 
+        Note: It is important not to resolve `.executable` as it could
+        resolve back to the system python if it is a symlink.
+
         Args:
             basepath (pathlib.Path): The root path of the current project.
             name (str, optional): The name of the virtualenv directory.
@@ -82,7 +85,7 @@ class VirtualEnv:
 
     def raise_for_executable(self) -> None:
         """
-        Helper method analagous to requests `raise_for_status`.
+        Helper method analagous to requests/httpx `raise_for_status`.
 
         Should be called before any method that is supposed to act
         from within a virtual environment.
@@ -128,7 +131,7 @@ class VirtualEnv:
             # Create a new virtualenv at `path`
             virtualenv.cli_run([f"{self.path}"])
             # Update the instance executable with the newly created one
-            # Note: DO NOT resolve self.executable
+            # NOTE: DO NOT resolve self.executable
             # Path.resolve() follows symlinks and a venv's python
             # is often a symlink of the global system python
             # Instead resolve the path up to "bin/python" then join
@@ -250,6 +253,7 @@ class VirtualEnv:
                 must be specified."""
             )
 
+        # If we get here, method has been called correctly
         # Ensure seed packages are updated, also checks interpreter
         self.update_seeds()
 
@@ -269,9 +273,8 @@ class VirtualEnv:
                 cmd.insert(4, "-e")
         elif requirements:  # pragma: no cover
             # Again, no cover but this logic is actually tested as above
-            # If we have a requirements.txt file in the project root
             resolved_fp = self.basepath.joinpath(requirements).resolve()
-            cmd.extend(["-r", f"{str(resolved_fp)}"])
+            cmd.extend(["-r", f"{resolved_fp}"])
 
         # Run the constructed pip command
         try:
@@ -351,7 +354,8 @@ class CondaEnv:
 
         If `packages` are specified, these will be included at creation.
 
-        Only default package is `python=3`.
+        Only default package is `python=3` which will cause conda to choose
+        it's default python3.
 
         Args:
             packages (Optional[List[str]], optional): List of valid packages
@@ -419,7 +423,7 @@ class CondaEnv:
         else:
             try:
                 subprocess.run(
-                    ["conda", "env", "create", "-y", "--file", f"{str(resolved_fp)}"],
+                    ["conda", "env", "create", "-y", "--file", f"{resolved_fp}"],
                     check=True,
                 )
             except subprocess.CalledProcessError:
@@ -440,7 +444,6 @@ class CondaEnv:
             VirtualenvDoesNotExistError: If the conda env does not exist,
                 an environment file cannot be created.
         """
-        # TODO: Figure out good way of testing the below
 
         if not self.exists():
             raise VirtualenvDoesNotExistError(
@@ -458,11 +461,15 @@ class CondaEnv:
         ]
 
         try:
-            yml_file = fp.joinpath("environment.yml")
-            with open(yml_file, "w") as f:
-                subprocess.run(cmd, check=True, cwd=fp, stdout=f)
+            yml_out = subprocess.run(
+                cmd, check=True, capture_output=True, encoding="utf-8"
+            )
         except subprocess.CalledProcessError:
             raise
+        else:
+            yml_file = fp.joinpath("environment.yml")
+            with open(yml_file, "w") as f:
+                f.write(yml_out.stdout)
 
     def install(self, packages: List[str]) -> None:
         """

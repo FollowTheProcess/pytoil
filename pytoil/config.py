@@ -214,9 +214,8 @@ class Config:
         Pretty prints the current config.
         """
 
-        print(f"\nusername: {self.username!r}\n")
-        print(f"token: {self.token!r}\n")
-        print(f"projects_dir: {str(self.projects_dir)!r}\n")
+        for key, val in self.to_dict().items():
+            print(f"{key}: {val!r}")
 
     def write(self) -> None:
         """

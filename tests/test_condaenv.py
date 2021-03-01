@@ -10,6 +10,7 @@ import subprocess
 from typing import List, NamedTuple
 
 import pytest
+from pytest_mock import MockerFixture
 
 from pytoil.env import CondaEnv
 from pytoil.exceptions import (
@@ -34,7 +35,7 @@ def test_condaenv_repr():
     assert env.__repr__() == "CondaEnv(name='sillyenv')"
 
 
-def test_condaenv_raise_for_conda_raises_when_required(mocker):
+def test_condaenv_raise_for_conda_raises_when_required(mocker: MockerFixture):
 
     # Patch out shutil.which so it returns what we want it to
     mocker.patch("pytoil.env.shutil.which", autospec=True, return_value=False)
@@ -45,7 +46,7 @@ def test_condaenv_raise_for_conda_raises_when_required(mocker):
         env.raise_for_conda()
 
 
-def test_condaenv_raise_for_conda_doesnt_raise_when_required(mocker):
+def test_condaenv_raise_for_conda_doesnt_raise_when_required(mocker: MockerFixture):
 
     mocker.patch("pytoil.env.shutil.which", autospec=True, return_value=True)
 
@@ -66,7 +67,7 @@ def test_condaenv_raise_for_conda_doesnt_raise_when_required(mocker):
         ("ReallyNotHere", False),
     ],
 )
-def test_condaenv_exists(mocker, name, exists):
+def test_condaenv_exists(mocker: MockerFixture, name, exists):
     class FakeStdOut(NamedTuple):
         # we need this so the returned object from subprocess.run
         # has a `.stdout` attribute
@@ -86,7 +87,7 @@ def test_condaenv_exists(mocker, name, exists):
     )
 
 
-def test_condaenv_exists_raises_on_subprocess_error(mocker):
+def test_condaenv_exists_raises_on_subprocess_error(mocker: MockerFixture):
 
     mocker.patch(
         "pytoil.env.subprocess.run",
@@ -131,7 +132,9 @@ def test_condaenv_exists_raises_on_subprocess_error(mocker):
         ),
     ],
 )
-def test_condaenv_create_is_correctly_called(mocker, packages, name, expected_cmd):
+def test_condaenv_create_is_correctly_called(
+    mocker: MockerFixture, packages, name, expected_cmd
+):
 
     # Trick the test into thinking the environment doesn't already exist
     mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=False)
@@ -145,7 +148,7 @@ def test_condaenv_create_is_correctly_called(mocker, packages, name, expected_cm
     mock_subprocess.assert_called_once_with(expected_cmd, check=True)
 
 
-def test_condaenv_create_raises_if_already_exists(mocker):
+def test_condaenv_create_raises_if_already_exists(mocker: MockerFixture):
 
     # Trick the test into thinking the environment already exists
     mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=True)
@@ -155,7 +158,7 @@ def test_condaenv_create_raises_if_already_exists(mocker):
         env.create()
 
 
-def test_condaenv_create_raises_on_subprocess_error(mocker):
+def test_condaenv_create_raises_on_subprocess_error(mocker: MockerFixture):
 
     mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=False)
 
@@ -170,7 +173,9 @@ def test_condaenv_create_raises_on_subprocess_error(mocker):
         env.create()
 
 
-def test_condaenv_create_from_yml_passes_correct_command(mocker, temp_environment_yml):
+def test_condaenv_create_from_yml_passes_correct_command(
+    mocker: MockerFixture, temp_environment_yml
+):
 
     # Make it think the environment doesn't already exist
     mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=False)
@@ -192,7 +197,7 @@ def test_condaenv_create_from_yml_passes_correct_command(mocker, temp_environmen
     mock_subprocess.assert_called_once_with(expected_cmd, check=True)
 
 
-def test_condaenv_create_from_yml_raises_on_missing_file(mocker):
+def test_condaenv_create_from_yml_raises_on_missing_file(mocker: MockerFixture):
 
     mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=False)
 
@@ -203,7 +208,7 @@ def test_condaenv_create_from_yml_raises_on_missing_file(mocker):
 
 
 def test_condaenv_create_from_yml_raises_on_invalid_formatted_yml(
-    mocker, bad_temp_environment_yml, bad_temp_environment_yml_2
+    mocker: MockerFixture, bad_temp_environment_yml, bad_temp_environment_yml_2
 ):
 
     mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=False)
@@ -216,7 +221,7 @@ def test_condaenv_create_from_yml_raises_on_invalid_formatted_yml(
 
 
 def test_condaenv_create_from_yml_raises_if_env_already_exists(
-    mocker, temp_environment_yml
+    mocker: MockerFixture, temp_environment_yml
 ):
 
     mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=True)
@@ -226,7 +231,7 @@ def test_condaenv_create_from_yml_raises_if_env_already_exists(
 
 
 def test_condaenv_create_from_yml_raises_on_subprocess_error(
-    mocker, temp_environment_yml
+    mocker: MockerFixture, temp_environment_yml
 ):
 
     mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=False)
@@ -249,7 +254,7 @@ def test_condaenv_create_from_yml_raises_on_subprocess_error(
         ("blah", ["altair", "matplotlib", "seaborn"]),
     ],
 )
-def test_condaenv_install_passes_correct_command(mocker, name, packages):
+def test_condaenv_install_passes_correct_command(mocker: MockerFixture, name, packages):
 
     mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=True)
 
@@ -272,7 +277,7 @@ def test_condaenv_install_passes_correct_command(mocker, name, packages):
     mock_subprocess.assert_called_once_with(expected_cmd, check=True)
 
 
-def test_condaenv_install_raises_if_environment_doesnt_exist(mocker):
+def test_condaenv_install_raises_if_environment_doesnt_exist(mocker: MockerFixture):
 
     mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=False)
 
@@ -281,7 +286,7 @@ def test_condaenv_install_raises_if_environment_doesnt_exist(mocker):
         env.install(["black", "mypy", "pandas"])
 
 
-def test_condaenv_install_raises_on_subprocess_error(mocker):
+def test_condaenv_install_raises_on_subprocess_error(mocker: MockerFixture):
 
     mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=True)
 
@@ -296,7 +301,7 @@ def test_condaenv_install_raises_on_subprocess_error(mocker):
         env.install(["pandas", "numpy"])
 
 
-def test_condaenv_export_yml_raises_on_missing_env(mocker):
+def test_condaenv_export_yml_raises_on_missing_env(mocker: MockerFixture):
 
     mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=False)
 
@@ -305,3 +310,73 @@ def test_condaenv_export_yml_raises_on_missing_env(mocker):
     with pytest.raises(VirtualenvDoesNotExistError):
         env = CondaEnv(name="condingle")
         env.export_yml(fp=pathlib.Path("/Users/me/projects/condaproject"))
+
+
+def test_condaenv_export_yml_raises_on_subprocess_error(mocker: MockerFixture):
+
+    mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=True)
+
+    mocker.patch(
+        "pytoil.env.subprocess.run",
+        autospec=True,
+        side_effect=[subprocess.CalledProcessError(-1, "cmd")],
+    )
+
+    with pytest.raises(subprocess.CalledProcessError):
+        env = CondaEnv(name="blah")
+        env.export_yml(fp=pathlib.Path("fake/environment/lol"))
+
+
+def test_condaenv_export_yml_exports_correct_content(
+    mocker: MockerFixture, temp_environment_yml
+):
+
+    mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=True)
+
+    class FakeStdOut(NamedTuple):
+        # we need this so the returned object from subprocess.run
+        # has a `.stdout` attribute
+        stdout: str = """
+        name: fake_conda_env
+        channels:
+        - defaults
+        - conda-forge
+        dependencies:
+        - python=3
+        - invoke
+        - black
+        - flake8
+        - isort
+        - mypy
+        - rich
+        - numpy
+        - requests
+        - pandas
+        - matplotlib
+        - seaborn
+        - altair
+        - altair_data_server
+        - altair_saver
+        - ipykernel
+        - jupyterlab
+        - sqlalchemy
+        - pandas-profiling
+        - hiplot
+        """
+
+    mock_subprocess = mocker.patch(
+        "pytoil.env.subprocess.run", autospec=True, return_value=FakeStdOut()
+    )
+
+    env = CondaEnv(name="fake_conda_env")
+
+    env.export_yml(temp_environment_yml.parent)
+
+    assert temp_environment_yml.read_text(encoding="utf-8") == FakeStdOut().stdout
+
+    mock_subprocess.assert_called_once_with(
+        ["conda", "env", "export", "--from-history", "--name", "fake_conda_env"],
+        check=True,
+        capture_output=True,
+        encoding="utf-8",
+    )

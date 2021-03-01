@@ -43,10 +43,7 @@ def show() -> None:
 
     typer.secho("\nCurrent pytoil config:", fg=typer.colors.BLUE, bold=True)
     typer.echo("")
-    config_dict = config.to_dict()
-
-    for key, val in config_dict.items():
-        typer.echo(f"{key}: {val!r}")
+    config.show()
 
 
 @app.command()
