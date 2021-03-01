@@ -5,8 +5,10 @@ Author: Tom Fleet
 Created: 05/02/2021
 """
 
+
 import pathlib
 import subprocess
+from typing import NamedTuple
 
 import pytest
 
@@ -598,7 +600,7 @@ def test_is_pep517(mocker, temp_config_file, repo_folder_with_random_existing_fi
         ),
     ],
 )
-def test_info_on_remote_only_repo(
+def test_info_on_remote_repo(
     mocker,
     temp_config_file,
     repo_name,
@@ -653,3 +655,113 @@ def test_info_on_remote_only_repo(
             "local": exist_local,
             "remote": exist_remote,
         }
+
+
+@pytest.mark.parametrize(
+    "repo_name, created_at, updated_at, size, exist_local, exist_remote",
+    [
+        (
+            "repo1",
+            "2021-03-01 10:43:19",
+            "2021-03-01 10:48:19",
+            4096,
+            True,
+            False,
+        ),
+        (
+            "repo2",
+            "2021-03-01 10:43:19",
+            "2021-03-01 10:48:19",
+            1024,
+            True,
+            False,
+        ),
+        (
+            "repo3",
+            "2021-03-01 10:43:19",
+            "2021-03-01 10:48:19",
+            2048,
+            True,
+            False,
+        ),
+    ],
+)
+def test_info_on_local_only_repo(
+    mocker,
+    temp_config_file,
+    repo_name,
+    created_at,
+    updated_at,
+    size,
+    exist_remote,
+    exist_local,
+):
+    """
+    If a repo exists locally only, we should instead get some info from Path.stat.
+
+    This one is quite complicated because you can't mock out datetime
+    so instead we:
+    - patch out everything related to whether or not the repo exists
+    - Create a fake dataclass `FakeStat`
+    - This FakeStat houses the unix timestamps that datetime.strftime can operate on
+    - In the parametrize we have the strftime outputs for those timestamps
+    """
+
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
+
+        # Convince it the repo exists remotely and locally
+        mocker.patch(
+            "pytoil.repo.Repo.exists_remote", autospec=True, return_value=exist_remote
+        )
+        mocker.patch(
+            "pytoil.repo.Repo.exists_local", autospec=True, return_value=exist_local
+        )
+
+        # Have the get_repo_info method just return our made up dict
+        mocker.patch(
+            "pytoil.api.API.get_repo_info",
+            autospec=True,
+            return_value={
+                "name": repo_name,
+                "created_at": created_at,
+                "updated_at": updated_at,
+                "size": size,
+                "local": exist_local,
+                "remote": exist_remote,
+            },
+        )
+
+        class FakeStat(NamedTuple):
+            st_ctime = 1614595399
+            st_mtime = 1614595699
+            st_size = size
+
+        mocker.patch(
+            "pytoil.repo.pathlib.Path.stat", autospec=True, return_value=FakeStat()
+        )
+
+        repo = Repo(name=repo_name)
+
+        assert repo.info() == {
+            "name": repo_name,
+            "created_at": created_at,
+            "updated_at": updated_at,
+            "size": size,
+            "local": exist_local,
+            "remote": exist_remote,
+        }
+
+
+def test_repo_info_raises_if_doesnt_exist_locally_or_remotely(mocker, temp_config_file):
+
+    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
+
+        # Convince it the repo does not exist remotely or locally
+        mocker.patch(
+            "pytoil.repo.Repo.exists_remote", autospec=True, return_value=False
+        )
+        mocker.patch("pytoil.repo.Repo.exists_local", autospec=True, return_value=False)
+
+        with pytest.raises(RepoNotFoundError):
+            repo = Repo(name="blah")
+            repo.info()
