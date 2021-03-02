@@ -57,6 +57,11 @@ Successfully installed pytoil
 
     keep in mind though, you'll have to install it globally for it to work so it might be better to use pipx
 
+pytoil will install everything it needs *in python* to work. However, it's full feature set can only be accessed if you have the following external dependencies:
+
+* [git]
+* [conda] (if you work with conda)
+
 ## Quickstart
 
 `pytoil` is super easy to get started with.
@@ -210,3 +215,6 @@ Commands:
     pytoil's CLI is designed such that if you don't specify any arguments, it won't do anything! This is called being a 'well behaved' unix command line tool.
 
     This is true for any subcommand of pytoil so you won't accidently break anything if you don't specify arguments :tada:.
+
+[git]: https://git-scm.com
+[conda]: https://docs.conda.io/en/latest/

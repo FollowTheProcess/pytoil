@@ -141,7 +141,7 @@ def create(
 
     elif venv.value == venv.virtualenv:
         typer.secho(
-            f"\nCreating virtualenv environment for {project!r}.\n",
+            f"\nCreating virtualenv for {project!r}.\n",
             fg=typer.colors.BLUE,
             bold=True,
         )
@@ -315,7 +315,6 @@ def info(
 
     info_dict = repo.info()
 
-    typer.secho(f"\nInfo for: {project}", fg=typer.colors.BLUE, bold=True)
-    typer.echo("")
+    typer.secho(f"\nInfo for: {project}\n", fg=typer.colors.BLUE, bold=True)
     for key, val in info_dict.items():
         typer.echo(f"{key}: {val}")
