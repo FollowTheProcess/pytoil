@@ -5,8 +5,12 @@ site_description: CLI to automate the development workflow.
 site_author: Tom Fleet
 use_directory_urls: false
 nav:
-  - Home:
-      - Index: index.md
+  - Home: index.md
+  - Config: config.md
+  - Commands:
+      - Show: commands/show.md
+      - Project: commands/project.md
+      - Sync: commands/sync.md
   - Changelog: changelog.md
 plugins:
   - mkdocstrings:
@@ -21,7 +25,7 @@ theme:
   feature:
     tabs: true
   palette:
-    primary: indigo
+    primary: blue grey
     accent: blue
 markdown_extensions:
   - codehilite
@@ -44,3 +48,12 @@ markdown_extensions:
   - pymdownx.tabbed
   - toc:
       permalink: true
+
+extra_css:
+  - "css/termynal.css"
+  - "css/custom.css"
+
+extra_javascript:
+  - "https://unpkg.com/mermaid@8.4.6/dist/mermaid.min.js"
+  - "js/termynal.js"
+  - "js/custom.js"

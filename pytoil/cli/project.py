@@ -51,7 +51,7 @@ def create(
     project: str = typer.Argument(..., help="Name of the project to create."),
     cookie: str = typer.Option(
         None,
-        "--cookiecutter",
+        "--cookie",
         "-c",
         help="URL to a cookiecutter template repo from which to create the project.",
     ),

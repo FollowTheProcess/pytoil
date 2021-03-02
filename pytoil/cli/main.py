@@ -54,7 +54,7 @@ def main(
 @app.command()
 def init() -> None:
     """
-    Initialise pytoil (first run only).
+    Initialise pytoil.
 
     Will guide user through the config setup
     interactively.
