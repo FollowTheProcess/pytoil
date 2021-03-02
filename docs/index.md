@@ -165,3 +165,48 @@ Creating project: 'myproject' with cookiecutter template: 'https://github.com/so
 
 [pipx]: https://pipxproject.github.io/pipx/
 [cookiecutter]: https://cookiecutter.readthedocs.io/en/1.7.2/
+
+### Help
+
+Like all good CLI programs, pytoil (aswell as all it's subcommands) has a `--help` option to show you what to do.
+
+<div class="termy">
+
+```console
+$ pytoil --help
+
+Usage: pytoil [OPTIONS] COMMAND [ARGS]...
+
+  Helpful CLI to automate the development workflow.
+
+  - Create and manage your local and remote projects
+
+  - Build projects from cookiecutter templates.
+
+  - Easily create/manage virtual environments.
+
+  - Minimal configuration required.
+
+Options:
+  -V, --version         Display pytoil version.
+  --install-completion  Install completion for the current shell.
+  --show-completion     Show completion for the current shell, to copy it or
+                        customize the installation.
+
+  --help                Show this message and exit.
+
+Commands:
+  config   Interact with pytoil's configuration.
+  init     Initialise pytoil.
+  project  Operate on a specific project.
+  show     View your local/remote projects.
+  sync     Synchronise your local and remote projects.
+```
+
+</div>
+
+!!! info
+    
+    pytoil's CLI is designed such that if you don't specify any arguments, it won't do anything! This is called being a 'well behaved' unix command line tool.
+
+    This is true for any subcommand of pytoil so you won't accidently break anything if you don't specify arguments :tada:.

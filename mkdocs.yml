@@ -8,6 +8,10 @@ nav:
   - Home: index.md
   - Config: config.md
   - Changelog: changelog.md
+  - Commands:
+      - Show: commands/show.md
+      - Project: commands/project.md
+      - Sync: commands/sync.md
 plugins:
   - mkdocstrings:
       watch:

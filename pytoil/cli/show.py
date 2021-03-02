@@ -122,8 +122,19 @@ def diff() -> None:
 
     difference: Set[str] = remote_projects.difference(local_projects)
 
-    typer.secho(
-        "\nRemote projects that are not local:\n", fg=typer.colors.BLUE, bold=True
-    )
-    for project in sorted(list(difference), key=str.casefold):
-        typer.echo(f"- {project}")
+    # Internal correctness
+    assert len(difference) >= 0
+
+    if len(difference) > 0:
+
+        typer.secho(
+            "\nRemote projects that are not local:\n", fg=typer.colors.BLUE, bold=True
+        )
+        for project in sorted(list(difference), key=str.casefold):
+            typer.echo(f"- {project}")
+    else:
+
+        typer.secho(
+            "You already have all your remote projects locally. Nothing to show!",
+            fg=typer.colors.GREEN,
+        )
