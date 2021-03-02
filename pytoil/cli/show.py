@@ -41,9 +41,17 @@ def local() -> None:
         key=str.casefold,  # casefold means sorting works independent of case
     )
 
-    typer.secho("\nLocal projects:\n", fg=typer.colors.BLUE, bold=True)
-    for project in local_projects:
-        typer.echo(f"- {project}")
+    n_locals: int = len(local_projects)
+
+    assert n_locals >= 0
+
+    if n_locals > 0:
+
+        typer.secho("\nLocal projects:\n", fg=typer.colors.BLUE, bold=True)
+        for project in local_projects:
+            typer.echo(f"- {project}")
+    else:
+        typer.secho("You don't have any local projects yet!", fg=typer.colors.YELLOW)
 
 
 @app.command()
@@ -59,9 +67,17 @@ def remote() -> None:
 
     remote_projects: List[str] = sorted(api.get_repo_names(), key=str.casefold)
 
-    typer.secho("\nRemote projects:\n", fg=typer.colors.BLUE, bold=True)
-    for project in remote_projects:
-        typer.echo(f"- {project}")
+    n_remotes: int = len(remote_projects)
+
+    assert n_remotes >= 0
+
+    if n_remotes > 0:
+
+        typer.secho("\nRemote projects:\n", fg=typer.colors.BLUE, bold=True)
+        for project in remote_projects:
+            typer.echo(f"- {project}")
+    else:
+        typer.secho("You don't have any remote projects yet!", fg=typer.colors.YELLOW)
 
 
 # Can't call it all, keyword!
@@ -87,15 +103,27 @@ def all_() -> None:
 
     remote_projects: List[str] = sorted(api.get_repo_names(), key=str.casefold)
 
+    n_locals: int = len(local_projects)
+    n_remotes: int = len(remote_projects)
+
+    assert n_locals >= 0
+    assert n_remotes >= 0
+
     # Show locals first
-    typer.secho("\nLocal projects:\n", fg=typer.colors.BLUE, bold=True)
-    for project in local_projects:
-        typer.echo(f"- {project}")
+    if n_locals > 0:
+        typer.secho("\nLocal projects:\n", fg=typer.colors.BLUE, bold=True)
+        for project in local_projects:
+            typer.echo(f"- {project}")
+    else:
+        typer.secho("You don't have any local projects yet!", fg=typer.colors.YELLOW)
 
     # Now remotes
-    typer.secho("\nRemote projects:\n", fg=typer.colors.BLUE, bold=True)
-    for project in remote_projects:
-        typer.echo(f"- {project}")
+    if n_remotes > 0:
+        typer.secho("\nRemote projects:\n", fg=typer.colors.BLUE, bold=True)
+        for project in remote_projects:
+            typer.echo(f"- {project}")
+    else:
+        typer.secho("You don't have any remote projects yet!", fg=typer.colors.YELLOW)
 
 
 @app.command()
@@ -119,13 +147,14 @@ def diff() -> None:
     }
 
     remote_projects: Set[str] = set(api.get_repo_names())
-
     difference: Set[str] = remote_projects.difference(local_projects)
 
-    # Internal correctness
-    assert len(difference) >= 0
+    n_diff: int = len(difference)
 
-    if len(difference) > 0:
+    # Internal correctness
+    assert n_diff >= 0
+
+    if n_diff > 0:
 
         typer.secho(
             "\nRemote projects that are not local:\n", fg=typer.colors.BLUE, bold=True
@@ -135,6 +164,6 @@ def diff() -> None:
     else:
 
         typer.secho(
-            "You already have all your remote projects locally. Nothing to show!",
+            "Your local and remote projects are all synced up. Nothing to show!",
             fg=typer.colors.GREEN,
         )
