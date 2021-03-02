@@ -29,17 +29,29 @@ Say goodbye to janky bash scripts :wave:
 
 As pytoil is a CLI program, I'd recommend installing with [pipx]
 
-```shell
-pipx install pytoil
+<div class="termy">
+
+```console
+$ pipx install pytoil
+---> 100%
+Successfully installed pytoil
 ```
+
+</div>
 
 If you don't know what pipx is, go check it out!
 
 You can always fall back to pip
 
-```shell
-pip install pytoil
+<div class="termy">
+
+```console
+$ python3 -m pip install pytoil
+---> 100%
+Successfully installed pytoil
 ```
+
+</div>
 
 !!! warning
 
@@ -51,9 +63,17 @@ pip install pytoil
 
 After installation just run
 
-```shell
-pytoil init
+<div class="termy">
+
+```console
+$ pytoil init
+
+# GitHub username:$ YourGitHubUsername
+# GitHub personal access token:$ YourTokenHere
+# Absolute path to your projects directory:$ /Users/you/projects
 ```
+
+</div>
 
 This will create a config file which can be found at `~/.pytoil.yml`, and will walk you through setting the tool up.
 
@@ -63,34 +83,85 @@ After that you're good to go! You can do things like:
 
 #### See your local and remote projects
 
-```shell
-pytoil show all
+<div class="termy">
+
+```console
+$ pytoil show all
+
+Local Projects:
+
+- Project1
+- Project2
+- Project3
+
+Remote Projects:
+
+- Remote1
+- Remote2
+- etc..
 ```
+
+</div>
 
 #### See which ones you have on GitHub, but not on your computer
 
-```shell
-pytoil show diff
+<div class="termy">
+
+```console
+$ pytoil show diff
+
+Remote projects that are not local:
+
+- Projectyoudonthave1
+- Projectyoudonthave2
 ```
+
+</div>
 
 #### Easily grab a project, regardless of where it is
 
-```shell
-pytoil project checkout my_project
+<div class="termy">
+
+```console
+$ pytoil project checkout myproject
+
+Resuming 'myproject'...
+
+// Will now either open that project if local
+// or clone it if not
+// Ensure virtual environments are set up etc.
 ```
+
+</div>
 
 #### Create a new project and virtual environment in one go
 
-```shell
-pytoil project create my_project --venv virtualenv
+<div class="termy">
 
+```console
+$ pytoil project create myproject --venv virtualenv
+
+Creating project: 'myproject' at '/Users/you/projects/myproject'
+
+Creating virtualenv for: 'myproject'
 ```
+
+</div>
 
 #### And even do this from a [cookiecutter] template
 
-```shell
-pytoil project create my_project --venv virtualenv --cookiecutter https://github.com/some/cookie.git
+<div class="termy">
+
+```console
+$ pytoil project create myproject --venv virtualenv --cookie https://github.com/some/cookie.git
+
+Creating project: 'myproject' with cookiecutter template: 'https://github.com/some/cookie.git'
+
+// You'll then be asked all the cookiecutter questions defined in the template
+// After which pytoil will take over and create the virtual environment as normal
 ```
+
+</div>
 
 [pipx]: https://pipxproject.github.io/pipx/
 [cookiecutter]: https://cookiecutter.readthedocs.io/en/1.7.2/
