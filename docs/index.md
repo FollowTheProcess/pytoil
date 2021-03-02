@@ -27,15 +27,23 @@ Say goodbye to janky bash scripts :wave:
 
 ## Installation
 
-```shell
-pip install pytoil
-```
-
-Or you can be fancy and use [pipx]
+As pytoil is a CLI program, I'd recommend installing with [pipx]
 
 ```shell
 pipx install pytoil
 ```
+
+If you don't know what pipx is, go check it out!
+
+You can always fall back to pip
+
+```shell
+pip install pytoil
+```
+
+!!! warning
+
+    keep in mind though, you'll have to install it globally for it to work so it might be better to use pipx
 
 ## Quickstart
 
