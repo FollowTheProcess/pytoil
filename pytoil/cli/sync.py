@@ -67,10 +67,12 @@ def all_(
 
     to_clone: Set[str] = remote_projects.difference(local_projects)
 
-    # Internal correctness check
-    assert len(to_clone) >= 0
+    n_to_clone: int = len(to_clone)
 
-    if len(to_clone) == 0:
+    # Internal correctness check
+    assert n_to_clone >= 0
+
+    if n_to_clone == 0:
         typer.secho(
             "\nAll your remote repos already exist locally. Nothing to do.",
             fg=typer.colors.GREEN,
@@ -139,10 +141,12 @@ def these(
 
     to_clone: Set[str] = remote_projects.difference(local_projects)
 
-    # Internal correctness check
-    assert len(to_clone) >= 0
+    n_to_clone: int = len(to_clone)
 
-    if len(to_clone) == 0:
+    # Internal correctness check
+    assert n_to_clone >= 0
+
+    if n_to_clone == 0:
         typer.secho(
             "\nAll your remote repos already exist locally. Nothing to do.",
             fg=typer.colors.GREEN,
