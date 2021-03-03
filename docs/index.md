@@ -25,6 +25,20 @@ pytoil is:
 
 Say goodbye to janky bash scripts :wave:
 
+## Background
+
+Like many developers I suspect, I quickly became bored of typing repeated commands to manage my projects, create virtual environments, install packages, fire off `cURL` snippets to check if I had a certain repo etc.
+
+So I wrote some shell functions to do some of this for me...
+
+And these shell functions grew and grew and grew.
+
+Until one day I saw that the file I kept these functions in was over 1000 lines of bash (a lot of `printf`'s so it wasn't all logic but still). And 1000 lines of bash is *waaaay* too much!
+
+And because I'd basically hacked it all together, it was **very** fragile. If a part of a function failed, it would just carry on and wreak havoic! I'd have to do `rm -rf all_my_projects`... I mean careful forensic investigation to fix it.
+
+So I decided to make a robust CLI with the proper error handling and testability of python, and here it is! :tada:
+
 ## Installation
 
 As pytoil is a CLI program, I'd recommend installing with [pipx]
@@ -173,7 +187,7 @@ Creating project: 'myproject' with cookiecutter template: 'https://github.com/so
 
 ### Help
 
-Like all good CLI programs, pytoil (aswell as all it's subcommands) has a `--help` option to show you what to do.
+Like all good CLI programs, pytoil (aswell as all it's subcommands, and all *their* subcommands!) has a `--help` option to show you what to do.
 
 <div class="termy">
 
@@ -212,7 +226,7 @@ Commands:
 
 !!! info
     
-    pytoil's CLI is designed such that if you don't specify any arguments, it won't do anything! This is called being a 'well behaved' unix command line tool.
+    pytoil's CLI is designed such that if you don't specify any arguments, it won't do anything! just show you the `--help`. This is called being a 'well behaved' unix command line tool.
 
     This is true for any subcommand of pytoil so you won't accidently break anything if you don't specify arguments :tada:.
 

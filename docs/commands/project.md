@@ -39,7 +39,7 @@ Commands:
 
 ## Create
 
-`create` will make you a new project locally. You have the option to create a new virtual environment with it and to create the project from a [cookiecutter] template.
+`create` will make you a new project locally. You have the option to create a new virtual environment with it and to create the project from a [cookiecutter] template :cookie:
 
 ### No Options
 
@@ -169,14 +169,16 @@ remote: False
 
 `checkout` (not to be confused with `git checkout`) allows to easily resume work on an ongoing development project.
 
-* If the project is available locally, `checkout` will simply open it for you
-* If not, `checkout` will:
-  * Clone it to your projects directory
-  * Detect what type of project it is (conda or virtualenv)
-  * Create the required virtual environment and install required dependencies
-  * Open it for you
+If the project is available locally, `checkout` will simply open it for you
 
-<!-- TODO: More stuff -->
+If not, `checkout` will:
+
+* Clone it to your projects directory
+* Detect what type of project it is (conda or virtualenv)
+* Create the required virtual environment and install required dependencies
+* Open it for you
+
+<!-- TODO: More stuff, checkout needs to be able to detect virtual environments. Do that next. -->
 
 ## Remove
 
