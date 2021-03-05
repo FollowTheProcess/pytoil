@@ -5,7 +5,7 @@ Author: Tom Fleet
 Created: 24/02/2021
 """
 
-from typing import Tuple
+import pathlib
 
 import typer
 
@@ -48,40 +48,54 @@ def show() -> None:
 
 @app.command()
 def set(
-    item: Tuple[str, str] = typer.Argument(..., help="Space-separated key, value pair.")
+    username: str = typer.Option(None, "--username", "-u", help="Set GitHub username."),
+    token: str = typer.Option(
+        None, "--token", "-t", help="Set Github personal access token."
+    ),
+    projects_dir: pathlib.Path = typer.Option(
+        None,
+        "--projects-dir",
+        "-p",
+        help="Set projects directory.",
+        exists=True,
+        file_okay=False,
+        dir_okay=True,
+        writable=True,
+        readable=True,
+        resolve_path=True,
+    ),
+    vscode: bool = typer.Option(
+        None, "--vscode", "-v", help="Set pytoil to use vscode."
+    ),
 ) -> None:
     """
-    Set a valid config key, value pair.
+    Set a config parameter.
 
-    If the change is valid, it is immediately written to the config file.
+    Examples
 
-    Examples:
-
-    $ pytoil config set token mynewtoken
-
-    $ pytoil config set username myusername
-
-    $ pytoil config set projects_dir /Users/me/projects
+    $ pytoil config set --username my_username
     """
 
-    # Get config but don't raise on UNSET
+    # Get any existing config
+    # but don't validate
     config = Config.get()
 
-    old_config_dict = config.to_dict()
-    key, val = item
-
-    if key not in old_config_dict.keys():
-        typer.secho(
-            f"Key: {key!r} is not a valid pytoil config key.", fg=typer.colors.RED
-        )
+    # I'm not keen on this, it feels messy
+    if username:
+        config.username = username
+    elif token:
+        config.token = token
+    elif projects_dir:
+        config.projects_dir = projects_dir
+    elif vscode:
+        config.vscode = vscode
+    else:
+        typer.secho("unrecognised parameter", fg=typer.colors.RED)
         raise typer.Abort()
 
-    new_config_dict = old_config_dict.copy()
-    new_config_dict.update({key: val})
+    # Write the updated config
+    config.write()
 
-    new_config = Config(**new_config_dict)
-    new_config.write()
-
-    typer.secho(
-        f"Configuration updated: {key!r} is now {val!r}.", fg=typer.colors.GREEN
-    )
+    typer.secho("Config updated", fg=typer.colors.GREEN)
+    typer.secho("\nNew Config:\n", fg=typer.colors.BLUE, bold=True)
+    config.show()

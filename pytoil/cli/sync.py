@@ -53,7 +53,7 @@ def all_(
 
     # Everything below requires a valid config
     config = Config.get()
-    config.raise_if_unset()
+    config.validate()
 
     api = API()
 
@@ -128,7 +128,7 @@ def these(
 
     # Everything below requires a valid config
     config = Config.get()
-    config.raise_if_unset()
+    config.validate()
 
     local_projects: Set[str] = {
         f.name

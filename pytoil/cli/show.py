@@ -30,7 +30,7 @@ def local() -> None:
     """
 
     config = Config.get()
-    config.raise_if_unset()
+    config.validate()
 
     local_projects: List[str] = sorted(
         [
@@ -61,7 +61,7 @@ def remote() -> None:
     """
 
     config = Config.get()
-    config.raise_if_unset()
+    config.validate()
 
     api = API()
 
@@ -88,7 +88,7 @@ def all_() -> None:
     """
 
     config = Config.get()
-    config.raise_if_unset()
+    config.validate()
 
     api = API()
 
@@ -136,7 +136,7 @@ def diff() -> None:
 
     # Everything below requires a valid config
     config = Config.get()
-    config.raise_if_unset()
+    config.validate()
 
     api = API()
 

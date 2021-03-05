@@ -5,6 +5,8 @@ Author: Tom Fleet
 Created: 24/02/2021
 """
 
+import pathlib
+
 import typer
 
 from pytoil import __version__
@@ -70,7 +72,11 @@ def init() -> None:
         token: str = typer.prompt("GitHub personal access token")
         projects_dir: str = typer.prompt("Absolute path to your projects directory")
 
-        user_config = Config(username=username, token=token, projects_dir=projects_dir)
+        projects_dir_path = pathlib.Path(projects_dir)
+
+        user_config = Config(
+            username=username, token=token, projects_dir=projects_dir_path
+        )
         user_config.write()
 
         typer.secho("Config written, you're good to go!", fg=typer.colors.GREEN)

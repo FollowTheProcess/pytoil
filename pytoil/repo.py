@@ -163,7 +163,7 @@ class Repo:
 
         # Get the user config from file and validate
         config = Config.get()
-        config.raise_if_unset()
+        config.validate()
 
         # Check if git is installed
         if not bool(shutil.which("git")):

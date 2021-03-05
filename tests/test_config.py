@@ -23,17 +23,22 @@ def test_config_init_default():
     assert config.token == "UNSET"
     # Default development path
     assert config.projects_dir == DEFAULT_PROJECTS_DIR
+    assert config.vscode is False
 
 
 def test_config_init_passed():
 
     config = Config(
-        username="me", token="definitelynotatoken", projects_dir="/Users/me/projects"
+        username="me",
+        token="definitelynotatoken",
+        projects_dir=pathlib.Path("/Users/me/projects"),
+        vscode=True,
     )
 
     assert config.username == "me"
     assert config.token == "definitelynotatoken"
     assert config.projects_dir == pathlib.Path("/Users/me/projects")
+    assert config.vscode is True
 
 
 def test_config_init_username():
@@ -43,6 +48,7 @@ def test_config_init_username():
     assert config.username == "me"
     assert config.token == "UNSET"
     assert config.projects_dir == DEFAULT_PROJECTS_DIR
+    assert config.vscode is False
 
 
 def test_config_init_token():
@@ -52,15 +58,27 @@ def test_config_init_token():
     assert config.username == "UNSET"
     assert config.token == "definitelynotatoken"
     assert config.projects_dir == DEFAULT_PROJECTS_DIR
+    assert config.vscode is False
 
 
 def test_config_init_projects_dir():
 
-    config = Config(projects_dir="/Users/madeup/path")
+    config = Config(projects_dir=pathlib.Path("/Users/madeup/path"))
 
     assert config.username == "UNSET"
     assert config.token == "UNSET"
     assert config.projects_dir == pathlib.Path("/Users/madeup/path")
+    assert config.vscode is False
+
+
+def test_config_init_vscode():
+
+    config = Config(vscode=True)
+
+    assert config.username == "UNSET"
+    assert config.token == "UNSET"
+    assert config.projects_dir == DEFAULT_PROJECTS_DIR
+    assert config.vscode is True
 
 
 def test_config_repr_default():
@@ -69,20 +87,29 @@ def test_config_repr_default():
 
     assert (
         config.__repr__()
-        == "Config(username='UNSET', token='UNSET', projects_dir='UNSET')"
+        == "Config(username='UNSET', "
+        + "token='UNSET', "
+        + f"projects_dir={DEFAULT_PROJECTS_DIR!r}, "
+        + "vscode=False)"
     )
 
 
 def test_config_repr_passed():
 
+    path = pathlib.Path("/Users/me/projects")
+
     config = Config(
-        username="me", token="definitelynotatoken", projects_dir="/Users/me/projects"
+        username="me",
+        token="definitelynotatoken",
+        projects_dir=path,
+        vscode=True,
     )
 
     expected = (
         "Config(username='me', "
         + "token='definitelynotatoken', "
-        + "projects_dir='/Users/me/projects')"
+        + f"projects_dir={path!r}, "
+        + "vscode=True)"
     )
 
     assert config.__repr__() == expected
@@ -95,20 +122,27 @@ def test_config_dict_default():
     assert config.__dict__ == {
         "username": "UNSET",
         "token": "UNSET",
-        "projects_dir": str(DEFAULT_PROJECTS_DIR),
+        "projects_dir": DEFAULT_PROJECTS_DIR,
+        "vscode": False,
     }
 
 
 def test_config_dict_passed():
 
+    path = pathlib.Path("/Users/me/projects")
+
     config = Config(
-        username="me", token="definitelynotatoken", projects_dir="/Users/me/projects"
+        username="me",
+        token="definitelynotatoken",
+        projects_dir=path,
+        vscode=True,
     )
 
     assert config.__dict__ == {
         "username": "me",
         "token": "definitelynotatoken",
-        "projects_dir": "/Users/me/projects",
+        "projects_dir": path,
+        "vscode": True,
     }
 
 
@@ -119,17 +153,20 @@ def test_config_setters():
     # Assert before
     assert config.username == "UNSET"
     assert config.token == "UNSET"
-    assert config.projects_dir == pathlib.Path.home().joinpath("Development")
+    assert config.projects_dir == DEFAULT_PROJECTS_DIR
+    assert config.vscode is False
 
     # Change value using setters
     config.username = "me"
     config.token = "definitelynotatoken"
-    config.projects_dir = "/Users/me/projects"
+    config.projects_dir = pathlib.Path("/Users/me/projects")
+    config.vscode = True
 
     # Assert after
     assert config.username == "me"
     assert config.token == "definitelynotatoken"
     assert config.projects_dir == pathlib.Path("/Users/me/projects")
+    assert config.vscode is True
 
 
 def test_config_get_good_file(temp_config_file, mocker: MockerFixture):
@@ -144,6 +181,7 @@ def test_config_get_good_file(temp_config_file, mocker: MockerFixture):
         assert config.username == "tempfileuser"
         assert config.token == "tempfiletoken"
         assert config.projects_dir == pathlib.Path("/Users/tempfileuser/projects")
+        assert config.vscode is True
 
 
 def test_config_get_raises_on_missing_file(mocker: MockerFixture):
@@ -160,73 +198,66 @@ def test_config_get_raises_on_missing_file(mocker: MockerFixture):
             Config.get()
 
 
-def test_config_raises_on_misspelled_key(
-    mocker: MockerFixture, temp_config_file_misspelled_key
-):
-    """
-    Checks that config.get will raise a TypeError when one of the keys in
-    the yml file is misspelled.
-    """
-
-    with mocker.patch.object(
-        pytoil.config, "CONFIG_PATH", temp_config_file_misspelled_key
-    ):
-        with pytest.raises(TypeError):
-            Config.get()
-
-
 @pytest.mark.parametrize(
-    "name, token, projects_dir, expected_dict",
+    "name, token, projects_dir, vscode, expected_dict",
     [
         (
             "me",
             "sillytoken",
-            "/Users/me/projects",
+            pathlib.Path("/Users/me/projects"),
+            True,
             {
                 "username": "me",
                 "token": "sillytoken",
                 "projects_dir": "/Users/me/projects",
+                "vscode": True,
             },
         ),
         (
             "someguy",
             "loltoken",
-            "/Users/someguy/dingleprojects",
+            pathlib.Path("/Users/someguy/dingleprojects"),
+            False,
             {
                 "username": "someguy",
                 "token": "loltoken",
                 "projects_dir": "/Users/someguy/dingleprojects",
+                "vscode": False,
             },
         ),
         (
             "dave",
             "hahahatoken",
-            "/Users/dave/hahaprojects",
+            pathlib.Path("/Users/dave/hahaprojects"),
+            True,
             {
                 "username": "dave",
                 "token": "hahahatoken",
                 "projects_dir": "/Users/dave/hahaprojects",
+                "vscode": True,
             },
         ),
     ],
 )
 def test_config_to_dict_returns_correct_values(
-    name, token, projects_dir, expected_dict
+    name, token, projects_dir, vscode, expected_dict
 ):
 
-    config = Config(username=name, token=token, projects_dir=projects_dir)
+    config = Config(
+        username=name, token=token, projects_dir=projects_dir, vscode=vscode
+    )
 
     assert config.to_dict() == expected_dict
 
 
-def test_config_raise_if_unset_raises_on_unset_username():
+def test_config_validate_raises_on_unset_username():
 
     config = Config(
         username="UNSET", token="definitelynotatoken", projects_dir="/Users/me/projects"
     )
 
     with pytest.raises(InvalidConfigError):
-        config.raise_if_unset()
+        config.validate()
 
 
 def test_config_raise_if_unset_raises_on_unset_token():
@@ -234,19 +265,27 @@ def test_config_raise_if_unset_raises_on_unset_token():
     config = Config(username="me", token="UNSET", projects_dir="/Users/me/projects")
 
     with pytest.raises(InvalidConfigError):
-        config.raise_if_unset()
+        config.validate()
 
 
 def test_config_show_outputs_correct_text(capsys):
 
-    config = Config(username="me", token="UNSET", projects_dir="/Users/me/projects")
+    config = Config(
+        username="me",
+        token="UNSET",
+        projects_dir=pathlib.Path("/Users/me/projects"),
+        vscode=True,
+    )
 
     config.show()
 
     captured = capsys.readouterr()
 
     expected_output: str = (
-        "username: 'me'\ntoken: 'UNSET'\nprojects_dir: '/Users/me/projects'\n"
+        "username: 'me'\n"
+        + "token: 'UNSET'\n"
+        + "projects_dir: '/Users/me/projects'\n"
+        + "vscode: True\n"
     )
 
     assert captured.out == expected_output
@@ -264,11 +303,13 @@ def test_config_write(mocker: MockerFixture, temp_config_file):
         assert original_config.projects_dir == pathlib.Path(
             "/Users/tempfileuser/projects"
         )
+        assert original_config.vscode is True
 
         config = Config(
             username="me",
             token="definitelynotatoken",
-            projects_dir="/Users/me/projects",
+            projects_dir=pathlib.Path("/Users/me/projects"),
+            vscode=False,
         )
 
         # Write these new attributes to the temp config file (overwriting)
@@ -281,3 +322,4 @@ def test_config_write(mocker: MockerFixture, temp_config_file):
         assert new_config.username == "me"
         assert new_config.token == "definitelynotatoken"
         assert new_config.projects_dir == pathlib.Path("/Users/me/projects")
+        assert new_config.vscode is False

@@ -96,7 +96,7 @@ def create(
 
     # Everything below requires a valid config
     config = Config.get()
-    config.raise_if_unset()
+    config.validate()
 
     # Create the project repo object
     repo = Repo(name=project)
@@ -190,7 +190,7 @@ def checkout(
 
     # Everything below requires a valid config
     config = Config.get()
-    config.raise_if_unset()
+    config.validate()
 
     # Project exists either locally or on users GitHub
     # and is to be grabbed by name only
@@ -249,7 +249,7 @@ def remove(
 
     # Everything below needs a valid config
     config = Config.get()
-    config.raise_if_unset()
+    config.validate()
 
     # Set because we don't care about sorting
     # but we want fast membership checking
@@ -309,7 +309,7 @@ def info(
     """
 
     config = Config.get()
-    config.raise_if_unset()
+    config.validate()
 
     repo = Repo(name=project)
 
