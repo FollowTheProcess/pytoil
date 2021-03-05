@@ -67,7 +67,7 @@ def set(
         resolve_path=True,
     ),
     vscode: str = typer.Option(
-        None, "--vscode", "-v", help="Set pytoil to use vscode."
+        None, "--vscode", "-v", help="Set pytoil to use vscode.", case_sensitive=False
     ),
 ) -> None:
     """
@@ -94,9 +94,9 @@ def set(
     elif projects_dir:
         config.projects_dir = projects_dir
     elif vscode:
-        if vscode == "True":
+        if vscode.lower() == "true":
             config.vscode = True
-        elif vscode == "False":
+        elif vscode.lower() == "false":
             config.vscode = False
         else:
             raise typer.BadParameter("vscode must be a boolean value.")
