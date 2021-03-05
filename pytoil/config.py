@@ -8,7 +8,8 @@ Created: 05/02/2021
 from __future__ import annotations
 
 import pathlib
-from typing import TYPE_CHECKING, Dict
+from dataclasses import dataclass
+from typing import TypedDict
 
 import yaml
 
@@ -20,120 +21,49 @@ DEFAULT_PROJECTS_DIR = pathlib.Path.home().joinpath("Development").resolve()
 CONFIG_PATH = pathlib.Path.home().joinpath(".pytoil.yml").resolve()
 
 
+class ConfigDict(TypedDict):
+    """
+    Type checking for the config dictionary.
+
+    Effectively a config schema, same as the dataclass
+    with the exception of pathlib.Paths which are here
+    represented as a string as this is how they will be
+    stored in the config file and thus how they will be brought
+    into python by pyyaml.
+    """
+
+    username: str
+    token: str
+    projects_dir: str
+    vscode: bool
+
+
+@dataclass
 class Config:
-    def __init__(
-        self,
-        username: str = "UNSET",
-        token: str = "UNSET",
-        projects_dir: str = "UNSET",
-    ) -> None:
-        """
-        Representation of the pytoil config.
+    """
+    Representation of the pytoil config.
 
-        Only real usage is the `.get` classmethod.
-        Used as the global configuration management class for the
-        whole project.
+    Only real usage is the `.get` classmethod.
+    Used as the global configuration management class for the
+    whole project.
 
-        Arguments are passed in as str and every parameter
-        other than `projects_dir` retains this type.
 
-        `projects_dir` however will return a pathlib.Path instance of the str
-        path passed in. This is accessible through the `.projects_dir` property.
+    Args:
+        username (str): Users GitHub username.
+            Defaults to "UNSET".
+        token (str): Users GitHub personal access token.
+            Defaults to "UNSET".
+        projects_dir (pathlib.Path): Directory in which user stores
+            their development projects. Defaults to ~/Development.
+        vscode (bool): Whether or not the user uses vscode as their editor.
+    """
 
-        This is so that the class can be instantiated by parsing the config file
-        but then what the `projects_dir` attribute is accessed, it is converted
-        to a pathlib.Path for OS independent pathing.
+    username: str = "UNSET"
+    token: str = "UNSET"
+    projects_dir: pathlib.Path = DEFAULT_PROJECTS_DIR
+    vscode: bool = False
 
-        This means that so long as the user enters the absolute path as a string
-        in the config file, this will all work regardless of OS.
-
-        If the projects_dir is not set in the config file, DEFAULT_PROJECTS_DIR will
-        be returned.
-
-        Args:
-            username (str): Users GitHub username.
-                Defaults to "UNSET".
-            token (str): Users GitHub personal access token.
-                Defaults to "UNSET".
-            projects_dir (str): Directory in which user stores
-                their development projects. Defaults to "UNSET".
-        """
-        self._username = username
-        self._token = token
-        self._projects_dir = projects_dir
-
-    def __repr__(self) -> str:
-        return (
-            self.__class__.__qualname__
-            + f"(username={self._username!r}, "
-            + f"token={self._token!r}, "
-            + f"projects_dir={self._projects_dir!r})"
-        )
-
-    # Ref: https://github.com/python/mypy/issues/6523
-    if TYPE_CHECKING:  # pragma: no cover
-        __dict__ = {}  # type: Dict[str, str]
-    else:
-
-        @property
-        def __dict__(self) -> Dict[str, str]:
-
-            return {
-                "username": self.username,
-                "token": self.token,
-                "projects_dir": str(self.projects_dir),
-            }
-
-    @property
-    def username(self) -> str:
-        return self._username
-
-    @username.setter
-    def username(self, value: str) -> None:
-        self._username = value
-
-    @property
-    def token(self) -> str:
-        return self._token
-
-    @token.setter
-    def token(self, value: str) -> None:
-        self._token = value
-
-    @property
-    def projects_dir(self) -> pathlib.Path:
-        """
-        Primary accessor for the `projects_dir` property.
-        If the key is populated in the config file, this will
-        return the pathlib.Path instance generated from that str
-        for OS-independent pathing.
-
-        Returns:
-            (pathlib.Path): Path to the projects directory if passed,
-                else ~/Development.
-        """
-        if self._projects_dir == "UNSET":
-            return DEFAULT_PROJECTS_DIR
-        else:
-            return pathlib.Path(self._projects_dir)
-
-    @projects_dir.setter
-    def projects_dir(self, value: str) -> None:
-        """
-        Setter for the `projects_dir` property.
-
-        Pass a string just as you would for the instantiation of
-        the class.
-
-        It is converted to a pathlib.Path on retrieval using the
-        `.projects_dir` property.
-
-        Args:
-            value (str): String representation of the path to change to.
-        """
-        self._projects_dir = value
-
-    def raise_if_unset(self) -> None:
+    def validate(self) -> None:
         """
         Helper method to validate the config.
 
@@ -181,24 +111,24 @@ class Config:
             Config: Config object with parameters parsed from the file.
         """
 
-        fp = CONFIG_PATH
-
         try:
-            with open(fp) as f:
-                config_dict: Dict[str, str] = yaml.full_load(f)
+            with open(CONFIG_PATH) as f:
+                config_dict = yaml.full_load(f)
         except FileNotFoundError:
             raise
         else:
-            try:
-                # Get the config from unpacking the dict
-                config = cls(**config_dict)
-            except TypeError:
-                # If one of the keys is wrong
-                raise
-            else:
-                return config
+            # Get the config from unpacking the dict
+            config = Config(
+                username=config_dict.get("username") or "UNSET",
+                token=config_dict.get("token") or "UNSET",
+                projects_dir=pathlib.Path(config_dict.get("projects_dir"))
+                or DEFAULT_PROJECTS_DIR,
+                vscode=config_dict.get("vscode") or False,
+            )
 
-    def to_dict(self) -> Dict[str, str]:
+            return config
+
+    def to_dict(self) -> ConfigDict:
         """
         Generates a properly formatted dictionary of the current
         config.
@@ -207,7 +137,14 @@ class Config:
             Dict[str, Optional[str]]: Dictionary showing the current config state.
         """
 
-        return self.__dict__
+        config_dict: ConfigDict = {
+            "username": self.username,
+            "token": self.token,
+            "projects_dir": str(self.projects_dir),
+            "vscode": self.vscode,
+        }
+
+        return config_dict
 
     def show(self) -> None:
         """

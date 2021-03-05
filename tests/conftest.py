@@ -26,6 +26,7 @@ def temp_config_file(tmp_path_factory):
         "username": "tempfileuser",
         "token": "tempfiletoken",
         "projects_dir": "/Users/tempfileuser/projects",
+        "vscode": True,
     }
 
     with open(config_file, "w") as f:
@@ -46,6 +47,7 @@ def temp_config_file_missing_key(tmp_path_factory):
     yaml_dict: Dict[str, str] = {
         "username": "tempfileuser",
         "projects_dir": "/Users/tempfileuser/projects",
+        "vscode": True,
     }
 
     with open(config_file, "w") as f:
@@ -71,6 +73,7 @@ def temp_config_file_key_with_blank_value(tmp_path_factory):
         "username": "tempfileuser",
         "token": None,
         "projects_dir": "/Users/tempfileuser/projects",
+        "vscode": True,
     }
 
     with open(config_file, "w") as f:
@@ -115,6 +118,7 @@ def temp_config_file_missing_username(tmp_path_factory):
         "username": None,
         "token": "tempfiletoken",
         "projects_dir": "/Users/tempfileuser/projects",
+        "vscode": True,
     }
 
     with open(config_file, "w") as f:
@@ -138,6 +142,7 @@ def temp_config_file_missing_token(tmp_path_factory):
         "username": "tempfileuser",
         "token": None,
         "projects_dir": "/Users/tempfileuser/projects",
+        "vscode": True,
     }
 
     with open(config_file, "w") as f:
@@ -161,6 +166,31 @@ def temp_config_file_missing_projects_dir(tmp_path_factory):
         "username": "tempfileuser",
         "token": "tempfiletoken",
         "projects_dir": None,
+        "vscode": True,
+    }
+
+    with open(config_file, "w") as f:
+        yaml.dump(yaml_dict, f)
+
+    return config_file
+
+
+@pytest.fixture
+def temp_config_file_missing_vs_code(tmp_path_factory):
+    """
+    Returns an otherwise-valid config file but the projects_dir key
+    is blank
+
+    A blank value is interpreted by pyyaml as None.
+    """
+
+    config_file = tmp_path_factory.mktemp("temp").joinpath(".pytoil.yml")
+
+    yaml_dict: Dict[str, Union[str, None]] = {
+        "username": "tempfileuser",
+        "token": "tempfiletoken",
+        "projects_dir": "/Users/tempfileuser/projects",
+        "vscode": None,
     }
 
     with open(config_file, "w") as f:

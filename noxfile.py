@@ -34,7 +34,7 @@ def poetry_install(session: nox.Session, *args: str, **kwargs: Any) -> None:
         session.install(f"--constraint={requirements.name}", *args, **kwargs)
 
 
-@nox.session(python=["3.7", "3.8", "3.9"])
+@nox.session(python=["3.8", "3.9"])
 def test(session: nox.Session) -> None:
     """
     Runs the test suite against all supported python versions.

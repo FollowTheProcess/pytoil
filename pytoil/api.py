@@ -98,7 +98,7 @@ class API:
         """
         # This needs the token from the config
         # it could be invalid, we haven't checked until now
-        Config.get().raise_if_unset()
+        Config.get().validate()
 
         r = httpx.get(url=self.baseurl + endpoint, headers=self.headers)
         r.raise_for_status()

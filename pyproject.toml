@@ -12,7 +12,6 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "Natural Language :: English",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
 ]
@@ -29,7 +28,7 @@ pytoil = "pytoil.cli.main:app"
 "Documentation" = "https://FollowTheProcess.github.io/pytoil/"
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.8"
 typer = {extras = ["all"], version = "^0.3.2"}
 virtualenv = "^20.4.2"
 PyYAML = "^5.4.1"
