@@ -29,6 +29,8 @@ def config() -> None:
     token (str): Users GitHub personal access token.
 
     projects_dir (str): Absolute path to where you keep your projects.
+
+    vscode (bool): Whether to use vscode or not.
     """
 
 
@@ -64,7 +66,7 @@ def set(
         readable=True,
         resolve_path=True,
     ),
-    vscode: bool = typer.Option(
+    vscode: str = typer.Option(
         None, "--vscode", "-v", help="Set pytoil to use vscode."
     ),
 ) -> None:
@@ -74,6 +76,10 @@ def set(
     Examples
 
     $ pytoil config set --username my_username
+
+    $ pytoil config set --token my_token
+
+    $ pytoil config set --vscode True
     """
 
     # Get any existing config
@@ -88,7 +94,12 @@ def set(
     elif projects_dir:
         config.projects_dir = projects_dir
     elif vscode:
-        config.vscode = vscode
+        if vscode == "True":
+            config.vscode = True
+        elif vscode == "False":
+            config.vscode = False
+        else:
+            raise typer.BadParameter("vscode must be a boolean value.")
     else:
         typer.secho("unrecognised parameter", fg=typer.colors.RED)
         raise typer.Abort()
@@ -96,6 +107,6 @@ def set(
     # Write the updated config
     config.write()
 
-    typer.secho("Config updated", fg=typer.colors.GREEN)
+    typer.secho("\nConfig updated successfully", fg=typer.colors.GREEN)
     typer.secho("\nNew Config:\n", fg=typer.colors.BLUE, bold=True)
     config.show()
