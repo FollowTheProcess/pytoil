@@ -5,6 +5,7 @@ There's really not much to configure, all pytoil needs to know about is:
 * Where you keep your projects (`projects_dir`)
 * What your GitHub username is (`username`)
 * And your GitHub personal access token (`token`)
+* Whether you want pytoil to open things in VSCode (`vscode`)
 
 If you don't know how to generate a GitHub token, check out the [docs].
 
@@ -14,6 +15,12 @@ If you don't know how to generate a GitHub token, check out the [docs].
     API using your token to authenticate the requests so we can tell which repos you have on GitHub and some very basic information about them.
 
     In fact, the only permissions pytoil needs is read repo access! :smiley:
+
+!!! note
+
+    I used VSCode as the only configurable editor as it's the one I use and is therefore the only one I have experience with configuring programmatically and launching via the command line.
+
+    If you want to help add support for more editors then PR's are always welcome!
 
 ## The Config File
 
@@ -27,6 +34,7 @@ $ pytoil init
 # GitHub username:$ YourGitHubUsername
 # GitHub personal access token:$ YourTokenHere
 # Absolute path to your projects directory:$ /Users/you/projects
+# Use VSCode to open projects with?:$ True
 ```
 
 </div>
@@ -45,6 +53,7 @@ You could always just edit the file manually if you like, it will look like this
 username: "FollowTheProcess"
 projects_dir: "/Users/me/projects"
 token: "thisismygithubtoken"
+vscode: True
 ```
 
 !!! warning
@@ -67,6 +76,7 @@ Current pytoil config:
 username: 'YourUsername'
 token: 'YourToken'
 projects_dir: '/Users/you/projects'
+vscode: True
 ```
 
 </div>
