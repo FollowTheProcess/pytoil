@@ -15,6 +15,7 @@ from cookiecutter.main import cookiecutter
 from pytoil.config import Config
 from pytoil.env import CondaEnv, VirtualEnv
 from pytoil.repo import Repo
+from pytoil.vscode import VSCode
 
 
 class Venv(str, Enum):
@@ -99,7 +100,10 @@ def create(
     config.validate()
 
     # Create the project repo object
+    # And the VSCode object
     repo = Repo(name=project)
+    if config.vscode:
+        vscode = VSCode(root=repo.path)
 
     if repo.exists_local():
         typer.secho(
@@ -138,6 +142,10 @@ def create(
 
         typer.echo("\nExporting 'environment.yml' file.")
         conda_env.export_yml(fp=repo.path)
+        # TODO: Also open code and set pythonPath
+        # will need some way of autodetermining the users
+        # conda envs directory
+        # parsing the return from conda info will probably do it
 
     elif venv.value == venv.virtualenv:
         typer.secho(
@@ -152,8 +160,19 @@ def create(
         typer.echo("\nEnsuring seed packages (pip, setuptools, wheel) are up to date.")
         env.update_seeds()
 
+        if config.vscode:
+            typer.echo("Setting 'python.pythonPath' in VSCode workspace.")
+            vscode.set_python_path(python_path=env.executable)  # type: ignore
+            # we ignore type here because by this point we know env.executable
+            # cannot be None
+            typer.echo(f"Opening {project!r} in VSCode...")
+            vscode.open()
+
     elif venv.value == venv.none:
         typer.echo("Virtual environment not requested. Skipping environment creation.")
+        if config.vscode:
+            typer.echo(f"Opening {project!r} in VSCode...")
+            vscode.open()
     else:
         # This should never happen as we're using an Enum
         # But just incase, let's abort
@@ -195,6 +214,8 @@ def checkout(
     # Project exists either locally or on users GitHub
     # and is to be grabbed by name only
     repo = Repo(name=project)
+    if config.vscode:
+        vscode = VSCode(root=repo.path)
 
     if repo.exists_local():
         typer.secho(
@@ -202,7 +223,9 @@ def checkout(
             f" '{repo.path}'.",
             fg=typer.colors.GREEN,
         )
-        # TODO: Open editor maybe?
+        if config.vscode:
+            typer.echo(f"Opening {project!r} in VSCode.")
+            vscode.open()
     elif repo.exists_remote():
         typer.echo(f"Project: {project!r} found on user's GitHub. Cloning...\n")
         repo.clone()
@@ -210,7 +233,9 @@ def checkout(
             f"Project: {project!r} now available locally at" f" '{repo.path}'.",
             fg=typer.colors.GREEN,
         )
-        # TODO: Same here, open editor?
+        if config.vscode:
+            typer.echo(f"Opening {project!r} in VSCode.")
+            vscode.open()
     else:
         typer.secho(
             f"Project: {project!r} not found on user's GitHub.\n",
