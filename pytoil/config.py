@@ -68,7 +68,7 @@ class Config:
         Helper method to validate the config.
 
         If either `username` or `token` are the fallback value
-        "UNSET" this will raise and InvalidConfigError.
+        "UNSET" this will raise an InvalidConfigError.
 
         Call before anything where these are required.
         """
@@ -104,8 +104,6 @@ class Config:
 
         Raises:
             FileNotFoundError: If config file `~/.pytoil.yml` does not exist.
-            TypeError: If any of the keys in the config file are misspelled
-                or there are additional keys.
 
         Returns:
             Config: Config object with parameters parsed from the file.
@@ -134,7 +132,7 @@ class Config:
         config.
 
         Returns:
-            Dict[str, Optional[str]]: Dictionary showing the current config state.
+            ConfigDict: Dictionary showing the current config state.
         """
 
         config_dict: ConfigDict = {

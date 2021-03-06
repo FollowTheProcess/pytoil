@@ -5,8 +5,9 @@ Author: Tom Fleet
 Created: 05/02/2021
 """
 
+import json
 import pathlib
-from typing import Dict, List, Union
+from typing import Any, Dict, List, Union
 
 import pytest
 import yaml
@@ -323,3 +324,34 @@ def repo_folder_with_random_existing_files(tmp_path_factory):
         folder.joinpath(file).touch()
 
     return folder
+
+
+@pytest.fixture
+def fake_vscode_workspace_settings(tmp_path_factory):
+    """
+    Returns a temporary JSON file with fake
+    vscode workspace settings inside.
+    """
+
+    fake_project_root: pathlib.Path = tmp_path_factory.mktemp("fakeproject")
+    vscode_folder = fake_project_root.joinpath(".vscode")
+    vscode_folder.mkdir(parents=True)
+
+    settings_json = vscode_folder.joinpath("settings.json")
+    settings_json.touch()
+
+    settings_dict: Dict[str, Any] = {
+        "editor.suggestSelection": True,
+        "code-runner.runInTerminal": False,
+        "python.linting.mypyEnabled": True,
+        "python.linting.blackPath": "usr/bin/black",
+        "randomSetting": "yes",
+        "HowHardThisIsToComeUpWith": 10,
+        "python.pythonPath": "/usr/bin/python",
+        "python.testing.pytestEnabled": False,
+    }
+
+    with open(settings_json, "w") as f:
+        json.dump(settings_dict, f)
+
+    return settings_json
