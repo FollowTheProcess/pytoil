@@ -71,11 +71,22 @@ def init() -> None:
         username: str = typer.prompt("GitHub username")
         token: str = typer.prompt("GitHub personal access token")
         projects_dir: str = typer.prompt("Absolute path to your projects directory")
+        vscode: str = typer.prompt("Use VSCode to open projects with?")
 
         projects_dir_path = pathlib.Path(projects_dir)
 
+        if vscode.lower() == "true":
+            vscode_bool = True
+        elif vscode.lower() == "false":
+            vscode_bool = False
+        else:
+            raise typer.BadParameter("VSCode must be a boolean value")
+
         user_config = Config(
-            username=username, token=token, projects_dir=projects_dir_path
+            username=username,
+            token=token,
+            projects_dir=projects_dir_path,
+            vscode=vscode_bool,
         )
         user_config.write()
 

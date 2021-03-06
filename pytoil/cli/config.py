@@ -94,6 +94,7 @@ def set(
     elif projects_dir:
         config.projects_dir = projects_dir
     elif vscode:
+        # If we use vscode as a boolean option it doesn't quite work right
         if vscode.lower() == "true":
             config.vscode = True
         elif vscode.lower() == "false":
