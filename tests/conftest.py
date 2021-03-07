@@ -355,3 +355,54 @@ def fake_vscode_workspace_settings(tmp_path_factory):
         json.dump(settings_dict, f)
 
     return settings_json
+
+
+@pytest.fixture
+def fake_home_folder_miniconda(tmp_path_factory):
+    """
+    Returns a faked $HOME folder. Should be used as the return
+    value from pathlib.Path.home().
+
+    Designed to test the auto detection of conda environment
+    storage directory.
+    """
+
+    fake_home: pathlib.Path = tmp_path_factory.mktemp("home")
+
+    # Add in the miniconda3/envs folder
+    miniconda = fake_home.joinpath("miniconda3/envs")
+    miniconda.mkdir(parents=True)
+
+    return fake_home
+
+
+@pytest.fixture
+def fake_home_folder_anaconda(tmp_path_factory):
+    """
+    Returns a faked $HOME folder. Should be used as the return
+    value from pathlib.Path.home().
+
+    Designed to test the auto detection of conda environment
+    storage directory.
+    """
+
+    fake_home: pathlib.Path = tmp_path_factory.mktemp("home")
+
+    # Add in the anaconda3/envs folder
+    anaconda = fake_home.joinpath("anaconda3/envs")
+    anaconda.mkdir(parents=True)
+
+    return fake_home
+
+
+@pytest.fixture
+def fake_home_folder_neither(tmp_path_factory):
+    """
+    Returns a faked $HOME but without any conda dirs.
+
+    To test whether get_envs_dir raises correctly.
+    """
+
+    fake_home: pathlib.Path = tmp_path_factory.mktemp("home")
+
+    return fake_home
