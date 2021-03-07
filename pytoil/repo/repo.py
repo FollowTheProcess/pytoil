@@ -15,9 +15,9 @@ import subprocess
 from datetime import datetime
 from typing import Dict, Optional, Set, Union
 
-from .api import API
-from .config import Config
-from .exceptions import (
+from pytoil.api import API
+from pytoil.config import Config
+from pytoil.exceptions import (
     GitNotInstalledError,
     InvalidRepoPathError,
     InvalidURLError,

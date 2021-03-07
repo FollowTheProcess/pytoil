@@ -31,7 +31,7 @@ def test_api_init_passed():
 def test_api_init_default(mocker: MockerFixture, temp_config_file):
 
     # Patch out the default CONFIG_PATH for our temp file
-    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
+    with mocker.patch.object(pytoil.config.config, "CONFIG_PATH", temp_config_file):
 
         api = API()
 
@@ -53,7 +53,7 @@ def test_api_repr_passed():
 
 def test_api_repr_default(mocker: MockerFixture, temp_config_file):
 
-    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
+    with mocker.patch.object(pytoil.config.config, "CONFIG_PATH", temp_config_file):
 
         api = API()
 
@@ -88,7 +88,7 @@ def test_get_raises_on_bad_status(
     httpx_mock: HTTPXMock, bad_status_code, mocker: MockerFixture, temp_config_file
 ):
 
-    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
+    with mocker.patch.object(pytoil.config.config, "CONFIG_PATH", temp_config_file):
 
         httpx_mock.add_response(
             url="https://api.github.com/user/repos", status_code=bad_status_code
@@ -104,7 +104,7 @@ def test_get_returns_correct_response(
     httpx_mock: HTTPXMock, fake_api_response, mocker: MockerFixture, temp_config_file
 ):
 
-    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
+    with mocker.patch.object(pytoil.config.config, "CONFIG_PATH", temp_config_file):
 
         httpx_mock.add_response(
             url="https://api.github.com/user/repos",

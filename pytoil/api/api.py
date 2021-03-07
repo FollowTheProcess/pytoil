@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import httpx
 
-from .config import Config
+from pytoil.config import Config
 
 
 class API:

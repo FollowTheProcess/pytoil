@@ -38,7 +38,7 @@ def test_vscode_repr():
 def test_vscode_raise_if_not_installed_works_on_missing_code(mocker: MockerFixture):
 
     # Mock out the return from shutil.which to be False
-    mocker.patch("pytoil.vscode.shutil.which", autospec=True, return_value=False)
+    mocker.patch("pytoil.vscode.vscode.shutil.which", autospec=True, return_value=False)
 
     fake_project = pathlib.Path("/Users/me/project1")
 
@@ -52,7 +52,7 @@ def test_vscode_raise_if_not_installed_does_nothing_when_code_installed(
 ):
 
     # Mock out the return from shutil.which to be True
-    mocker.patch("pytoil.vscode.shutil.which", autospec=True, return_value=True)
+    mocker.patch("pytoil.vscode.vscode.shutil.which", autospec=True, return_value=True)
 
     fake_project = pathlib.Path("/Users/me/project1")
 
@@ -68,7 +68,7 @@ def test_vscode_open_passes_correct_command_to_subprocess(mocker: MockerFixture)
         "pytoil.vscode.VSCode.raise_if_not_installed", autospec=True, return_value=None
     )
 
-    mock_subprocess = mocker.patch("pytoil.vscode.subprocess.run", autospec=True)
+    mock_subprocess = mocker.patch("pytoil.vscode.vscode.subprocess.run", autospec=True)
 
     fake_project = pathlib.Path("/Users/me/project1")
 
@@ -89,7 +89,7 @@ def test_vscode_open_raises_on_subprocess_error(mocker: MockerFixture):
     )
 
     mocker.patch(
-        "pytoil.vscode.subprocess.run",
+        "pytoil.vscode.vscode.subprocess.run",
         autospec=True,
         side_effect=[subprocess.CalledProcessError(-1, "cmd")],
     )

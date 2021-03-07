@@ -174,7 +174,7 @@ def test_config_get_good_file(temp_config_file, mocker: MockerFixture):
     Tests config.get on a file with valid key value pairs.
     """
     # Patch out the default pointer to the config file for our temp fixture
-    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
+    with mocker.patch.object(pytoil.config.config, "CONFIG_PATH", temp_config_file):
 
         config = Config.get()
 
@@ -191,7 +191,9 @@ def test_config_get_raises_on_missing_file(mocker: MockerFixture):
     """
 
     with mocker.patch.object(
-        pytoil.config, "CONFIG_PATH", pathlib.Path("definitely/not/here/.pytoil.yml")
+        pytoil.config.config,
+        "CONFIG_PATH",
+        pathlib.Path("definitely/not/here/.pytoil.yml"),
     ):
 
         with pytest.raises(FileNotFoundError):
@@ -293,7 +295,7 @@ def test_config_show_outputs_correct_text(capsys):
 
 def test_config_write(mocker: MockerFixture, temp_config_file):
 
-    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
+    with mocker.patch.object(pytoil.config.config, "CONFIG_PATH", temp_config_file):
 
         original_config = Config.get()
 
