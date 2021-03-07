@@ -16,6 +16,7 @@ from pytoil.env import CondaEnv
 from pytoil.exceptions import (
     BadEnvironmentFileError,
     CondaNotInstalledError,
+    UnknownCondaInstallationError,
     VirtualenvAlreadyExistsError,
     VirtualenvDoesNotExistError,
 )
@@ -380,3 +381,51 @@ def test_condaenv_export_yml_exports_correct_content(
         capture_output=True,
         encoding="utf-8",
     )
+
+
+def test_condaenv_get_envs_dir_returns_correctly_for_miniconda(
+    mocker: MockerFixture, fake_home_folder_miniconda: pathlib.Path
+):
+
+    mocker.patch(
+        "pytoil.env.pathlib.Path.home",
+        autospec=True,
+        return_value=fake_home_folder_miniconda,
+    )
+
+    env = CondaEnv.get_envs_dir()
+
+    expected_env_dir = fake_home_folder_miniconda.joinpath("miniconda3/envs")
+
+    assert env == expected_env_dir
+
+
+def test_condaenv_get_envs_dir_returns_correctly_for_anaconda(
+    mocker: MockerFixture, fake_home_folder_anaconda: pathlib.Path
+):
+
+    mocker.patch(
+        "pytoil.env.pathlib.Path.home",
+        autospec=True,
+        return_value=fake_home_folder_anaconda,
+    )
+
+    env = CondaEnv.get_envs_dir()
+
+    expected_env_dir = fake_home_folder_anaconda.joinpath("anaconda3/envs")
+
+    assert env == expected_env_dir
+
+
+def test_condaenv_get_envs_dir_raises_if_neither_found(
+    mocker: MockerFixture, fake_home_folder_neither: pathlib.Path
+):
+
+    mocker.patch(
+        "pytoil.env.pathlib.Path.home",
+        autospec=True,
+        return_value=fake_home_folder_neither,
+    )
+
+    with pytest.raises(UnknownCondaInstallationError):
+        CondaEnv.get_envs_dir()

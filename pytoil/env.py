@@ -19,6 +19,7 @@ from .exceptions import (
     CondaNotInstalledError,
     MissingInterpreterError,
     TargetDirDoesNotExistError,
+    UnknownCondaInstallationError,
     VirtualenvAlreadyExistsError,
     VirtualenvDoesNotExistError,
 )
@@ -504,3 +505,32 @@ class CondaEnv:
             subprocess.run(cmd, check=True)
         except subprocess.CalledProcessError:
             raise
+
+    @staticmethod
+    def get_envs_dir() -> pathlib.Path:
+        """
+        Tries to detect which anaconda/miniconda installation
+        the user has by naively checking if the environment
+        storage directories exist.
+
+        Raises:
+            UnknownCondaInstallationError: If neither ~/anaconda3 or
+                ~/miniconda3 exist or are not directories.
+
+        Returns:
+            pathlib.Path: The path to the users conda
+                environment storage directory.
+        """
+
+        # As far as I'm aware, there are only 2 possible locations
+        miniconda = pathlib.Path.home().joinpath("miniconda3/envs")
+        anaconda = pathlib.Path.home().joinpath("anaconda3/envs")
+
+        if miniconda.exists() and miniconda.is_dir():
+            return miniconda
+        elif anaconda.exists() and anaconda.is_dir():
+            return anaconda
+        else:
+            raise UnknownCondaInstallationError(
+                "Could not autodetect the conda environments directory."
+            )
