@@ -13,7 +13,7 @@ import typer
 from cookiecutter.main import cookiecutter
 
 from pytoil.config import Config
-from pytoil.env import CondaEnv, VirtualEnv
+from pytoil.environments import CondaEnv, VirtualEnv
 from pytoil.repo import Repo
 from pytoil.vscode import VSCode
 

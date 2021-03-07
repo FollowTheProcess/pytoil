@@ -12,7 +12,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 import pytoil
-from pytoil.env import VirtualEnv
+from pytoil.environments import VirtualEnv
 from pytoil.exceptions import (
     MissingInterpreterError,
     TargetDirDoesNotExistError,
@@ -73,7 +73,9 @@ def test_virtualenv_exists_returns_correct_value(
 ):
 
     mocker.patch(
-        "pytoil.env.pathlib.Path.exists", autospec=True, return_value=pathlib_exists
+        "pytoil.environments.venv.pathlib.Path.exists",
+        autospec=True,
+        return_value=pathlib_exists,
     )
 
     env = VirtualEnv(basepath=pathlib.Path("made/up/dir"))
@@ -89,7 +91,9 @@ def test_virtualenv_basepath_exists_returns_correct_value(
 ):
 
     mocker.patch(
-        "pytoil.env.pathlib.Path.exists", autospec=True, return_value=pathlib_exists
+        "pytoil.environments.venv.pathlib.Path.exists",
+        autospec=True,
+        return_value=pathlib_exists,
     )
 
     env = VirtualEnv(basepath=pathlib.Path("made/up/dir"))
@@ -101,7 +105,9 @@ def test_virtualenv_create_raises_if_already_exists(mocker: MockerFixture):
 
     env = VirtualEnv(basepath=pathlib.Path("made/up/dir"))
 
-    mocker.patch("pytoil.env.VirtualEnv.exists", autospec=True, return_value=True)
+    mocker.patch(
+        "pytoil.environments.VirtualEnv.exists", autospec=True, return_value=True
+    )
 
     with pytest.raises(VirtualenvAlreadyExistsError):
         env.create()
@@ -112,13 +118,17 @@ def test_virtualenv_create_updates_executable_on_success(mocker: MockerFixture):
     env = VirtualEnv(basepath=pathlib.Path("made/up/dir"))
 
     # Patch out the actual virtualenv cli run
-    mocker.patch("pytoil.env.virtualenv.cli_run", autospec=True)
+    mocker.patch("pytoil.environments.venv.virtualenv.cli_run", autospec=True)
     # Make it think the virtualenv does not already exist
-    mocker.patch("pytoil.env.VirtualEnv.exists", autospec=True, return_value=False)
+    mocker.patch(
+        "pytoil.environments.VirtualEnv.exists", autospec=True, return_value=False
+    )
 
     # Make it think the basepath does exist
     mocker.patch(
-        "pytoil.env.VirtualEnv.basepath_exists", autospec=True, return_value=True
+        "pytoil.environments.VirtualEnv.basepath_exists",
+        autospec=True,
+        return_value=True,
     )
 
     # Create the virtualenv
@@ -135,7 +145,9 @@ def test_virtualenv_create_raises_if_basepath_doesnt_exist(mocker: MockerFixture
     # Make it think the basepath doesn't exist
     # It doesn't anyway because we've made it up but better to explicitly do it
     mocker.patch(
-        "pytoil.env.VirtualEnv.basepath_exists", autospec=True, return_value=False
+        "pytoil.environments.VirtualEnv.basepath_exists",
+        autospec=True,
+        return_value=False,
     )
 
     with pytest.raises(TargetDirDoesNotExistError):
@@ -149,7 +161,9 @@ def test_virtualenv_raise_for_executable_raises_when_required(mocker: MockerFixt
     # Make it think the basepath doesn't exist
     # It doesn't anyway because we've made it up but better to explicitly do it
     mocker.patch(
-        "pytoil.env.VirtualEnv.basepath_exists", autospec=True, return_value=False
+        "pytoil.environments.VirtualEnv.basepath_exists",
+        autospec=True,
+        return_value=False,
     )
 
     with pytest.raises(MissingInterpreterError):
@@ -163,12 +177,14 @@ def test_virtualenv_raise_for_executable_doesnt_raise_when_not_required(
     # Make it think the basepath doesn't exist
     # It doesn't anyway because we've made it up but better to explicitly do it
     mocker.patch(
-        "pytoil.env.VirtualEnv.basepath_exists", autospec=True, return_value=False
+        "pytoil.environments.VirtualEnv.basepath_exists",
+        autospec=True,
+        return_value=False,
     )
 
     # Patch out env.executable to be anything other than None and it shouldnt raise
     with mocker.patch.object(
-        pytoil.env.VirtualEnv,
+        pytoil.environments.VirtualEnv,
         "executable",
         pathlib.Path("made/up/dir/.venv/bin/python"),
     ):
@@ -183,14 +199,14 @@ def test_virtualenv_update_seeds_raises_on_subprocess_error(mocker: MockerFixtur
 
     # Patch out env.executable so raise_for_executable doesnt raise
     with mocker.patch.object(
-        pytoil.env.VirtualEnv,
+        pytoil.environments.VirtualEnv,
         "executable",
         pathlib.Path("made/up/dir/.venv/bin/python"),
     ):
 
         # Mock calling pip but have it raise
         mock_subprocess = mocker.patch(
-            "pytoil.env.subprocess.run",
+            "pytoil.environments.venv.subprocess.run",
             autospec=True,
             side_effect=[subprocess.CalledProcessError(-1, "cmd")],
         )
@@ -330,7 +346,7 @@ def test_virtualenv_install_passes_correct_command(
 
     # Force the executable property to be what we want so we can check output
     with mocker.patch.object(
-        pytoil.env.VirtualEnv,
+        pytoil.environments.VirtualEnv,
         "executable",
         pathlib.Path("made/up/dir/.venv/bin/python").resolve(),
     ):
@@ -339,12 +355,14 @@ def test_virtualenv_install_passes_correct_command(
 
         # Mock the call to update_seeds contained within install
         mocker.patch(
-            "pytoil.env.VirtualEnv.update_seeds", autospec=True, return_value=None
+            "pytoil.environments.VirtualEnv.update_seeds",
+            autospec=True,
+            return_value=None,
         )
 
         # Mock calling pip
         mock_subprocess = mocker.patch(
-            "pytoil.env.subprocess.run",
+            "pytoil.environments.venv.subprocess.run",
             autospec=True,
         )
 
@@ -393,19 +411,21 @@ def test_virtualenv_install_raises_on_subprocess_error(
 
     # Force the executable property to be what we want so we can check output
     with mocker.patch.object(
-        pytoil.env.VirtualEnv,
+        pytoil.environments.VirtualEnv,
         "executable",
         pathlib.Path("made/up/dir/.venv/bin/python").resolve(),
     ):
 
         # Mock the call to update_seeds contained within install
         mocker.patch(
-            "pytoil.env.VirtualEnv.update_seeds", autospec=True, return_value=None
+            "pytoil.environments.VirtualEnv.update_seeds",
+            autospec=True,
+            return_value=None,
         )
 
         # Mock calling pip, but have it raise
         mocker.patch(
-            "pytoil.env.subprocess.run",
+            "pytoil.environments.venv.subprocess.run",
             autospec=True,
             side_effect=[subprocess.CalledProcessError(-1, "cmd")],
         )
