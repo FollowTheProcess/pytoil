@@ -35,7 +35,7 @@ style:
 check: cov style
 
 clean:
-	rm -rf __pycache__/ .mypy_cache/ .nox/ .pytest_cache/ site/ .coverage
+	rm -rf **/*/__pycache__/ .mypy_cache/ .nox/ .pytest_cache/ site/ .coverage
 
 docs:
 	mkdocs build --clean
