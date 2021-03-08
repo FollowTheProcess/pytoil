@@ -12,7 +12,7 @@ from typing import Set
 import typer
 from cookiecutter.main import cookiecutter
 
-from pytoil.cli.utils import get_local_project_set
+from pytoil.cli.utils import env_dispatcher, get_local_project_set
 from pytoil.config import Config
 from pytoil.environments import CondaEnv, VirtualEnv
 from pytoil.repo import Repo
@@ -225,6 +225,14 @@ def checkout(
             f"Project: {project!r} now available locally at" f" '{repo.path}'.",
             fg=typer.colors.GREEN,
         )
+        env = env_dispatcher(repo)
+        if not env:
+            typer.echo("Unable to auto-detect virtual environment.")
+        else:
+            typer.echo("Auto-creating correct virtual environment.")
+            env.create()
+            typer.echo("Setting 'python.pythonPath' in VSCode workspace.")
+            vscode.set_python_path(env.executable)
     else:
         typer.secho(
             f"Project: {project!r} not found on user's GitHub.\n",
