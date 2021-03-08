@@ -227,12 +227,15 @@ def checkout(
         )
         env = env_dispatcher(repo)
         if not env:
-            typer.echo("Unable to auto-detect virtual environment.")
+            typer.secho(
+                "Unable to auto-detect virtual environment.", fg=typer.colors.YELLOW
+            )
         else:
             typer.echo("Auto-creating correct virtual environment.")
             env.create()
-            typer.echo("Setting 'python.pythonPath' in VSCode workspace.")
-            vscode.set_python_path(env.executable)
+            if config.vscode:
+                typer.echo("Setting 'python.pythonPath' in VSCode workspace.")
+                vscode.set_python_path(env.executable)
     else:
         typer.secho(
             f"Project: {project!r} not found on user's GitHub.\n",
