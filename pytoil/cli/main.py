@@ -71,7 +71,7 @@ def init() -> None:
         username: str = typer.prompt("GitHub username")
         token: str = typer.prompt("GitHub personal access token")
         projects_dir: str = typer.prompt("Absolute path to your projects directory")
-        vscode: str = typer.prompt("Use VSCode to open projects with?")
+        vscode: str = typer.prompt("Use VSCode to open projects with? [True|False]")
 
         projects_dir_path = pathlib.Path(projects_dir)
 

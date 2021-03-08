@@ -12,6 +12,7 @@ from typing import Set
 import typer
 from cookiecutter.main import cookiecutter
 
+from pytoil.cli.utils import get_local_project_set
 from pytoil.config import Config
 from pytoil.environments import CondaEnv, VirtualEnv
 from pytoil.repo import Repo
@@ -140,12 +141,9 @@ def create(
         conda_env = CondaEnv(name=project, project_path=repo.path)
         conda_env.create()
 
-        typer.echo("\nExporting 'environment.yml' file.")
-        conda_env.export_yml()
-        # TODO: Also open code and set pythonPath
-        # will need some way of autodetermining the users
-        # conda envs directory
-        # parsing the return from conda info will probably do it
+        if config.vscode:
+            typer.echo("Setting 'python.pythonPath' in VSCode workspace.")
+            vscode.set_python_path(conda_env.executable)
 
     elif venv.value == venv.virtualenv:
         typer.secho(
@@ -162,16 +160,11 @@ def create(
 
         if config.vscode:
             typer.echo("Setting 'python.pythonPath' in VSCode workspace.")
-            vscode.set_python_path(python_path=env.executable)
-
-            typer.echo(f"Opening {project!r} in VSCode...")
-            vscode.open()
+            vscode.set_python_path(env.executable)
 
     elif venv.value == venv.none:
         typer.echo("Virtual environment not requested. Skipping environment creation.")
-        if config.vscode:
-            typer.echo(f"Opening {project!r} in VSCode...")
-            vscode.open()
+
     else:
         # This should never happen as we're using an Enum
         # But just incase, let's abort
@@ -179,6 +172,9 @@ def create(
         raise typer.Abort()
 
     typer.secho("\nDone!", fg=typer.colors.GREEN)
+    if config.vscode:
+        typer.echo(f"Opening {project!r} in VSCode...")
+        vscode.open()
 
 
 @app.command()
@@ -222,9 +218,6 @@ def checkout(
             f" '{repo.path}'.",
             fg=typer.colors.GREEN,
         )
-        if config.vscode:
-            typer.echo(f"Opening {project!r} in VSCode.")
-            vscode.open()
     elif repo.exists_remote():
         typer.echo(f"Project: {project!r} found on user's GitHub. Cloning...\n")
         repo.clone()
@@ -232,9 +225,6 @@ def checkout(
             f"Project: {project!r} now available locally at" f" '{repo.path}'.",
             fg=typer.colors.GREEN,
         )
-        if config.vscode:
-            typer.echo(f"Opening {project!r} in VSCode.")
-            vscode.open()
     else:
         typer.secho(
             f"Project: {project!r} not found on user's GitHub.\n",
@@ -244,6 +234,10 @@ def checkout(
             "Does the project exist? If not, create a new project:"
             + f" '$ pytoil project create {project}'."
         )
+
+    if config.vscode:
+        typer.echo(f"Opening {project!r} in VSCode.")
+        vscode.open()
 
 
 @app.command()
@@ -277,11 +271,7 @@ def remove(
 
     # Set because we don't care about sorting
     # but we want fast membership checking
-    local_projects: Set[str] = {
-        f.name
-        for f in config.projects_dir.iterdir()
-        if f.is_dir() and not f.name.startswith(".")
-    }
+    local_projects: Set[str] = get_local_project_set(config.projects_dir)
 
     if project not in local_projects:
         typer.secho(
@@ -297,20 +287,10 @@ def remove(
             abort=True,
         )
 
-        # If user said no, typer will abort and this statement will not run
-        typer.secho(
-            f"\nRemoving project: {project!r}.", fg=typer.colors.BLUE, bold=True
-        )
-        shutil.rmtree(config.projects_dir.joinpath(project))
-        typer.secho("\nDone!", fg=typer.colors.GREEN)
-
-    else:
-        # If user specifies force flag, just go ahead and remove
-        typer.secho(
-            f"\nRemoving project: {project!r}.", fg=typer.colors.BLUE, bold=True
-        )
-        shutil.rmtree(config.projects_dir.joinpath(project))
-        typer.secho("\nDone!", fg=typer.colors.GREEN)
+    # If user specifies force flag, just go ahead and remove
+    typer.secho(f"\nRemoving project: {project!r}.", fg=typer.colors.BLUE, bold=True)
+    shutil.rmtree(config.projects_dir.joinpath(project))
+    typer.secho("\nDone!", fg=typer.colors.GREEN)
 
 
 @app.command()

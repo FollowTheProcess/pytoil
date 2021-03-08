@@ -10,6 +10,7 @@ from typing import List, Set
 import typer
 
 from pytoil.api import API
+from pytoil.cli.utils import get_local_project_set, get_remote_project_set
 from pytoil.config import Config
 from pytoil.repo import Repo
 
@@ -57,13 +58,9 @@ def all_(
 
     api = API()
 
-    local_projects: Set[str] = {
-        f.name
-        for f in config.projects_dir.iterdir()
-        if f.is_dir() and not f.name.startswith(".")
-    }
+    local_projects: Set[str] = get_local_project_set(config.projects_dir)
 
-    remote_projects: Set[str] = set(api.get_repo_names())
+    remote_projects: Set[str] = get_remote_project_set(api)
 
     to_clone: Set[str] = remote_projects.difference(local_projects)
 
@@ -85,21 +82,12 @@ def all_(
                 abort=True,
             )
 
-            # If user said no, typer will abort and the following will not run
-            # If they said yes, it will run
-            for repo_name in to_clone:
-                # Create the repo object and clone
-                repo = Repo(name=repo_name)
-                typer.echo("\nCloning: {repo.name!r}.")
-                repo.clone()
-
-        else:
-            # User said force, so just go and do it
-            for repo_name in to_clone:
-                # Create the repo object and clone
-                repo = Repo(name=repo_name)
-                typer.echo("\nCloning: {repo.name!r}.")
-                repo.clone()
+        # User said force, so just go and do it
+        for repo_name in to_clone:
+            # Create the repo object and clone
+            repo = Repo(name=repo_name)
+            typer.echo("\nCloning: {repo.name!r}.")
+            repo.clone()
 
 
 @app.command()
@@ -130,11 +118,7 @@ def these(
     config = Config.get()
     config.validate()
 
-    local_projects: Set[str] = {
-        f.name
-        for f in config.projects_dir.iterdir()
-        if f.is_dir() and not f.name.startswith(".")
-    }
+    local_projects: Set[str] = get_local_project_set(config.projects_dir)
 
     # Accept a list of repos from the user
     remote_projects: Set[str] = set(repos)
@@ -159,19 +143,11 @@ def these(
                 abort=True,
             )
 
-            # If user said no, typer will abort and the following will not run
-            # If they said yes, it will run
-            typer.echo("You said yes")
-            for repo_name in to_clone:
-                # Create the repo object and clone
-                repo = Repo(name=repo_name)
-                typer.echo("\nCloning: {repo.name!r}.")
-                repo.clone()
-
-        else:
-            # User said force, so just go and do it
-            for repo_name in to_clone:
-                # Create the repo object and clone
-                repo = Repo(name=repo_name)
-                typer.echo("\nCloning: {repo.name!r}.")
-                repo.clone()
+        # If user said no, typer will abort and the following will not run
+        # If they said yes, it will run
+        typer.echo("You said yes")
+        for repo_name in to_clone:
+            # Create the repo object and clone
+            repo = Repo(name=repo_name)
+            typer.echo("\nCloning: {repo.name!r}.")
+            repo.clone()
