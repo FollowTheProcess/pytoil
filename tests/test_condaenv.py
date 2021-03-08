@@ -219,9 +219,13 @@ def test_condaenv_create_from_yml_passes_correct_command(
         f"{temp_environment_yml.resolve()}",
     ]
 
-    CondaEnv.create_from_yml(project_path=temp_environment_yml.parent)
+    env = CondaEnv.create_from_yml(project_path=temp_environment_yml.parent)
 
     mock_subprocess.assert_called_once_with(expected_cmd, check=True)
+
+    # Assert the return is correct also
+    assert env.name == "my_yml_env"
+    assert env.project_path == temp_environment_yml.parent
 
 
 def test_condaenv_create_from_yml_raises_on_missing_file(mocker: MockerFixture):
