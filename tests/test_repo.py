@@ -781,7 +781,7 @@ def test_repo_info_raises_if_doesnt_exist_locally_or_remotely(
     mocker: MockerFixture, temp_config_file
 ):
 
-    with mocker.patch.object(pytoil.config, "CONFIG_PATH", temp_config_file):
+    with mocker.patch.object(pytoil.config.config, "CONFIG_PATH", temp_config_file):
 
         # Convince it the repo does not exist remotely or locally
         mocker.patch(
