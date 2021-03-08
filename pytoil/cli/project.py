@@ -137,11 +137,11 @@ def create(
             fg=typer.colors.BLUE,
             bold=True,
         )
-        conda_env = CondaEnv(name=project)
+        conda_env = CondaEnv(name=project, project_path=repo.path)
         conda_env.create()
 
         typer.echo("\nExporting 'environment.yml' file.")
-        conda_env.export_yml(fp=repo.path)
+        conda_env.export_yml()
         # TODO: Also open code and set pythonPath
         # will need some way of autodetermining the users
         # conda envs directory
@@ -154,7 +154,7 @@ def create(
             bold=True,
         )
 
-        env = VirtualEnv(basepath=repo.path)
+        env = VirtualEnv(project_path=repo.path)
         env.create()
 
         typer.echo("\nEnsuring seed packages (pip, setuptools, wheel) are up to date.")
@@ -162,9 +162,8 @@ def create(
 
         if config.vscode:
             typer.echo("Setting 'python.pythonPath' in VSCode workspace.")
-            vscode.set_python_path(python_path=env.executable)  # type: ignore
-            # we ignore type here because by this point we know env.executable
-            # cannot be None
+            vscode.set_python_path(python_path=env.executable)
+
             typer.echo(f"Opening {project!r} in VSCode...")
             vscode.open()
 

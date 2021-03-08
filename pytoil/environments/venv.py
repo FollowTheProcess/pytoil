@@ -7,130 +7,70 @@ Created: 07/03/2021
 
 import pathlib
 import subprocess
-from typing import List, Optional, Union
+from typing import List
 
 import virtualenv
 
-from pytoil.exceptions import (
-    MissingInterpreterError,
-    TargetDirDoesNotExistError,
-    VirtualenvAlreadyExistsError,
-)
+from pytoil.environments import BaseEnvironment
+from pytoil.exceptions import MissingInterpreterError, VirtualenvAlreadyExistsError
 
 
-class VirtualEnv:
-    def __init__(self, basepath: pathlib.Path, name: str = ".venv") -> None:
+class VirtualEnv(BaseEnvironment):
+    def __init__(self, project_path: pathlib.Path) -> None:
         """
         Representation of a virtualenv.
 
-        The path to the virtualenv directory is accessible through the
-        `.path` property which returns a pathlib.Path pointing to the
-        virtualenv directory.
-
-        Once the instantiated virtualenv has been created, its `.executable`
-        property (also a pathlib.Path) will point to the python executable
-        of the newly created virtualenv.
-
-        Until creation, the instantiated virtualenv's `.executable` is None.
+        A VirtualEnv's `.executable` property (also a pathlib.Path) points
+        to the python executable of the newly created virtualenv. This
+        executable may or may not exist, and the existence check is
+        the primary means of checking whether or not this virtualenv
+        exists.
 
         Note: It is important not to resolve `.executable` as it could
         resolve back to the system python if it is a symlink.
 
         Args:
-            basepath (pathlib.Path): The root path of the current project.
-            name (str, optional): The name of the virtualenv directory.
-                Defaults to ".venv".
+            project_path (pathlib.Path): The root path of the current project.
         """
-        self.basepath = basepath.resolve()
-        self.name = name
-        self._path: pathlib.Path = self.basepath.joinpath(self.name).resolve()
-        self._executable: Optional[pathlib.Path] = None
+        self._project_path = project_path.resolve()
 
     def __repr__(self) -> str:
-        return (
-            self.__class__.__qualname__
-            + f"(basepath={self.basepath!r}, name={self.name!r})"
-        )
+        return self.__class__.__qualname__ + f"(project_path={self._project_path!r})"
 
     @property
-    def path(self) -> pathlib.Path:
-        """
-        The path of the virtualenv folder.
-        i.e the joined rootdir and name.
-        """
-        return self._path
+    def project_path(self) -> pathlib.Path:
+        return self._project_path
 
     @property
-    def executable(self) -> Union[pathlib.Path, None]:
-        """
-        The path to the virtualenv's python executable.
-        """
-        return self._executable
-
-    @executable.setter
-    def executable(self, value: pathlib.Path) -> None:
-        self._executable = value
-
-    def basepath_exists(self) -> bool:
-        return self.basepath.exists()
+    def executable(self) -> pathlib.Path:
+        return self._project_path.joinpath(".venv/bin/python")
 
     def exists(self) -> bool:
-        return self.path.exists()
-
-    def raise_for_executable(self) -> None:
         """
-        Helper method analagous to requests/httpx `raise_for_status`.
+        Checks whether the virtual environment exists by a proxy
+        check if the `executable` exists.
 
-        Should be called before any method that is supposed to act
-        from within a virtual environment.
-
-        A virtualenvs executable is only created if all the checks in
-        `.create()` pass.
-
-        This method is a convenient way of checking all those conditions
-        by proxy in one step. If the property `self.executable` is not None,
-        then the executable is valid.
-
-        Raises:
-            MissingInterpreterError: If `self.executable` is not found.
+        If this executable exists then both the project and virtual environment
+        must also exist and must be valid.
         """
-
-        if not self.executable:
-            raise MissingInterpreterError(
-                f"""Virtualenv: {str(self.path)!r} does not exist. Cannot install
-                until it has been created. Create by using the `.create()` method."""
-            )
-        else:
-            return None
+        return self.executable.exists()
 
     def create(self) -> None:
         """
-        Create a new virtualenv in `basepath` with `name`
-        and update the `executable` property with the newly
-        created virtualenv's python.
+        Create a new virtualenv in `project_path`.
 
         Raises:
-            VirtualenvAlreadyExistsError: If virtualenv with `path` already exists.
-            TargetDirDoesNotExistError: If basepath does not exist.
+            VirtualenvAlreadyExistsError: If virtualenv already exists
+                in `project_path`.
         """
         if self.exists():
             raise VirtualenvAlreadyExistsError(
-                f"Virtualenv with path: {self.path!r} already exists"
-            )
-        elif not self.basepath_exists():
-            raise TargetDirDoesNotExistError(
-                f"The directory: {self.basepath!r} does not exist."
+                f"""Virtualenv with path: {self.executable}
+                already exists"""
             )
         else:
-            # Create a new virtualenv at `path`
-            virtualenv.cli_run([f"{self.path}"])
-            # Update the instance executable with the newly created one
-            # NOTE: DO NOT resolve self.executable
-            # Path.resolve() follows symlinks and a venv's python
-            # is often a symlink of the global system python
-            # Instead resolve the path up to "bin/python" then join
-            # as we do here
-            self.executable = self.path.joinpath("bin/python")
+            # Create a new virtualenv under the project, called ".venv"
+            virtualenv.cli_run([f"{self.project_path.joinpath('.venv')}"])
 
     def update_seeds(self) -> None:
         """
@@ -147,7 +87,8 @@ class VirtualEnv:
         """
 
         # Validate the executable
-        self.raise_for_executable()
+        if not self.exists():
+            raise MissingInterpreterError(f"Interpreter: {self.executable} not found.")
 
         try:
             # Don't need to specify a 'cwd' because we have a resolved interpreter
@@ -167,108 +108,26 @@ class VirtualEnv:
         except subprocess.CalledProcessError:
             raise
 
-    def install(
-        self,
-        packages: Optional[List[str]] = None,
-        prefix: Optional[str] = None,
-        requirements: Optional[str] = None,
-        editable: bool = False,
-    ) -> None:
+    def install(self, packages: List[str]) -> None:
         """
         Generic `pip install` method.
 
-        If a list of packages is specified, the method is
-        analagous to calling `pip install *packages` from within
-        the virtual environment. The packages are effectively passed straight
-        through to pip so any versioning syntax e.g. `>=3.2.6` will work as
-        expected. If `packages` is specified, `prefix`, `editable` and `requirements`
-        must not be.
-
-        A prefix is the syntax used if a project has declared groups of dependencies
-        as labelled groups e.g. `.[all]` or `.[dev]` in files like setup.py,
-        pyproject.toml etc. If a prefix is specified, this is used for the install.
-        If `prefix` is specified, packages must not but editable can be.
-
-        Requirements is the string path of a valid pip requirements file relative
-        to the project root.
-        e.g. `requirements.txt`. If it is specified, `packages`, `prefix` and `editable`
-        must not be.
-
-        If editable is specified (only applicable on installs like `.[dev]`)
-        this is analogous to calling `pip install -e {something}`.
-        If `editable` is specified, `packages` and `requirements` must not be.
+        Takes a list of packages to install. All packages are passed through
+        to pip so any versioning syntax will work as expected.
 
         Args:
-            packages (Optional[List[str]], optional): A list of valid packages
-                to install. Analogous to simply calling `pip install *packages`.
-                `packages` cannot be used in tandem with any other arguments.
-                If only 1 package, still must be in a list e.g. `["black"]`.
-                Defaults to None.
-
-            prefix (Optional[str], optional): A valid shorthand prefix e.g. `.[dev]`.
-                `prefix` cannot be used in tandem with `packages` but may be used
-                with `editable` for example like `pip install -e .[dev]` for installing
-                the current project and its specified `dev` dependencies.
-                Defaults to None.
-
-            requirements (Optional[str], optional): A string path relative to project
-                root of a valid pip requirements file. May not be used in tandem with
-                any other arguments. Defaults to None.
-
-            editable (bool, optional): Whether to install `prefix` in editable mode
-                `pip install -e`. Cannot be used in tandem with `packages`.
-                Defaults to False.
-
-        Raises:
-            ValueError: If mutually exclusive arguments are used together,
-                or if no arguments are used at all.
+            packages (List[str]): A list of valid packages to install.
+            Analogous to simply calling `pip install *packages` from within
+            the virtualenv. If only 1 package, still must be in a list e.g. `["black"]`.
         """
-
-        if packages and (prefix or editable or requirements):
-            # If packages, all others must be falsy
-            raise ValueError(
-                "Argument `packages` may not be used with any other arguments."
-            )
-
-        if requirements and (prefix or editable or packages):
-            # If requirements, all others must be falsy
-            raise ValueError(
-                "Argument `requirements` may not be used with any other arguments."
-            )
-
-        if editable and not (prefix or requirements or packages):
-            # Editable can't be used on its own
-            raise ValueError("Argument `editable` may not be used by itself.")
-
-        if not (packages or prefix or editable or requirements):
-            # Must pass at least one
-            raise ValueError(
-                """At least one of `packages`, `prefix`, `editable`, or `requirements`
-                must be specified."""
-            )
 
         # If we get here, method has been called correctly
         # Ensure seed packages are updated, also checks interpreter
         self.update_seeds()
 
-        cmd: List[str] = [f"{str(self.executable)}", "-m", "pip", "install"]
+        cmd: List[str] = [f"{self.executable}", "-m", "pip", "install"]
 
-        if packages:
-            # i.e. `python -m pip install requests pandas numpy` etc.
-            cmd.extend(packages)
-        elif prefix:  # pragma: no cover
-            # We specify no cover here because this logic is actually
-            # tested in the call to subprocess.run below in
-            # test_env.py::test_virtualenv_install_passes_correct_command
-            # but coverage does not recognise a call by proxy.
-            cmd.append(prefix)
-            if editable:
-                # i.e. `python -m pip install -e .[dev]`
-                cmd.insert(4, "-e")
-        elif requirements:  # pragma: no cover
-            # Again, no cover but this logic is actually tested as above
-            resolved_fp = self.basepath.joinpath(requirements).resolve()
-            cmd.extend(["-r", f"{resolved_fp}"])
+        cmd.extend(packages)
 
         # Run the constructed pip command
         try:

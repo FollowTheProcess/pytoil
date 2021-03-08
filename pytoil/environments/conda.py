@@ -8,10 +8,11 @@ Created: 07/03/2021
 import pathlib
 import shutil
 import subprocess
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Union
 
 import yaml
 
+from pytoil.environments import BaseEnvironment
 from pytoil.exceptions import (
     BadEnvironmentFileError,
     CondaNotInstalledError,
@@ -21,8 +22,8 @@ from pytoil.exceptions import (
 )
 
 
-class CondaEnv:
-    def __init__(self, name: str) -> None:
+class CondaEnv(BaseEnvironment):
+    def __init__(self, name: str, project_path: pathlib.Path) -> None:
         """
         Representation of a conda virtual environment.
 
@@ -34,11 +35,28 @@ class CondaEnv:
 
         Args:
             name (str): The name of the conda environment.
+            project_path (pathlib.Path): Path to the root dir
+                of the associated project.
         """
         self.name = name
+        self._project_path = project_path.resolve()
 
     def __repr__(self) -> str:
-        return self.__class__.__qualname__ + f"(name={self.name!r})"
+        return (
+            self.__class__.__qualname__
+            + f"(name={self.name!r}, "
+            + f"project_path={self._project_path!r})"
+        )
+
+    @property
+    def project_path(self) -> pathlib.Path:
+        return self._project_path
+
+    @property
+    def executable(self) -> pathlib.Path:
+        envs_dir = self.get_envs_dir()
+
+        return envs_dir.joinpath(f"{self.name}/bin/python")
 
     def raise_for_conda(self) -> None:
         """
@@ -60,13 +78,12 @@ class CondaEnv:
     def exists(self) -> bool:
         """
         Determines whether a conda environment called `name`
-        exists on the current system by parsing the stdout of the
-        `conda env list` command.
+        exists on the current system by checking if a valid
+        interpreter exists inside the environments directory
+        under that name.
 
         Raises:
             CondaNotInstalledError: If `conda` not found on $PATH.
-            CalledProcessError: If an unknown error occurs in the
-                `conda env list` command.
 
         Returns:
             bool: True if the environment exists on system, else False.
@@ -74,32 +91,14 @@ class CondaEnv:
 
         self.raise_for_conda()
 
-        try:
-            envs = subprocess.run(
-                ["conda", "env", "list"],
-                check=True,
-                capture_output=True,
-                encoding="utf-8",
-            )
-        except subprocess.CalledProcessError:
-            raise
-        else:
-            return self.name.strip().lower() in envs.stdout.strip().lower()
+        return self.executable.exists()
 
-    def create(self, packages: Optional[List[str]] = None) -> None:
+    def create(self) -> None:
         """
         Creates the conda environment described by the instance.
 
-        If `packages` are specified, these will be included at creation.
-
         Only default package is `python=3` which will cause conda to choose
         it's default python3.
-
-        Args:
-            packages (Optional[List[str]], optional): List of valid packages
-                for conda to install on environment creation. Passed through to
-                conda so any versioning syntax will work as expected.
-                Defaults to None.
 
         Raises:
             VirtualenvAlreadyExistsError: If the conda environment already exists.
@@ -112,22 +111,19 @@ class CondaEnv:
 
         cmd: List[str] = ["conda", "create", "-y", "--name", f"{self.name}", "python=3"]
 
-        if packages:
-            cmd.extend(packages)
-
         try:
             subprocess.run(cmd, check=True)
         except subprocess.CalledProcessError:
             raise
 
     @staticmethod
-    def create_from_yml(fp: pathlib.Path) -> None:
+    def create_from_yml(project_path: pathlib.Path) -> None:
         """
         Creates a conda environment from the `environment.yml`
-        file passed as a pathlib.Path in `fp`.
+        contained in the root `project_path`
 
         Args:
-            fp (pathlib.Path): Filepath of the `environment.yml` file.
+            fp (pathlib.Path): Filepath of the project root.
 
         Raises:
             FileNotFoundError: If the `environment.yml` file does not exist.
@@ -137,16 +133,17 @@ class CondaEnv:
                 by the `environment.yml` file already exists on system.
         """
 
-        # Ensure we have a resolved yml filepath
-        resolved_fp = fp.resolve()
+        # Ensure we have a resolved project root filepath
+        resolved_project_path = project_path.resolve()
+        yml_file = resolved_project_path.joinpath("environment.yml")
 
         try:
-            with open(resolved_fp) as f:
+            with open(yml_file) as f:
                 env_dict: Dict[str, Union[List[str], str]] = yaml.full_load(f)
         except FileNotFoundError:
             raise
 
-        env_name = env_dict["name"]
+        env_name = env_dict.get("name")
 
         if not isinstance(env_name, str):
             raise BadEnvironmentFileError(
@@ -154,29 +151,30 @@ class CondaEnv:
                 Cannot determine the value for key: `name`."""
             )
         else:
-            env = CondaEnv(name=env_name)
+            env = CondaEnv(name=env_name, project_path=resolved_project_path)
 
         if env.exists():
             raise VirtualenvAlreadyExistsError(f"Conda env: {env.name} already exists.")
         else:
             try:
                 subprocess.run(
-                    ["conda", "env", "create", "-y", "--file", f"{resolved_fp}"],
+                    [
+                        "conda",
+                        "env",
+                        "create",
+                        "-y",
+                        "--file",
+                        f"{yml_file}",
+                    ],
                     check=True,
                 )
             except subprocess.CalledProcessError:
                 raise
 
-    def export_yml(self, fp: pathlib.Path) -> None:
+    def export_yml(self) -> None:
         """
         Exports an environment.yml file for the conda environment
         described by the instance.
-
-        Args:
-            fp (pathlib.Path): Path to desired export location
-                (excluding the filename).
-                i.e. to get `/Users/me/projects/myproject/environment.yml`
-                `fp` would be `/Users/me/projects/myproject`.
 
         Raises:
             VirtualenvDoesNotExistError: If the conda env does not exist,
@@ -205,11 +203,14 @@ class CondaEnv:
         except subprocess.CalledProcessError:
             raise
         else:
-            yml_file = fp.joinpath("environment.yml")
+            yml_file = self.project_path.joinpath("environment.yml")
             with open(yml_file, "w") as f:
                 f.write(yml_out.stdout)
 
-    def install(self, packages: List[str]) -> None:
+    def install(
+        self,
+        packages: List[str],
+    ) -> None:
         """
         Installs `packages` into the conda environment
         described by `name`.
