@@ -5,6 +5,8 @@ Author: Tom Fleet
 Created: 07/03/2021
 """
 
+from __future__ import annotations
+
 import pathlib
 import shutil
 import subprocess
@@ -117,7 +119,7 @@ class CondaEnv(BaseEnvironment):
             raise
 
     @staticmethod
-    def create_from_yml(project_path: pathlib.Path) -> None:
+    def create_from_yml(project_path: pathlib.Path) -> CondaEnv:
         """
         Creates a conda environment from the `environment.yml`
         contained in the root `project_path`
@@ -170,6 +172,8 @@ class CondaEnv(BaseEnvironment):
                 )
             except subprocess.CalledProcessError:
                 raise
+
+        return env
 
     def export_yml(self) -> None:
         """
