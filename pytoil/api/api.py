@@ -9,11 +9,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import httpx
 
-from .config import Config
-
-# Type hint for generic JSON API response
-# either a single JSON blob or a list of JSON blobs
-APIResponse = Any
+from pytoil.config import Config
 
 
 class API:
@@ -79,7 +75,7 @@ class API:
         """
         self._headers = value
 
-    def get(self, endpoint: str) -> APIResponse:
+    def get(self, endpoint: str) -> Dict[str, Any]:
         """
         Makes an authenticated request to a GitHub API endpoint.
 
@@ -102,11 +98,11 @@ class API:
 
         r = httpx.get(url=self.baseurl + endpoint, headers=self.headers)
         r.raise_for_status()
-        response: APIResponse = r.json()
+        response: Dict[str, Any] = r.json()
 
         return response
 
-    def get_repo(self, repo: str) -> APIResponse:
+    def get_repo(self, repo: str) -> Dict[str, Any]:
         """
         Hits the GitHub REST API 'repos/{owner}/{repo}' endpoint
         and parses the response.
@@ -117,12 +113,12 @@ class API:
             repo (str): The name of the repo to fetch JSON for.
 
         Returns:
-            APIResponse: JSON response for a particular repo.
+            Dict[str, Any]: JSON response for a particular repo.
         """
 
         return self.get(f"repos/{self.username}/{repo}")
 
-    def get_repos(self) -> APIResponse:
+    def get_repos(self) -> Dict[str, Any]:
         """
         Hits the GitHub REST API 'user/{username}/repos' endpoint and parses
         the response.
@@ -135,7 +131,7 @@ class API:
         `self.token` this automatically fills in the {username} for us.
 
         Returns:
-            APIResponse: JSON response for a list of all users repos.
+            Dict[str, Any]: JSON response for a list of all users repos.
         """
 
         return self.get("user/repos")
@@ -150,7 +146,9 @@ class API:
             List[str]: List of user's repo names.
         """
 
-        return [repo["name"] for repo in self.get_repos()]
+        return [repo["name"] for repo in self.get_repos()]  # type: ignore
+        # We type ignore here because satisfying
+        # mypy when dealing with JSON is hard
 
     def get_repo_info(self, repo: str) -> Dict[str, Union[str, int]]:
         """

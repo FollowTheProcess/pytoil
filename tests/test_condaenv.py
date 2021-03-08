@@ -12,7 +12,7 @@ from typing import List, NamedTuple
 import pytest
 from pytest_mock import MockerFixture
 
-from pytoil.env import CondaEnv
+from pytoil.environments import CondaEnv
 from pytoil.exceptions import (
     BadEnvironmentFileError,
     CondaNotInstalledError,
@@ -24,24 +24,35 @@ from pytoil.exceptions import (
 
 def test_condaenv_init():
 
-    env = CondaEnv(name="sillyenv")
+    fake_project = pathlib.Path("/Users/me/project/fakeproject")
+
+    env = CondaEnv(name="sillyenv", project_path=fake_project)
 
     assert env.name == "sillyenv"
+    assert env.project_path == fake_project.resolve()
 
 
 def test_condaenv_repr():
 
-    env = CondaEnv(name="sillyenv")
+    fake_project = pathlib.Path("/Users/me/project/fakeproject")
 
-    assert env.__repr__() == "CondaEnv(name='sillyenv')"
+    env = CondaEnv(name="sillyenv", project_path=fake_project)
+
+    assert env.__repr__() == (
+        f"CondaEnv(name='sillyenv', project_path={fake_project.resolve()!r})"
+    )
 
 
 def test_condaenv_raise_for_conda_raises_when_required(mocker: MockerFixture):
 
-    # Patch out shutil.which so it returns what we want it to
-    mocker.patch("pytoil.env.shutil.which", autospec=True, return_value=False)
+    fake_project = pathlib.Path("/Users/me/project/fakeproject")
 
-    env = CondaEnv(name="sillyenv")
+    # Patch out shutil.which so it returns what we want it to
+    mocker.patch(
+        "pytoil.environments.conda.shutil.which", autospec=True, return_value=False
+    )
+
+    env = CondaEnv(name="sillyenv", project_path=fake_project)
 
     with pytest.raises(CondaNotInstalledError):
         env.raise_for_conda()
@@ -49,63 +60,66 @@ def test_condaenv_raise_for_conda_raises_when_required(mocker: MockerFixture):
 
 def test_condaenv_raise_for_conda_doesnt_raise_when_required(mocker: MockerFixture):
 
-    mocker.patch("pytoil.env.shutil.which", autospec=True, return_value=True)
+    fake_project = pathlib.Path("/Users/me/project/fakeproject")
 
-    env = CondaEnv(name="sillyenv")
+    mocker.patch(
+        "pytoil.environments.conda.shutil.which", autospec=True, return_value=True
+    )
+
+    env = CondaEnv(name="sillyenv", project_path=fake_project)
 
     # Test will fail if this raises
     env.raise_for_conda()
 
 
-@pytest.mark.parametrize(
-    "name, exists",
-    [
-        ("SiLLyEnv", True),
-        ("condaenv", True),
-        ("here", True),
-        ("MissInG", False),
-        ("DefinitelyNot_Here", False),
-        ("ReallyNotHere", False),
-    ],
-)
-def test_condaenv_exists(mocker: MockerFixture, name, exists):
-    class FakeStdOut(NamedTuple):
-        # we need this so the returned object from subprocess.run
-        # has a `.stdout` attribute
-        stdout: str = """Hello. This is the fake stdout. Here are some environment names:
-            sillyenv, condaenv, here"""
+def test_condaenv_exists_returns_true_if_executable_exists(mocker: MockerFixture):
 
-    mock_subprocess = mocker.patch(
-        "pytoil.env.subprocess.run", autospec=True, return_value=FakeStdOut()
-    )
-
-    env = CondaEnv(name=name)
-
-    assert env.exists() is exists
-
-    mock_subprocess.assert_called_once_with(
-        ["conda", "env", "list"], check=True, capture_output=True, encoding="utf-8"
-    )
-
-
-def test_condaenv_exists_raises_on_subprocess_error(mocker: MockerFixture):
+    fake_project = pathlib.Path("/Users/me/project/fakeproject")
 
     mocker.patch(
-        "pytoil.env.subprocess.run",
+        "pytoil.environments.conda.pathlib.Path.exists",
         autospec=True,
-        side_effect=[subprocess.CalledProcessError(-1, "cmd")],
+        return_value=True,
     )
 
-    with pytest.raises(subprocess.CalledProcessError):
-        env = CondaEnv(name="sillyenv")
-        env.exists()
+    mocker.patch(
+        "pytoil.environments.conda.CondaEnv.get_envs_dir",
+        autospec=True,
+        return_value=pathlib.Path("/Users/me/miniconda3"),
+    )
+
+    env = CondaEnv(name="test", project_path=fake_project)
+
+    assert env.exists() is True
+
+
+def test_condaenv_exists_returns_false_if_executable_doesnt_exist(
+    mocker: MockerFixture,
+):
+
+    fake_project = pathlib.Path("/Users/me/project/fakeproject")
+
+    mocker.patch(
+        "pytoil.environments.conda.pathlib.Path.exists",
+        autospec=True,
+        return_value=False,
+    )
+
+    mocker.patch(
+        "pytoil.environments.conda.CondaEnv.get_envs_dir",
+        autospec=True,
+        return_value=pathlib.Path("/Users/me/miniconda3"),
+    )
+
+    env = CondaEnv(name="test", project_path=fake_project)
+
+    assert env.exists() is False
 
 
 @pytest.mark.parametrize(
-    "packages, name, expected_cmd",
+    "name, expected_cmd",
     [
         (
-            None,
             "sillyenv",
             [
                 "conda",
@@ -117,7 +131,6 @@ def test_condaenv_exists_raises_on_subprocess_error(mocker: MockerFixture):
             ],
         ),
         (
-            ["black", "pandas>=1.1.3", "numpy"],
             "dingleenv",
             [
                 "conda",
@@ -126,51 +139,60 @@ def test_condaenv_exists_raises_on_subprocess_error(mocker: MockerFixture):
                 "--name",
                 "dingleenv",
                 "python=3",
-                "black",
-                "pandas>=1.1.3",
-                "numpy",
             ],
         ),
     ],
 )
-def test_condaenv_create_is_correctly_called(
-    mocker: MockerFixture, packages, name, expected_cmd
-):
+def test_condaenv_create_is_correctly_called(mocker: MockerFixture, name, expected_cmd):
+
+    fake_project = pathlib.Path("/Users/me/projects/fakeproject")
 
     # Trick the test into thinking the environment doesn't already exist
-    mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=False)
+    mocker.patch(
+        "pytoil.environments.CondaEnv.exists", autospec=True, return_value=False
+    )
 
-    mock_subprocess = mocker.patch("pytoil.env.subprocess.run", autospec=True)
+    mock_subprocess = mocker.patch(
+        "pytoil.environments.conda.subprocess.run", autospec=True
+    )
 
-    env = CondaEnv(name=name)
+    env = CondaEnv(name=name, project_path=fake_project)
 
-    env.create(packages=packages)
+    env.create()
 
     mock_subprocess.assert_called_once_with(expected_cmd, check=True)
 
 
 def test_condaenv_create_raises_if_already_exists(mocker: MockerFixture):
 
+    fake_project = pathlib.Path("/Users/me/projects/fakeproject")
+
     # Trick the test into thinking the environment already exists
-    mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=True)
+    mocker.patch(
+        "pytoil.environments.CondaEnv.exists", autospec=True, return_value=True
+    )
 
     with pytest.raises(VirtualenvAlreadyExistsError):
-        env = CondaEnv(name="i_already_exist")
+        env = CondaEnv(name="i_already_exist", project_path=fake_project)
         env.create()
 
 
 def test_condaenv_create_raises_on_subprocess_error(mocker: MockerFixture):
 
-    mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=False)
+    fake_project = pathlib.Path("/Users/me/projects/fakeproject")
 
     mocker.patch(
-        "pytoil.env.subprocess.run",
+        "pytoil.environments.CondaEnv.exists", autospec=True, return_value=False
+    )
+
+    mocker.patch(
+        "pytoil.environments.conda.subprocess.run",
         autospec=True,
         side_effect=[subprocess.CalledProcessError(-1, "cmd")],
     )
 
     with pytest.raises(subprocess.CalledProcessError):
-        env = CondaEnv(name="error")
+        env = CondaEnv(name="error", project_path=fake_project)
         env.create()
 
 
@@ -179,10 +201,14 @@ def test_condaenv_create_from_yml_passes_correct_command(
 ):
 
     # Make it think the environment doesn't already exist
-    mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=False)
+    mocker.patch(
+        "pytoil.environments.CondaEnv.exists", autospec=True, return_value=False
+    )
 
     # Mock out the actual call to conda
-    mock_subprocess = mocker.patch("pytoil.env.subprocess.run", autospec=True)
+    mock_subprocess = mocker.patch(
+        "pytoil.environments.conda.subprocess.run", autospec=True
+    )
 
     expected_cmd: List[str] = [
         "conda",
@@ -190,61 +216,69 @@ def test_condaenv_create_from_yml_passes_correct_command(
         "create",
         "-y",
         "--file",
-        f"{str(temp_environment_yml.resolve())}",
+        f"{temp_environment_yml.resolve()}",
     ]
 
-    CondaEnv.create_from_yml(fp=temp_environment_yml)
+    CondaEnv.create_from_yml(project_path=temp_environment_yml.parent)
 
     mock_subprocess.assert_called_once_with(expected_cmd, check=True)
 
 
 def test_condaenv_create_from_yml_raises_on_missing_file(mocker: MockerFixture):
 
-    mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=False)
+    fake_project = pathlib.Path("/Users/me/projects/fakeproject")
 
-    missing_env_file = pathlib.Path("definitely/not/here.yml")
+    mocker.patch(
+        "pytoil.environments.CondaEnv.exists", autospec=True, return_value=False
+    )
 
     with pytest.raises(FileNotFoundError):
-        CondaEnv.create_from_yml(fp=missing_env_file)
+        CondaEnv.create_from_yml(project_path=fake_project)
 
 
 def test_condaenv_create_from_yml_raises_on_invalid_formatted_yml(
     mocker: MockerFixture, bad_temp_environment_yml, bad_temp_environment_yml_2
 ):
 
-    mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=False)
+    mocker.patch(
+        "pytoil.environments.CondaEnv.exists", autospec=True, return_value=False
+    )
 
     with pytest.raises(BadEnvironmentFileError):
-        CondaEnv.create_from_yml(fp=bad_temp_environment_yml)
+        CondaEnv.create_from_yml(project_path=bad_temp_environment_yml.parent)
 
     with pytest.raises(BadEnvironmentFileError):
-        CondaEnv.create_from_yml(fp=bad_temp_environment_yml_2)
+        CondaEnv.create_from_yml(project_path=bad_temp_environment_yml_2.parent)
 
 
 def test_condaenv_create_from_yml_raises_if_env_already_exists(
     mocker: MockerFixture, temp_environment_yml
 ):
 
-    mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=True)
+    mocker.patch(
+        "pytoil.environments.CondaEnv.exists", autospec=True, return_value=True
+    )
 
     with pytest.raises(VirtualenvAlreadyExistsError):
-        CondaEnv.create_from_yml(temp_environment_yml)
+        CondaEnv.create_from_yml(project_path=temp_environment_yml.parent)
 
 
 def test_condaenv_create_from_yml_raises_on_subprocess_error(
     mocker: MockerFixture, temp_environment_yml
 ):
 
-    mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=False)
+    mocker.patch(
+        "pytoil.environments.CondaEnv.exists", autospec=True, return_value=False
+    )
 
     mocker.patch(
-        "pytoil.env.subprocess.run",
+        "pytoil.environments.conda.subprocess.run",
         autospec=True,
         side_effect=[subprocess.CalledProcessError(-1, "cmd")],
     )
 
     with pytest.raises(subprocess.CalledProcessError):
-        CondaEnv.create_from_yml(fp=temp_environment_yml)
+        CondaEnv.create_from_yml(project_path=temp_environment_yml.parent)
 
 
 @pytest.mark.parametrize(
@@ -257,9 +291,15 @@ def test_condaenv_create_from_yml_raises_on_subprocess_error(
 )
 def test_condaenv_install_passes_correct_command(mocker: MockerFixture, name, packages):
 
-    mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=True)
+    fake_project = pathlib.Path("/Users/me/projects/fakeproject")
 
-    mock_subprocess = mocker.patch("pytoil.env.subprocess.run", autospec=True)
+    mocker.patch(
+        "pytoil.environments.CondaEnv.exists", autospec=True, return_value=True
+    )
+
+    mock_subprocess = mocker.patch(
+        "pytoil.environments.conda.subprocess.run", autospec=True
+    )
 
     expected_cmd: List[str] = [
         "conda",
@@ -271,7 +311,7 @@ def test_condaenv_install_passes_correct_command(mocker: MockerFixture, name, pa
 
     expected_cmd.extend(packages)
 
-    env = CondaEnv(name=name)
+    env = CondaEnv(name=name, project_path=fake_project)
 
     env.install(packages=packages)
 
@@ -280,59 +320,77 @@ def test_condaenv_install_passes_correct_command(mocker: MockerFixture, name, pa
 
 def test_condaenv_install_raises_if_environment_doesnt_exist(mocker: MockerFixture):
 
-    mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=False)
+    fake_project = pathlib.Path("/Users/me/projects/fakeproject")
+
+    mocker.patch(
+        "pytoil.environments.CondaEnv.exists", autospec=True, return_value=False
+    )
 
     with pytest.raises(VirtualenvDoesNotExistError):
-        env = CondaEnv(name="missing")
+        env = CondaEnv(name="missing", project_path=fake_project)
         env.install(["black", "mypy", "pandas"])
 
 
 def test_condaenv_install_raises_on_subprocess_error(mocker: MockerFixture):
 
-    mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=True)
+    fake_project = pathlib.Path("/Users/me/projects/fakeproject")
 
     mocker.patch(
-        "pytoil.env.subprocess.run",
+        "pytoil.environments.CondaEnv.exists", autospec=True, return_value=True
+    )
+
+    mocker.patch(
+        "pytoil.environments.conda.subprocess.run",
         autospec=True,
         side_effect=[subprocess.CalledProcessError(-1, "cmd")],
     )
 
     with pytest.raises(subprocess.CalledProcessError):
-        env = CondaEnv(name="error")
+        env = CondaEnv(name="error", project_path=fake_project)
         env.install(["pandas", "numpy"])
 
 
 def test_condaenv_export_yml_raises_on_missing_env(mocker: MockerFixture):
 
-    mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=False)
+    fake_project = pathlib.Path("/Users/me/projects/fakeproject")
 
-    mocker.patch("pytoil.env.subprocess.run", autospec=True)
+    mocker.patch(
+        "pytoil.environments.CondaEnv.exists", autospec=True, return_value=False
+    )
+
+    mocker.patch("pytoil.environments.conda.subprocess.run", autospec=True)
 
     with pytest.raises(VirtualenvDoesNotExistError):
-        env = CondaEnv(name="condingle")
-        env.export_yml(fp=pathlib.Path("/Users/me/projects/condaproject"))
+        env = CondaEnv(name="condingle", project_path=fake_project)
+        env.export_yml()
 
 
 def test_condaenv_export_yml_raises_on_subprocess_error(mocker: MockerFixture):
 
-    mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=True)
+    fake_project = pathlib.Path("/Users/me/projects/fakeproject")
 
     mocker.patch(
-        "pytoil.env.subprocess.run",
+        "pytoil.environments.CondaEnv.exists", autospec=True, return_value=True
+    )
+
+    mocker.patch(
+        "pytoil.environments.conda.subprocess.run",
         autospec=True,
         side_effect=[subprocess.CalledProcessError(-1, "cmd")],
     )
 
     with pytest.raises(subprocess.CalledProcessError):
-        env = CondaEnv(name="blah")
-        env.export_yml(fp=pathlib.Path("fake/environment/lol"))
+        env = CondaEnv(name="blah", project_path=fake_project)
+        env.export_yml()
 
 
 def test_condaenv_export_yml_exports_correct_content(
     mocker: MockerFixture, temp_environment_yml
 ):
 
-    mocker.patch("pytoil.env.CondaEnv.exists", autospec=True, return_value=True)
+    mocker.patch(
+        "pytoil.environments.CondaEnv.exists", autospec=True, return_value=True
+    )
 
     class FakeStdOut(NamedTuple):
         # we need this so the returned object from subprocess.run
@@ -366,12 +424,14 @@ def test_condaenv_export_yml_exports_correct_content(
         """
 
     mock_subprocess = mocker.patch(
-        "pytoil.env.subprocess.run", autospec=True, return_value=FakeStdOut()
+        "pytoil.environments.conda.subprocess.run",
+        autospec=True,
+        return_value=FakeStdOut(),
     )
 
-    env = CondaEnv(name="fake_conda_env")
+    env = CondaEnv(name="fake_conda_env", project_path=temp_environment_yml.parent)
 
-    env.export_yml(temp_environment_yml.parent)
+    env.export_yml()
 
     assert temp_environment_yml.read_text(encoding="utf-8") == FakeStdOut().stdout
 
@@ -388,7 +448,7 @@ def test_condaenv_get_envs_dir_returns_correctly_for_miniconda(
 ):
 
     mocker.patch(
-        "pytoil.env.pathlib.Path.home",
+        "pytoil.environments.conda.pathlib.Path.home",
         autospec=True,
         return_value=fake_home_folder_miniconda,
     )
@@ -405,7 +465,7 @@ def test_condaenv_get_envs_dir_returns_correctly_for_anaconda(
 ):
 
     mocker.patch(
-        "pytoil.env.pathlib.Path.home",
+        "pytoil.environments.conda.pathlib.Path.home",
         autospec=True,
         return_value=fake_home_folder_anaconda,
     )
@@ -422,7 +482,7 @@ def test_condaenv_get_envs_dir_raises_if_neither_found(
 ):
 
     mocker.patch(
-        "pytoil.env.pathlib.Path.home",
+        "pytoil.environments.conda.pathlib.Path.home",
         autospec=True,
         return_value=fake_home_folder_neither,
     )

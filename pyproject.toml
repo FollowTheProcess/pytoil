@@ -59,7 +59,13 @@ profile = "black"
 multi_line_output = 3
 
 [tool.coverage.run]
-omit = ["*__init__.py", "*exceptions.py", "*__main__.py", "pytoil/cli/*"]
+omit = [
+    "*__init__.py",
+    "*exceptions.py",
+    "*__main__.py",
+    "pytoil/cli/*",
+    "pytoil/environments/abstract.py",
+]
 branch = true
 
 [build-system]

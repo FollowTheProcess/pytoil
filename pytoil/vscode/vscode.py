@@ -15,7 +15,7 @@ import shutil
 import subprocess
 from typing import Any, Dict
 
-from .exceptions import CodeNotInstalledError
+from pytoil.exceptions import CodeNotInstalledError
 
 
 class VSCode:

@@ -13,7 +13,7 @@ from typing import TypedDict
 
 import yaml
 
-from .exceptions import InvalidConfigError
+from pytoil.exceptions import InvalidConfigError
 
 # Default value for projects_dir
 DEFAULT_PROJECTS_DIR = pathlib.Path.home().joinpath("Development").resolve()

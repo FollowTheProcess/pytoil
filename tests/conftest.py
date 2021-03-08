@@ -12,8 +12,6 @@ from typing import Any, Dict, List, Union
 import pytest
 import yaml
 
-from pytoil.api import APIResponse
-
 
 @pytest.fixture
 def temp_config_file(tmp_path_factory):
@@ -203,7 +201,7 @@ def temp_config_file_missing_vs_code(tmp_path_factory):
 @pytest.fixture
 def fake_api_response():
 
-    response: APIResponse = [
+    response: Dict[str, Any] = [
         {"name": "repo1", "owner": "me", "blah": "bleh"},
         {"name": "repo2", "owner": "someguy", "blah": "bluh"},
         {"name": "repo3", "owner": "somegirl", "blah": "blah"},
