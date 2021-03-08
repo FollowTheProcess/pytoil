@@ -10,6 +10,12 @@ from typing import List, Set
 import typer
 
 from pytoil.api import API
+from pytoil.cli.utils import (
+    get_local_project_list,
+    get_local_project_set,
+    get_remote_project_list,
+    get_remote_project_set,
+)
 from pytoil.config import Config
 
 app = typer.Typer(no_args_is_help=True)
@@ -32,14 +38,7 @@ def local() -> None:
     config = Config.get()
     config.validate()
 
-    local_projects: List[str] = sorted(
-        [
-            f.name
-            for f in config.projects_dir.iterdir()
-            if f.is_dir() and not f.name.startswith(".")
-        ],
-        key=str.casefold,  # casefold means sorting works independent of case
-    )
+    local_projects: List[str] = get_local_project_list(config.projects_dir)
 
     n_locals: int = len(local_projects)
 
@@ -65,7 +64,7 @@ def remote() -> None:
 
     api = API()
 
-    remote_projects: List[str] = sorted(api.get_repo_names(), key=str.casefold)
+    remote_projects: List[str] = get_remote_project_list(api)
 
     n_remotes: int = len(remote_projects)
 
@@ -92,16 +91,9 @@ def all_() -> None:
 
     api = API()
 
-    local_projects: List[str] = sorted(
-        [
-            f.name
-            for f in config.projects_dir.iterdir()
-            if f.is_dir() and not f.name.startswith(".")
-        ],
-        key=str.casefold,  # casefold means sorting works independent of case
-    )
+    local_projects: List[str] = get_local_project_list(config.projects_dir)
 
-    remote_projects: List[str] = sorted(api.get_repo_names(), key=str.casefold)
+    remote_projects: List[str] = get_remote_project_list(api)
 
     n_locals: int = len(local_projects)
     n_remotes: int = len(remote_projects)
@@ -140,13 +132,9 @@ def diff() -> None:
 
     api = API()
 
-    local_projects: Set[str] = {
-        f.name
-        for f in config.projects_dir.iterdir()
-        if f.is_dir() and not f.name.startswith(".")
-    }
+    local_projects: Set[str] = get_local_project_set(config.projects_dir)
 
-    remote_projects: Set[str] = set(api.get_repo_names())
+    remote_projects: Set[str] = get_remote_project_set(api)
     difference: Set[str] = remote_projects.difference(local_projects)
 
     n_diff: int = len(difference)
