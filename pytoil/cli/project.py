@@ -121,66 +121,69 @@ def create(
         typer.echo("To resume an existing project, use 'checkout'.")
         typer.echo(f"Example: '$ pytoil project checkout {project}'.")
         raise typer.Abort()
+
+    # If we get here, project is okay to create
+
+    if cookie:
+        typer.secho(
+            f"\nCreating project: {project!r} with cookiecutter template:"
+            + f" {cookie!r}.\n",
+            fg=typer.colors.BLUE,
+            bold=True,
+        )
+        cookiecutter(template=cookie, output_dir=config.projects_dir)
     else:
-        # Project is okay to create
-        if cookie:
+        typer.secho(
+            f"\nCreating project: {project!r} at '{repo.path}'.\n",
+            fg=typer.colors.BLUE,
+            bold=True,
+        )
+        # Create an empty project dir
+        repo.path.mkdir()
+
+    if venv:
+        if venv.value == venv.conda:
             typer.secho(
-                f"\nCreating project: {project!r} with cookiecutter template:"
-                + f" {cookie!r}.\n",
+                f"\nCreating conda environment for {project!r}.\n",
                 fg=typer.colors.BLUE,
                 bold=True,
             )
-            cookiecutter(template=cookie, output_dir=config.projects_dir)
-        else:
+            conda_env = CondaEnv(name=project, project_path=repo.path)
+            conda_env.create()
+
+            if config.vscode:
+                typer.echo("Setting 'python.pythonPath' in VSCode workspace.")
+                vscode.set_python_path(conda_env.executable)
+                typer.echo(f"Opening {project!r} in VSCode...")
+                vscode.open()
+
+        elif venv.value == venv.virtualenv:  # pragma: no cover
+            # For some reason coverage isn't picking this up as tested
+            # but it is: tests/cli/test_project_create.py
+            # in several tests
             typer.secho(
-                f"\nCreating project: {project!r} at '{repo.path}'.\n",
+                f"\nCreating virtualenv for {project!r}.\n",
                 fg=typer.colors.BLUE,
                 bold=True,
             )
-            # Create an empty project dir
-            repo.path.mkdir()
-        if venv:
-            if venv.value == venv.conda:
-                typer.secho(
-                    f"\nCreating conda environment for {project!r}.\n",
-                    fg=typer.colors.BLUE,
-                    bold=True,
-                )
-                conda_env = CondaEnv(name=project, project_path=repo.path)
-                conda_env.create()
 
-                if config.vscode:
-                    typer.echo("Setting 'python.pythonPath' in VSCode workspace.")
-                    vscode.set_python_path(conda_env.executable)
+            env = VirtualEnv(project_path=repo.path)
+            env.create()
 
-            elif venv.value == venv.virtualenv:
-                typer.secho(
-                    f"\nCreating virtualenv for {project!r}.\n",
-                    fg=typer.colors.BLUE,
-                    bold=True,
-                )
-
-                env = VirtualEnv(project_path=repo.path)
-                env.create()
-
-                typer.echo(
-                    "\nEnsuring seed packages (pip, setuptools, wheel) are up to date."
-                )
-                env.update_seeds()
-
-                if config.vscode:
-                    typer.echo("Setting 'python.pythonPath' in VSCode workspace.")
-                    vscode.set_python_path(env.executable)
-
-        else:
             typer.echo(
-                "Virtual environment not requested. Skipping environment creation."
+                "\nEnsuring seed packages (pip, setuptools, wheel) are up to date."
             )
+            env.update_seeds()
 
-        typer.secho("\nDone!", fg=typer.colors.GREEN)
-        if config.vscode:
-            typer.echo(f"Opening {project!r} in VSCode...")
-            vscode.open()
+            if config.vscode:
+                typer.echo("Setting 'python.pythonPath' in VSCode workspace.")
+                vscode.set_python_path(env.executable)
+                typer.echo(f"Opening {project!r} in VSCode...")
+                vscode.open()
+    else:
+        typer.echo("Virtual environment not requested. Skipping environment creation.")
+
+    typer.secho("\nDone!", fg=typer.colors.GREEN)
 
 
 @app.command()
