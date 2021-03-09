@@ -450,6 +450,12 @@ def test_create_with_conda_sets_pythonpath_and_opens_code(
         return_value=False,
     )
 
+    mocker.patch(
+        "pytoil.cli.project.CondaEnv.get_envs_dir",
+        autospec=True,
+        return_value=fake_projects_dir.parent.joinpath("miniconda3"),
+    )
+
     # Make sure it doesn't actually do anything
     mock_conda_create = mocker.patch(
         "pytoil.cli.project.CondaEnv.create", autospec=True
