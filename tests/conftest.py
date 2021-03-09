@@ -404,3 +404,38 @@ def fake_home_folder_neither(tmp_path_factory):
     fake_home: pathlib.Path = tmp_path_factory.mktemp("home")
 
     return fake_home
+
+
+@pytest.fixture
+def fake_projects_dir(tmp_path_factory):
+    """
+    Returns a fake projects directory complete
+    with subdirectories mocking development projects.
+    """
+
+    project_names: List[str] = [
+        "project1",
+        "myproject",
+        "dingleproject",
+        "anotherone",
+        ".ishouldnt_show_up",
+    ]
+
+    projects_dir: pathlib.Path = tmp_path_factory.mktemp("projects")
+
+    for project_name in project_names:
+        project_path = projects_dir.joinpath(project_name)
+        project_path.mkdir()
+
+    return projects_dir
+
+
+@pytest.fixture
+def empty_projects_dir(tmp_path_factory):
+    """
+    Returns a fake projects directory with no projects inside it.
+    """
+
+    projects_dir: pathlib.Path = tmp_path_factory.mktemp("projects")
+
+    return projects_dir

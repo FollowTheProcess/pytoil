@@ -86,7 +86,7 @@ def all_(
         for repo_name in to_clone:
             # Create the repo object and clone
             repo = Repo(name=repo_name)
-            typer.echo("\nCloning: {repo.name!r}.")
+            typer.echo(f"\nCloning: {repo.name!r}.")
             repo.clone()
 
 
@@ -149,5 +149,5 @@ def these(
         for repo_name in to_clone:
             # Create the repo object and clone
             repo = Repo(name=repo_name)
-            typer.echo("\nCloning: {repo.name!r}.")
+            typer.echo(f"\nCloning: {repo.name!r}.")
             repo.clone()
