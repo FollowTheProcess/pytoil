@@ -59,7 +59,6 @@ def set(
         "--projects-dir",
         "-p",
         help="Set projects directory.",
-        exists=True,
         file_okay=False,
         dir_okay=True,
         writable=True,
@@ -93,17 +92,16 @@ def set(
         config.token = token
     elif projects_dir:
         config.projects_dir = projects_dir
-    elif vscode:
+    elif vscode:  # pragma: no cover
         # If we use vscode as a boolean option it doesn't quite work right
+        # also for some reason coverage doesn't recognise this as being called
+        # during tests but it is in tests/cli/test_config.py so we exclude it from cov
         if vscode.lower() == "true":
             config.vscode = True
         elif vscode.lower() == "false":
             config.vscode = False
         else:
             raise typer.BadParameter("vscode must be a boolean value.")
-    else:
-        typer.secho("unrecognised parameter", fg=typer.colors.RED)
-        raise typer.Abort()
 
     # Write the updated config
     config.write()
