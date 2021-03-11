@@ -1,4 +1,4 @@
-# pytoil
+![logo](./docs/img/logo.png)
 
 [![License](https://img.shields.io/github/license/FollowTheProcess/pytoil)](https://github.com/FollowTheProcess/pytoil)
 [![PyPI](https://img.shields.io/pypi/v/pytoil.svg)](https://pypi.python.org/pypi/pytoil)
@@ -27,14 +27,16 @@ Say goodbye to janky bash scripts :wave:
 
 ## Installation
 
-```shell
-pip install pytoil
-```
-
-Or you can be fancy and use [pipx]
+As pytoil is a CLI, I recommend [pipx]
 
 ```shell
 pipx install pytoil
+```
+
+Or just pip (but must be globally available)
+
+```shell
+pip install pytoil
 ```
 
 ## Quickstart

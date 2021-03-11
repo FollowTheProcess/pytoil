@@ -59,7 +59,7 @@ etc...
 ```console
 $ pytoil sync all
 
-//This person has a LOT of repos
+// This person has a LOT of repos
 
 # This will clone 1375 repos. Are you sure you wish to proceed? [y/N]:$ n
 

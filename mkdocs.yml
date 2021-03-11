@@ -11,6 +11,7 @@ nav:
       - Show: commands/show.md
       - Project: commands/project.md
       - Sync: commands/sync.md
+  - Contributing: contributing.md
   - Changelog: changelog.md
 plugins:
   - mkdocstrings:

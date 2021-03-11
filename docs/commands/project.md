@@ -53,6 +53,7 @@ In this sense, you don't have to be a python developer to use pytoil!
 $ pytoil project create my_new_project
 
 Creating new project: 'my_new_project'
+// Does some stuff...
 ```
 
 </div>
@@ -65,7 +66,7 @@ If you are a python developer though, chances are you'll want to create a virtua
 
     If you don't know what conda is: as a general rule, you'll want to use virtualenv on most python projects (particularly packages i.e. things that can be pip installed). If you do a lot of work with data (think pandas, numpy, scikit-learn) you'll probably want to use conda as a lot of python data tools include native C libraries which require compiling, and conda makes this happen seamlessly :nerd_face:
 
-All you have to do is specify which virtual enviroment to create, using the `--venv/-v` option flag. You can choose from `virtualenv`, `conda`, or `none` which is the default.
+All you have to do is specify which virtual environment to create, using the `--venv/-v` option flag. You can choose from `virtualenv` or `conda`. The default is `None`.
 
 <div class="termy">
 
@@ -171,14 +172,48 @@ remote: False
 
 If the project is available locally, `checkout` will simply open it for you
 
+<div class="termy">
+
+```console
+// Some project thats already local
+$ pytoil project checkout my_local_project
+
+Project: 'my_local_project' found locally!
+
+Opening 'my_github_project' in VSCode...
+```
+
+</div>
+
 If not, `checkout` will:
 
 * Clone it to your projects directory
 * Detect what type of project it is (conda or virtualenv)
-* Create the required virtual environment and install required dependencies
-* Open it for you
+* Create the required virtual environment for you automatically
+* Open it for you (if you configure VSCode in [config])
 
-<!-- TODO: More stuff, checkout needs to be able to detect virtual environments. Do that next. -->
+<div class="termy">
+
+```console
+// Some project thats on GitHub
+$ pytoil project checkout my_github_project
+
+Project: 'my_github_project' found on GitHub! Cloning...
+// You might see some git clone output here
+
+Auto-creating correct virtual environment
+// Here you might see some conda or virtualenv stuff
+
+Opening 'my_github_project' in VSCode...
+```
+
+</div>
+
+!!! info "Why just VSCode?"
+
+    When developing pytoil I was debating how to handle this. I use VSCode for everything but I know other people have different editor preferences. Initially I looked at using the `$EDITOR` environment variable but working how best to launch a variety of possible editors from a CLI was tricky. Plus pytoil does things like alter workspace settings to point at the right virtual environment, and I only know how to do this with VSCode.
+
+    PR's are very welcome though if you think you can introduce support for your preferred editor! :grin:
 
 ## Remove
 
