@@ -35,7 +35,9 @@ style:
 check: cov style
 
 clean:
-	rm -rf **/*/__pycache__/ .mypy_cache/ .nox/ .pytest_cache/ site/ .coverage
+	# Requires fd: brew install fd
+	fd --no-ignore __pycache__ --exec rm -rf
+	rm -rf .mypy_cache/ .nox/ .pytest_cache/ site/ .coverage
 
 docs:
 	mkdocs build --clean
