@@ -106,6 +106,8 @@ class CondaEnv(BaseEnvironment):
             VirtualenvAlreadyExistsError: If the conda environment already exists.
         """
 
+        self.raise_for_conda()
+
         if self.exists():
             raise VirtualenvAlreadyExistsError(
                 f"Conda env: {self.name} already exists."
@@ -154,6 +156,7 @@ class CondaEnv(BaseEnvironment):
             )
         else:
             env = CondaEnv(name=env_name, project_path=resolved_project_path)
+            env.raise_for_conda()
 
         if env.exists():
             raise VirtualenvAlreadyExistsError(f"Conda env: {env.name} already exists.")
@@ -184,6 +187,8 @@ class CondaEnv(BaseEnvironment):
             VirtualenvDoesNotExistError: If the conda env does not exist,
                 an environment file cannot be created.
         """
+
+        self.raise_for_conda()
 
         if not self.exists():
             raise VirtualenvDoesNotExistError(
@@ -230,6 +235,8 @@ class CondaEnv(BaseEnvironment):
         Raises:
             VirtualenvDoesNotExistError: If the conda environment does not exist.
         """
+
+        self.raise_for_conda()
 
         if not self.exists():
             raise VirtualenvDoesNotExistError(

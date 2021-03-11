@@ -1,5 +1,5 @@
 """
-Tests for the project CLI command.
+Tests for the project create CLI command.
 
 Author: Tom Fleet
 Created: 09/03/2021
