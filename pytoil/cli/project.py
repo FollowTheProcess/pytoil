@@ -222,42 +222,46 @@ def checkout(
         vscode = VSCode(root=repo.path)
 
     if repo.exists_local():
+        # Note we don't do any environment stuff here
+        # chances are if it exists locally, this has already been done
         typer.secho(
-            f"\nProject: {project!r} is already available locally at"
-            f" '{repo.path}'.",
+            f"\nProject: {project!r} is available locally at" f" '{repo.path}'.",
             fg=typer.colors.GREEN,
         )
+        if config.vscode:
+            typer.echo(f"Opening {project!r} in VSCode...")
+            vscode.open()
+
     elif repo.exists_remote():
-        typer.echo(f"Project: {project!r} found on user's GitHub. Cloning...\n")
+        typer.echo(f"Project: {project!r} found on your GitHub. Cloning...\n")
         repo.clone()
-        typer.secho(
-            f"Project: {project!r} now available locally at" f" '{repo.path}'.",
-            fg=typer.colors.GREEN,
-        )
         env = env_dispatcher(repo)
         if not env:
             typer.secho(
-                "Unable to auto-detect virtual environment.", fg=typer.colors.YELLOW
+                "Unable to auto-detect virtual environment. Skipping.",
+                fg=typer.colors.YELLOW,
             )
         else:
-            typer.echo("Auto-creating correct virtual environment.")
+            typer.echo("Auto-creating correct virtual environment...")
             env.create()
             if config.vscode:
-                typer.echo("Setting 'python.pythonPath' in VSCode workspace.")
+                typer.echo("Setting 'python.pythonPath' in VSCode workspace...")
                 vscode.set_python_path(env.executable)
+
+        if config.vscode:
+            typer.echo(f"Opening {project!r} in VSCode...")
+            vscode.open()
+
     else:
         typer.secho(
-            f"Project: {project!r} not found on user's GitHub.\n",
+            f"Project: {project!r} not found locally or on your GitHub.\n",
             fg=typer.colors.RED,
         )
         typer.echo(
             "Does the project exist? If not, create a new project:"
             + f" '$ pytoil project create {project}'."
         )
-
-    if config.vscode:
-        typer.echo(f"Opening {project!r} in VSCode.")
-        vscode.open()
+        raise typer.Abort()
 
 
 @app.command()
