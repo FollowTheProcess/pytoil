@@ -15,6 +15,7 @@ from cookiecutter.main import cookiecutter
 from pytoil.cli.utils import env_dispatcher, get_local_project_set
 from pytoil.config import Config
 from pytoil.environments import CondaEnv, VirtualEnv
+from pytoil.exceptions import RepoNotFoundError
 from pytoil.repo import Repo
 from pytoil.vscode import VSCode
 
@@ -312,7 +313,7 @@ def remove(
         )
 
     # If user specifies force flag, just go ahead and remove
-    typer.secho(f"\nRemoving project: {project!r}.", fg=typer.colors.BLUE, bold=True)
+    typer.echo(f"\nRemoving project: {project!r}.")
     shutil.rmtree(config.projects_dir.joinpath(project))
     typer.secho("\nDone!", fg=typer.colors.GREEN)
 
@@ -341,8 +342,14 @@ def info(
 
     repo = Repo(name=project)
 
-    info_dict = repo.info()
-
-    typer.secho(f"\nInfo for: {project}\n", fg=typer.colors.BLUE, bold=True)
-    for key, val in info_dict.items():
-        typer.echo(f"{key}: {val}")
+    try:
+        info_dict = repo.info()
+    except RepoNotFoundError:
+        typer.secho(
+            f"Project: {project!r} not found locally or on GitHub.", fg=typer.colors.RED
+        )
+        raise typer.Abort()
+    else:
+        typer.secho(f"\nInfo for: {project!r}\n", fg=typer.colors.BLUE, bold=True)
+        for key, val in info_dict.items():
+            typer.echo(f"{key}: {val}")
