@@ -423,9 +423,15 @@ def test_checkout_remote_correctly_sets_up_conda_environment_with_code(
 
     fake_venv = CondaEnv(name="conda_project", project_path=fake_project)
 
-    # Force a VirtualEnv
+    # Force a CondaEnv
     mock_env_dispatcher = mocker.patch(
         "pytoil.cli.project.env_dispatcher", autospec=True, return_value=fake_venv
+    )
+
+    mocker.patch(
+        "pytoil.cli.project.CondaEnv.get_envs_dir",
+        autospec=True,
+        return_value=fake_project.parent.joinpath("miniconda3"),
     )
 
     mock_venv_create = mocker.patch("pytoil.cli.project.CondaEnv.create", autospec=True)
