@@ -307,7 +307,7 @@ def remove(
         # Confirm with user and abort if they say no
         typer.confirm(
             f"\nThis will remove {project!r} from your local filesystem."
-            + " This is IRREVERSIBLE! Are you sure?",
+            + " Are you sure?",
             abort=True,
         )
 
