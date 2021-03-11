@@ -88,7 +88,7 @@ jobs:
         run: |
           git remote add gh-token "https://${GITHUB_TOKEN}@github.com/FollowTheProcess/pytoil.git";
           git fetch gh-token && git fetch gh-token gh-pages:gh-pages;
-          mkdocs gh-deploy -v --clean --remote-name gh-token;
+          poetry run mkdocs gh-deploy -v --clean --remote-name gh-token;
 
   deploy:
     needs: [build, lint, docs, publish-docs]
