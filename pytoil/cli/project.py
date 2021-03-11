@@ -230,7 +230,7 @@ def checkout(
             fg=typer.colors.GREEN,
         )
         if config.vscode:
-            typer.echo(f"Opening {project!r} in VSCode...")
+            typer.echo(f"\nOpening {project!r} in VSCode...")
             vscode.open()
 
     elif repo.exists_remote():
@@ -250,7 +250,7 @@ def checkout(
                 vscode.set_python_path(env.executable)
 
         if config.vscode:
-            typer.echo(f"Opening {project!r} in VSCode...")
+            typer.echo(f"\nOpening {project!r} in VSCode...")
             vscode.open()
 
     else:

@@ -104,7 +104,7 @@ def test_vscode_open_raises_on_subprocess_error(mocker: MockerFixture):
 
 def test_vscode_set_python_path(fake_vscode_workspace_settings):
 
-    with open(fake_vscode_workspace_settings, "r+") as f:
+    with open(fake_vscode_workspace_settings, "r+", encoding="utf-8") as f:
         settings_dict_before = json.load(f)
         python_path_before = settings_dict_before.get("python.pythonPath")
 

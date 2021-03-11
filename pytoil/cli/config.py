@@ -9,7 +9,7 @@ import pathlib
 
 import typer
 
-from pytoil.config import Config
+from pytoil.config import CONFIG_PATH, Config
 
 app = typer.Typer(no_args_is_help=True)
 
@@ -40,12 +40,20 @@ def show() -> None:
     Display currently set configuration.
     """
 
-    # Get config but don't raise on UNSET
-    config = Config.get()
+    if not CONFIG_PATH.exists():
+        typer.secho(
+            "Looks like my config file doesn't exist yet!. Run '$ pytoil init' first.",
+            fg=typer.colors.YELLOW,
+        )
+        raise typer.Abort()
 
-    typer.secho("\nCurrent pytoil config:", fg=typer.colors.BLUE, bold=True)
-    typer.echo("")
-    config.show()
+    else:
+        # Get config but don't raise on UNSET
+        config = Config.get()
+
+        typer.secho("\nCurrent pytoil config:", fg=typer.colors.BLUE, bold=True)
+        typer.echo("")
+        config.show()
 
 
 @app.command()
@@ -81,31 +89,39 @@ def set(
     $ pytoil config set --vscode True
     """
 
-    # Get any existing config
-    # but don't validate
-    config = Config.get()
+    if not CONFIG_PATH.exists():
+        typer.secho(
+            "Looks like my config file doesn't exist yet!. Run '$ pytoil init' first.",
+            fg=typer.colors.YELLOW,
+        )
+        raise typer.Abort()
+    else:
 
-    # I'm not keen on this, it feels messy
-    if username:
-        config.username = username
-    elif token:
-        config.token = token
-    elif projects_dir:
-        config.projects_dir = projects_dir
-    elif vscode:  # pragma: no cover
-        # If we use vscode as a boolean option it doesn't quite work right
-        # also for some reason coverage doesn't recognise this as being called
-        # during tests but it is in tests/cli/test_config.py so we exclude it from cov
-        if vscode.lower() == "true":
-            config.vscode = True
-        elif vscode.lower() == "false":
-            config.vscode = False
-        else:
-            raise typer.BadParameter("vscode must be a boolean value.")
+        # Get any existing config
+        # but don't validate
+        config = Config.get()
 
-    # Write the updated config
-    config.write()
+        # I'm not keen on this, it feels messy
+        if username:
+            config.username = username
+        elif token:
+            config.token = token
+        elif projects_dir:
+            config.projects_dir = projects_dir
+        elif vscode:  # pragma: no cover
+            # If we use vscode as a boolean option it doesn't quite work right
+            # also for some reason coverage doesn't recognise this as being called
+            # during tests but it is in tests/cli/test_config.py so we exclude it
+            if vscode.lower() == "true":
+                config.vscode = True
+            elif vscode.lower() == "false":
+                config.vscode = False
+            else:
+                raise typer.BadParameter("vscode must be a boolean value.")
 
-    typer.secho("\nConfig updated successfully", fg=typer.colors.GREEN)
-    typer.secho("\nNew Config:\n", fg=typer.colors.BLUE, bold=True)
-    config.show()
+        # Write the updated config
+        config.write()
+
+        typer.secho("\nConfig updated successfully!", fg=typer.colors.GREEN)
+        typer.secho("\nNew Config:\n", fg=typer.colors.BLUE, bold=True)
+        config.show()
