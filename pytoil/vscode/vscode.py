@@ -76,7 +76,7 @@ class VSCode:
 
         new_settings_dict: Dict[str, str] = {"python.pythonPath": f"{python_path}"}
 
-        with open(workspace_settings, "r+") as f:
+        with open(workspace_settings, mode="r+", encoding="utf-8") as f:
             workspace_settings_dict: Dict[str, Any] = json.load(f)
             workspace_settings_dict.update(new_settings_dict)
             json.dump(workspace_settings_dict, f)

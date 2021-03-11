@@ -110,7 +110,7 @@ class Config:
         """
 
         try:
-            with open(CONFIG_PATH) as f:
+            with open(CONFIG_PATH, encoding="utf-8") as f:
                 config_dict = yaml.full_load(f)
         except FileNotFoundError:
             raise
@@ -160,5 +160,5 @@ class Config:
 
         config_dict = self.to_dict()
 
-        with open(CONFIG_PATH, "w") as f:
+        with open(CONFIG_PATH, mode="w", encoding="utf-8") as f:
             yaml.dump(config_dict, f)
