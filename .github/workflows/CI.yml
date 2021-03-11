@@ -61,6 +61,34 @@ jobs:
       - name: Build Docs
         run: nox --non-interactive --session "docs"
 
+  publish-docs:
+    needs: docs
+    runs-on: ubuntu-latest
+
+    # Only publish docs from main
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Install Dependencies
+        run: |
+          python3 -m pip install --upgrade pip setuptools wheel
+          python3 -m pip install nox
+          python3 -m pip install poetry
+
+      - name: Deploy Docs to GitHub Pages
+        env:
+          # Use the built in CI GITHUB_TOKEN
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git remote add gh-token "https://${GITHUB_TOKEN}@github.com/FollowTheProcess/pytoil.git";
+          git fetch gh-token && git fetch gh-token gh-pages:gh-pages;
+          mkdocs gh-deploy -v --clean --remote-name gh-token;
+
   deploy:
     needs: [build, lint, docs]
     runs-on: ubuntu-latest
@@ -84,3 +112,13 @@ jobs:
         run: poetry build -v
       - name: Publish to PyPI with Poetry
         run: poetry publish -v --username=__token__ --password=${{ secrets.PYPI_API_TOKEN }}
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          draft: false
+          prerelease: false
