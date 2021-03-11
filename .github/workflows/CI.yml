@@ -79,6 +79,7 @@ jobs:
           python3 -m pip install --upgrade pip setuptools wheel
           python3 -m pip install nox
           python3 -m pip install poetry
+          poetry install
 
       - name: Deploy Docs to GitHub Pages
         env:
