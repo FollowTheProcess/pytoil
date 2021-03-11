@@ -1,4 +1,4 @@
-# pytoil
+![logo](./img/logo.png)
 
 [![License](https://img.shields.io/github/license/FollowTheProcess/pytoil)](https://github.com/FollowTheProcess/pytoil)
 [![PyPI](https://img.shields.io/pypi/v/pytoil.svg)](https://pypi.python.org/pypi/pytoil)
@@ -74,7 +74,8 @@ Successfully installed pytoil
 pytoil will install everything it needs *in python* to work. However, it's full feature set can only be accessed if you have the following external dependencies:
 
 * [git]
-* [conda] (if you work with conda)
+* [conda] (if you work with conda environments)
+* [VSCode] (if you want to use pytoil to automatically open your projects for you)
 
 ## Quickstart
 
@@ -90,6 +91,7 @@ $ pytoil init
 # GitHub username:$ YourGitHubUsername
 # GitHub personal access token:$ YourTokenHere
 # Absolute path to your projects directory:$ /Users/you/projects
+# Use VSCode to open projects?:$ True
 ```
 
 </div>
@@ -232,3 +234,4 @@ Commands:
 
 [git]: https://git-scm.com
 [conda]: https://docs.conda.io/en/latest/
+[VSCode]: https://code.visualstudio.com

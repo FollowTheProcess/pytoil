@@ -4,7 +4,7 @@ There's really not much to configure, all pytoil needs to know about is:
 
 * Where you keep your projects (`projects_dir`)
 * What your GitHub username is (`username`)
-* And your GitHub personal access token (`token`)
+* Your GitHub personal access token (`token`)
 * Whether you want pytoil to open things in VSCode (`vscode`)
 
 If you don't know how to generate a GitHub token, check out the [docs].
