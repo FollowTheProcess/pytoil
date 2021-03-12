@@ -15,6 +15,7 @@ from typer.testing import CliRunner
 import pytoil
 from pytoil import __version__
 from pytoil.cli.main import app
+from pytoil.exceptions import InvalidConfigError
 
 runner = CliRunner()
 
@@ -103,7 +104,7 @@ def test_init_raises_if_vscode_is_not_boolean_string(
         assert "VSCode must be a boolean value" in result.stdout
 
 
-def test_init_does_nothing_if_config_file_already_exists(
+def test_init_does_nothing_if_config_file_already_exists_and_is_valid(
     mocker: MockerFixture, temp_config_file
 ):
 
@@ -117,3 +118,26 @@ def test_init_does_nothing_if_config_file_already_exists(
         assert result.exit_code == 0
 
         assert "You're all set!" in result.stdout
+
+
+def test_init_handles_invalid_config_error_correctly(
+    mocker: MockerFixture, temp_config_file
+):
+
+    with mocker.patch.object(pytoil.config.config, "CONFIG_PATH", temp_config_file):
+
+        mocker.patch(
+            "pytoil.cli.main.Config.get",
+            autospec=True,
+            side_effect=InvalidConfigError("You Fool!"),
+        )
+
+        result = runner.invoke(app, ["init"])
+        assert result.exit_code == 1
+
+        assert "Something's wrong in the config file, please check it." in result.stdout
+        assert (
+            "If in doubt, simply delete it and run '$ pytoil init' again :)"
+            in result.stdout
+        )
+        assert "Aborted!" in result.stdout

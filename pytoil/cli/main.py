@@ -12,6 +12,7 @@ import typer
 from pytoil import __version__
 from pytoil.cli import config, project, show, sync
 from pytoil.config import CONFIG_PATH, Config
+from pytoil.exceptions import InvalidConfigError
 
 # Add all the subcommands
 app = typer.Typer(name="pytoil", no_args_is_help=True)
@@ -96,4 +97,15 @@ def init() -> None:
 
         typer.secho("Config written, you're good to go!", fg=typer.colors.GREEN)
     else:
-        typer.secho("You're all set!", fg=typer.colors.GREEN)
+        try:
+            config = Config.get()
+            config.validate()
+        except InvalidConfigError:
+            typer.secho(
+                "Something's wrong in the config file, please check it.",
+                fg=typer.colors.RED,
+            )
+            typer.echo("If in doubt, simply delete it and run '$ pytoil init' again :)")
+            raise typer.Abort()
+        else:
+            typer.secho("You're all set!", fg=typer.colors.GREEN)

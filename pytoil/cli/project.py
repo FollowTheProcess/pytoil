@@ -182,7 +182,9 @@ def create(
                 typer.echo(f"Opening {project!r} in VSCode...")
                 vscode.open()
     else:
-        typer.echo("Virtual environment not requested. Skipping environment creation.")
+        typer.echo(
+            "\nVirtual environment not requested. Skipping environment creation."
+        )
         if config.vscode:
             typer.echo(f"Opening {project!r} in VSCode...")
             vscode.open()
