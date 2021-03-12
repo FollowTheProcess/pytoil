@@ -227,23 +227,28 @@ def checkout(
         # chances are if it exists locally, this has already been done
         typer.secho(
             f"\nProject: {project!r} is available locally at" f" '{repo.path}'.\n",
-            fg=typer.colors.GREEN,
+            fg=typer.colors.BLUE,
+            bold=True,
         )
         if config.vscode:
             typer.echo(f"Opening {project!r} in VSCode...")
             vscode.open()
 
     elif repo.exists_remote():
-        typer.echo(f"Project: {project!r} found on your GitHub. Cloning...\n")
+        typer.secho(
+            f"Project: {project!r} found on your GitHub. Cloning...\n",
+            fg=typer.colors.BLUE,
+            bold=True,
+        )
         repo.clone()
         env = env_dispatcher(repo)
         if not env:
             typer.secho(
-                "Unable to auto-detect virtual environment. Skipping.",
+                "\nUnable to auto-detect virtual environment. Skipping.",
                 fg=typer.colors.YELLOW,
             )
         else:
-            typer.echo("Auto-creating correct virtual environment...")
+            typer.echo("Auto-creating correct virtual environment...\n")
             env.create()
             if config.vscode:
                 typer.echo("Setting 'python.pythonPath' in VSCode workspace...\n")
@@ -283,7 +288,7 @@ def remove(
 
     User will be prompted for confirmation unless "--force/-f" flag is used.
 
-    Example
+    Examples:
 
     $ pytoil project remove my_project
 
@@ -313,7 +318,7 @@ def remove(
         )
 
     # If user specifies force flag, just go ahead and remove
-    typer.echo(f"\nRemoving project: {project!r}.")
+    typer.secho(f"\nRemoving project: {project!r}.", fg=typer.colors.YELLOW)
     shutil.rmtree(config.projects_dir.joinpath(project))
     typer.secho("\nDone!", fg=typer.colors.GREEN)
 
@@ -332,7 +337,7 @@ def info(
     However if the project is available on GitHub
     a more comprehensive info set is shown.
 
-    Example
+    Examples:
 
     $ pytoil project info my_project
     """
