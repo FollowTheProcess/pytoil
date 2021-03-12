@@ -41,11 +41,15 @@ def show() -> None:
     """
 
     # Get config but don't raise on UNSET
-    config = Config.get()
-
-    typer.secho("\nCurrent pytoil config:", fg=typer.colors.BLUE, bold=True)
-    typer.echo("")
-    config.show()
+    try:
+        config = Config.get()
+    except FileNotFoundError:
+        typer.secho("No config file yet!", fg=typer.colors.YELLOW)
+        typer.echo("Run '$ pytoil init' to automatically generate one.")
+    else:
+        typer.secho("\nCurrent pytoil config:", fg=typer.colors.BLUE, bold=True)
+        typer.echo("")
+        config.show()
 
 
 @app.command()
@@ -83,29 +87,34 @@ def set(
 
     # Get any existing config
     # but don't validate
-    config = Config.get()
+    try:
+        config = Config.get()
+    except FileNotFoundError:
+        typer.secho("No config file yet!", fg=typer.colors.YELLOW)
+        typer.echo("Run '$ pytoil init' to automatically generate one.")
+    else:
 
-    # I'm not keen on this, it feels messy
-    if username:
-        config.username = username
-    elif token:
-        config.token = token
-    elif projects_dir:
-        config.projects_dir = projects_dir
-    elif vscode:  # pragma: no cover
-        # If we use vscode as a boolean option it doesn't quite work right
-        # also for some reason coverage doesn't recognise this as being called
-        # during tests but it is in tests/cli/test_config.py so we exclude it from cov
-        if vscode.lower() == "true":
-            config.vscode = True
-        elif vscode.lower() == "false":
-            config.vscode = False
-        else:
-            raise typer.BadParameter("vscode must be a boolean value.")
+        # I'm not keen on this, it feels messy
+        if username:
+            config.username = username
+        elif token:
+            config.token = token
+        elif projects_dir:
+            config.projects_dir = projects_dir
+        elif vscode:  # pragma: no cover
+            # If we use vscode as a boolean option it doesn't quite work right
+            # also for some reason coverage doesn't recognise this as being called
+            # during tests but it is in tests/cli/test_config.py so we exclude it
+            if vscode.lower() == "true":
+                config.vscode = True
+            elif vscode.lower() == "false":
+                config.vscode = False
+            else:
+                raise typer.BadParameter("vscode must be a boolean value.")
 
-    # Write the updated config
-    config.write()
+        # Write the updated config
+        config.write()
 
-    typer.secho("\nConfig updated successfully!", fg=typer.colors.GREEN)
-    typer.secho("\nNew Config:\n", fg=typer.colors.BLUE, bold=True)
-    config.show()
+        typer.secho("\nConfig updated successfully!", fg=typer.colors.GREEN)
+        typer.secho("\nNew Config:\n", fg=typer.colors.BLUE, bold=True)
+        config.show()

@@ -16,9 +16,9 @@ Below are a list of enhancements or fixes discovered during pre-release testing:
 ### Legit Changes Requiring Tests
 
 - [x] Setting python path in vscode settings errors if file is missing or it's empty
-- [ ] Creating from a cookiecutter with no virtual environment doesn't open code
-- [ ] Pytoil config show raises ugly error when config file doesn't exist
-- [ ] Same with config set
+- [x] Creating from a cookiecutter with no virtual environment doesn't open code
+- [x] Pytoil config show raises ugly FileNotFound error when config file doesn't exist
+- [x] Same with config set
 - [ ] Make pytoil init check more robust than just whether or not the file exists. See if it has the right keys etc. Or even just a check that it's not empty.
 - [ ] Creating a new conda project when the environment already exists raises an ugly error. Should instead just set the python path in vscode (if configured)
 - [ ] "Virtualenv not requested, skipping" message should have a new line before it

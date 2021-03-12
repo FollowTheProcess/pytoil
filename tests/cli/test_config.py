@@ -111,3 +111,39 @@ def test_config_set_vscode_correctly_converts_str_to_bool(
             new_config_dict = yaml.full_load(f)
 
         assert new_config_dict.get("vscode") == boolean
+
+
+def test_config_show_correctly_handles_file_not_found_error(
+    mocker: MockerFixture, temp_config_file
+):
+
+    with mocker.patch.object(pytoil.config.config, "CONFIG_PATH", temp_config_file):
+
+        mocker.patch(
+            "pytoil.config.config.Config.get",
+            autospec=True,
+            side_effect=[FileNotFoundError()],
+        )
+
+        result = runner.invoke(app, ["config", "show"])
+        assert result.exit_code == 0
+        assert "No config file yet!" in result.stdout
+        assert "Run '$ pytoil init' to automatically generate one." in result.stdout
+
+
+def test_config_set_correctly_handles_file_not_found_error(
+    mocker: MockerFixture, temp_config_file
+):
+
+    with mocker.patch.object(pytoil.config.config, "CONFIG_PATH", temp_config_file):
+
+        mocker.patch(
+            "pytoil.config.config.Config.get",
+            autospec=True,
+            side_effect=[FileNotFoundError()],
+        )
+
+        result = runner.invoke(app, ["config", "set", "--vscode", "False"])
+        assert result.exit_code == 0
+        assert "No config file yet!" in result.stdout
+        assert "Run '$ pytoil init' to automatically generate one." in result.stdout
