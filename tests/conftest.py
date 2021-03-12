@@ -349,8 +349,8 @@ def fake_vscode_workspace_settings(tmp_path_factory):
         "python.testing.pytestEnabled": False,
     }
 
-    with open(settings_json, "w") as f:
-        json.dump(settings_dict, f)
+    with open(settings_json, mode="w", encoding="utf-8") as f:
+        json.dump(settings_dict, f, sort_keys=True, indent=4)
 
     return settings_json
 

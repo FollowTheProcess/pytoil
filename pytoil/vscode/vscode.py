@@ -68,15 +68,32 @@ class VSCode:
                 virtual environments python interpreter.
         """
 
+        new_settings_dict: Dict[str, str] = {"python.pythonPath": str(python_path)}
+
         workspace_settings = self.root.joinpath(".vscode/settings.json")
 
-        # settings.json may not exist yet, so create it explicitly
-        workspace_settings.parent.mkdir(parents=True, exist_ok=True)
-        workspace_settings.touch(exist_ok=True)
+        if not workspace_settings.exists():
+            workspace_settings.parent.mkdir(parents=True)
+            workspace_settings.touch()
 
-        new_settings_dict: Dict[str, str] = {"python.pythonPath": f"{python_path}"}
+        if len(workspace_settings.read_text()) == 0:
+            # The file is empty, we don't have to worry about
+            # preserving it's contents
+            with open(workspace_settings, mode="w", encoding="utf-8") as f:
+                json.dump(new_settings_dict, f, sort_keys=True, indent=4)
+        else:
+            # File exists and is not empty, let's preserve whatever
+            # settings are already here
+            with open(workspace_settings, mode="r", encoding="utf-8") as f:
+                settings: Dict[str, Any] = json.load(f)
 
-        with open(workspace_settings, mode="r+", encoding="utf-8") as f:
-            workspace_settings_dict: Dict[str, Any] = json.load(f)
-            workspace_settings_dict.update(new_settings_dict)
-            json.dump(workspace_settings_dict, f)
+            # Wipe the file and recreate it so it's now empty
+            workspace_settings.unlink()
+            workspace_settings.touch()
+
+            # Update the settings with our new python path
+            settings.update(new_settings_dict)
+
+            # Write the new settings back
+            with open(workspace_settings, mode="w", encoding="utf-8") as f:
+                json.dump(settings, f, sort_keys=True, indent=4)
