@@ -108,7 +108,7 @@ def create(
 
     if repo.exists_local():
         typer.secho(
-            f"\nProject: {project!r} already exists locally at '{repo.path}'.",
+            f"\nProject: {project!r} already exists locally at '{repo.path}'.\n",
             fg=typer.colors.YELLOW,
         )
         typer.echo("To resume an existing project, use 'checkout'.")
@@ -116,7 +116,7 @@ def create(
         raise typer.Abort()
     elif repo.exists_remote():
         typer.secho(
-            f"\nProject: {project!r} already exists on GitHub.",
+            f"\nProject: {project!r} already exists on GitHub.\n",
             fg=typer.colors.YELLOW,
         )
         typer.echo("To resume an existing project, use 'checkout'.")
@@ -153,7 +153,7 @@ def create(
             conda_env.create()
 
             if config.vscode:
-                typer.echo("Setting 'python.pythonPath' in VSCode workspace.")
+                typer.echo("Setting 'python.pythonPath' in VSCode workspace.\n")
                 vscode.set_python_path(conda_env.executable)
                 typer.echo(f"Opening {project!r} in VSCode...")
                 vscode.open()
@@ -177,7 +177,7 @@ def create(
             env.update_seeds()
 
             if config.vscode:
-                typer.echo("Setting 'python.pythonPath' in VSCode workspace.")
+                typer.echo("Setting 'python.pythonPath' in VSCode workspace.\n")
                 vscode.set_python_path(env.executable)
                 typer.echo(f"Opening {project!r} in VSCode...")
                 vscode.open()
@@ -226,7 +226,7 @@ def checkout(
         # Note we don't do any environment stuff here
         # chances are if it exists locally, this has already been done
         typer.secho(
-            f"\nProject: {project!r} is available locally at" f" '{repo.path}'.",
+            f"\nProject: {project!r} is available locally at" f" '{repo.path}'.\n",
             fg=typer.colors.GREEN,
         )
         if config.vscode:
@@ -246,7 +246,7 @@ def checkout(
             typer.echo("Auto-creating correct virtual environment...")
             env.create()
             if config.vscode:
-                typer.echo("Setting 'python.pythonPath' in VSCode workspace...")
+                typer.echo("Setting 'python.pythonPath' in VSCode workspace...\n")
                 vscode.set_python_path(env.executable)
 
         if config.vscode:

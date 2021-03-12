@@ -106,6 +106,6 @@ def set(
     # Write the updated config
     config.write()
 
-    typer.secho("\nConfig updated successfully", fg=typer.colors.GREEN)
+    typer.secho("\nConfig updated successfully!", fg=typer.colors.GREEN)
     typer.secho("\nNew Config:\n", fg=typer.colors.BLUE, bold=True)
     config.show()
