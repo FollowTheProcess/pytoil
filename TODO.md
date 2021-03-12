@@ -14,6 +14,8 @@ Below are a list of enhancements or fixes discovered during pre-release testing:
 - [x] "project is available locally" should be in bold and blue not green to be consistent.
 - [x] "Virtualenv not requested, skipping" message should have a new line before it
 - [x] README still shows old cookiecutter option, change to --cookie
+- [x] pytoil init initial message "checking config" should be bold and blue to be consistent with others
+- [x] pytoil init "something's wrong in the config file" needs a new line after it
 
 ### Legit Changes Requiring Tests
 
