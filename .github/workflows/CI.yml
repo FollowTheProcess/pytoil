@@ -93,7 +93,7 @@ jobs:
   deploy:
     needs: [build, lint, docs, publish-docs]
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags/*')
 
     steps:
       - uses: actions/checkout@v2
