@@ -45,7 +45,7 @@ def all_(
     Will not operate on or modify in any way the projects that
     already exist.
 
-    Example
+    Examples:
 
     $ pytoil sync all
 
@@ -107,7 +107,7 @@ def these(
     Any projects in the list that already exist locally
     will be skipped and will not be modified in any way.
 
-    Examples
+    Examples:
 
     $ pytoil sync these project1 project2 project3
 

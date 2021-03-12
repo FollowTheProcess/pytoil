@@ -62,8 +62,12 @@ def init() -> None:
     interactively.
     """
 
+    typer.echo("Checking for config file...\n")
+
     # Make config file
     if not CONFIG_PATH.exists():
+        typer.secho("No config file found!\n", fg=typer.colors.YELLOW)
+        typer.echo("Creating fresh config file...\n")
         CONFIG_PATH.touch()
         default_config = Config()
         default_config.write()
