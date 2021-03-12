@@ -34,3 +34,4 @@ Below are a list of enhancements or fixes discovered during pre-release testing:
 - [ ] Make it so you can pass packages to create that will be installed into the virtual environment after creation (or during creation for conda)
 - [ ] Everything being under project feels clunkier than I thought it would. Would be good if we could instead do `pytoil checkout` `pytoil create` etc. rather than `pytoil project checkout`. If I remember right though, there are some issues doing this with Typer, everything to do with projects would have to live in `main.py` which might get messy.
 - [ ] Add a config check command that more closely inspects the config file and does some validation
+- [ ] Option to make a git repo on create, maybe a GitHub repo too and link them? Or is this better left to things like the gh cli.

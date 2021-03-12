@@ -1,3 +1,3 @@
-from .cli.main import app
+from pytoil.cli.main import app
 
 app(prog_name="pytoil")

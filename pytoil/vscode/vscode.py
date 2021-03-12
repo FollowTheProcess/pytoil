@@ -25,6 +25,9 @@ class VSCode:
 
         Used as a container for methods that open a target
         project or configure workspace settings.
+
+        Args:
+            root (pathlib.Path): Path of the project root.
         """
 
         self.root = root.resolve()
