@@ -15,7 +15,7 @@ from cookiecutter.main import cookiecutter
 from pytoil.cli.utils import env_dispatcher, get_local_project_set
 from pytoil.config import Config
 from pytoil.environments import CondaEnv, VirtualEnv
-from pytoil.exceptions import RepoNotFoundError
+from pytoil.exceptions import RepoNotFoundError, VirtualenvAlreadyExistsError
 from pytoil.repo import Repo
 from pytoil.vscode import VSCode
 
@@ -150,13 +150,17 @@ def create(
                 bold=True,
             )
             conda_env = CondaEnv(name=project, project_path=repo.path)
-            conda_env.create()
-
-            if config.vscode:
-                typer.echo("Setting 'python.pythonPath' in VSCode workspace.\n")
-                vscode.set_python_path(conda_env.executable)
-                typer.echo(f"Opening {project!r} in VSCode...")
-                vscode.open()
+            try:
+                conda_env.create()
+            except VirtualenvAlreadyExistsError:
+                typer.echo(f"Conda environment: {conda_env.name!r} already exists!")
+                typer.echo(f"Using {conda_env.name!r} as the environment.")
+            finally:
+                if config.vscode:
+                    typer.echo("Setting 'python.pythonPath' in VSCode workspace.\n")
+                    vscode.set_python_path(conda_env.executable)
+                    typer.echo(f"Opening {project!r} in VSCode...")
+                    vscode.open()
 
         elif venv.value == venv.virtualenv:  # pragma: no cover
             # For some reason coverage isn't picking this up as tested
@@ -254,10 +258,16 @@ def checkout(
             )
         else:
             typer.echo("Auto-creating correct virtual environment...\n")
-            env.create()
-            if config.vscode:
-                typer.echo("Setting 'python.pythonPath' in VSCode workspace...\n")
-                vscode.set_python_path(env.executable)
+            try:
+                env.create()
+            except VirtualenvAlreadyExistsError:
+                typer.echo(
+                    "Matching environment already exists. No need to create a new one!"
+                )
+            finally:
+                if config.vscode:
+                    typer.echo("Setting 'python.pythonPath' in VSCode workspace...\n")
+                    vscode.set_python_path(env.executable)
 
         if config.vscode:
             typer.echo(f"Opening {project!r} in VSCode...")

@@ -13,6 +13,7 @@ Below are a list of enhancements or fixes discovered during pre-release testing:
 - [x] "Unable to detect virtual environment, skipping" in project checkout should have new line before and after as comes after git clone output
 - [x] "project is available locally" should be in bold and blue not green to be consistent.
 - [x] "Virtualenv not requested, skipping" message should have a new line before it
+- [x] README still shows old cookiecutter option, change to --cookie
 
 ### Legit Changes Requiring Tests
 
@@ -21,7 +22,7 @@ Below are a list of enhancements or fixes discovered during pre-release testing:
 - [x] Pytoil config show raises ugly FileNotFound error when config file doesn't exist
 - [x] Same with config set
 - [x] Make pytoil init check more robust than just whether or not the file exists. See if it has the right keys etc. Or even just a check that it's not empty.
-- [ ] Creating a new conda project when the environment already exists raises an ugly error. Should instead just set the python path in vscode (if configured)
+- [x] Creating a new conda project when the environment already exists raises an ugly error. Should instead just set the python path in vscode (if configured)
 - [ ] If user hits ctrl+c during pytoil init, the config is half written and can cause bugs later. Make it instead delete the whole thing unless run to completion. Maybe a try except on `KeyboardInterrupt`? Or is this dangerous? Might never terminate etc.
 
 ## Longer Term Enhancements

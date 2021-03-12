@@ -11,6 +11,7 @@ from typer.testing import CliRunner
 
 from pytoil.cli.main import app
 from pytoil.config import Config
+from pytoil.exceptions import VirtualenvAlreadyExistsError
 
 runner = CliRunner()
 
@@ -518,4 +519,68 @@ def test_project_create_no_virtualenv_still_opens_code(
         in result.stdout
     )
     assert "Opening 'mynewproject' in VSCode..." in result.stdout
+    mock_code_open.assert_called_once()
+
+
+def test_project_create_handles_conda_env_already_existing(
+    mocker: MockerFixture, fake_projects_dir
+):
+
+    fake_config = Config(
+        username="test",
+        token="testtoken",
+        projects_dir=fake_projects_dir,
+        vscode=True,
+    )
+
+    mocker.patch(
+        "pytoil.cli.project.Config.get",
+        autospec=True,
+        return_value=fake_config,
+    )
+
+    # Whatever we try and create now, it will think it doesn't already exist
+    mocker.patch(
+        "pytoil.cli.project.Repo.exists_remote", autospec=True, return_value=False
+    )
+    mocker.patch(
+        "pytoil.cli.project.Repo.exists_local", autospec=True, return_value=False
+    )
+
+    mocker.patch(
+        "pytoil.cli.project.CondaEnv.exists",
+        autospec=True,
+        return_value=False,
+    )
+
+    mocker.patch(
+        "pytoil.cli.project.CondaEnv.get_envs_dir",
+        autospec=True,
+        return_value=fake_projects_dir.parent.joinpath("miniconda3"),
+    )
+
+    mock_conda_create = mocker.patch(
+        "pytoil.cli.project.CondaEnv.create",
+        autospec=True,
+        side_effect=VirtualenvAlreadyExistsError("Already here you fool!"),
+    )
+
+    mock_code_open = mocker.patch("pytoil.cli.project.VSCode.open", autospec=True)
+    mock_code_ppath = mocker.patch(
+        "pytoil.cli.project.VSCode.set_python_path", autospec=True
+    )
+
+    result = runner.invoke(
+        app, ["project", "create", "mynewproject", "--venv", "conda"]
+    )
+    mock_conda_create.assert_called_once()
+    assert result.exit_code == 0
+
+    assert "Conda environment: 'mynewproject' already exists!" in result.stdout
+    assert "Using 'mynewproject' as the environment." in result.stdout
+
+    assert "Setting 'python.pythonPath' in VSCode workspace." in result.stdout
+    mock_code_ppath.assert_called_once()
+
+    assert "Opening 'mynewproject' in VSCode" in result.stdout
     mock_code_open.assert_called_once()
