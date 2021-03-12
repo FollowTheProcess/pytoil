@@ -83,7 +83,7 @@ pytoil project create my_project --venv virtualenv
 #### And even do this from a [cookiecutter] template
 
 ```shell
-pytoil project create my_project --venv virtualenv --cookiecutter https://github.com/some/cookie.git
+pytoil project create my_project --venv virtualenv --cookie https://github.com/some/cookie.git
 ```
 
 Check out the [docs] for more :boom:
