@@ -63,7 +63,7 @@ def init() -> None:
     interactively.
     """
 
-    typer.echo("Checking for config file...\n")
+    typer.secho("Checking for config file...\n", fg=typer.colors.BLUE, bold=True)
 
     # Make config file
     if not CONFIG_PATH.exists():
@@ -102,7 +102,7 @@ def init() -> None:
             config.validate()
         except InvalidConfigError:
             typer.secho(
-                "Something's wrong in the config file, please check it.",
+                "Something's wrong in the config file, please check it.\n",
                 fg=typer.colors.RED,
             )
             typer.echo("If in doubt, simply delete it and run '$ pytoil init' again :)")

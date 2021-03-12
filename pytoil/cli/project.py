@@ -257,7 +257,7 @@ def checkout(
                 fg=typer.colors.YELLOW,
             )
         else:
-            typer.echo("Auto-creating correct virtual environment...\n")
+            typer.echo("\nAuto-creating correct virtual environment...\n")
             try:
                 env.create()
             except VirtualenvAlreadyExistsError:
