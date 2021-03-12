@@ -11,7 +11,8 @@ exclude =
     .nox,
     *.egg,
     *.egg-info,
-    build
+    build,
+    dist
 max-complexity = 12
 max-line-length = 88
 extend-ignore =

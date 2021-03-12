@@ -35,7 +35,7 @@ And these shell functions grew and grew and grew.
 
 Until one day I saw that the file I kept these functions in was over 1000 lines of bash (a lot of `printf`'s so it wasn't all logic but still). And 1000 lines of bash is *waaaay* too much!
 
-And because I'd basically hacked it all together, it was **very** fragile. If a part of a function failed, it would just carry on and wreak havoic! I'd have to do `rm -rf all_my_projects`... I mean careful forensic investigation to fix it.
+And because I'd basically hacked it all together, it was **very** fragile. If a part of a function failed, it would just carry on and wreak havoc! I'd have to do `rm -rf all_my_projects`... I mean careful forensic investigation to fix it.
 
 So I decided to make a robust CLI with the proper error handling and testability of python, and here it is! :tada:
 
@@ -53,7 +53,7 @@ Successfully installed pytoil
 
 </div>
 
-If you don't know what pipx is, go check it out!
+If you don't know what pipx is, go check it out! But basically it allows python CLI tools to be installed in their own sandboxed environments but you can still access the CLI as if it was installed globally!
 
 You can always fall back to pip
 

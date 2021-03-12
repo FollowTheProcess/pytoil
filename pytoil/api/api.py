@@ -49,7 +49,7 @@ class API:
         )
 
     @property
-    def token(self) -> Union[str, None]:
+    def token(self) -> Optional[str]:
         return self._token
 
     @token.setter
@@ -57,7 +57,7 @@ class API:
         self._token = value
 
     @property
-    def username(self) -> Union[str, None]:
+    def username(self) -> Optional[str]:
         return self._username
 
     @username.setter

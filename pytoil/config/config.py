@@ -56,6 +56,7 @@ class Config:
         projects_dir (pathlib.Path): Directory in which user stores
             their development projects. Defaults to ~/Development.
         vscode (bool): Whether or not the user uses vscode as their editor.
+            Defaults to False.
     """
 
     username: str = "UNSET"
@@ -99,9 +100,6 @@ class Config:
 
         If the file does not exist, a FileNotFoundError will be raised.
 
-        If a key is misspelled in the file a TypeError will be raised
-        pointing to the bad parameter.
-
         Raises:
             FileNotFoundError: If config file `~/.pytoil.yml` does not exist.
 
@@ -110,7 +108,7 @@ class Config:
         """
 
         try:
-            with open(CONFIG_PATH, encoding="utf-8") as f:
+            with open(CONFIG_PATH, mode="r", encoding="utf-8") as f:
                 config_dict = yaml.full_load(f)
         except FileNotFoundError:
             raise
