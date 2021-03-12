@@ -481,3 +481,41 @@ def test_create_with_conda_sets_pythonpath_and_opens_code(
 
     assert "Opening 'mynewproject' in VSCode..." in result.stdout
     mock_code_open.assert_called_once()
+
+
+def test_project_create_no_virtualenv_still_opens_code(
+    mocker: MockerFixture, fake_projects_dir
+):
+
+    fake_config = Config(
+        username="test",
+        token="testtoken",
+        projects_dir=fake_projects_dir,
+        vscode=True,
+    )
+
+    mocker.patch(
+        "pytoil.cli.project.Config.get",
+        autospec=True,
+        return_value=fake_config,
+    )
+
+    # Whatever we try and create now, it will think it doesn't already exist
+    mocker.patch(
+        "pytoil.cli.project.Repo.exists_remote", autospec=True, return_value=False
+    )
+    mocker.patch(
+        "pytoil.cli.project.Repo.exists_local", autospec=True, return_value=False
+    )
+
+    mock_code_open = mocker.patch("pytoil.cli.project.VSCode.open", autospec=True)
+
+    result = runner.invoke(app, ["project", "create", "mynewproject"])
+
+    assert result.exit_code == 0
+    assert (
+        "Virtual environment not requested. Skipping environment creation."
+        in result.stdout
+    )
+    assert "Opening 'mynewproject' in VSCode..." in result.stdout
+    mock_code_open.assert_called_once()
