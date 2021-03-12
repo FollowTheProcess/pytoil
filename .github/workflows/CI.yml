@@ -93,8 +93,8 @@ jobs:
   deploy:
     needs: [build, lint, docs, publish-docs]
     runs-on: ubuntu-latest
-
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python 3.9
@@ -103,8 +103,6 @@ jobs:
           python-version: 3.9
 
       - name: Install Dependencies
-        # Uses pypa build https://pypa-build.readthedocs.io/en/latest/
-        # For full PEP517/518 compliance
         run: |
           python3 -m pip install --upgrade pip setuptools wheel
           python3 -m pip install poetry
