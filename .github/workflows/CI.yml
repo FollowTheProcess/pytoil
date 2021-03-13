@@ -3,7 +3,7 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-  build:
+  tests:
     runs-on: ubuntu-latest
 
     strategy:
@@ -11,7 +11,8 @@ jobs:
         python-version: [3.8, 3.9]
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout Code
+        uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
@@ -22,14 +23,15 @@ jobs:
           python3 -m pip install nox
           python3 -m pip install poetry
 
-      - name: Run Tests
+      - name: Run Tests and Coverage
         run: nox --non-interactive --session "test-${{ matrix.python-version }}"
 
   lint:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout Code
+        uses: actions/checkout@v2
       - name: Set up Python 3.9
         uses: actions/setup-python@v2
         with:
@@ -47,7 +49,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout Code
+        uses: actions/checkout@v2
       - name: Set up Python 3.9
         uses: actions/setup-python@v2
         with:
