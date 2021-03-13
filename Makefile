@@ -1,8 +1,9 @@
-.PHONY: docs
+.PHONY: help dev test cov style check clean docs autodocs all
 .DEFAULT_GOAL := help
+.SILENT:
 
 help:
-	@echo "Use 'make' when you just want to run a quick task. You'll need to run 'make dev' to install all dev dependencies.\n"
+	@echo "\nUse 'make' when you just want to run a quick task. You'll need to run 'make dev' to install all dev dependencies.\n"
 	@echo "Ensure you have created and activated your virtual environment before using any of these commands.\n"
 	@echo "Available Commands:\n"
 	@echo " - help      :  Show this help message."
@@ -17,32 +18,42 @@ help:
 	@echo " - all       :  Runs all of the above in an appropriate order (excluding 'dev', 'clean', and 'autodocs')."
 
 dev:
+	@echo "\nRunning: poetry install\n"
 	poetry install
 
 test:
+	@echo "\nRunning: pytest\n"
 	pytest --cov=pytoil tests/
 
 cov: test
+	@echo "\nRunning: coverage\n"
 	coverage report --show-missing
 	coverage-badge -fo ./docs/img/coverage.svg
 
 style:
+	@echo "\nRunning: isort"
 	isort .
+	@echo "\nRunning: black"
 	black .
+	@echo "\nRunning: flake8"
 	flake8 .
+	@echo "\nRunning: mypy"
 	mypy .
 
 check: cov style
 
 clean:
+	@echo "\nCleaning project clutter\n"
 	# Requires fd: brew install fd
 	fd --no-ignore __pycache__ --exec rm -rf
 	rm -rf .mypy_cache/ .nox/ .pytest_cache/ site/ .coverage
 
 docs:
+	@echo "\nBuilding Docs\n"
 	mkdocs build --clean
 
 autodocs:
+	@echo "\nServing Docs\n"
 	mkdocs serve
 
 all: check docs
