@@ -10,6 +10,8 @@ import nox
 
 PROJECT_ROOT = Path(__file__).parent.resolve()
 
+DEFAULT_PYTHON: str = "3.9"
+
 PYTHON_VERSIONS: List[str] = [
     "3.8",
     "3.9",
@@ -75,7 +77,7 @@ def test(session: nox.Session) -> None:
     session.notify("coverage")
 
 
-@nox.session()
+@nox.session(python=DEFAULT_PYTHON)
 def coverage(session: nox.Session) -> None:
     """
     Test coverage analysis.
@@ -93,7 +95,7 @@ def coverage(session: nox.Session) -> None:
     session.run("coverage-badge", "-fo", f"{img_path}")
 
 
-@nox.session()
+@nox.session(python=DEFAULT_PYTHON)
 def lint(session: nox.Session) -> None:
     """
     Formats project with black and isort, then runs flake8 and mypy linting.
@@ -106,7 +108,7 @@ def lint(session: nox.Session) -> None:
     session.run("mypy", ".")
 
 
-@nox.session()
+@nox.session(python=DEFAULT_PYTHON)
 def docs(session: nox.Session) -> None:
     """
     Builds the project documentation.
