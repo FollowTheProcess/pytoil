@@ -72,6 +72,7 @@ def test(session: nox.Session) -> None:
     # Posargs allows passing of tests directly
     tests = session.posargs or ["tests/"]
     session.run("pytest", "--cov=pytoil", *tests)
+    session.notify("coverage")
 
 
 @nox.session()

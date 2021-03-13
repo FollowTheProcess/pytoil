@@ -23,28 +23,8 @@ jobs:
           python3 -m pip install nox
           python3 -m pip install poetry
 
-      - name: Run Tests
+      - name: Run Tests and Coverage
         run: nox --non-interactive --session "test-${{ matrix.python-version }}"
-
-  coverage:
-    needs: tests
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.9
-      - name: Install Dependencies
-        run: |
-          python3 -m pip install --upgrade pip setuptools wheel
-          python3 -m pip install nox
-          python3 -m pip install poetry
-
-      - name: Run Tests
-        run: nox --non-interactive --session "coverage"
 
   lint:
     runs-on: ubuntu-latest
