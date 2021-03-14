@@ -67,35 +67,43 @@ def init() -> None:
 
     # Make config file
     if not CONFIG_PATH.exists():
-        typer.secho("No config file found!\n", fg=typer.colors.YELLOW)
-        typer.echo("Creating fresh config file...\n")
-        CONFIG_PATH.touch()
-        default_config = Config()
-        default_config.write()
+        try:
+            typer.secho("No config file found!\n", fg=typer.colors.YELLOW)
+            typer.echo("Creating fresh config file...\n")
+            CONFIG_PATH.touch()
+            default_config = Config()
+            default_config.write()
 
-        username: str = typer.prompt("GitHub username")
-        token: str = typer.prompt("GitHub personal access token")
-        projects_dir: str = typer.prompt("Absolute path to your projects directory")
-        vscode: str = typer.prompt("Use VSCode to open projects with? [True|False]")
+            username: str = typer.prompt("GitHub username")
+            token: str = typer.prompt("GitHub personal access token")
+            projects_dir: str = typer.prompt("Absolute path to your projects directory")
+            vscode: str = typer.prompt("Use VSCode to open projects with? [True|False]")
 
-        projects_dir_path = pathlib.Path(projects_dir)
+            projects_dir_path = pathlib.Path(projects_dir)
 
-        if vscode.lower() == "true":
-            vscode_bool = True
-        elif vscode.lower() == "false":
-            vscode_bool = False
-        else:
-            raise typer.BadParameter("VSCode must be a boolean value")
+            if vscode.lower() == "true":
+                vscode_bool = True
+            elif vscode.lower() == "false":
+                vscode_bool = False
+            else:
+                raise typer.BadParameter("VSCode must be a boolean value")
 
-        user_config = Config(
-            username=username,
-            token=token,
-            projects_dir=projects_dir_path,
-            vscode=vscode_bool,
-        )
-        user_config.write()
+            user_config = Config(
+                username=username,
+                token=token,
+                projects_dir=projects_dir_path,
+                vscode=vscode_bool,
+            )
+            user_config.write()
 
-        typer.secho("Config written, you're good to go!", fg=typer.colors.GREEN)
+            typer.secho("Config written, you're good to go!", fg=typer.colors.GREEN)
+        except KeyboardInterrupt:
+            # TODO: How to test this?
+            # User pressed ctrl+c
+            # Delete any created config file and gracefully exit
+            typer.secho("Exiting config process...", fg=typer.colors.YELLOW)
+            CONFIG_PATH.unlink(missing_ok=True)
+            raise typer.Abort()
     else:
         try:
             config = Config.get()
