@@ -145,7 +145,7 @@ def create(
     if venv:
         if venv.value == venv.conda:
             typer.secho(
-                f"\nCreating conda environment for {project!r}.\n",
+                f"Creating conda environment for {project!r}.\n",
                 fg=typer.colors.BLUE,
                 bold=True,
             )
@@ -157,7 +157,7 @@ def create(
                 typer.echo(f"Using {conda_env.name!r} as the environment.")
             finally:
                 if config.vscode:
-                    typer.echo("Setting 'python.pythonPath' in VSCode workspace.\n")
+                    typer.echo("\nSetting 'python.pythonPath' in VSCode workspace.\n")
                     vscode.set_python_path(conda_env.executable)
                     typer.echo(f"Opening {project!r} in VSCode...")
                     vscode.open()
@@ -167,7 +167,7 @@ def create(
             # but it is: tests/cli/test_project_create.py
             # in several tests
             typer.secho(
-                f"\nCreating virtualenv for {project!r}.\n",
+                f"Creating virtualenv for {project!r}.\n",
                 fg=typer.colors.BLUE,
                 bold=True,
             )
@@ -181,14 +181,12 @@ def create(
             env.update_seeds()
 
             if config.vscode:
-                typer.echo("Setting 'python.pythonPath' in VSCode workspace.\n")
+                typer.echo("\nSetting 'python.pythonPath' in VSCode workspace.\n")
                 vscode.set_python_path(env.executable)
                 typer.echo(f"Opening {project!r} in VSCode...")
                 vscode.open()
     else:
-        typer.echo(
-            "\nVirtual environment not requested. Skipping environment creation."
-        )
+        typer.echo("Virtual environment not requested. Skipping environment creation.")
         if config.vscode:
             typer.echo(f"Opening {project!r} in VSCode...")
             vscode.open()
