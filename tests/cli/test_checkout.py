@@ -1,5 +1,5 @@
 """
-Tests for the project checkout CLI command.
+Tests for the checkout CLI command.
 
 Author: Tom Fleet
 Created: 11/03/2021
@@ -28,29 +28,24 @@ def test_checkout_aborts_if_no_matches_found(mocker: MockerFixture, fake_project
     )
 
     mocker.patch(
-        "pytoil.cli.project.Config.get",
+        "pytoil.cli.main.Config.get",
         autospec=True,
         return_value=fake_config,
     )
 
     # Make it think it doesn't exist locally or remotely
+    mocker.patch("pytoil.cli.main.Repo.exists_local", autospec=True, return_value=False)
     mocker.patch(
-        "pytoil.cli.project.Repo.exists_local", autospec=True, return_value=False
-    )
-    mocker.patch(
-        "pytoil.cli.project.Repo.exists_remote", autospec=True, return_value=False
+        "pytoil.cli.main.Repo.exists_remote", autospec=True, return_value=False
     )
 
     # Try to checkout a project
 
-    result = runner.invoke(app, ["project", "checkout", "not_here"])
+    result = runner.invoke(app, ["checkout", "not_here"])
     assert result.exit_code == 1
     assert "Project: 'not_here' not found locally or on your GitHub" in result.stdout
     assert "Does the project exist?" in result.stdout
-    assert (
-        "If not, create a new project: '$ pytoil project create not_here'."
-        in result.stdout
-    )
+    assert "If not, create a new project: '$ pytoil create not_here'." in result.stdout
 
 
 def test_checkout_correctly_identifies_local_project(
@@ -65,19 +60,17 @@ def test_checkout_correctly_identifies_local_project(
     )
 
     mocker.patch(
-        "pytoil.cli.project.Config.get",
+        "pytoil.cli.main.Config.get",
         autospec=True,
         return_value=fake_config,
     )
 
     # Whatever we try and checkout will proceed as if it's local
-    mocker.patch(
-        "pytoil.cli.project.Repo.exists_local", autospec=True, return_value=True
-    )
+    mocker.patch("pytoil.cli.main.Repo.exists_local", autospec=True, return_value=True)
 
     local_project_path: pathlib.Path = fake_projects_dir.joinpath("local1")
 
-    result = runner.invoke(app, ["project", "checkout", "local1"])
+    result = runner.invoke(app, ["checkout", "local1"])
     assert result.exit_code == 0
     assert (
         f"Project: 'local1' is available locally at '{local_project_path}'."
@@ -97,29 +90,25 @@ def test_checkout_correctly_identifies_remote_project(
     )
 
     mocker.patch(
-        "pytoil.cli.project.Config.get",
+        "pytoil.cli.main.Config.get",
         autospec=True,
         return_value=fake_config,
     )
 
     # Whatever we try and checkout will proceeed as if its remote only
-    mocker.patch(
-        "pytoil.cli.project.Repo.exists_local", autospec=True, return_value=False
-    )
+    mocker.patch("pytoil.cli.main.Repo.exists_local", autospec=True, return_value=False)
 
-    mocker.patch(
-        "pytoil.cli.project.Repo.exists_remote", autospec=True, return_value=True
-    )
+    mocker.patch("pytoil.cli.main.Repo.exists_remote", autospec=True, return_value=True)
 
     # So we don't actually try and clone anything
-    mock_clone = mocker.patch("pytoil.cli.project.Repo.clone", autospec=True)
+    mock_clone = mocker.patch("pytoil.cli.main.Repo.clone", autospec=True)
 
     # So we don't try and create a virtual environment
     mock_env_dispatcher = mocker.patch(
-        "pytoil.cli.project.env_dispatcher", autospec=True, return_value=None
+        "pytoil.cli.main.env_dispatcher", autospec=True, return_value=None
     )
 
-    result = runner.invoke(app, ["project", "checkout", "remote1"])
+    result = runner.invoke(app, ["checkout", "remote1"])
     assert result.exit_code == 0
     assert "Project: 'remote1' found on your GitHub. Cloning..." in result.stdout
     mock_clone.assert_called_once()
@@ -139,21 +128,19 @@ def test_checkout_local_correctly_opens_vscode_if_configured(
     )
 
     mocker.patch(
-        "pytoil.cli.project.Config.get",
+        "pytoil.cli.main.Config.get",
         autospec=True,
         return_value=fake_config,
     )
 
-    mocker.patch(
-        "pytoil.cli.project.Repo.exists_local", autospec=True, return_value=True
-    )
+    mocker.patch("pytoil.cli.main.Repo.exists_local", autospec=True, return_value=True)
 
     # So we don't actually open code
-    mock_code_open = mocker.patch("pytoil.cli.project.VSCode.open", autospec=True)
+    mock_code_open = mocker.patch("pytoil.cli.main.VSCode.open", autospec=True)
 
     local_project_path: pathlib.Path = fake_projects_dir.joinpath("local1")
 
-    result = runner.invoke(app, ["project", "checkout", "local1"])
+    result = runner.invoke(app, ["checkout", "local1"])
     assert result.exit_code == 0
 
     assert (
@@ -177,32 +164,28 @@ def test_checkout_remote_correctly_opens_vscode_if_configured(
     )
 
     mocker.patch(
-        "pytoil.cli.project.Config.get",
+        "pytoil.cli.main.Config.get",
         autospec=True,
         return_value=fake_config,
     )
 
-    mocker.patch(
-        "pytoil.cli.project.Repo.exists_local", autospec=True, return_value=False
-    )
+    mocker.patch("pytoil.cli.main.Repo.exists_local", autospec=True, return_value=False)
 
-    mocker.patch(
-        "pytoil.cli.project.Repo.exists_remote", autospec=True, return_value=True
-    )
+    mocker.patch("pytoil.cli.main.Repo.exists_remote", autospec=True, return_value=True)
 
     # So we don't actually try and clone anything
-    mock_clone = mocker.patch("pytoil.cli.project.Repo.clone", autospec=True)
+    mock_clone = mocker.patch("pytoil.cli.main.Repo.clone", autospec=True)
 
     # So we don't try and create a virtual environment
     # not what we're testing here
     mock_env_dispatcher = mocker.patch(
-        "pytoil.cli.project.env_dispatcher", autospec=True, return_value=None
+        "pytoil.cli.main.env_dispatcher", autospec=True, return_value=None
     )
 
     # So we don't actually open code
-    mock_code_open = mocker.patch("pytoil.cli.project.VSCode.open", autospec=True)
+    mock_code_open = mocker.patch("pytoil.cli.main.VSCode.open", autospec=True)
 
-    result = runner.invoke(app, ["project", "checkout", "remote1"])
+    result = runner.invoke(app, ["checkout", "remote1"])
     assert result.exit_code == 0
 
     assert "Project: 'remote1' found on your GitHub. Cloning..." in result.stdout
@@ -226,21 +209,17 @@ def test_checkout_remote_correctly_sets_up_virtual_environment(
     )
 
     mocker.patch(
-        "pytoil.cli.project.Config.get",
+        "pytoil.cli.main.Config.get",
         autospec=True,
         return_value=fake_config,
     )
 
-    mocker.patch(
-        "pytoil.cli.project.Repo.exists_local", autospec=True, return_value=False
-    )
+    mocker.patch("pytoil.cli.main.Repo.exists_local", autospec=True, return_value=False)
 
-    mocker.patch(
-        "pytoil.cli.project.Repo.exists_remote", autospec=True, return_value=True
-    )
+    mocker.patch("pytoil.cli.main.Repo.exists_remote", autospec=True, return_value=True)
 
     # So we don't actually try and clone anything
-    mock_clone = mocker.patch("pytoil.cli.project.Repo.clone", autospec=True)
+    mock_clone = mocker.patch("pytoil.cli.main.Repo.clone", autospec=True)
 
     fake_project = fake_projects_dir.joinpath("virtualenv_project")
 
@@ -248,19 +227,17 @@ def test_checkout_remote_correctly_sets_up_virtual_environment(
 
     # Force a VirtualEnv
     mock_env_dispatcher = mocker.patch(
-        "pytoil.cli.project.env_dispatcher", autospec=True, return_value=fake_venv
+        "pytoil.cli.main.env_dispatcher", autospec=True, return_value=fake_venv
     )
 
-    mock_venv_create = mocker.patch(
-        "pytoil.cli.project.VirtualEnv.create", autospec=True
-    )
+    mock_venv_create = mocker.patch("pytoil.cli.main.VirtualEnv.create", autospec=True)
 
-    mock_code_open = mocker.patch("pytoil.cli.project.VSCode.open", autospec=True)
+    mock_code_open = mocker.patch("pytoil.cli.main.VSCode.open", autospec=True)
     mock_code_ppath = mocker.patch(
-        "pytoil.cli.project.VSCode.set_python_path", autospec=True
+        "pytoil.cli.main.VSCode.set_python_path", autospec=True
     )
 
-    result = runner.invoke(app, ["project", "checkout", "virtualenv_project"])
+    result = runner.invoke(app, ["checkout", "virtualenv_project"])
     assert result.exit_code == 0
 
     assert (
@@ -287,21 +264,17 @@ def test_checkout_remote_correctly_sets_up_conda_environment(
     )
 
     mocker.patch(
-        "pytoil.cli.project.Config.get",
+        "pytoil.cli.main.Config.get",
         autospec=True,
         return_value=fake_config,
     )
 
-    mocker.patch(
-        "pytoil.cli.project.Repo.exists_local", autospec=True, return_value=False
-    )
+    mocker.patch("pytoil.cli.main.Repo.exists_local", autospec=True, return_value=False)
 
-    mocker.patch(
-        "pytoil.cli.project.Repo.exists_remote", autospec=True, return_value=True
-    )
+    mocker.patch("pytoil.cli.main.Repo.exists_remote", autospec=True, return_value=True)
 
     # So we don't actually try and clone anything
-    mock_clone = mocker.patch("pytoil.cli.project.Repo.clone", autospec=True)
+    mock_clone = mocker.patch("pytoil.cli.main.Repo.clone", autospec=True)
 
     fake_project = fake_projects_dir.joinpath("conda_project")
 
@@ -309,16 +282,14 @@ def test_checkout_remote_correctly_sets_up_conda_environment(
 
     # Force a VirtualEnv
     mock_env_dispatcher = mocker.patch(
-        "pytoil.cli.project.env_dispatcher", autospec=True, return_value=fake_venv
+        "pytoil.cli.main.env_dispatcher", autospec=True, return_value=fake_venv
     )
 
-    mock_conda_create = mocker.patch(
-        "pytoil.cli.project.CondaEnv.create", autospec=True
-    )
+    mock_conda_create = mocker.patch("pytoil.cli.main.CondaEnv.create", autospec=True)
 
-    mock_code_open = mocker.patch("pytoil.cli.project.VSCode.open", autospec=True)
+    mock_code_open = mocker.patch("pytoil.cli.main.VSCode.open", autospec=True)
 
-    result = runner.invoke(app, ["project", "checkout", "conda_project"])
+    result = runner.invoke(app, ["checkout", "conda_project"])
     assert result.exit_code == 0
 
     assert "Project: 'conda_project' found on your GitHub. Cloning..." in result.stdout
@@ -341,21 +312,17 @@ def test_checkout_remote_correctly_sets_up_virtual_environment_with_code(
     )
 
     mocker.patch(
-        "pytoil.cli.project.Config.get",
+        "pytoil.cli.main.Config.get",
         autospec=True,
         return_value=fake_config,
     )
 
-    mocker.patch(
-        "pytoil.cli.project.Repo.exists_local", autospec=True, return_value=False
-    )
+    mocker.patch("pytoil.cli.main.Repo.exists_local", autospec=True, return_value=False)
 
-    mocker.patch(
-        "pytoil.cli.project.Repo.exists_remote", autospec=True, return_value=True
-    )
+    mocker.patch("pytoil.cli.main.Repo.exists_remote", autospec=True, return_value=True)
 
     # So we don't actually try and clone anything
-    mock_clone = mocker.patch("pytoil.cli.project.Repo.clone", autospec=True)
+    mock_clone = mocker.patch("pytoil.cli.main.Repo.clone", autospec=True)
 
     fake_project = fake_projects_dir.joinpath("virtualenv_project")
 
@@ -363,19 +330,17 @@ def test_checkout_remote_correctly_sets_up_virtual_environment_with_code(
 
     # Force a VirtualEnv
     mock_env_dispatcher = mocker.patch(
-        "pytoil.cli.project.env_dispatcher", autospec=True, return_value=fake_venv
+        "pytoil.cli.main.env_dispatcher", autospec=True, return_value=fake_venv
     )
 
-    mock_venv_create = mocker.patch(
-        "pytoil.cli.project.VirtualEnv.create", autospec=True
-    )
+    mock_venv_create = mocker.patch("pytoil.cli.main.VirtualEnv.create", autospec=True)
 
-    mock_code_open = mocker.patch("pytoil.cli.project.VSCode.open", autospec=True)
+    mock_code_open = mocker.patch("pytoil.cli.main.VSCode.open", autospec=True)
     mock_code_ppath = mocker.patch(
-        "pytoil.cli.project.VSCode.set_python_path", autospec=True
+        "pytoil.cli.main.VSCode.set_python_path", autospec=True
     )
 
-    result = runner.invoke(app, ["project", "checkout", "virtualenv_project"])
+    result = runner.invoke(app, ["checkout", "virtualenv_project"])
     assert result.exit_code == 0
 
     assert (
@@ -404,21 +369,17 @@ def test_checkout_remote_correctly_sets_up_conda_environment_with_code(
     )
 
     mocker.patch(
-        "pytoil.cli.project.Config.get",
+        "pytoil.cli.main.Config.get",
         autospec=True,
         return_value=fake_config,
     )
 
-    mocker.patch(
-        "pytoil.cli.project.Repo.exists_local", autospec=True, return_value=False
-    )
+    mocker.patch("pytoil.cli.main.Repo.exists_local", autospec=True, return_value=False)
 
-    mocker.patch(
-        "pytoil.cli.project.Repo.exists_remote", autospec=True, return_value=True
-    )
+    mocker.patch("pytoil.cli.main.Repo.exists_remote", autospec=True, return_value=True)
 
     # So we don't actually try and clone anything
-    mock_clone = mocker.patch("pytoil.cli.project.Repo.clone", autospec=True)
+    mock_clone = mocker.patch("pytoil.cli.main.Repo.clone", autospec=True)
 
     fake_project = fake_projects_dir.joinpath("conda_project")
 
@@ -426,23 +387,23 @@ def test_checkout_remote_correctly_sets_up_conda_environment_with_code(
 
     # Force a CondaEnv
     mock_env_dispatcher = mocker.patch(
-        "pytoil.cli.project.env_dispatcher", autospec=True, return_value=fake_venv
+        "pytoil.cli.main.env_dispatcher", autospec=True, return_value=fake_venv
     )
 
     mocker.patch(
-        "pytoil.cli.project.CondaEnv.get_envs_dir",
+        "pytoil.cli.main.CondaEnv.get_envs_dir",
         autospec=True,
         return_value=fake_project.parent.joinpath("miniconda3"),
     )
 
-    mock_venv_create = mocker.patch("pytoil.cli.project.CondaEnv.create", autospec=True)
+    mock_venv_create = mocker.patch("pytoil.cli.main.CondaEnv.create", autospec=True)
 
-    mock_code_open = mocker.patch("pytoil.cli.project.VSCode.open", autospec=True)
+    mock_code_open = mocker.patch("pytoil.cli.main.VSCode.open", autospec=True)
     mock_code_ppath = mocker.patch(
-        "pytoil.cli.project.VSCode.set_python_path", autospec=True
+        "pytoil.cli.main.VSCode.set_python_path", autospec=True
     )
 
-    result = runner.invoke(app, ["project", "checkout", "conda_project"])
+    result = runner.invoke(app, ["checkout", "conda_project"])
     assert result.exit_code == 0
 
     assert "Project: 'conda_project' found on your GitHub. Cloning..." in result.stdout
@@ -468,52 +429,48 @@ def test_project_checkout_handles_conda_env_already_existing(
     )
 
     mocker.patch(
-        "pytoil.cli.project.Config.get",
+        "pytoil.cli.main.Config.get",
         autospec=True,
         return_value=fake_config,
     )
 
-    mocker.patch(
-        "pytoil.cli.project.Repo.exists_local", autospec=True, return_value=False
-    )
+    mocker.patch("pytoil.cli.main.Repo.exists_local", autospec=True, return_value=False)
+
+    mocker.patch("pytoil.cli.main.Repo.exists_remote", autospec=True, return_value=True)
 
     mocker.patch(
-        "pytoil.cli.project.Repo.exists_remote", autospec=True, return_value=True
-    )
-
-    mocker.patch(
-        "pytoil.cli.project.CondaEnv.exists",
+        "pytoil.cli.main.CondaEnv.exists",
         autospec=True,
         return_value=True,
     )
 
     mocker.patch(
-        "pytoil.cli.project.CondaEnv.get_envs_dir",
+        "pytoil.cli.main.CondaEnv.get_envs_dir",
         autospec=True,
         return_value=fake_projects_dir.parent.joinpath("miniconda3"),
     )
 
-    mock_clone = mocker.patch("pytoil.cli.project.Repo.clone", autospec=True)
+    mock_clone = mocker.patch("pytoil.cli.main.Repo.clone", autospec=True)
 
     mock_conda_create = mocker.patch(
-        "pytoil.cli.project.CondaEnv.create",
+        "pytoil.cli.main.CondaEnv.create",
         autospec=True,
         side_effect=VirtualenvAlreadyExistsError("Already here you fool!"),
     )
 
-    mock_code_open = mocker.patch("pytoil.cli.project.VSCode.open", autospec=True)
+    mock_code_open = mocker.patch("pytoil.cli.main.VSCode.open", autospec=True)
     mock_code_ppath = mocker.patch(
-        "pytoil.cli.project.VSCode.set_python_path", autospec=True
+        "pytoil.cli.main.VSCode.set_python_path", autospec=True
     )
     mock_env_dispatcher = mocker.patch(
-        "pytoil.cli.project.env_dispatcher",
+        "pytoil.cli.main.env_dispatcher",
         autospec=True,
         return_value=CondaEnv(
             name="mynewproject", project_path=fake_projects_dir.joinpath("mynewproject")
         ),
     )
 
-    result = runner.invoke(app, ["project", "checkout", "mynewproject"])
+    result = runner.invoke(app, ["checkout", "mynewproject"])
     mock_clone.assert_called_once()
     mock_env_dispatcher.assert_called_once()
     mock_conda_create.assert_called_once()

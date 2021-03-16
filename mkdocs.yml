@@ -9,7 +9,7 @@ nav:
   - Config: config.md
   - Commands:
       - Show: commands/show.md
-      - Project: commands/project.md
+      - Project Management: commands/project.md
       - Sync: commands/sync.md
   - Contributing: contributing.md
   - Changelog: changelog.md

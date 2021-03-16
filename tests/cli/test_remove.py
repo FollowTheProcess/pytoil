@@ -1,5 +1,5 @@
 """
-Tests for the project remove CLI command.
+Tests for the remove CLI command.
 
 Author: Tom Fleet
 Created: 11/03/2021
@@ -27,13 +27,13 @@ def test_remove_aborts_if_project_doesnt_exist(
     )
 
     mocker.patch(
-        "pytoil.cli.project.Config.get",
+        "pytoil.cli.main.Config.get",
         autospec=True,
         return_value=fake_config,
     )
 
     # Try to remove a project thats not in our fake directory
-    result = runner.invoke(app, ["project", "remove", "i_was_never_here"])
+    result = runner.invoke(app, ["remove", "i_was_never_here"])
     assert result.exit_code == 1
     assert "Project: 'i_was_never_here' not found in local filesystem" in result.stdout
     assert "Aborted!" in result.stdout
@@ -51,7 +51,7 @@ def test_remove_respects_no_input_on_confirmation(
     )
 
     mocker.patch(
-        "pytoil.cli.project.Config.get",
+        "pytoil.cli.main.Config.get",
         autospec=True,
         return_value=fake_config,
     )
@@ -61,7 +61,7 @@ def test_remove_respects_no_input_on_confirmation(
 
     # Now we try and remove one that does exist, but without --force
     # simulate user input 'n'
-    result = runner.invoke(app, ["project", "remove", "myproject"], input="n\n")
+    result = runner.invoke(app, ["remove", "myproject"], input="n\n")
     assert "This will remove 'myproject' from your local filesystem" in result.stdout
     assert "Are you sure?" in result.stdout
     assert result.exit_code == 1
@@ -83,7 +83,7 @@ def test_remove_respects_yes_input_on_confirmation(
     )
 
     mocker.patch(
-        "pytoil.cli.project.Config.get",
+        "pytoil.cli.main.Config.get",
         autospec=True,
         return_value=fake_config,
     )
@@ -93,7 +93,7 @@ def test_remove_respects_yes_input_on_confirmation(
 
     # Now we try and remove one that does exist, but without --force
     # simulate user input 'y'
-    result = runner.invoke(app, ["project", "remove", "myproject"], input="y\n")
+    result = runner.invoke(app, ["remove", "myproject"], input="y\n")
     assert "This will remove 'myproject' from your local filesystem" in result.stdout
     assert "Are you sure?" in result.stdout
     assert "Removing project: 'myproject'." in result.stdout
@@ -117,7 +117,7 @@ def test_remove_respects_force_flag(
     )
 
     mocker.patch(
-        "pytoil.cli.project.Config.get",
+        "pytoil.cli.main.Config.get",
         autospec=True,
         return_value=fake_config,
     )
@@ -126,7 +126,7 @@ def test_remove_respects_force_flag(
     assert fake_projects_dir.joinpath("myproject").exists()
 
     # Here we remove it but force deletion, shouldn't prompt to confirm
-    result = runner.invoke(app, ["project", "remove", "myproject", force_flag])
+    result = runner.invoke(app, ["remove", "myproject", force_flag])
     assert (
         "This will remove 'myproject' from your local filesystem" not in result.stdout
     )

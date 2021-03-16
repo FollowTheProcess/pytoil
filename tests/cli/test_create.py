@@ -1,5 +1,5 @@
 """
-Tests for the project create CLI command.
+Tests for the create CLI command.
 
 Author: Tom Fleet
 Created: 09/03/2021
@@ -28,14 +28,14 @@ def test_create_suggests_checkout_if_already_exists_local(
     )
 
     mocker.patch(
-        "pytoil.cli.project.Config.get",
+        "pytoil.cli.main.Config.get",
         autospec=True,
         return_value=fake_config,
     )
 
     # Try to create one that is already in fake_projects_dir
     myproject_path = fake_projects_dir.joinpath("myproject")
-    result = runner.invoke(app, ["project", "create", "myproject"])
+    result = runner.invoke(app, ["create", "myproject"])
     assert result.exit_code == 1
 
     assert (
@@ -44,7 +44,7 @@ def test_create_suggests_checkout_if_already_exists_local(
     )
 
     assert "To resume an existing project, use 'checkout'." in result.stdout
-    assert "Example: '$ pytoil project checkout myproject'." in result.stdout
+    assert "Example: '$ pytoil checkout myproject'." in result.stdout
     assert "Aborted!" in result.stdout
 
 
@@ -60,24 +60,22 @@ def test_create_suggests_checkout_if_already_exists_remote(
     )
 
     mocker.patch(
-        "pytoil.cli.project.Config.get",
+        "pytoil.cli.main.Config.get",
         autospec=True,
         return_value=fake_config,
     )
 
     # Whatever we try and create now, it will think it exists on GitHub
-    mocker.patch(
-        "pytoil.cli.project.Repo.exists_remote", autospec=True, return_value=True
-    )
+    mocker.patch("pytoil.cli.main.Repo.exists_remote", autospec=True, return_value=True)
 
     # Try to create one that is already in fake_projects_dir
-    result = runner.invoke(app, ["project", "create", "remote1"])
+    result = runner.invoke(app, ["create", "remote1"])
     assert result.exit_code == 1
 
     assert "Project: 'remote1' already exists on GitHub." in result.stdout
 
     assert "To resume an existing project, use 'checkout'." in result.stdout
-    assert "Example: '$ pytoil project checkout remote1'." in result.stdout
+    assert "Example: '$ pytoil checkout remote1'." in result.stdout
     assert "Aborted!" in result.stdout
 
 
@@ -94,26 +92,23 @@ def test_create_with_cookiecutter_correctly_invokes_cookiecutter(
     )
 
     mocker.patch(
-        "pytoil.cli.project.Config.get",
+        "pytoil.cli.main.Config.get",
         autospec=True,
         return_value=fake_config,
     )
 
     # Whatever we try and create now, it will think it doesn't already exist
     mocker.patch(
-        "pytoil.cli.project.Repo.exists_remote", autospec=True, return_value=False
+        "pytoil.cli.main.Repo.exists_remote", autospec=True, return_value=False
     )
-    mocker.patch(
-        "pytoil.cli.project.Repo.exists_local", autospec=True, return_value=False
-    )
+    mocker.patch("pytoil.cli.main.Repo.exists_local", autospec=True, return_value=False)
 
     # Make sure it doesn't actually do anything
-    mock_cookie = mocker.patch("pytoil.cli.project.cookiecutter", autospec=True)
+    mock_cookie = mocker.patch("pytoil.cli.main.cookiecutter", autospec=True)
 
     result = runner.invoke(
         app,
         [
-            "project",
             "create",
             "myproject",
             cookie_option,
@@ -160,47 +155,42 @@ def test_create_with_venv_correctly_creates_an_environment(
     )
 
     mocker.patch(
-        "pytoil.cli.project.Config.get",
+        "pytoil.cli.main.Config.get",
         autospec=True,
         return_value=fake_config,
     )
 
     # Whatever we try and create now, it will think it doesn't already exist
     mocker.patch(
-        "pytoil.cli.project.Repo.exists_remote", autospec=True, return_value=False
+        "pytoil.cli.main.Repo.exists_remote", autospec=True, return_value=False
     )
-    mocker.patch(
-        "pytoil.cli.project.Repo.exists_local", autospec=True, return_value=False
-    )
+    mocker.patch("pytoil.cli.main.Repo.exists_local", autospec=True, return_value=False)
 
     # Make it think we have a valid conda
     # And a valid virtualenv
     mocker.patch(
-        "pytoil.cli.project.CondaEnv.exists",
+        "pytoil.cli.main.CondaEnv.exists",
         autospec=True,
         return_value=False,
     )
 
     mocker.patch(
-        "pytoil.cli.project.VirtualEnv.exists",
+        "pytoil.cli.main.VirtualEnv.exists",
         autospec=True,
         return_value=False,
     )
 
     # Make sure it doesn't actually do anything
     mock_virtualenv_create = mocker.patch(
-        "pytoil.cli.project.VirtualEnv.create", autospec=True
+        "pytoil.cli.main.VirtualEnv.create", autospec=True
     )
-    mocker.patch("pytoil.cli.project.VirtualEnv.update_seeds", autospec=True)
+    mocker.patch("pytoil.cli.main.VirtualEnv.update_seeds", autospec=True)
 
-    mock_conda_create = mocker.patch(
-        "pytoil.cli.project.CondaEnv.create", autospec=True
-    )
+    mock_conda_create = mocker.patch("pytoil.cli.main.CondaEnv.create", autospec=True)
 
     result = runner.invoke(
         app,
         [
-            "project",
             "create",
             "mynewproject",
             venv_option,
@@ -233,20 +223,18 @@ def test_create_with_no_venv_doesnt_make_a_virtual_environment(
     )
 
     mocker.patch(
-        "pytoil.cli.project.Config.get",
+        "pytoil.cli.main.Config.get",
         autospec=True,
         return_value=fake_config,
     )
 
     # Whatever we try and create now, it will think it doesn't already exist
     mocker.patch(
-        "pytoil.cli.project.Repo.exists_remote", autospec=True, return_value=False
+        "pytoil.cli.main.Repo.exists_remote", autospec=True, return_value=False
     )
-    mocker.patch(
-        "pytoil.cli.project.Repo.exists_local", autospec=True, return_value=False
-    )
+    mocker.patch("pytoil.cli.main.Repo.exists_local", autospec=True, return_value=False)
 
-    result = runner.invoke(app, ["project", "create", "mynewproject"])
+    result = runner.invoke(app, ["create", "mynewproject"])
     assert result.exit_code == 0
 
     assert (
@@ -268,39 +256,35 @@ def test_create_with_virtualenv_sets_pythonpath_and_opens_code(
     )
 
     mocker.patch(
-        "pytoil.cli.project.Config.get",
+        "pytoil.cli.main.Config.get",
         autospec=True,
         return_value=fake_config,
     )
 
     # Whatever we try and create now, it will think it doesn't already exist
     mocker.patch(
-        "pytoil.cli.project.Repo.exists_remote", autospec=True, return_value=False
+        "pytoil.cli.main.Repo.exists_remote", autospec=True, return_value=False
     )
-    mocker.patch(
-        "pytoil.cli.project.Repo.exists_local", autospec=True, return_value=False
-    )
+    mocker.patch("pytoil.cli.main.Repo.exists_local", autospec=True, return_value=False)
 
     mocker.patch(
-        "pytoil.cli.project.VirtualEnv.exists",
+        "pytoil.cli.main.VirtualEnv.exists",
         autospec=True,
         return_value=False,
     )
 
     # Make sure it doesn't actually do anything
     mock_virtualenv_create = mocker.patch(
-        "pytoil.cli.project.VirtualEnv.create", autospec=True
+        "pytoil.cli.main.VirtualEnv.create", autospec=True
     )
-    mocker.patch("pytoil.cli.project.VirtualEnv.update_seeds", autospec=True)
+    mocker.patch("pytoil.cli.main.VirtualEnv.update_seeds", autospec=True)
 
-    mock_code_open = mocker.patch("pytoil.cli.project.VSCode.open", autospec=True)
+    mock_code_open = mocker.patch("pytoil.cli.main.VSCode.open", autospec=True)
     mock_code_ppath = mocker.patch(
-        "pytoil.cli.project.VSCode.set_python_path", autospec=True
+        "pytoil.cli.main.VSCode.set_python_path", autospec=True
     )
 
-    result = runner.invoke(
-        app, ["project", "create", "mynewproject", venv_option, "virtualenv"]
-    )
+    result = runner.invoke(app, ["create", "mynewproject", venv_option, "virtualenv"])
 
     assert result.exit_code == 0
 
@@ -328,36 +312,32 @@ def test_create_with_virtualenv_no_code(
     )
 
     mocker.patch(
-        "pytoil.cli.project.Config.get",
+        "pytoil.cli.main.Config.get",
         autospec=True,
         return_value=fake_config,
     )
 
     # Whatever we try and create now, it will think it doesn't already exist
     mocker.patch(
-        "pytoil.cli.project.Repo.exists_remote", autospec=True, return_value=False
+        "pytoil.cli.main.Repo.exists_remote", autospec=True, return_value=False
     )
-    mocker.patch(
-        "pytoil.cli.project.Repo.exists_local", autospec=True, return_value=False
-    )
+    mocker.patch("pytoil.cli.main.Repo.exists_local", autospec=True, return_value=False)
 
     mocker.patch(
-        "pytoil.cli.project.VirtualEnv.exists",
+        "pytoil.cli.main.VirtualEnv.exists",
         autospec=True,
         return_value=False,
     )
 
     # Make sure it doesn't actually do anything
     mock_virtualenv_create = mocker.patch(
-        "pytoil.cli.project.VirtualEnv.create", autospec=True
+        "pytoil.cli.main.VirtualEnv.create", autospec=True
     )
     mock_virtualenv_seeds = mocker.patch(
-        "pytoil.cli.project.VirtualEnv.update_seeds", autospec=True
+        "pytoil.cli.main.VirtualEnv.update_seeds", autospec=True
     )
 
-    result = runner.invoke(
-        app, ["project", "create", "mynewproject", venv_option, "virtualenv"]
-    )
+    result = runner.invoke(app, ["create", "mynewproject", venv_option, "virtualenv"])
 
     assert result.exit_code == 0
 
@@ -382,33 +362,27 @@ def test_create_with_conda_no_code(
     )
 
     mocker.patch(
-        "pytoil.cli.project.Config.get",
+        "pytoil.cli.main.Config.get",
         autospec=True,
         return_value=fake_config,
     )
 
     # Whatever we try and create now, it will think it doesn't already exist
     mocker.patch(
-        "pytoil.cli.project.Repo.exists_remote", autospec=True, return_value=False
+        "pytoil.cli.main.Repo.exists_remote", autospec=True, return_value=False
     )
-    mocker.patch(
-        "pytoil.cli.project.Repo.exists_local", autospec=True, return_value=False
-    )
+    mocker.patch("pytoil.cli.main.Repo.exists_local", autospec=True, return_value=False)
 
     mocker.patch(
-        "pytoil.cli.project.CondaEnv.exists",
+        "pytoil.cli.main.CondaEnv.exists",
         autospec=True,
         return_value=False,
     )
 
     # Make sure it doesn't actually do anything
-    mock_conda_create = mocker.patch(
-        "pytoil.cli.project.CondaEnv.create", autospec=True
-    )
+    mock_conda_create = mocker.patch("pytoil.cli.main.CondaEnv.create", autospec=True)
 
-    result = runner.invoke(
-        app, ["project", "create", "mynewproject", venv_option, "conda"]
-    )
+    result = runner.invoke(app, ["create", "mynewproject", venv_option, "conda"])
 
     assert result.exit_code == 0
 
@@ -432,44 +406,38 @@ def test_create_with_conda_sets_pythonpath_and_opens_code(
     )
 
     mocker.patch(
-        "pytoil.cli.project.Config.get",
+        "pytoil.cli.main.Config.get",
         autospec=True,
         return_value=fake_config,
     )
 
     # Whatever we try and create now, it will think it doesn't already exist
     mocker.patch(
-        "pytoil.cli.project.Repo.exists_remote", autospec=True, return_value=False
+        "pytoil.cli.main.Repo.exists_remote", autospec=True, return_value=False
     )
-    mocker.patch(
-        "pytoil.cli.project.Repo.exists_local", autospec=True, return_value=False
-    )
+    mocker.patch("pytoil.cli.main.Repo.exists_local", autospec=True, return_value=False)
 
     mocker.patch(
-        "pytoil.cli.project.CondaEnv.exists",
+        "pytoil.cli.main.CondaEnv.exists",
         autospec=True,
         return_value=False,
     )
 
     mocker.patch(
-        "pytoil.cli.project.CondaEnv.get_envs_dir",
+        "pytoil.cli.main.CondaEnv.get_envs_dir",
         autospec=True,
         return_value=fake_projects_dir.parent.joinpath("miniconda3"),
     )
 
     # Make sure it doesn't actually do anything
-    mock_conda_create = mocker.patch(
-        "pytoil.cli.project.CondaEnv.create", autospec=True
-    )
+    mock_conda_create = mocker.patch("pytoil.cli.main.CondaEnv.create", autospec=True)
 
-    mock_code_open = mocker.patch("pytoil.cli.project.VSCode.open", autospec=True)
+    mock_code_open = mocker.patch("pytoil.cli.main.VSCode.open", autospec=True)
     mock_code_ppath = mocker.patch(
-        "pytoil.cli.project.VSCode.set_python_path", autospec=True
+        "pytoil.cli.main.VSCode.set_python_path", autospec=True
     )
 
-    result = runner.invoke(
-        app, ["project", "create", "mynewproject", venv_option, "conda"]
-    )
+    result = runner.invoke(app, ["create", "mynewproject", venv_option, "conda"])
 
     assert result.exit_code == 0
 
@@ -496,22 +464,20 @@ def test_project_create_no_virtualenv_still_opens_code(
     )
 
     mocker.patch(
-        "pytoil.cli.project.Config.get",
+        "pytoil.cli.main.Config.get",
         autospec=True,
         return_value=fake_config,
     )
 
     # Whatever we try and create now, it will think it doesn't already exist
     mocker.patch(
-        "pytoil.cli.project.Repo.exists_remote", autospec=True, return_value=False
+        "pytoil.cli.main.Repo.exists_remote", autospec=True, return_value=False
     )
-    mocker.patch(
-        "pytoil.cli.project.Repo.exists_local", autospec=True, return_value=False
-    )
+    mocker.patch("pytoil.cli.main.Repo.exists_local", autospec=True, return_value=False)
 
-    mock_code_open = mocker.patch("pytoil.cli.project.VSCode.open", autospec=True)
+    mock_code_open = mocker.patch("pytoil.cli.main.VSCode.open", autospec=True)
 
-    result = runner.invoke(app, ["project", "create", "mynewproject"])
+    result = runner.invoke(app, ["create", "mynewproject"])
 
     assert result.exit_code == 0
     assert (
@@ -534,45 +500,41 @@ def test_project_create_handles_conda_env_already_existing(
     )
 
     mocker.patch(
-        "pytoil.cli.project.Config.get",
+        "pytoil.cli.main.Config.get",
         autospec=True,
         return_value=fake_config,
     )
 
     # Whatever we try and create now, it will think it doesn't already exist
     mocker.patch(
-        "pytoil.cli.project.Repo.exists_remote", autospec=True, return_value=False
+        "pytoil.cli.main.Repo.exists_remote", autospec=True, return_value=False
     )
-    mocker.patch(
-        "pytoil.cli.project.Repo.exists_local", autospec=True, return_value=False
-    )
+    mocker.patch("pytoil.cli.main.Repo.exists_local", autospec=True, return_value=False)
 
     mocker.patch(
-        "pytoil.cli.project.CondaEnv.exists",
+        "pytoil.cli.main.CondaEnv.exists",
         autospec=True,
         return_value=False,
     )
 
     mocker.patch(
-        "pytoil.cli.project.CondaEnv.get_envs_dir",
+        "pytoil.cli.main.CondaEnv.get_envs_dir",
         autospec=True,
         return_value=fake_projects_dir.parent.joinpath("miniconda3"),
     )
 
     mock_conda_create = mocker.patch(
-        "pytoil.cli.project.CondaEnv.create",
+        "pytoil.cli.main.CondaEnv.create",
         autospec=True,
         side_effect=VirtualenvAlreadyExistsError("Already here you fool!"),
     )
 
-    mock_code_open = mocker.patch("pytoil.cli.project.VSCode.open", autospec=True)
+    mock_code_open = mocker.patch("pytoil.cli.main.VSCode.open", autospec=True)
     mock_code_ppath = mocker.patch(
-        "pytoil.cli.project.VSCode.set_python_path", autospec=True
+        "pytoil.cli.main.VSCode.set_python_path", autospec=True
     )
 
-    result = runner.invoke(
-        app, ["project", "create", "mynewproject", "--venv", "conda"]
-    )
+    result = runner.invoke(app, ["create", "mynewproject", "--venv", "conda"])
     mock_conda_create.assert_called_once()
     assert result.exit_code == 0
 
