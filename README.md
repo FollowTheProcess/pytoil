@@ -70,20 +70,20 @@ pytoil show diff
 #### Easily grab a project, regardless of where it is
 
 ```shell
-pytoil project checkout my_project
+pytoil checkout my_project
 ```
 
 #### Create a new project and virtual environment in one go
 
 ```shell
-pytoil project create my_project --venv virtualenv
+pytoil create my_project --venv virtualenv
 
 ```
 
 #### And even do this from a [cookiecutter] template
 
 ```shell
-pytoil project create my_project --venv virtualenv --cookie https://github.com/some/cookie.git
+pytoil create my_project --venv virtualenv --cookie https://github.com/some/cookie.git
 ```
 
 Check out the [docs] for more :boom:

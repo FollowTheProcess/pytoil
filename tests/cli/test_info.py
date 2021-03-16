@@ -28,7 +28,7 @@ def test_info_displays_properly(mocker: MockerFixture, fake_projects_dir):
     )
 
     mocker.patch(
-        "pytoil.cli.project.Config.get",
+        "pytoil.cli.main.Config.get",
         autospec=True,
         return_value=fake_config,
     )
@@ -43,11 +43,9 @@ def test_info_displays_properly(mocker: MockerFixture, fake_projects_dir):
     }
 
     # Patch out repo.info to return whatever dict we want
-    mocker.patch(
-        "pytoil.cli.project.Repo.info", autospec=True, return_value=return_dict
-    )
+    mocker.patch("pytoil.cli.main.Repo.info", autospec=True, return_value=return_dict)
 
-    result = runner.invoke(app, ["project", "info", "myproject"])
+    result = runner.invoke(app, ["info", "myproject"])
     assert result.exit_code == 0
     assert "Info for: 'myproject'" in result.stdout
 
@@ -65,20 +63,20 @@ def test_info_handles_repo_not_found(mocker: MockerFixture, fake_projects_dir):
     )
 
     mocker.patch(
-        "pytoil.cli.project.Config.get",
+        "pytoil.cli.main.Config.get",
         autospec=True,
         return_value=fake_config,
     )
 
     # Make repo.info raise a RepoNotFoundError
     mocker.patch(
-        "pytoil.cli.project.Repo.info",
+        "pytoil.cli.main.Repo.info",
         autospec=True,
         side_effect=[RepoNotFoundError("IT DOESNT EXIST YOU FOOL")],
     )
 
     # Now CLI should give nice message and abort
-    result = runner.invoke(app, ["project", "info", "someproject"])
+    result = runner.invoke(app, ["info", "someproject"])
     assert result.exit_code == 1
     assert "Project: 'someproject' not found locally or on GitHub." in result.stdout
     assert "Aborted!" in result.stdout

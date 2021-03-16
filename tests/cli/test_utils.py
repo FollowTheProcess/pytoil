@@ -108,7 +108,7 @@ def test_env_dispatcher_returns_condaenv_if_repo_is_conda(
     )
 
     mocker.patch(
-        "pytoil.cli.project.Config.get",
+        "pytoil.cli.main.Config.get",
         autospec=True,
         return_value=fake_config,
     )
@@ -137,7 +137,7 @@ def test_env_dispatcher_returns_virtualenv_if_repo_is_setuptools(
     )
 
     mocker.patch(
-        "pytoil.cli.project.Config.get",
+        "pytoil.cli.main.Config.get",
         autospec=True,
         return_value=fake_config,
     )
@@ -166,7 +166,7 @@ def test_env_dispatcher_returns_none_if_neither(
     )
 
     mocker.patch(
-        "pytoil.cli.project.Config.get",
+        "pytoil.cli.main.Config.get",
         autospec=True,
         return_value=fake_config,
     )

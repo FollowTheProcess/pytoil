@@ -53,7 +53,7 @@ You could always just edit the file manually if you like, it will look like this
 username: "FollowTheProcess"
 projects_dir: "/Users/me/projects"
 token: "thisismygithubtoken"
-vscode: True
+vscode: true
 ```
 
 !!! warning

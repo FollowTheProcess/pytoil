@@ -144,7 +144,7 @@ Remote projects that are not local:
 <div class="termy">
 
 ```console
-$ pytoil project checkout myproject
+$ pytoil checkout myproject
 
 Resuming 'myproject'...
 
@@ -160,7 +160,7 @@ Resuming 'myproject'...
 <div class="termy">
 
 ```console
-$ pytoil project create myproject --venv virtualenv
+$ pytoil create myproject --venv virtualenv
 
 Creating project: 'myproject' at '/Users/you/projects/myproject'
 
@@ -174,7 +174,7 @@ Creating virtualenv for: 'myproject'
 <div class="termy">
 
 ```console
-$ pytoil project create myproject --venv virtualenv --cookie https://github.com/some/cookie.git
+$ pytoil create myproject --venv virtualenv --cookie https://github.com/some/cookie.git
 
 Creating project: 'myproject' with cookiecutter template: 'https://github.com/some/cookie.git'
 
@@ -217,11 +217,14 @@ Options:
   --help                Show this message and exit.
 
 Commands:
-  config   Interact with pytoil's configuration.
-  init     Initialise pytoil.
-  project  Operate on a specific project.
-  show     View your local/remote projects.
-  sync     Synchronise your local and remote projects.
+  checkout  Checkout a development project, either locally or from GitHub.
+  config    Interact with pytoil's configuration.
+  create    Create a new development project locally.
+  info      Show useful information about a project.
+  init      Initialise pytoil.
+  remove    Deletes a project from your local filesystem.
+  show      View your local/remote projects.
+  sync      Synchronise your local and remote projects.
 ```
 
 </div>

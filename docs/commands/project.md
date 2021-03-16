@@ -1,41 +1,10 @@
 # Project
 
-Now let's look at the `project` subcommand. This is the biggest subcommand in pytoil and probably the part you'll interact with the most. Again, we'll start with the help.
-
-## Help
-
-<div class="termy">
-
-```console
-$ pytoil project --help
-
-Usage: pytoil project [OPTIONS] COMMAND [ARGS]...
-
-  Operate on a specific project.
-
-  Set the "projects_dir" key in the config to control where this command
-  looks on your local file system.
-
-  Set the "token" key in the config to give pytoil access to your GitHub via
-  the API.
-
-  We only make GET requests, your repos are safe with pytoil!
-
-Options:
-  --help  Show this message and exit.
-
-Commands:
-  checkout  Checkout a development project, either locally or from GitHub.
-  create    Create a new development project locally.
-  info      Show useful information about a project.
-  remove    Deletes a project from your local filesystem.
-```
-
-</div>
+Now let's look at the commands you'll use to manage projects.
 
 !!! tip
 
-    Remember, each subcommand has its own help you can check out too. e.g. `pytoil project create --help` :thumbsup:
+    Remember, each subcommand has its own help you can check out too. e.g. `pytoil create --help` :thumbsup:
 
 ## Create
 
@@ -50,7 +19,7 @@ In this sense, you don't have to be a python developer to use pytoil!
 <div class="termy">
 
 ```console
-$ pytoil project create my_new_project
+$ pytoil create my_new_project
 
 Creating new project: 'my_new_project'
 // Does some stuff...
@@ -71,7 +40,7 @@ All you have to do is specify which virtual environment to create, using the `--
 <div class="termy">
 
 ```console
-$ pytoil project create my_new_project --venv virtualenv
+$ pytoil create my_new_project --venv virtualenv
 
 Creating new project: 'my_new_project'
 Creating virtualenv for: 'my_new_project'
@@ -84,7 +53,7 @@ Or with conda...
 <div class="termy">
 
 ```console
-$ pytoil project create my_new_project --venv conda
+$ pytoil create my_new_project --venv conda
 
 Creating new project: 'my_new_project'
 Creating conda environment for: 'my_new_project'
@@ -109,7 +78,7 @@ Because I love cookiecutter so much, I built pytoil to support them easily. You 
 
 ```console
 // Just pass a url to a cookiecutter template
-$ pytoil project create my_new_project --cookie https://github.com/some/cookie.git
+$ pytoil create my_new_project --cookie https://github.com/some/cookie.git
 
 Creating new project: 'my_new_project' from cookiecutter: 'https://github.com/some/cookie.git'
 ```
@@ -124,7 +93,7 @@ This one's easy! `info` simply shows you some summary information about whatever
 
 ```console
 // Let's get some info about pytoil
-$ pytoil project info pytoil
+$ pytoil info pytoil
 
 Info for: pytoil
 
@@ -148,7 +117,7 @@ pytoil will always prefer this way of doing it as we can get things like license
 
 ```console
 // Some project thats not on GitHub yet
-$ pytoil project info my_local_project
+$ pytoil info my_local_project
 
 Info for: my_local_project
 
@@ -176,7 +145,7 @@ If the project is available locally, `checkout` will simply open it for you
 
 ```console
 // Some project thats already local
-$ pytoil project checkout my_local_project
+$ pytoil checkout my_local_project
 
 Project: 'my_local_project' found locally!
 
@@ -196,7 +165,7 @@ If not, `checkout` will:
 
 ```console
 // Some project thats on GitHub
-$ pytoil project checkout my_github_project
+$ pytoil checkout my_github_project
 
 Project: 'my_github_project' found on GitHub! Cloning...
 // You might see some git clone output here
@@ -230,7 +199,7 @@ Another easy one! `remove` does exactly what it says. It will recursively delete
 <div class="termy">
 
 ```console
-$ pytoil project remove my_project
+$ pytoil remove my_project
 
 # This will remove 'my_project' from your local filesystem. Are you sure? [y/N]:$ y
 
@@ -246,7 +215,7 @@ And if you say no...
 <div class="termy">
 
 ```console
-$ pytoil project remove my_project
+$ pytoil remove my_project
 
 # This will remove 'my_project' from your local filesystem. Are you sure? [y/N]:$ n
 
