@@ -7,7 +7,7 @@ Created: 07/03/2021
 
 import pathlib
 import subprocess
-from typing import List
+from typing import List, Optional
 
 import virtualenv
 
@@ -55,7 +55,7 @@ class VirtualEnv(BaseEnvironment):
         """
         return self.executable.exists()
 
-    def create(self) -> None:
+    def create(self, packages: Optional[List[str]] = None) -> None:
         """
         Create a new virtualenv in `project_path`.
 
@@ -71,6 +71,8 @@ class VirtualEnv(BaseEnvironment):
         else:
             # Create a new virtualenv under the project, called ".venv"
             virtualenv.cli_run([f"{self.project_path.joinpath('.venv')}"])
+            if packages:
+                self.install(packages=packages)
 
     def update_seeds(self) -> None:
         """

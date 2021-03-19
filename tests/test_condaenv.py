@@ -117,10 +117,11 @@ def test_condaenv_exists_returns_false_if_executable_doesnt_exist(
 
 
 @pytest.mark.parametrize(
-    "name, expected_cmd",
+    "name, packages, expected_cmd",
     [
         (
             "sillyenv",
+            ["black", "mypy", "flake8"],
             [
                 "conda",
                 "create",
@@ -128,10 +129,14 @@ def test_condaenv_exists_returns_false_if_executable_doesnt_exist(
                 "--name",
                 "sillyenv",
                 "python=3",
+                "black",
+                "mypy",
+                "flake8",
             ],
         ),
         (
             "dingleenv",
+            None,
             [
                 "conda",
                 "create",
@@ -143,7 +148,9 @@ def test_condaenv_exists_returns_false_if_executable_doesnt_exist(
         ),
     ],
 )
-def test_condaenv_create_is_correctly_called(mocker: MockerFixture, name, expected_cmd):
+def test_condaenv_create_is_correctly_called(
+    mocker: MockerFixture, name, packages, expected_cmd
+):
 
     fake_project = pathlib.Path("/Users/me/projects/fakeproject")
 
@@ -158,7 +165,7 @@ def test_condaenv_create_is_correctly_called(mocker: MockerFixture, name, expect
 
     env = CondaEnv(name=name, project_path=fake_project)
 
-    env.create()
+    env.create(packages=packages)
 
     mock_subprocess.assert_called_once_with(expected_cmd, check=True)
 
