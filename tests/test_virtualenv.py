@@ -240,3 +240,32 @@ def test_virtualenv_install_raises_on_subprocess_error(mocker: MockerFixture):
             env = VirtualEnv(project_path=pathlib.Path("made/up/dir"))
 
             env.install(packages=["pandas", "requests", "pytoil"])
+
+
+def test_virtualenv_create_with_packages_correctly_installs_packages(
+    mocker: MockerFixture,
+):
+
+    fake_project = pathlib.Path("/Users/me/projects/fakeproject")
+
+    env = VirtualEnv(project_path=fake_project)
+
+    mocker.patch(
+        "pytoil.environments.VirtualEnv.exists", autospec=True, return_value=False
+    )
+
+    mock_cli_run = mocker.patch(
+        "pytoil.environments.venv.virtualenv.cli_run", autospec=True, return_value=None
+    )
+
+    mock_install = mocker.patch(
+        "pytoil.environments.venv.VirtualEnv.install", autospec=True
+    )
+
+    env.create(packages=["black", "mypy", "flake8"])
+
+    mock_cli_run.assert_called_once_with(
+        [f"{fake_project.joinpath('.venv').resolve()}"]
+    )
+
+    mock_install.assert_called_once_with(env, packages=["black", "mypy", "flake8"])

@@ -10,7 +10,7 @@ from __future__ import annotations
 import pathlib
 import shutil
 import subprocess
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Union
 
 import yaml
 
@@ -95,12 +95,15 @@ class CondaEnv(BaseEnvironment):
 
         return self.executable.exists()
 
-    def create(self) -> None:
+    def create(self, packages: Optional[List[str]] = None) -> None:
         """
         Creates the conda environment described by the instance.
 
         Only default package is `python=3` which will cause conda to choose
         it's default python3.
+
+        If packages are specified, these will be inserted into the conda create
+        command.
 
         Raises:
             VirtualenvAlreadyExistsError: If the conda environment already exists.
@@ -114,6 +117,9 @@ class CondaEnv(BaseEnvironment):
             )
 
         cmd: List[str] = ["conda", "create", "-y", "--name", f"{self.name}", "python=3"]
+
+        if packages:
+            cmd.extend(packages)
 
         try:
             subprocess.run(cmd, check=True)

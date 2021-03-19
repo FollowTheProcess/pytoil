@@ -7,7 +7,7 @@ Created: 07/03/2021
 
 import pathlib
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Optional
 
 
 class BaseEnvironment(ABC):
@@ -42,11 +42,10 @@ class BaseEnvironment(ABC):
         pass
 
     @abstractmethod
-    def create(self) -> None:
+    def create(self, packages: Optional[List[str]] = None) -> None:
         """
-        Method to create the virtual environment. Note, no arguments
-        are accepted for packages to install. This is the job of
-        the `install` method.
+        Method to create the virtual environment. If packages are specified
+        these can be installed during environment creation.
         """
         pass
 
