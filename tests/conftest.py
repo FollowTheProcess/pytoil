@@ -26,6 +26,7 @@ def temp_config_file(tmp_path_factory):
         "token": "tempfiletoken",
         "projects_dir": "/Users/tempfileuser/projects",
         "vscode": True,
+        "common_packages": ["black", "flake8", "mypy"],
     }
 
     with open(config_file, "w") as f:

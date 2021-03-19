@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import pathlib
 from dataclasses import dataclass
-from typing import TypedDict
+from typing import List, Optional, TypedDict
 
 import yaml
 
@@ -36,6 +36,7 @@ class ConfigDict(TypedDict):
     token: str
     projects_dir: str
     vscode: bool
+    common_packages: Optional[List[str]]
 
 
 @dataclass
@@ -63,6 +64,7 @@ class Config:
     token: str = "UNSET"
     projects_dir: pathlib.Path = DEFAULT_PROJECTS_DIR
     vscode: bool = False
+    common_packages: Optional[List[str]] = None
 
     def validate(self) -> None:
         """
@@ -121,6 +123,7 @@ class Config:
                     config_dict.get("projects_dir", str(DEFAULT_PROJECTS_DIR))
                 ),
                 vscode=config_dict.get("vscode", False),
+                common_packages=config_dict.get("common_packages", None),
             )
 
             return config
@@ -139,6 +142,7 @@ class Config:
             "token": self.token,
             "projects_dir": str(self.projects_dir),
             "vscode": self.vscode,
+            "common_packages": self.common_packages,
         }
 
         return config_dict

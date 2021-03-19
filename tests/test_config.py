@@ -90,7 +90,8 @@ def test_config_repr_default():
         == "Config(username='UNSET', "
         + "token='UNSET', "
         + f"projects_dir={DEFAULT_PROJECTS_DIR!r}, "
-        + "vscode=False)"
+        + "vscode=False, "
+        + "common_packages=None)"
     )
 
 
@@ -103,13 +104,15 @@ def test_config_repr_passed():
         token="definitelynotatoken",
         projects_dir=path,
         vscode=True,
+        common_packages=["black", "flake8", "mypy"],
     )
 
     expected = (
         "Config(username='me', "
         + "token='definitelynotatoken', "
         + f"projects_dir={path!r}, "
-        + "vscode=True)"
+        + "vscode=True, "
+        + "common_packages=['black', 'flake8', 'mypy'])"
     )
 
     assert config.__repr__() == expected
@@ -124,6 +127,7 @@ def test_config_dict_default():
         "token": "UNSET",
         "projects_dir": DEFAULT_PROJECTS_DIR,
         "vscode": False,
+        "common_packages": None,
     }
 
 
@@ -136,6 +140,7 @@ def test_config_dict_passed():
         token="definitelynotatoken",
         projects_dir=path,
         vscode=True,
+        common_packages=["black", "flake8", "mypy"],
     )
 
     assert config.__dict__ == {
@@ -143,6 +148,7 @@ def test_config_dict_passed():
         "token": "definitelynotatoken",
         "projects_dir": path,
         "vscode": True,
+        "common_packages": ["black", "flake8", "mypy"],
     }
 
 
@@ -201,18 +207,20 @@ def test_config_get_raises_on_missing_file(mocker: MockerFixture):
 
 
 @pytest.mark.parametrize(
-    "name, token, projects_dir, vscode, expected_dict",
+    "name, token, projects_dir, vscode, common_packages, expected_dict",
     [
         (
             "me",
             "sillytoken",
             pathlib.Path("/Users/me/projects"),
             True,
+            ["black", "flake8", "mypy"],
             {
                 "username": "me",
                 "token": "sillytoken",
                 "projects_dir": "/Users/me/projects",
                 "vscode": True,
+                "common_packages": ["black", "flake8", "mypy"],
             },
         ),
         (
@@ -220,11 +228,13 @@ def test_config_get_raises_on_missing_file(mocker: MockerFixture):
             "loltoken",
             pathlib.Path("/Users/someguy/dingleprojects"),
             False,
+            None,
             {
                 "username": "someguy",
                 "token": "loltoken",
                 "projects_dir": "/Users/someguy/dingleprojects",
                 "vscode": False,
+                "common_packages": None,
             },
         ),
         (
@@ -232,21 +242,27 @@ def test_config_get_raises_on_missing_file(mocker: MockerFixture):
             "hahahatoken",
             pathlib.Path("/Users/dave/hahaprojects"),
             True,
+            ["pylint", "autopep8", "pytest"],
             {
                 "username": "dave",
                 "token": "hahahatoken",
                 "projects_dir": "/Users/dave/hahaprojects",
                 "vscode": True,
+                "common_packages": ["pylint", "autopep8", "pytest"],
             },
         ),
     ],
 )
 def test_config_to_dict_returns_correct_values(
-    name, token, projects_dir, vscode, expected_dict
+    name, token, projects_dir, vscode, common_packages, expected_dict
 ):
 
     config = Config(
-        username=name, token=token, projects_dir=projects_dir, vscode=vscode
+        username=name,
+        token=token,
+        projects_dir=projects_dir,
+        vscode=vscode,
+        common_packages=common_packages,
     )
 
     assert config.to_dict() == expected_dict
@@ -277,6 +293,7 @@ def test_config_show_outputs_correct_text(capsys):
         token="UNSET",
         projects_dir=pathlib.Path("/Users/me/projects"),
         vscode=True,
+        common_packages=["black", "flake8", "mypy"],
     )
 
     config.show()
@@ -288,6 +305,7 @@ def test_config_show_outputs_correct_text(capsys):
         + "token: 'UNSET'\n"
         + "projects_dir: '/Users/me/projects'\n"
         + "vscode: True\n"
+        + "common_packages: ['black', 'flake8', 'mypy']\n"
     )
 
     assert captured.out == expected_output
