@@ -12,6 +12,8 @@
 
 * **Documentation**: [https://FollowTheProcess.github.io/pytoil/](https://FollowTheProcess.github.io/pytoil/)
 
+:warning: pytoil is still in Alpha and as such, the API may change without deprecation notices.
+
 ## What is it?
 
 `pytoil` is a handy tool that helps you stay on top of all your projects, remote or local. It's primarily aimed at python developers but you could easily use it to manage any project!
@@ -86,17 +88,15 @@ After installation just run
 <div class="termy">
 
 ```console
-$ pytoil init
+$ pytoil config
 
-# GitHub username:$ YourGitHubUsername
-# GitHub personal access token:$ YourTokenHere
-# Absolute path to your projects directory:$ /Users/you/projects
-# Use VSCode to open projects?:$ True
+No config file yet!
+Making you a default one...
 ```
 
 </div>
 
-This will create a config file which can be found at `~/.pytoil.yml`, and will walk you through setting the tool up.
+This will create a default config file which can be found at `~/.pytoil.yml`. See [config] for what information you need to put in here.
 
 Don't worry though, there's only a few options to configure! :sleeping:
 
@@ -218,10 +218,9 @@ Options:
 
 Commands:
   checkout  Checkout a development project, either locally or from GitHub.
-  config    Interact with pytoil's configuration.
+  config    Display pytoil's configuration.
   create    Create a new development project locally.
   info      Show useful information about a project.
-  init      Initialise pytoil.
   remove    Deletes a project from your local filesystem.
   show      View your local/remote projects.
   sync      Synchronise your local and remote projects.
@@ -238,3 +237,4 @@ Commands:
 [git]: https://git-scm.com
 [conda]: https://docs.conda.io/en/latest/
 [VSCode]: https://code.visualstudio.com
+[config]: config.md
