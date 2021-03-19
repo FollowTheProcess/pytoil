@@ -12,6 +12,8 @@
 
 * **Documentation**: [https://FollowTheProcess.github.io/pytoil/](https://FollowTheProcess.github.io/pytoil/)
 
+:warning: pytoil is still in Alpha and as such, the API may change without deprecation notices.
+
 ## What is it?
 
 `pytoil` is a handy tool that helps you stay on top of all your projects, remote or local. It's primarily aimed at python developers but you could easily use it to manage any project!
@@ -46,10 +48,13 @@ pip install pytoil
 After installation just run
 
 ```shell
-pytoil init
+$ pytoil config
+
+No config file yet!
+Making you a default one...
 ```
 
-This will create a config file which can be found at `~/.pytoil.yml`, and will walk you through setting the tool up.
+This will create a default config file which can be found at `~/.pytoil.yml`. See the [docs] for what information you need to put in here.
 
 Don't worry though, there's only a few options to configure! :sleeping:
 

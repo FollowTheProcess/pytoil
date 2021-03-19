@@ -5,7 +5,7 @@ Author: Tom Fleet
 Created: 24/02/2021
 """
 
-import pathlib
+
 import shutil
 from enum import Enum
 from typing import Set
@@ -14,21 +14,26 @@ import typer
 from cookiecutter.main import cookiecutter
 
 from pytoil import __version__
-from pytoil.cli import config, show, sync
+from pytoil.cli import show, sync
 from pytoil.cli.utils import env_dispatcher, get_local_project_set
-from pytoil.config import CONFIG_PATH, Config
+from pytoil.config import Config
 from pytoil.environments import CondaEnv, VirtualEnv
-from pytoil.exceptions import (
-    InvalidConfigError,
-    RepoNotFoundError,
-    VirtualenvAlreadyExistsError,
-)
+from pytoil.exceptions import RepoNotFoundError, VirtualenvAlreadyExistsError
 from pytoil.repo import Repo
 from pytoil.vscode import VSCode
 
+
+class Venv(str, Enum):
+    """
+    Choice of virtualenvs to create in a new project.
+    """
+
+    virtualenv = "virtualenv"
+    conda = "conda"
+
+
 # Add all the subcommands
 app = typer.Typer(name="pytoil", no_args_is_help=True)
-app.add_typer(config.app, name="config")
 app.add_typer(sync.app, name="sync")
 app.add_typer(show.app, name="show")
 
@@ -63,80 +68,6 @@ def main(
 
     - Minimal configuration required.
     """
-
-
-@app.command()
-def init() -> None:
-    """
-    Initialise pytoil.
-
-    Will guide user through the config setup
-    interactively.
-    """
-
-    typer.secho("Checking for config file...\n", fg=typer.colors.BLUE, bold=True)
-
-    # Make config file
-    if not CONFIG_PATH.exists():
-        try:
-            typer.secho("No config file found!\n", fg=typer.colors.YELLOW)
-            typer.echo("Creating fresh config file...\n")
-            CONFIG_PATH.touch()
-            default_config = Config()
-            default_config.write()
-
-            username: str = typer.prompt("GitHub username")
-            token: str = typer.prompt("GitHub personal access token")
-            projects_dir: str = typer.prompt("Absolute path to your projects directory")
-            vscode: str = typer.prompt("Use VSCode to open projects with? [True|False]")
-
-            projects_dir_path = pathlib.Path(projects_dir)
-
-            if vscode.lower() == "true":
-                vscode_bool = True
-            elif vscode.lower() == "false":
-                vscode_bool = False
-            else:
-                raise typer.BadParameter("VSCode must be a boolean value")
-
-            user_config = Config(
-                username=username,
-                token=token,
-                projects_dir=projects_dir_path,
-                vscode=vscode_bool,
-            )
-            user_config.write()
-
-            typer.secho("Config written, you're good to go!", fg=typer.colors.GREEN)
-        except KeyboardInterrupt:
-            # TODO: How to test this?
-            # User pressed ctrl+c
-            # Delete any created config file and gracefully exit
-            typer.secho("Exiting config process...", fg=typer.colors.YELLOW)
-            CONFIG_PATH.unlink(missing_ok=True)
-            raise typer.Abort()
-    else:
-        try:
-            config = Config.get()
-            config.validate()
-        except InvalidConfigError:
-            typer.secho(
-                "Something's wrong in the config file, please check it.\n",
-                fg=typer.colors.RED,
-            )
-            typer.echo("If in doubt, simply delete it and run '$ pytoil init' again :)")
-            raise typer.Abort()
-        else:
-            typer.secho("You're all set!", fg=typer.colors.GREEN)
-
-
-class Venv(str, Enum):
-    """
-    Choice of virtualenvs to create in a new project.
-    """
-
-    virtualenv = "virtualenv"
-    conda = "conda"
 
 
 @app.command()
@@ -462,3 +393,24 @@ def info(
         typer.secho(f"\nInfo for: {project!r}\n", fg=typer.colors.BLUE, bold=True)
         for key, val in info_dict.items():
             typer.echo(f"{key}: {val}")
+
+
+@app.command()
+def config() -> None:
+    """
+    Display pytoil's configuration.
+
+    pytoil's config file is ~/.pytoil.yml.
+    """
+    # Get config but don't raise on UNSET
+    try:
+        config = Config.get()
+    except FileNotFoundError:
+        typer.secho("No config file yet!", fg=typer.colors.YELLOW)
+        typer.echo("Making you a default one...")
+        config = Config()
+        config.write()
+    else:
+        typer.secho("\nCurrent pytoil config:", fg=typer.colors.BLUE, bold=True)
+        typer.echo("")
+        config.show()

@@ -1,13 +1,18 @@
 # Config
 
-There's really not much to configure, all pytoil needs to know about is:
+There's really not much to configure, all pytoil *needs* you to specify is:
 
-* Where you keep your projects (`projects_dir`)
 * What your GitHub username is (`username`)
 * Your GitHub personal access token (`token`)
-* Whether you want pytoil to open things in VSCode (`vscode`)
 
 If you don't know how to generate a GitHub token, check out the [docs].
+
+There are also some *optional* configurations you can tweak:
+
+* Where you keep your projects (`projects_dir`)
+* Whether you want pytoil to open things in VSCode (`vscode`)
+
+These optional settings don't have to be set if you're happy using the default settings!
 
 !!! info
 
@@ -24,73 +29,51 @@ If you don't know how to generate a GitHub token, check out the [docs].
 
 ## The Config File
 
-After you install pytoil, you should run the following command and follow the prompts
+After you install pytoil, you should run the following command:
 
 <div class="termy">
 
 ```console
-$ pytoil init
+$ pytoil config
 
-# GitHub username:$ YourGitHubUsername
-# GitHub personal access token:$ YourTokenHere
-# Absolute path to your projects directory:$ /Users/you/projects
-# Use VSCode to open projects with?:$ True
+No config file yet!
+Making you a default one...
 ```
 
 </div>
 
-pytoil will then will write that config to a file: `~/.pytoil.yml`.
+pytoil will then will write a default config state to a file: `~/.pytoil.yml`.
 
 !!! note
 
-    You only need to run this command once on initial setup (or if you delete the config file). After that your config is saved.
+    This command will only write a config file if it doesn't find one already. If one already exists, it will simply show you the settings from that file.
 
-You could always just edit the file manually if you like, it will look like this:
+When you open the default config state you just wrote, it will look like this:
 
 ```yaml
 # ~/.pytoil.yml
 
-username: "FollowTheProcess"
-projects_dir: "/Users/me/projects"
-token: "thisismygithubtoken"
-vscode: true
+projects_dir: /Users/you/Development
+token: UNSET
+username: UNSET
+vscode: false
 ```
 
 !!! warning
 
-    The only thing that might trip you up is that `projects_dir` must be the **absolute** path to where you keep your projects. So you'll need to explicitly state the entire path (as in the example above) starting from the root.
+    `projects_dir` must be the **absolute** path to where you keep your projects. So you'll need to explicitly state the entire path (as in the example above) starting from the root.
 
-## Control using pytoil
+You should now edit the config file to your liking. Anything currently set to `UNSET` will cause an error on most pytoil operations so these must be filled out. Everything else is optional :thumbsup:
 
-Of course, even after you've run `pytoil init` you can still easily get and set the config through the `pytoil config` subcommand.
+So as an example, your filled out config file might look like this:
 
-### View Current Config
+```yaml
+# ~/.pytoil.yml
 
-<div class="termy">
-
-```console
-$ pytoil config show
-
-Current pytoil config:
-
-username: 'YourUsername'
-token: 'YourToken'
-projects_dir: '/Users/you/projects'
-vscode: True
+projects_dir: /Users/me/Projects
+token: jbs822qbs982whbd97g # I've made this up
+username: FollowTheProcess
+vscode: true
 ```
-
-</div>
-
-### Set a Config Value
-
-<div class="termy">
-
-```console
-$ pytoil config set username mynewusername
-
-Configuration updated: 'username' is now 'mynewusername'.
-```
-
-</div>
 
 [docs]: https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token

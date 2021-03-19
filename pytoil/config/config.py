@@ -115,11 +115,12 @@ class Config:
         else:
             # Get the config from unpacking the dict
             config = Config(
-                username=config_dict.get("username") or "UNSET",
-                token=config_dict.get("token") or "UNSET",
-                projects_dir=pathlib.Path(config_dict.get("projects_dir"))
-                or DEFAULT_PROJECTS_DIR,
-                vscode=config_dict.get("vscode") or False,
+                username=config_dict.get("username", "UNSET"),
+                token=config_dict.get("token", "UNSET"),
+                projects_dir=pathlib.Path(
+                    config_dict.get("projects_dir", str(DEFAULT_PROJECTS_DIR))
+                ),
+                vscode=config_dict.get("vscode", False),
             )
 
             return config
