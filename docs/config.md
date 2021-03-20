@@ -1,5 +1,7 @@
 # Config
 
+## Required
+
 There's really not much to configure, all pytoil *needs* you to specify is:
 
 * What your GitHub username is (`username`)
@@ -7,10 +9,15 @@ There's really not much to configure, all pytoil *needs* you to specify is:
 
 If you don't know how to generate a GitHub token, check out the [docs].
 
+## Optional
+
 There are also some *optional* configurations you can tweak:
 
-* Where you keep your projects (`projects_dir`)
-* Whether you want pytoil to open things in VSCode (`vscode`)
+|        Key        |                                              Definition                                               |       Default       |
+| :---------------: | :---------------------------------------------------------------------------------------------------: | :-----------------: |
+|  `projects_dir`   |                                     Where you keep your projects                                      | `$HOME/Development` |
+|     `vscode`      |                           Whether you want pytoil to open things in VSCode                            |        False        |
+| `common_packages` | List of packages you want pytoil to inject in every environment it creates (linters, formatters etc.) |       `None`        |
 
 These optional settings don't have to be set if you're happy using the default settings!
 
@@ -57,6 +64,7 @@ projects_dir: /Users/you/Development
 token: UNSET
 username: UNSET
 vscode: false
+common_packages:
 ```
 
 !!! warning
@@ -74,6 +82,11 @@ projects_dir: /Users/me/Projects
 token: jbs822qbs982whbd97g # I've made this up
 username: FollowTheProcess
 vscode: true
+common_packages:
+  - black
+  - flake8
+  - mypy
+  - isort
 ```
 
 [docs]: https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token

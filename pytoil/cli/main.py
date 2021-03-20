@@ -173,7 +173,7 @@ def create(
             )
             conda_env = CondaEnv(name=project, project_path=repo.path)
             try:
-                conda_env.create()
+                conda_env.create(packages=config.common_packages)
             except VirtualenvAlreadyExistsError:
                 typer.echo(f"Conda environment: {conda_env.name!r} already exists!")
                 typer.echo(f"Using {conda_env.name!r} as the environment.")
@@ -195,7 +195,7 @@ def create(
             )
 
             env = VirtualEnv(project_path=repo.path)
-            env.create()
+            env.create(packages=config.common_packages)
 
             typer.echo(
                 "\nEnsuring seed packages (pip, setuptools, wheel) are up to date."
@@ -279,7 +279,7 @@ def checkout(
         else:
             typer.echo("\nAuto-creating correct virtual environment...\n")
             try:
-                env.create()
+                env.create(packages=config.common_packages)
             except VirtualenvAlreadyExistsError:
                 typer.echo(
                     "Matching environment already exists. No need to create a new one!"
