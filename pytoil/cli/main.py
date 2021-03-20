@@ -411,7 +411,7 @@ def config() -> None:
         config = Config()
         config.write()
     else:
-        typer.secho("Current pytoil config:", fg=typer.colors.BLUE, bold=True)
+        typer.secho("\nCurrent pytoil config:", fg=typer.colors.BLUE, bold=True)
         typer.echo("")
         config.show()
 
