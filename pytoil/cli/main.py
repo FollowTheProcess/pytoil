@@ -186,7 +186,7 @@ def create(
 
         elif venv.value == venv.virtualenv:  # pragma: no cover
             # For some reason coverage isn't picking this up as tested
-            # but it is: tests/cli/test_project_create.py
+            # but it is: tests/cli/test_create.py
             # in several tests
             typer.secho(
                 f"Creating virtualenv for {project!r}.\n",
@@ -255,7 +255,7 @@ def checkout(
         # Note we don't do any environment stuff here
         # chances are if it exists locally, this has already been done
         typer.secho(
-            f"Project: {project!r} is available locally at" f" '{repo.path}'.\n",
+            f"Project: {project!r} is available locally at" f" '{repo.path}'.",
             fg=typer.colors.BLUE,
             bold=True,
         )

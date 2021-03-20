@@ -55,7 +55,7 @@ def test_sync_all_does_nothing_if_local_and_remote_are_synced(
     assert result.exit_code == 0
 
     assert (
-        "All your remote repos already exist locally. Nothing to do." in result.stdout
+        "All your remote repos already exist locally. Nothing to do!" in result.stdout
     )
 
 

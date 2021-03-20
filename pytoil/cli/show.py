@@ -46,7 +46,9 @@ def local() -> None:
 
     if n_locals > 0:
 
-        typer.secho("\nLocal projects:\n", fg=typer.colors.BLUE, bold=True)
+        typer.secho(
+            f"\nLocal projects ({n_locals}):\n", fg=typer.colors.BLUE, bold=True
+        )
         for project in local_projects:
             typer.echo(f"- {project}")
     else:
@@ -72,7 +74,9 @@ def remote() -> None:
 
     if n_remotes > 0:
 
-        typer.secho("\nRemote projects:\n", fg=typer.colors.BLUE, bold=True)
+        typer.secho(
+            f"\nRemote projects ({n_remotes}):\n", fg=typer.colors.BLUE, bold=True
+        )
         for project in remote_projects:
             typer.echo(f"- {project}")
     else:
@@ -103,7 +107,9 @@ def all_() -> None:
 
     # Show locals first
     if n_locals > 0:
-        typer.secho("\nLocal projects:\n", fg=typer.colors.BLUE, bold=True)
+        typer.secho(
+            f"\nLocal projects ({n_locals}):\n", fg=typer.colors.BLUE, bold=True
+        )
         for project in local_projects:
             typer.echo(f"- {project}")
     else:
@@ -111,7 +117,9 @@ def all_() -> None:
 
     # Now remotes
     if n_remotes > 0:
-        typer.secho("\nRemote projects:\n", fg=typer.colors.BLUE, bold=True)
+        typer.secho(
+            f"\nRemote projects ({n_remotes}):\n", fg=typer.colors.BLUE, bold=True
+        )
         for project in remote_projects:
             typer.echo(f"- {project}")
     else:
@@ -145,7 +153,9 @@ def diff() -> None:
     if n_diff > 0:
 
         typer.secho(
-            "\nRemote projects that are not local:\n", fg=typer.colors.BLUE, bold=True
+            f"\nRemote projects that are not local ({n_diff}):\n",
+            fg=typer.colors.BLUE,
+            bold=True,
         )
         for project in sorted(list(difference), key=str.casefold):
             typer.echo(f"- {project}")
