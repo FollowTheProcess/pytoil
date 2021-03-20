@@ -220,6 +220,7 @@ Commands:
   checkout  Checkout a development project, either locally or from GitHub.
   config    Display pytoil's configuration.
   create    Create a new development project locally.
+  docs      Open pytoil's documentation in your browser.
   info      Show useful information about a project.
   remove    Deletes a project from your local filesystem.
   show      View your local/remote projects.
@@ -233,6 +234,20 @@ Commands:
     pytoil's CLI is designed such that if you don't specify any arguments, it won't do anything! just show you the `--help`. This is called being a 'well behaved' unix command line tool.
 
     This is true for any subcommand of pytoil so you won't accidently break anything if you don't specify arguments :tada:.
+
+And if you get truly stuck, you can quickly open pytoil's documentation with:
+
+<div class="termy">
+
+```console
+$ pytoil docs
+
+Opening pytoil's documentation in your browser...
+
+// Now you'll be on this page in whatever your default browser is!
+```
+
+</div>
 
 [git]: https://git-scm.com
 [conda]: https://docs.conda.io/en/latest/

@@ -414,3 +414,16 @@ def config() -> None:
         typer.secho("\nCurrent pytoil config:", fg=typer.colors.BLUE, bold=True)
         typer.echo("")
         config.show()
+
+
+# All typer/click internal stuff here, no point in us testing this really
+@app.command()
+def docs() -> None:  # pragma: no cover
+    """
+    Open pytoil's documentation in your browser.
+    """
+
+    docs_url: str = "https://FollowTheProcess.github.io/pytoil/"
+
+    typer.echo("Opening pytoil's documentation in your browser...")
+    typer.launch(url=docs_url)
