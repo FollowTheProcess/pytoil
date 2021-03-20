@@ -71,13 +71,13 @@ def all_(
 
     if n_to_clone == 0:
         typer.secho(
-            "\nAll your remote repos already exist locally. Nothing to do.",
+            "\nAll your remote repos already exist locally. Nothing to do!",
             fg=typer.colors.GREEN,
         )
     else:
         if not force:
             typer.confirm(
-                f"This will clone {len(to_clone)} repos."
+                f"This will clone {n_to_clone} repos."
                 + " Are you sure you want to proceed?",
                 abort=True,
             )
@@ -138,7 +138,7 @@ def these(
     else:
         if not force:
             typer.confirm(
-                f"This will clone {len(to_clone)} repos."
+                f"This will clone {n_to_clone} repos."
                 + " Are you sure you want to proceed?",
                 abort=True,
             )

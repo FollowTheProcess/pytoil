@@ -273,7 +273,7 @@ def test_show_diff_shows_what_wed_expect(mocker: MockerFixture, fake_projects_di
 
     result = runner.invoke(app, ["show", "diff"])
     assert result.exit_code == 0
-    assert "Remote projects that are not local:" in result.stdout
+    assert "Remote projects that are not local" in result.stdout
 
     for project in actual_diff:
         assert project in result.stdout
