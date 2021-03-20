@@ -5,6 +5,7 @@
 * NEW: User can now specify a list of packages to inject into every environment pytoil creates
 * Internal config management now far simpler, makes changing or adding configurable features much easier
 * pytoil config CLI drastically simplified
+* NEW: Added `pytoil docs` command to open the package documentation in users default browser
 
 ## 0.2.0
 
