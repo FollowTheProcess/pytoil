@@ -130,7 +130,7 @@ def create(
 
     if repo.exists_local():
         typer.secho(
-            f"\nProject: {project!r} already exists locally at '{repo.path}'.\n",
+            f"Project: {project!r} already exists locally at '{repo.path}'.\n",
             fg=typer.colors.YELLOW,
         )
         typer.echo("To resume an existing project, use 'checkout'.")
@@ -138,7 +138,7 @@ def create(
         raise typer.Abort()
     elif repo.exists_remote():
         typer.secho(
-            f"\nProject: {project!r} already exists on GitHub.\n",
+            f"Project: {project!r} already exists on GitHub.\n",
             fg=typer.colors.YELLOW,
         )
         typer.echo("To resume an existing project, use 'checkout'.")
@@ -149,7 +149,7 @@ def create(
 
     if cookie:
         typer.secho(
-            f"\nCreating project: {project!r} with cookiecutter template:"
+            f"Creating project: {project!r} with cookiecutter template:"
             + f" {cookie!r}.\n",
             fg=typer.colors.BLUE,
             bold=True,
@@ -157,7 +157,7 @@ def create(
         cookiecutter(template=cookie, output_dir=config.projects_dir)
     else:
         typer.secho(
-            f"\nCreating project: {project!r} at '{repo.path}'.\n",
+            f"Creating project: {project!r} at '{repo.path}'.\n",
             fg=typer.colors.BLUE,
             bold=True,
         )
@@ -179,7 +179,7 @@ def create(
                 typer.echo(f"Using {conda_env.name!r} as the environment.")
             finally:
                 if config.vscode:
-                    typer.echo("\nSetting 'python.pythonPath' in VSCode workspace.\n")
+                    typer.echo("\nSetting 'python.pythonPath' in VSCode workspace...")
                     vscode.set_python_path(conda_env.executable)
                     typer.echo(f"Opening {project!r} in VSCode...")
                     vscode.open()
@@ -203,7 +203,7 @@ def create(
             env.update_seeds()
 
             if config.vscode:
-                typer.echo("\nSetting 'python.pythonPath' in VSCode workspace.\n")
+                typer.echo("\nSetting 'python.pythonPath' in VSCode workspace...")
                 vscode.set_python_path(env.executable)
                 typer.echo(f"Opening {project!r} in VSCode...")
                 vscode.open()
@@ -213,7 +213,7 @@ def create(
             typer.echo(f"Opening {project!r} in VSCode...")
             vscode.open()
 
-    typer.secho("\nDone!", fg=typer.colors.GREEN)
+    typer.secho("Done!", fg=typer.colors.GREEN)
 
 
 @app.command()
@@ -255,7 +255,7 @@ def checkout(
         # Note we don't do any environment stuff here
         # chances are if it exists locally, this has already been done
         typer.secho(
-            f"\nProject: {project!r} is available locally at" f" '{repo.path}'.\n",
+            f"Project: {project!r} is available locally at" f" '{repo.path}'.\n",
             fg=typer.colors.BLUE,
             bold=True,
         )
@@ -286,7 +286,7 @@ def checkout(
                 )
             finally:
                 if config.vscode:
-                    typer.echo("Setting 'python.pythonPath' in VSCode workspace...\n")
+                    typer.echo("Setting 'python.pythonPath' in VSCode workspace...")
                     vscode.set_python_path(env.executable)
 
         if config.vscode:
@@ -390,7 +390,7 @@ def info(
         )
         raise typer.Abort()
     else:
-        typer.secho(f"\nInfo for: {project!r}\n", fg=typer.colors.BLUE, bold=True)
+        typer.secho(f"Info for: {project!r}\n", fg=typer.colors.BLUE, bold=True)
         for key, val in info_dict.items():
             typer.echo(f"{key}: {val}")
 
@@ -411,7 +411,7 @@ def config() -> None:
         config = Config()
         config.write()
     else:
-        typer.secho("\nCurrent pytoil config:", fg=typer.colors.BLUE, bold=True)
+        typer.secho("Current pytoil config:", fg=typer.colors.BLUE, bold=True)
         typer.echo("")
         config.show()
 
