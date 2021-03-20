@@ -130,7 +130,7 @@ def create(
 
     if repo.exists_local():
         typer.secho(
-            f"Project: {project!r} already exists locally at '{repo.path}'.\n",
+            f"Project: {project!r} already exists locally at '{repo.path}'.",
             fg=typer.colors.YELLOW,
         )
         typer.echo("To resume an existing project, use 'checkout'.")
@@ -138,7 +138,7 @@ def create(
         raise typer.Abort()
     elif repo.exists_remote():
         typer.secho(
-            f"Project: {project!r} already exists on GitHub.\n",
+            f"Project: {project!r} already exists on GitHub.",
             fg=typer.colors.YELLOW,
         )
         typer.echo("To resume an existing project, use 'checkout'.")
@@ -150,14 +150,14 @@ def create(
     if cookie:
         typer.secho(
             f"Creating project: {project!r} with cookiecutter template:"
-            + f" {cookie!r}.\n",
+            + f" {cookie!r}.",
             fg=typer.colors.BLUE,
             bold=True,
         )
         cookiecutter(template=cookie, output_dir=config.projects_dir)
     else:
         typer.secho(
-            f"Creating project: {project!r} at '{repo.path}'.\n",
+            f"Creating project: {project!r} at '{repo.path}'.",
             fg=typer.colors.BLUE,
             bold=True,
         )
@@ -167,7 +167,7 @@ def create(
     if venv:
         if venv.value == venv.conda:
             typer.secho(
-                f"Creating conda environment for {project!r}.\n",
+                f"Creating conda environment for {project!r}.",
                 fg=typer.colors.BLUE,
                 bold=True,
             )
@@ -179,7 +179,7 @@ def create(
                 typer.echo(f"Using {conda_env.name!r} as the environment.")
             finally:
                 if config.vscode:
-                    typer.echo("\nSetting 'python.pythonPath' in VSCode workspace...")
+                    typer.echo("Setting 'python.pythonPath' in VSCode workspace...")
                     vscode.set_python_path(conda_env.executable)
                     typer.echo(f"Opening {project!r} in VSCode...")
                     vscode.open()
@@ -189,7 +189,7 @@ def create(
             # but it is: tests/cli/test_create.py
             # in several tests
             typer.secho(
-                f"Creating virtualenv for {project!r}.\n",
+                f"Creating virtualenv for {project!r}.",
                 fg=typer.colors.BLUE,
                 bold=True,
             )
@@ -198,12 +198,12 @@ def create(
             env.create(packages=config.common_packages)
 
             typer.echo(
-                "\nEnsuring seed packages (pip, setuptools, wheel) are up to date."
+                "Ensuring seed packages (pip, setuptools, wheel) are up to date."
             )
             env.update_seeds()
 
             if config.vscode:
-                typer.echo("\nSetting 'python.pythonPath' in VSCode workspace...")
+                typer.echo("Setting 'python.pythonPath' in VSCode workspace...")
                 vscode.set_python_path(env.executable)
                 typer.echo(f"Opening {project!r} in VSCode...")
                 vscode.open()
@@ -265,7 +265,7 @@ def checkout(
 
     elif repo.exists_remote():
         typer.secho(
-            f"Project: {project!r} found on your GitHub. Cloning...\n",
+            f"Project: {project!r} found on your GitHub. Cloning...",
             fg=typer.colors.BLUE,
             bold=True,
         )
@@ -273,11 +273,11 @@ def checkout(
         env = env_dispatcher(repo)
         if not env:
             typer.secho(
-                "\nUnable to auto-detect virtual environment. Skipping.",
+                "Unable to auto-detect virtual environment. Skipping.",
                 fg=typer.colors.YELLOW,
             )
         else:
-            typer.echo("\nAuto-creating correct virtual environment...\n")
+            typer.echo("Auto-creating correct virtual environment...")
             try:
                 env.create(packages=config.common_packages)
             except VirtualenvAlreadyExistsError:
@@ -295,7 +295,7 @@ def checkout(
 
     else:
         typer.secho(
-            f"Project: {project!r} not found locally or on your GitHub.\n",
+            f"Project: {project!r} not found locally or on your GitHub.",
             fg=typer.colors.RED,
         )
         typer.echo(
@@ -347,15 +347,15 @@ def remove(
     if not force:
         # Confirm with user and abort if they say no
         typer.confirm(
-            f"\nThis will remove {project!r} from your local filesystem."
+            f"This will remove {project!r} from your local filesystem."
             + " Are you sure?",
             abort=True,
         )
 
     # If user specifies force flag, just go ahead and remove
-    typer.secho(f"\nRemoving project: {project!r}.", fg=typer.colors.YELLOW)
+    typer.secho(f"Removing project: {project!r}.", fg=typer.colors.YELLOW)
     shutil.rmtree(config.projects_dir.joinpath(project))
-    typer.secho("\nDone!", fg=typer.colors.GREEN)
+    typer.secho("Done!", fg=typer.colors.GREEN)
 
 
 @app.command()
@@ -390,7 +390,7 @@ def info(
         )
         raise typer.Abort()
     else:
-        typer.secho(f"Info for: {project!r}\n", fg=typer.colors.BLUE, bold=True)
+        typer.secho(f"\nInfo for: {project!r}\n", fg=typer.colors.BLUE, bold=True)
         for key, val in info_dict.items():
             typer.echo(f"{key}: {val}")
 
