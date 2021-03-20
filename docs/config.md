@@ -64,7 +64,6 @@ projects_dir: /Users/you/Development
 token: UNSET
 username: UNSET
 vscode: false
-common_packages:
 ```
 
 !!! warning
@@ -85,7 +84,7 @@ vscode: true
 common_packages:
   - black
   - flake8
-  - mypy
+  - mypy>=0.790
   - isort
 ```
 
