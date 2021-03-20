@@ -427,3 +427,22 @@ def docs() -> None:  # pragma: no cover
 
     typer.echo("Opening pytoil's documentation in your browser...")
     typer.launch(url=docs_url)
+
+
+# No cover for same reason as above
+@app.command()
+def gh(
+    project: str = typer.Argument(
+        ..., help="The name of the project to open on GitHub."
+    )
+) -> None:  # pragma: no cover
+    """
+    Opens a specified project on GitHub in your browser.
+    """
+    config = Config.get()
+    config.validate()
+
+    project_url: str = f"https://github.com/{config.username}/{project}"
+
+    typer.echo(f"Opening {project!r} in your browser...")
+    typer.launch(url=project_url)
