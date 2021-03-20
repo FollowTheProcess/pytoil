@@ -196,8 +196,6 @@ Like all good CLI programs, pytoil (aswell as all it's subcommands, and all *the
 ```console
 $ pytoil --help
 
-Usage: pytoil [OPTIONS] COMMAND [ARGS]...
-
   Helpful CLI to automate the development workflow.
 
   - Create and manage your local and remote projects
@@ -221,6 +219,7 @@ Commands:
   config    Display pytoil's configuration.
   create    Create a new development project locally.
   docs      Open pytoil's documentation in your browser.
+  gh        Opens a specified project on GitHub in your browser.
   info      Show useful information about a project.
   remove    Deletes a project from your local filesystem.
   show      View your local/remote projects.
