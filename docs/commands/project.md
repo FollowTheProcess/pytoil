@@ -201,7 +201,7 @@ Another easy one! `remove` does exactly what it says. It will recursively delete
 ```console
 $ pytoil remove my_project
 
-# This will remove 'my_project' from your local filesystem. Are you sure? [y/N]:$ y
+# This will remove ['my_project'] from your local filesystem. Are you sure? [y/N]:$ y
 
 Removing project: 'my_project'.
 
@@ -217,9 +217,27 @@ And if you say no...
 ```console
 $ pytoil remove my_project
 
-# This will remove 'my_project' from your local filesystem. Are you sure? [y/N]:$ n
+# This will remove ['my_project'] from your local filesystem. Are you sure? [y/N]:$ n
 
 Aborted!
+```
+
+</div>
+
+`remove` also accepts a list of projects if you want to remove a few in one go:
+
+<div class="termy">
+
+```console
+$ pytoil remove remove1 remove2 remove3 remove4
+
+# This will remove ['remove1', 'remove2', 'remove3'] from your local filesystem. Are you sure? [y/N]:$ y
+
+Removing project: 'remove1'.
+Removing project: 'remove2'.
+Removing project: 'remove3'.
+
+Done!
 ```
 
 </div>
