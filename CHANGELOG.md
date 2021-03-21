@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.dev
+## 0.3.0
 
 * NEW: User can now specify a list of packages to inject into every environment pytoil creates
 * Internal config management now far simpler, makes changing or adding configurable features much easier
