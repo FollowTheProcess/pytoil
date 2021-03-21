@@ -8,7 +8,7 @@ Created: 24/02/2021
 
 import shutil
 from enum import Enum
-from typing import Set
+from typing import List, Set
 
 import typer
 from cookiecutter.main import cookiecutter
@@ -307,7 +307,7 @@ def checkout(
 
 @app.command()
 def remove(
-    project: str = typer.Argument(..., help="Name of the project to remove."),
+    projects: List[str] = typer.Argument(..., help="Name of the project(s) to remove."),
     force: bool = typer.Option(
         False,
         "--force",
@@ -317,7 +317,7 @@ def remove(
     ),
 ) -> None:
     """
-    Deletes a project from your local filesystem.
+    Deletes projects from your local filesystem.
 
     Deletion is done recursively, roughly equivalent to '$ rm -r {project}'.
 
@@ -326,6 +326,8 @@ def remove(
     Examples:
 
     $ pytoil remove my_project
+
+    $ pytoil remove project1 project2 project3
 
     $ pytoil remove --force my_project
     """
@@ -338,23 +340,29 @@ def remove(
     # but we want fast membership checking
     local_projects: Set[str] = get_local_project_set(config.projects_dir)
 
-    if project not in local_projects:
-        typer.secho(
-            f"Project: {project!r} not found in local filesystem.", fg=typer.colors.RED
-        )
-        raise typer.Abort()
+    for project in projects:
+        if project not in local_projects:
+            typer.secho(
+                f"Project: {project!r} not found in local filesystem.",
+                fg=typer.colors.RED,
+            )
+            raise typer.Abort()
+
+    to_delete: List[str] = [project for project in projects]
 
     if not force:
         # Confirm with user and abort if they say no
         typer.confirm(
-            f"This will remove {project!r} from your local filesystem."
+            f"This will remove {to_delete} from your local filesystem."
             + " Are you sure?",
             abort=True,
         )
 
     # If user specifies force flag, just go ahead and remove
-    typer.secho(f"Removing project: {project!r}.", fg=typer.colors.YELLOW)
-    shutil.rmtree(config.projects_dir.joinpath(project))
+    for project in projects:
+        typer.secho(f"Removing project: {project!r}.", fg=typer.colors.YELLOW)
+        shutil.rmtree(config.projects_dir.joinpath(project))
+
     typer.secho("Done!", fg=typer.colors.GREEN)
 
 
