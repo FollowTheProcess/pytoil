@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.dev
+
+* NEW: `pytoil remove` now accepts list of projects to remove
+
 ## 0.3.0
 
 * NEW: User can now specify a list of packages to inject into every environment pytoil creates
