@@ -73,6 +73,7 @@ omit = [
     "*exceptions.py",
     "*__main__.py",
     "pytoil/environments/abstract.py",
+    "pytoil/cli/*"
 ]
 branch = true
 
