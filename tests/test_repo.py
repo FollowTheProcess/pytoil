@@ -329,24 +329,6 @@ def test_repo_clone_raises_if_local_repo_already_exists(
             repo.clone()
 
 
-def test_repo_init_raises_if_local_repo_already_exists(
-    mocker: MockerFixture, temp_config_file
-):
-
-    # Same trick with the config file
-    with mocker.patch.object(pytoil.config.config, "CONFIG_PATH", temp_config_file):
-
-        # Make it look like we have a valid git
-        mocker.patch("pytoil.repo.repo.shutil.which", autospec=True, return_value=True)
-
-        # Make it think the repo already exists locally
-        mocker.patch("pytoil.repo.Repo.exists_local", autospec=True, return_value=True)
-
-        with pytest.raises(LocalRepoExistsError):
-            repo = Repo(owner="me", name="myproject")
-            repo.init()
-
-
 def test_repo_clone_correctly_calls_git(mocker: MockerFixture, temp_config_file):
 
     # Same trick with the config file

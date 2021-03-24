@@ -212,12 +212,6 @@ class Repo:
                 """'git' executable not installed or not found on $PATH.
         Check your git installation."""
             )
-        # Check if it already exists
-        elif self.exists_local():
-            raise LocalRepoExistsError(
-                f"""The repo {self.name} already exists at {self.path}.
-        Cannot initialise a repo that already exists."""
-            )
         else:
             # If we get here, we can safely init
             try:
