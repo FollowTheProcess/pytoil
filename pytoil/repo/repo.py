@@ -192,6 +192,39 @@ class Repo:
                 # If clone succeeded, set self.path
                 self.path = config.projects_dir.joinpath(self.name)
 
+    def init(self) -> None:
+        """
+        Invokes git in a subprocess to initialise a new repo
+        described by the instance.
+
+        Raises:
+            GitNotInstalledError: If git not on $PATH.
+            LocalRepoExistsError: If repo already exists.
+        """
+
+        # Get the user config from file and validate
+        config = Config.get()
+        config.validate()
+
+        # Check if git is installed
+        if not bool(shutil.which("git")):
+            raise GitNotInstalledError(
+                """'git' executable not installed or not found on $PATH.
+        Check your git installation."""
+            )
+        # Check if it already exists
+        elif self.exists_local():
+            raise LocalRepoExistsError(
+                f"""The repo {self.name} already exists at {self.path}.
+        Cannot initialise a repo that already exists."""
+            )
+        else:
+            # If we get here, we can safely init
+            try:
+                subprocess.run(["git", "init"], check=True, cwd=self.path)
+            except subprocess.CalledProcessError:
+                raise
+
     def info(self) -> Dict[str, Union[str, int, bool]]:
         """
         Returns summary information about the repo

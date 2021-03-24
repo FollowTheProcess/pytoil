@@ -293,6 +293,24 @@ def test_repo_clone_raises_on_invalid_git(
             repo.clone()
 
 
+@pytest.mark.parametrize("which_return", ["", None, False])
+def test_repo_init_raises_on_invalid_git(
+    mocker: MockerFixture, temp_config_file, which_return
+):
+
+    # Same trick with the config file
+    with mocker.patch.object(pytoil.config.config, "CONFIG_PATH", temp_config_file):
+
+        # Patch out shutil.which
+        mocker.patch(
+            "pytoil.repo.repo.shutil.which", autospec=True, return_value=which_return
+        )
+
+        with pytest.raises(GitNotInstalledError):
+            repo = Repo(owner="me", name="myproject")
+            repo.init()
+
+
 def test_repo_clone_raises_if_local_repo_already_exists(
     mocker: MockerFixture, temp_config_file
 ):
@@ -309,6 +327,24 @@ def test_repo_clone_raises_if_local_repo_already_exists(
         with pytest.raises(LocalRepoExistsError):
             repo = Repo(owner="me", name="myproject")
             repo.clone()
+
+
+def test_repo_init_raises_if_local_repo_already_exists(
+    mocker: MockerFixture, temp_config_file
+):
+
+    # Same trick with the config file
+    with mocker.patch.object(pytoil.config.config, "CONFIG_PATH", temp_config_file):
+
+        # Make it look like we have a valid git
+        mocker.patch("pytoil.repo.repo.shutil.which", autospec=True, return_value=True)
+
+        # Make it think the repo already exists locally
+        mocker.patch("pytoil.repo.Repo.exists_local", autospec=True, return_value=True)
+
+        with pytest.raises(LocalRepoExistsError):
+            repo = Repo(owner="me", name="myproject")
+            repo.init()
 
 
 def test_repo_clone_correctly_calls_git(mocker: MockerFixture, temp_config_file):
@@ -341,6 +377,32 @@ def test_repo_clone_correctly_calls_git(mocker: MockerFixture, temp_config_file)
 
         # Assert the path was updated
         assert repo.path == pathlib.Path("/Users/tempfileuser/projects/fakerepo")
+
+
+def test_repo_init_correctly_calls_git(mocker: MockerFixture, temp_config_file):
+
+    # Same trick with the config file
+    with mocker.patch.object(pytoil.config.config, "CONFIG_PATH", temp_config_file):
+
+        # Make it look like we have a valid git
+        mocker.patch("pytoil.repo.repo.shutil.which", autospec=True, return_value=True)
+
+        # Ensure the repo doesnt already exist
+        mocker.patch("pytoil.repo.Repo.exists_local", autospec=True, return_value=False)
+
+        # Mock the subprocess of calling git
+        mock_subprocess = mocker.patch("pytoil.repo.repo.subprocess.run", autospec=True)
+
+        repo = Repo(name="fakerepo")
+
+        repo.init()
+
+        # Assert git would have been called with correct args
+        mock_subprocess.assert_called_once_with(
+            ["git", "init"],
+            cwd=pathlib.Path("/Users/tempfileuser/projects/fakerepo"),
+            check=True,
+        )
 
 
 def test_repo_clone_raises_subprocess_error_if_anything_goes_wrong(
@@ -376,6 +438,40 @@ def test_repo_clone_raises_subprocess_error_if_anything_goes_wrong(
             mock_subprocess.assert_called_once_with(
                 ["git", "clone", "https://github.com/tempfileuser/fakerepo.git"],
                 cwd=pathlib.Path("/Users/tempfileuser/projects"),
+                check=True,
+            )
+
+
+def test_repo_init_raises_subprocess_error_if_anything_goes_wrong(
+    mocker: MockerFixture, temp_config_file
+):
+
+    # Same trick with the config file
+    with mocker.patch.object(pytoil.config.config, "CONFIG_PATH", temp_config_file):
+
+        # Make it look like we have a valid git
+        mocker.patch("pytoil.repo.repo.shutil.which", autospec=True, return_value=True)
+
+        # Ensure the repo doesnt already exist
+        mocker.patch("pytoil.repo.Repo.exists_local", autospec=True, return_value=False)
+
+        # Mock the subprocess of calling git, but have it raise an error
+        mock_subprocess = mocker.patch(
+            "pytoil.repo.repo.subprocess.run",
+            autospec=True,
+            side_effect=[subprocess.CalledProcessError(-1, "cmd")],
+        )
+
+        repo = Repo(name="fakerepo")
+
+        with pytest.raises(subprocess.CalledProcessError):
+
+            repo.init()
+
+            # Assert git would have been called with correct args
+            mock_subprocess.assert_called_once_with(
+                ["git", "clone"],
+                cwd=pathlib.Path("/Users/tempfileuser/projects/fakerepo"),
                 check=True,
             )
 
