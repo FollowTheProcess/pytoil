@@ -155,14 +155,17 @@ def create(
             bold=True,
         )
         cookiecutter(template=cookie, output_dir=config.projects_dir)
+        # NOTE: no repo init here a some cookiecutters do this with a hook
+        # Most of mine do
     else:
         typer.secho(
             f"Creating project: {project!r} at '{repo.path}'.",
             fg=typer.colors.BLUE,
             bold=True,
         )
-        # Create an empty project dir
+        # Create an empty project dir & git repo
         repo.path.mkdir()
+        repo.init()
 
     if venv:
         if venv.value == venv.conda:
