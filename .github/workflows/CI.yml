@@ -3,7 +3,7 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-  tests:
+  test:
     runs-on: ubuntu-latest
 
     strategy:
@@ -67,7 +67,7 @@ jobs:
   publish-docs:
     needs: docs
     runs-on: ubuntu-latest
-    # Only publish docs from main
+    # Only publish docs automatically on new release
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
     steps:
       - name: Checkout Code
@@ -93,7 +93,7 @@ jobs:
           poetry run mkdocs gh-deploy -v --clean --remote-name gh-token;
 
   release:
-    needs: [tests, lint, docs, publish-docs]
+    needs: [test, lint, docs, publish-docs]
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
 
