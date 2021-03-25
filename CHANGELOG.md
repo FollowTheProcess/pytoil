@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.dev
+## 0.3.1
 
 * NEW: `pytoil remove` now accepts list of projects to remove
 * NEW: `pytoil create` now initialises an empty git repo in non-cookiecutter projects
