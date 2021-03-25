@@ -4,6 +4,7 @@
 
 * NEW: `pytoil remove` now accepts list of projects to remove
 * NEW: `pytoil create` now initialises an empty git repo in non-cookiecutter projects
+* NEW: `pytoil remove` now accepts a `--all` flag to remove all projects from local directory
 
 ## 0.3.0
 

@@ -194,7 +194,7 @@ Another easy one! `remove` does exactly what it says. It will recursively delete
 
 !!! success "Don't Panic!"
 
-    Don't worry though, `remove` **DOES NOT** go near anything on your GitHub. pytoil only makes HTTP GET requests to the GitHub API so you couldn't even delete a repo if you wanted to, in fact you can't make any changes to any GitHub repo with pytoil whatsoever so you're completely safe! :grin:
+    Don't worry though, `remove` **DOES NOT** go near anything on your GitHub, only your local directories are affected by `remove`. pytoil only makes HTTP GET requests to the GitHub API so you couldn't even delete a repo if you wanted to, in fact you can't make any changes to any GitHub repo with pytoil whatsoever so you're completely safe! :grin:
 
 <div class="termy">
 
@@ -232,6 +232,24 @@ Aborted!
 $ pytoil remove remove1 remove2 remove3 remove4
 
 # This will remove ['remove1', 'remove2', 'remove3'] from your local filesystem. Are you sure? [y/N]:$ y
+
+Removing project: 'remove1'.
+Removing project: 'remove2'.
+Removing project: 'remove3'.
+
+Done!
+```
+
+</div>
+
+And if you've completely given up and decided you don't want to be a developer anymore (we've all been there), you can erase all your local projects:
+
+<div class="termy">
+
+```console
+$ pytoil remove --all
+
+# This will remove all your projects. Are you okay? [y/N]:$ y
 
 Removing project: 'remove1'.
 Removing project: 'remove2'.
