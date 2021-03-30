@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.dev
+## 0.3.2
 
 * BUG: Fix bug where `pytoil info` on a repo with no OSS license would cause an error. Not just displays `None` for `license`.
 
