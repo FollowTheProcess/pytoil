@@ -181,13 +181,14 @@ class API:
         ]
 
         display_dict: Dict[str, Union[str, int]] = {
-            key: raw_repo_data.get(key, "Not Found") for key in keys_to_get
+            key: raw_repo_data.get(key, "Not found") for key in keys_to_get
         }
 
         # License is itself a dict
         # Couldn't be bothered doing some clever recursive thing for one key
-        display_dict["license"] = raw_repo_data.get("license", "Not Found").get(
-            "name", "Not Found"
-        )
+        if raw_repo_data["license"]:
+            display_dict["license"] = raw_repo_data.get("license", "Not Found").get(
+                "name", "Not Found"
+            )
 
         return display_dict
