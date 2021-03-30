@@ -71,7 +71,7 @@ def main(
 
 
 @app.command()
-def create(
+def new(
     project: str = typer.Argument(..., help="Name of the project to create."),
     cookie: str = typer.Option(
         None,
@@ -111,11 +111,11 @@ def create(
 
     Examples:
 
-    $ pytoil create my_project
+    $ pytoil new my_project
 
-    $ pytoil create my_project -c https://github.com/me/my_cookie_template.git
+    $ pytoil new my_project -c https://github.com/me/my_cookie_template.git
 
-    $ pytoil create my_project -v conda -c https://github.com/me/cookie.git
+    $ pytoil new my_project -v conda -c https://github.com/me/cookie.git
     """
 
     # Everything below requires a valid config
@@ -303,7 +303,7 @@ def checkout(
         )
         typer.echo(
             "Does the project exist? If not, create a new project:"
-            + f" '$ pytoil create {project}'."
+            + f" '$ pytoil new {project}'."
         )
         raise typer.Abort()
 
