@@ -4,11 +4,11 @@ Now let's look at the commands you'll use to manage projects.
 
 !!! tip
 
-    Remember, each subcommand has its own help you can check out too. e.g. `pytoil create --help` :thumbsup:
+    Remember, each subcommand has its own help you can check out too. e.g. `pytoil new --help` :thumbsup:
 
-## Create
+## New
 
-`create` will make you a new project locally. You have the option to create a new virtual environment with it and to create the project from a [cookiecutter] template :cookie:
+`new` will make you a new project locally. You have the option to create a new virtual environment with it and to create the project from a [cookiecutter] template :cookie:
 
 ### No Options
 
@@ -19,7 +19,7 @@ In this sense, you don't have to be a python developer to use pytoil!
 <div class="termy">
 
 ```console
-$ pytoil create my_new_project
+$ pytoil new my_new_project
 
 Creating new project: 'my_new_project'
 // Does some stuff...
@@ -40,7 +40,7 @@ All you have to do is specify which virtual environment to create, using the `--
 <div class="termy">
 
 ```console
-$ pytoil create my_new_project --venv virtualenv
+$ pytoil new my_new_project --venv virtualenv
 
 Creating new project: 'my_new_project'
 Creating virtualenv for: 'my_new_project'
@@ -53,7 +53,7 @@ Or with conda...
 <div class="termy">
 
 ```console
-$ pytoil create my_new_project --venv conda
+$ pytoil new my_new_project --venv conda
 
 Creating new project: 'my_new_project'
 Creating conda environment for: 'my_new_project'
@@ -78,7 +78,7 @@ Because I love cookiecutter so much, I built pytoil to support them easily. You 
 
 ```console
 // Just pass a url to a cookiecutter template
-$ pytoil create my_new_project --cookie https://github.com/some/cookie.git
+$ pytoil new my_new_project --cookie https://github.com/some/cookie.git
 
 Creating new project: 'my_new_project' from cookiecutter: 'https://github.com/some/cookie.git'
 ```

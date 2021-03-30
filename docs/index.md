@@ -161,7 +161,7 @@ Resuming 'myproject'...
 <div class="termy">
 
 ```console
-$ pytoil create myproject --venv virtualenv
+$ pytoil new myproject --venv virtualenv
 
 Creating project: 'myproject' at '/Users/you/projects/myproject'
 
@@ -175,7 +175,7 @@ Creating virtualenv for: 'myproject'
 <div class="termy">
 
 ```console
-$ pytoil create myproject --venv virtualenv --cookie https://github.com/some/cookie.git
+$ pytoil new myproject --venv virtualenv --cookie https://github.com/some/cookie.git
 
 Creating project: 'myproject' with cookiecutter template: 'https://github.com/some/cookie.git'
 
@@ -218,7 +218,7 @@ Options:
 Commands:
   checkout  Checkout a development project, either locally or from GitHub.
   config    Display pytoil's configuration.
-  create    Create a new development project locally.
+  new       Create a new development project locally.
   docs      Open pytoil's documentation in your browser.
   gh        Opens a specified project on GitHub in your browser.
   info      Show useful information about a project.

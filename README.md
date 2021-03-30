@@ -82,14 +82,14 @@ pytoil checkout my_project
 #### Create a new project and virtual environment in one go
 
 ```shell
-pytoil create my_project --venv virtualenv
+pytoil new my_project --venv virtualenv
 
 ```
 
 #### And even do this from a [cookiecutter] template
 
 ```shell
-pytoil create my_project --venv virtualenv --cookie https://github.com/some/cookie.git
+pytoil new my_project --venv virtualenv --cookie https://github.com/some/cookie.git
 ```
 
 Check out the [docs] for more :boom:
