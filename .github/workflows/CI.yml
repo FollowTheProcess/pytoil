@@ -21,7 +21,6 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip setuptools wheel
           python3 -m pip install nox
-          python3 -m pip install poetry
 
       - name: Run Tests and Coverage
         run: nox --non-interactive --session "test-${{ matrix.python-version }}"
@@ -40,7 +39,6 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip setuptools wheel
           python3 -m pip install nox
-          python3 -m pip install poetry
 
       - name: Lint
         run: nox --non-interactive --session "lint"
@@ -59,7 +57,6 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip setuptools wheel
           python3 -m pip install nox
-          python3 -m pip install poetry
 
       - name: Build Docs
         run: nox --non-interactive --session "docs"
@@ -80,8 +77,6 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip setuptools wheel
           python3 -m pip install nox
-          python3 -m pip install poetry
-          poetry install
 
       - name: Deploy Docs to GitHub Pages
         env:
@@ -90,13 +85,12 @@ jobs:
         run: |
           git remote add gh-token "https://${GITHUB_TOKEN}@github.com/FollowTheProcess/pytoil.git";
           git fetch gh-token && git fetch gh-token gh-pages:gh-pages;
-          poetry run mkdocs gh-deploy -v --clean --remote-name gh-token;
+          mkdocs gh-deploy -v --clean --remote-name gh-token;
 
   release:
-    needs: [test, lint, docs, publish-docs]
     runs-on: ubuntu-latest
+    needs: [test, lint, docs, publish-docs]
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
@@ -106,14 +100,17 @@ jobs:
           python-version: 3.9
 
       - name: Install Dependencies
-        run: |
-          python3 -m pip install --upgrade pip setuptools wheel
-          python3 -m pip install poetry
+        # Uses pypa build https://pypa-build.readthedocs.io/en/latest/
+        # For full PEP517/518 compliance
+        run: python3 -m pip install --upgrade pip setuptools wheel twine build
 
-      - name: Build with Poetry
-        run: poetry build -v
-      - name: Publish to PyPI with Poetry
-        run: poetry publish -v --username=__token__ --password=${{ secrets.PYPI_API_TOKEN }}
+      - name: Build sdist and wheel
+        run: python3 -m build
+      - name: Publish Distribution to PyPI
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
 
       - name: Create GitHub Release
         uses: actions/create-release@v1
