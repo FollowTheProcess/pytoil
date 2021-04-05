@@ -14,6 +14,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 import pytoil
+from pytoil.environments import CondaEnv, VirtualEnv
 from pytoil.exceptions import (
     GitNotInstalledError,
     InvalidRepoPathError,
@@ -870,3 +871,54 @@ def test_repo_info_raises_if_doesnt_exist_locally_or_remotely(
         with pytest.raises(RepoNotFoundError):
             repo = Repo(name="blah")
             repo.info()
+
+
+def test_repo_dispatch_env_correctly_identifies_conda(
+    mocker: MockerFixture, temp_config_file
+):
+
+    with mocker.patch.object(pytoil.config.config, "CONFIG_PATH", temp_config_file):
+
+        mocker.patch("pytoil.repo.Repo.is_conda", autospec=True, return_value=True)
+
+        repo = Repo(name="test")
+
+        env = repo.dispatch_env()
+
+        assert isinstance(env, CondaEnv)
+
+
+def test_repo_dispatch_env_correctly_identifies_virtualenv(
+    mocker: MockerFixture, temp_config_file
+):
+
+    with mocker.patch.object(pytoil.config.config, "CONFIG_PATH", temp_config_file):
+
+        mocker.patch("pytoil.repo.Repo.is_conda", autospec=True, return_value=False)
+
+        mocker.patch("pytoil.repo.Repo.is_setuptools", autospec=True, return_value=True)
+
+        repo = Repo(name="test")
+
+        env = repo.dispatch_env()
+
+        assert isinstance(env, VirtualEnv)
+
+
+def test_repo_dispatch_env_returns_none_when_it_cant_detect(
+    mocker: MockerFixture, temp_config_file
+):
+
+    with mocker.patch.object(pytoil.config.config, "CONFIG_PATH", temp_config_file):
+
+        mocker.patch("pytoil.repo.Repo.is_conda", autospec=True, return_value=False)
+
+        mocker.patch(
+            "pytoil.repo.Repo.is_setuptools", autospec=True, return_value=False
+        )
+
+        repo = Repo(name="test")
+
+        env = repo.dispatch_env()
+
+        assert env is None

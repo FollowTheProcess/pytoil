@@ -15,7 +15,7 @@ from cookiecutter.main import cookiecutter
 
 from pytoil import __version__
 from pytoil.cli import show, sync
-from pytoil.cli.utils import env_dispatcher, get_local_project_set
+from pytoil.cli.utils import get_local_project_set
 from pytoil.config import Config
 from pytoil.environments import CondaEnv, VirtualEnv
 from pytoil.exceptions import RepoNotFoundError, VirtualenvAlreadyExistsError
@@ -273,7 +273,7 @@ def checkout(
             bold=True,
         )
         repo.clone()
-        env = env_dispatcher(repo)
+        env = repo.dispatch_env()
         if not env:
             typer.secho(
                 "Unable to auto-detect virtual environment. Skipping.",

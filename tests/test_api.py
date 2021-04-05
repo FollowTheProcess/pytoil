@@ -214,3 +214,24 @@ def test_get_repo_info_correctly_calls_get_repo(
         "size": size,
         "license": license_dict["name"],
     }
+
+
+def test_get_repo_info_correctly_handles_missing_license(mocker: MockerFixture):
+
+    # Have the get_repo method just return a made up dict with None for license
+    mocker.patch(
+        "pytoil.api.API.get_repo",
+        autospec=True,
+        return_value={
+            "name": "repo",
+            "description": "This is only a test",
+            "created_at": "2021-01-02",
+            "updated_at": "2021-01-03",
+            "size": 1024,
+            "license": None,
+        },
+    )
+
+    api = API(token="definitelynotatoken", username="me")
+
+    assert api.get_repo_info(repo="repo")["license"] is None

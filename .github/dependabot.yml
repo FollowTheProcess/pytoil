@@ -1,0 +1,11 @@
+version: 2
+
+updates:
+  - directory: "/"
+    open-pull-requests-limit: 5
+    package-ecosystem: "pip"
+    rebase-strategy: auto
+    allow:
+      - dependency-type: "all"
+    schedule:
+      interval: "monthly"
