@@ -8,4 +8,4 @@ updates:
     allow:
       - dependency-type: "all"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
