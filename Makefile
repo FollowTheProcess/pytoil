@@ -1,6 +1,7 @@
 .PHONY: help dev test cov style check clean docs autodocs all
 .DEFAULT_GOAL := help
 .SILENT:
+.ONESHELL:
 
 help:
 	@echo "\nUse 'make' when you just want to run a quick task. You'll need to run 'make dev' to install all dev dependencies.\n"
@@ -18,8 +19,13 @@ help:
 	@echo " - all       :  Runs all of the above in an appropriate order (excluding 'dev', 'clean', and 'autodocs')."
 
 dev:
-	@echo "\nRunning: poetry install\n"
-	poetry install
+	@echo "\nCreating Development Environment\n"
+	if [ ! -d ".venv" ]; then \
+		python3 -m venv .venv; \
+	fi
+	source .venv/bin/activate
+	python3 -m pip install --upgrade pip setuptools wheel
+	python3 -m pip install -e .[dev]
 
 test:
 	@echo "\nRunning: pytest\n"

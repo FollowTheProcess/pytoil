@@ -2,9 +2,8 @@
 Nox configuration file for the project.
 """
 
-import tempfile
 from pathlib import Path
-from typing import Any, List
+from typing import List
 
 import nox
 
@@ -23,58 +22,11 @@ SEEDS: List[str] = [
     "wheel",
 ]
 
-TEST_REQUIREMENTS: List[str] = [
-    "pytest",
-    "pytest-cov",
-    "pytest-mock",
-    "pytest-httpx",
-]
-COV_REQUIREMENTS: List[str] = [
-    "coverage[toml]",
-    "coverage-badge",
-]
-LINT_REQUIREMENTS: List[str] = [
-    "isort",
-    "black",
-    "flake8",
-    "mypy",
-]
-DOCS_REQUIREMENTS: List[str] = [
-    "mkdocs",
-    "mkdocs-material",
-    "mkdocstrings",
-    "markdown_include",
-]
-
-
-def poetry_install(session: nox.Session, *args: str, **kwargs: Any) -> None:
-    """
-    Function that allows using poetry's lock file as the root dependency
-    management system from which to install dependencies.
-
-    Args:
-        session (nox.Session): The nox session currently running.
-        *args (str): Any arguments to be passed to 'pip install' i.e. packages.
-        **kwargs (Any): Keyword arguments to be passed to nox.
-    """
-    with tempfile.NamedTemporaryFile() as requirements:
-        session.run(
-            "poetry",
-            "export",
-            "--dev",
-            "--without-hashes",
-            "--format=requirements.txt",
-            f"--output={requirements.name}",
-            external=True,
-        )
-        session.install(f"--constraint={requirements.name}", *args, **kwargs)
-
 
 def update_seeds(session: nox.Session) -> None:
     """
     Helper function to update the core installation seed packages
     to their latest versions in each session.
-
     Args:
         session (nox.Session): The nox session currently running.
     """
@@ -85,11 +37,10 @@ def update_seeds(session: nox.Session) -> None:
 @nox.session(python=PYTHON_VERSIONS)
 def test(session: nox.Session) -> None:
     """
-    Runs the test suite against all specified python versions.
+    Runs the test suite against all supported python versions.
     """
     update_seeds(session)
-    session.run("poetry", "install", "--no-dev", external=True)
-    poetry_install(session, *TEST_REQUIREMENTS)
+    session.install(".[test]")
     # Posargs allows passing of tests directly
     tests = session.posargs or ["tests/"]
     session.run("pytest", "--cov=pytoil", *tests)
@@ -108,9 +59,9 @@ def coverage(session: nox.Session) -> None:
         img_path.touch()
 
     update_seeds(session)
-    poetry_install(session, *COV_REQUIREMENTS)
+    session.install(".[cov]")
 
-    session.run("coverage", "report", "--show-missing", "--fail-under=90")
+    session.run("coverage", "report", "--show-missing")
     session.run("coverage-badge", "-fo", f"{img_path}")
 
 
@@ -120,7 +71,7 @@ def lint(session: nox.Session) -> None:
     Formats project with black and isort, then runs flake8 and mypy linting.
     """
     update_seeds(session)
-    poetry_install(session, *LINT_REQUIREMENTS)
+    session.install(".[lint]")
     session.run("isort", ".")
     session.run("black", ".")
     session.run("flake8", ".")
@@ -137,7 +88,7 @@ def docs(session: nox.Session) -> None:
     nox -s docs -- serve
     """
     update_seeds(session)
-    poetry_install(session, *DOCS_REQUIREMENTS)
+    session.install(".[docs]")
 
     if "serve" in session.posargs:
         session.run("mkdocs", "serve")
