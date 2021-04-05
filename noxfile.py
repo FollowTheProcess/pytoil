@@ -16,6 +16,13 @@ PYTHON_VERSIONS: List[str] = [
     "3.8",
     "3.9",
 ]
+
+SEEDS: List[str] = [
+    "pip",
+    "setuptools",
+    "wheel",
+]
+
 TEST_REQUIREMENTS: List[str] = [
     "pytest",
     "pytest-cov",
@@ -63,12 +70,24 @@ def poetry_install(session: nox.Session, *args: str, **kwargs: Any) -> None:
         session.install(f"--constraint={requirements.name}", *args, **kwargs)
 
 
+def update_seeds(session: nox.Session) -> None:
+    """
+    Helper function to update the core installation seed packages
+    to their latest versions in each session.
+
+    Args:
+        session (nox.Session): The nox session currently running.
+    """
+
+    session.install("--upgrade", *SEEDS)
+
+
 @nox.session(python=PYTHON_VERSIONS)
 def test(session: nox.Session) -> None:
     """
     Runs the test suite against all specified python versions.
     """
-    session.install("--upgrade", "pip", "setuptools", "wheel")
+    update_seeds(session)
     session.run("poetry", "install", "--no-dev", external=True)
     poetry_install(session, *TEST_REQUIREMENTS)
     # Posargs allows passing of tests directly
@@ -88,7 +107,7 @@ def coverage(session: nox.Session) -> None:
         img_path.parent.mkdir(parents=True)
         img_path.touch()
 
-    session.install("--upgrade", "pip", "setuptools", "wheel")
+    update_seeds(session)
     poetry_install(session, *COV_REQUIREMENTS)
 
     session.run("coverage", "report", "--show-missing", "--fail-under=90")
@@ -100,7 +119,7 @@ def lint(session: nox.Session) -> None:
     """
     Formats project with black and isort, then runs flake8 and mypy linting.
     """
-    session.install("--upgrade", "pip", "setuptools", "wheel")
+    update_seeds(session)
     poetry_install(session, *LINT_REQUIREMENTS)
     session.run("isort", ".")
     session.run("black", ".")
@@ -117,7 +136,7 @@ def docs(session: nox.Session) -> None:
 
     nox -s docs -- serve
     """
-    session.install("--upgrade", "pip", "setuptools", "wheel")
+    update_seeds(session)
     poetry_install(session, *DOCS_REQUIREMENTS)
 
     if "serve" in session.posargs:
