@@ -72,19 +72,30 @@ This will (in order):
 
 ### Step 3: Create the Environment
 
-pytoil uses [poetry] to manage development so first make sure you have that installed, see [here](https://python-poetry.org/docs/#installation).
-
-Poetry makes setting up pytoil super easy once it's installed...
+The easiest way to get your development environment set up is run the `dev` makefile target:
 
 ```shell
-poetry install
+make dev
 ```
 
-This will create a virtual environment for you, install pytoil's dependencies, and install pytoil itself in editable mode so you can work on it!
+This will create a virtual environment for you (if it doesn't already exist), install pytoil's dependencies, and install pytoil itself in editable mode so you can work on it!
 
-!!! note
+If you want to do this manually though, just do the following:
 
-    By default, poetry will store the virtual environments in a special directory it controls. My preference is to have the virtual environments inside the project directory itself. You can do this by running: `poetry config virtualenvs.in_project true` :thumbsup:
+```shell
+# Make the environment and activate it
+python3 -m venv .venv
+source ./.venv/bin/activate
+
+# Upgrade important stuff (tends to reduce install bugs etc.)
+python3 -m pip install --upgrade pip setuptools wheel
+
+# Install pytoil and it's development dependencies
+python3 -m pip install -e .[dev]
+
+# If you use zsh you might have to escape the square brackets
+python3 -m pip install -e .\[dev\]
+```
 
 ### Step 5: Do your thing
 
@@ -191,4 +202,3 @@ If you add pages to the docs, make sure they are placed in the nav tree in the `
 [here too]: https://github.com/asmeurer/git-workflow
 [mkdocs]: https://www.mkdocs.org
 [mkdocs-material]: https://squidfunk.github.io/mkdocs-material/
-[poetry]: https://python-poetry.org
