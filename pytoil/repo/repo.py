@@ -17,6 +17,7 @@ from typing import Dict, Optional, Set, Union
 
 from pytoil.api import API
 from pytoil.config import Config
+from pytoil.environments import BaseEnvironment, CondaEnv, VirtualEnv
 from pytoil.exceptions import (
     GitNotInstalledError,
     InvalidRepoPathError,
@@ -334,3 +335,23 @@ class Repo:
         """
 
         return self._does_file_exist("pyproject.toml")
+
+    def dispatch_env(self) -> Optional[BaseEnvironment]:
+        """
+        Returns the correct environment
+        object for the calling `Repo` instance. Or `None` if it cannot
+        detect the environment.
+
+        Therefore all usage should first check for `None`
+
+        Returns:
+            Optional[BaseEnvironment]: Either the correct environment
+                object if it was able to detect. Or None.
+        """
+
+        if self.is_conda():
+            return CondaEnv(name=self.name, project_path=self.path)
+        elif self.is_setuptools():
+            return VirtualEnv(project_path=self.path)
+        else:
+            return None

@@ -8,13 +8,9 @@ Created: 08/03/2021
 
 
 import pathlib
-from typing import List, Optional, Set
+from typing import List, Set
 
 from pytoil.api import API
-from pytoil.environments import BaseEnvironment
-from pytoil.environments.conda import CondaEnv
-from pytoil.environments.venv import VirtualEnv
-from pytoil.repo import Repo
 
 
 def get_local_project_list(projects_dir: pathlib.Path) -> List[str]:
@@ -90,27 +86,3 @@ def get_remote_project_set(api: API) -> Set[str]:
     remote_projects: Set[str] = set(api.get_repo_names())
 
     return remote_projects
-
-
-def env_dispatcher(repo: Repo) -> Optional[BaseEnvironment]:
-    """
-    Takes in a `Repo` and returns the correct environment
-    object for that Repo. Or `None` if it cannot
-    detect the environment.
-
-    Therefore all usage should first check for `None`
-
-    Args:
-        repo (Repo): Input Repo
-
-    Returns:
-        Optional[BaseEnvironment]: Either the correct environment
-            object if it was able to detect. Or None.
-    """
-
-    if repo.is_conda():
-        return CondaEnv(name=repo.name, project_path=repo.path)
-    elif repo.is_setuptools():
-        return VirtualEnv(project_path=repo.path)
-    else:
-        return None
