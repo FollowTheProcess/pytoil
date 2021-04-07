@@ -52,7 +52,7 @@ clean:
 	@echo "\nCleaning project clutter\n"
 	# Requires fd: brew install fd
 	fd --no-ignore __pycache__ --exec rm -rf
-	rm -rf .mypy_cache/ .nox/ .pytest_cache/ site/ .coverage
+	rm -rf .mypy_cache/ .nox/ .pytest_cache/ site/ .coverage *.egg-info
 
 docs:
 	@echo "\nBuilding Docs\n"
