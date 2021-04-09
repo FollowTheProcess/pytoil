@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.dev
+
+* NEW: `pytoil checkout` default behaviour changed to not create virtual environment. Now available through the `--venv` option bringing it in line with `pytoil new`
+
 ## 0.4.0
 
 * NEW: `pytoil create` changed to `pytoil new`

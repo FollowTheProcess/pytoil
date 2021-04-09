@@ -3,7 +3,7 @@
 ## Tweaks & Fixes
 
 - [ ] Tweak how `Config` works such that every object/method that needs a `Config` can either have it's required arguments passed in directly into the method, or use the passed in `Config` object. This should eliminate a lot of mocking complexity in the tests and make sure we don't need to keep calling `config.get` everywhere that needs it which is IO expensive.
-- [ ] In `pytoil checkout` make the default behaviour not to try to detect and auto-create an environment, but only do so with a `--venv` boolean option if you want pytoil to try and guess the environment. This would bring `checkout` in line with `create` where a virtual environment is only created if requested with the `--venv` flag.
+- [x] In `pytoil checkout` make the default behaviour not to try to detect and auto-create an environment, but only do so with a `--venv` boolean option if you want pytoil to try and guess the environment. This would bring `checkout` in line with `new` where a virtual environment is only created if requested with the `--venv` flag.
 
 ## Essentials
 

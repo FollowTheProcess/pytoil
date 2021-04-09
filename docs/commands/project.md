@@ -157,8 +157,6 @@ Opening 'my_github_project' in VSCode...
 If not, `checkout` will:
 
 * Clone it to your projects directory
-* Detect what type of project it is (conda or virtualenv)
-* Create the required virtual environment for you automatically
 * Open it for you (if you configure VSCode in [config])
 
 <div class="termy">
@@ -170,9 +168,6 @@ $ pytoil checkout my_github_project
 Project: 'my_github_project' found on GitHub! Cloning...
 // You might see some git clone output here
 
-Auto-creating correct virtual environment
-// Here you might see some conda or virtualenv stuff
-
 Opening 'my_github_project' in VSCode...
 ```
 
@@ -183,6 +178,29 @@ Opening 'my_github_project' in VSCode...
     When developing pytoil I was debating how to handle this. I use VSCode for everything but I know other people have different editor preferences. Initially I looked at using the `$EDITOR` environment variable but working out how best to launch a variety of possible editors from a CLI was tricky. Plus pytoil does things like alter workspace settings to point at the right virtual environment, and I only know how to do this with VSCode.
 
     PR's are very welcome though if you think you can introduce support for your preferred editor! :grin:
+
+If you pass the `--venv` option, `checkout` will also:
+
+* Try to detect what environment would work best for the project (conda or virtualenv)
+* Auto create this virtual environment and install any configured common packages
+* If you have VSCode configured, `pytoil` will also set your workspace `python.pythonPath`
+
+<div class="termy">
+
+```console
+// Some project thats on GitHub
+$ pytoil checkout my_github_project --venv
+
+Project: 'my_github_project' found on GitHub! Cloning...
+// You might see some git clone output here
+
+Auto-creating correct virtual environment
+// Here you might see some conda or virtualenv stuff
+
+Opening 'my_github_project' in VSCode...
+```
+
+</div>
 
 ## Remove
 
