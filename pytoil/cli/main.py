@@ -221,7 +221,14 @@ def new(
 
 @app.command()
 def checkout(
-    project: str = typer.Argument(..., help="Name of the project to checkout.")
+    project: str = typer.Argument(..., help="Name of the project to checkout."),
+    venv: bool = typer.Option(
+        False,
+        "--venv",
+        "-v",
+        help="Attempt to auto-create a virtual environment.",
+        show_default=False,
+    ),
 ) -> None:
     """
     Checkout a development project, either locally or from GitHub.
@@ -229,19 +236,23 @@ def checkout(
     pytoil will first check your configured projects directory
     for a matching name, falling back to searching your GitHub repositories.
 
-    If checkout finds the project locally, it will ensure any virtual environments
-    are configured properly if required (e.g. a python project) and open the
-    root of the project in your chosen editor.
+    If checkout finds the project locally, and you've configured it to use VSCode,
+    it will open the root of the project in VSCode.
 
     If checkout finds a match, not locally but in your GitHub repos, it will
     first clone the repo to your projects directory before proceeding as if
     it existed locally.
+
+    If you pass the '--venv' option, pytoil will attempt to auto-create
+    a correct virtual environment based on the files in the project.
 
     If neither of these finds a match, an error message will be shown.
 
     Examples:
 
     $ pytoil checkout my_cool_project
+
+    $ pytoil checkout my_cool_project --venv
     """
 
     # Everything below requires a valid config
@@ -273,24 +284,25 @@ def checkout(
             bold=True,
         )
         repo.clone()
-        env = repo.dispatch_env()
-        if not env:
-            typer.secho(
-                "Unable to auto-detect virtual environment. Skipping.",
-                fg=typer.colors.YELLOW,
-            )
-        else:
-            typer.echo("Auto-creating correct virtual environment...")
-            try:
-                env.create(packages=config.common_packages)
-            except VirtualenvAlreadyExistsError:
-                typer.echo(
-                    "Matching environment already exists. No need to create a new one!"
+        if venv:
+            env = repo.dispatch_env()
+            if not env:
+                typer.secho(
+                    "Unable to auto-detect virtual environment. Skipping.",
+                    fg=typer.colors.YELLOW,
                 )
-            finally:
-                if config.vscode:
-                    typer.echo("Setting 'python.pythonPath' in VSCode workspace...")
-                    vscode.set_python_path(env.executable)
+            else:
+                typer.echo("Auto-creating correct virtual environment...")
+                try:
+                    env.create(packages=config.common_packages)
+                except VirtualenvAlreadyExistsError:
+                    typer.echo(
+                        "Matching environment already exists. No need to create one!"
+                    )
+                finally:
+                    if config.vscode:
+                        typer.echo("Setting 'python.pythonPath' in VSCode workspace...")
+                        vscode.set_python_path(env.executable)
 
         if config.vscode:
             typer.echo(f"Opening {project!r} in VSCode...")

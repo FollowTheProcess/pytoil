@@ -151,7 +151,6 @@ Resuming 'myproject'...
 
 // Will now either open that project if local
 // or clone it if not
-// Ensure virtual environments are set up etc.
 ```
 
 </div>
