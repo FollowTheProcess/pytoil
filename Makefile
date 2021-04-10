@@ -1,4 +1,4 @@
-.PHONY: help dev test cov style check clean docs autodocs all
+.PHONY: help dev build test cov style check clean docs autodocs all
 .DEFAULT_GOAL := help
 .SILENT:
 .ONESHELL:
@@ -9,6 +9,7 @@ help:
 	@echo "Available Commands:\n"
 	@echo " - help      :  Show this help message."
 	@echo " - dev       :  Installs project including development dependencies in editable mode."
+	@echo " - build     :  Builds the source distribution and wheel."
 	@echo " - test      :  Runs all unit tests."
 	@echo " - cov       :  Shows test coverage."
 	@echo " - style     :  Lints and style checks the entire project (isort, black, flake8 and mypy)."
@@ -26,6 +27,10 @@ dev:
 	source .venv/bin/activate
 	python3 -m pip install --upgrade pip setuptools wheel
 	python3 -m pip install -e .[dev]
+
+build:
+	@echo "\nBuilding: pytoil\n"
+	python3 -m build --sdist --wheel
 
 test:
 	@echo "\nRunning: pytest\n"
@@ -50,9 +55,8 @@ check: cov style
 
 clean:
 	@echo "\nCleaning project clutter\n"
-	# Requires fd: brew install fd
-	fd --no-ignore __pycache__ --exec rm -rf
-	rm -rf .mypy_cache/ .nox/ .pytest_cache/ site/ .coverage *.egg-info
+	find . -name "__pycache__" -exec rm -rf {} +
+	rm -rf .mypy_cache/ .nox/ .pytest_cache/ site/ .coverage *.egg-info build/ dist/
 
 docs:
 	@echo "\nBuilding Docs\n"
