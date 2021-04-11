@@ -94,11 +94,10 @@ class Repo:
 
         if not REPO_REGEX.match(url):
             raise InvalidURLError(f"The URL: {url!r} is not a valid GitHub repo URL.")
-        else:
-            owner = url.rsplit(".git")[0].split("/")[-2]
-            name = url.rsplit(".git")[0].split("/")[-1]
+        owner = url.rsplit(".git")[0].split("/")[-2]
+        name = url.rsplit(".git")[0].split("/")[-1]
 
-            return cls(name=name, owner=owner)
+        return cls(name=name, owner=owner)
 
     @classmethod
     def from_path(cls, path: str) -> Repo:
@@ -121,10 +120,9 @@ class Repo:
             raise InvalidRepoPathError(
                 f"The repo path: {path!r} is not a valid GitHub repo path."
             )
-        else:
-            owner, name = path.split("/")
+        owner, name = path.split("/")
 
-            return cls(name=name, owner=owner)
+        return cls(name=name, owner=owner)
 
     def exists_local(self) -> bool:
         """

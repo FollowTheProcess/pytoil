@@ -68,11 +68,10 @@ class VirtualEnv(BaseEnvironment):
                 f"""Virtualenv with path: {self.executable}
                 already exists"""
             )
-        else:
-            # Create a new virtualenv under the project, called ".venv"
-            virtualenv.cli_run([f"{self.project_path.joinpath('.venv')}"])
-            if packages:
-                self.install(packages=packages)
+        # Create a new virtualenv under the project, called ".venv"
+        virtualenv.cli_run([f"{self.project_path.joinpath('.venv')}"])
+        if packages:
+            self.install(packages=packages)
 
     def update_seeds(self) -> None:
         """

@@ -160,9 +160,8 @@ class CondaEnv(BaseEnvironment):
                 """The environment yml file has an invalid format.
                 Cannot determine the value for key: `name`."""
             )
-        else:
-            env = CondaEnv(name=env_name, project_path=resolved_project_path)
-            env.raise_for_conda()
+        env = CondaEnv(name=env_name, project_path=resolved_project_path)
+        env.raise_for_conda()
 
         if env.exists():
             raise VirtualenvAlreadyExistsError(f"Conda env: {env.name} already exists.")
