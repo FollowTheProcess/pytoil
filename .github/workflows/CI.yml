@@ -4,6 +4,7 @@ on: [push, pull_request]
 
 jobs:
   test:
+    name: Test
     runs-on: ubuntu-latest
 
     strategy:
@@ -26,6 +27,7 @@ jobs:
         run: nox --non-interactive --session "test-${{ matrix.python-version }}"
 
   lint:
+    name: Lint
     runs-on: ubuntu-latest
 
     steps:
@@ -44,6 +46,7 @@ jobs:
         run: nox --non-interactive --session "lint"
 
   docs:
+    name: Docs
     runs-on: ubuntu-latest
 
     steps:
@@ -63,6 +66,7 @@ jobs:
 
   publish-docs:
     needs: docs
+    name: Publish Docs
     runs-on: ubuntu-latest
     # Only publish docs automatically on new release
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
@@ -88,6 +92,7 @@ jobs:
           mkdocs gh-deploy -v --clean --remote-name gh-token;
 
   release:
+    name: Release
     runs-on: ubuntu-latest
     needs: [test, lint, docs, publish-docs]
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
