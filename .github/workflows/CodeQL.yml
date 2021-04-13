@@ -9,7 +9,7 @@ on:
 
 jobs:
   analyze:
-    name: Analyze
+    name: CodeQL Analysis
     runs-on: ubuntu-latest
 
     steps:
