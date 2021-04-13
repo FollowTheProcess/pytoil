@@ -124,7 +124,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: FollowTheProcess/pytoil
+          GITHUB_REPOSITORY: ${{ github.repository }}
         with:
           tag_name: ${{ github.ref }}
           name: ${{ github.ref }}
