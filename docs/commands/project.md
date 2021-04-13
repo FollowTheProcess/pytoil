@@ -202,6 +202,10 @@ Opening 'my_github_project' in VSCode...
 
 </div>
 
+!!! note
+    
+    pytoil looks for certain files in your project (like `setup.py`, `setup.cfg`, `environment.yml` etc.) and that's how it decides which environment to create. If it isn't totally sure what environment to create, it will just skip this step and let you know!
+
 ## Remove
 
 Another easy one! `remove` does exactly what it says. It will recursively delete an entire project from your local projects directory. Since this is quite a destructive action, pytoil will prompt you to confirm before it does anything. If you say no, the entire process will be aborted and your project will be left alone!
