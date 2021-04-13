@@ -28,52 +28,25 @@ class API:
         """
         # If token passed, set it
         # if not, get from config
-        self._token = token or Config.get().token
+        self.token = token or Config.get().token
         # Same with username
-        self._username = username or Config.get().username
+        self.username = username or Config.get().username
 
         # NOTE: we might support gitlab or others in future
         # PR's welcome!
         self.baseurl: str = "https://api.github.com/"
 
-        self._headers: Dict[str, str] = {
+        self.headers: Dict[str, str] = {
             "Accept": "application/vnd.github.v3+json",
-            "Authorization": f"token {self._token}",
+            "Authorization": f"token {self.token}",
         }
 
     def __repr__(self) -> str:
         return (
             self.__class__.__qualname__
-            + f"(token={self._token!r}, "
+            + f"(token={self.token!r}, "
             + f"username={self.username!r})"
         )
-
-    @property
-    def token(self) -> Optional[str]:
-        return self._token
-
-    @token.setter
-    def token(self, value: str) -> None:
-        self._token = value
-
-    @property
-    def username(self) -> Optional[str]:
-        return self._username
-
-    @username.setter
-    def username(self, value: str) -> None:
-        self._username = value
-
-    @property
-    def headers(self) -> Dict[str, str]:
-        return self._headers
-
-    @headers.setter
-    def headers(self, value: Dict[str, str]) -> None:
-        """
-        Incase we ever need to set headers explictly.
-        """
-        self._headers = value
 
     def get(self, endpoint: str) -> Dict[str, Any]:
         """

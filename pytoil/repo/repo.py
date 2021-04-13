@@ -54,7 +54,7 @@ class Repo:
         self.owner = owner or Config.get().username
         self.name = name
 
-        self._url: str = f"https://github.com/{self.owner}/{self.name}.git"
+        self.url: str = f"https://github.com/{self.owner}/{self.name}.git"
 
         # The path this repo would have were it to be cloned locally
         self._path: pathlib.Path = Config.get().projects_dir.joinpath(self.name)
@@ -63,10 +63,6 @@ class Repo:
         return (
             self.__class__.__qualname__ + f"(owner={self.owner!r}, name={self.name!r})"
         )
-
-    @property
-    def url(self) -> str:
-        return self._url
 
     @property
     def path(self) -> pathlib.Path:

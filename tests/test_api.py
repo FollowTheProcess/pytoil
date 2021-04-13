@@ -60,29 +60,6 @@ def test_api_repr_default(mocker: MockerFixture, temp_config_file):
         assert api.__repr__() == "API(token='tempfiletoken', username='tempfileuser')"
 
 
-def test_api_setters():
-
-    api = API(token="definitelynotatoken", username="me")
-
-    # Assert properties before
-    assert api.headers == {
-        "Accept": "application/vnd.github.v3+json",
-        "Authorization": "token definitelynotatoken",
-    }
-    assert api.token == "definitelynotatoken"
-    assert api.username == "me"
-
-    # Change properties
-    api.headers = {"dingle": "dongle", "dangle": "dungle"}
-    api.token = "anotherfaketoken"
-    api.username = "someoneelse"
-
-    # Assert after
-    assert api.headers == {"dingle": "dongle", "dangle": "dungle"}
-    assert api.token == "anotherfaketoken"
-    assert api.username == "someoneelse"
-
-
 @pytest.mark.parametrize("bad_status_code", [400, 401, 403, 404, 500, 504, 505])
 def test_get_raises_on_bad_status(
     httpx_mock: HTTPXMock, bad_status_code, mocker: MockerFixture, temp_config_file

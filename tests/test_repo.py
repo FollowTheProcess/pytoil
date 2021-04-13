@@ -61,26 +61,6 @@ def test_repo_repr(mocker: MockerFixture, temp_config_file):
         assert repo.__repr__() == "Repo(owner='me', name='myproject')"
 
 
-def test_repo_setters(mocker: MockerFixture, temp_config_file):
-
-    # Patch out to our fake config file to make sure it grabs from the config
-    with mocker.patch.object(pytoil.config.config, "CONFIG_PATH", temp_config_file):
-
-        repo = Repo(name="myproject")
-
-        # Assert values before
-        assert repo.url == "https://github.com/tempfileuser/myproject.git"
-        assert repo.path == pathlib.Path("/Users/tempfileuser/projects/myproject")
-
-        # Set the values
-        # repo.url is read only
-        repo.path = pathlib.Path("fake/local/path/myproject")
-
-        # Assert values after
-        assert repo.url == "https://github.com/tempfileuser/myproject.git"
-        assert repo.path == pathlib.Path("fake/local/path/myproject")
-
-
 @pytest.mark.parametrize(
     "url, owner, name",
     [
