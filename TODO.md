@@ -8,7 +8,7 @@
 ## Essentials
 
 - [ ] If creating a virtual environment on `checkout` should have some logic to detect the presence of requirements files and automatically install them into the environment. So like `pip install -r requirements.txt` or `pip install -e .[dev]` etc. Some assumptions may have to be made as to what to do in the presence of which files.
-- [ ] Some nice way of testing the CLI without it being too coupled to the implementation. I tried testing the CLI before but it made refactoring very difficult because the tests would be so coupled to the implementation that it kept breaking many tests.
+- [x] Some nice way of testing the CLI without it being too coupled to the implementation. I tried testing the CLI before but it made refactoring very difficult because the tests would be so coupled to the implementation that it kept breaking many tests.
 
 ## Nice to Have
 
