@@ -3,10 +3,14 @@ Nox configuration file for the project.
 """
 
 import configparser
+import os
 from pathlib import Path
 from typing import List
 
 import nox
+
+# GitHub Actions
+ON_CI = bool(os.getenv("CI"))
 
 PROJECT_ROOT = Path(__file__).parent.resolve()
 
@@ -67,6 +71,7 @@ def test(session: nox.Session) -> None:
     """
     Runs the test suite against all supported python versions.
     """
+
     update_seeds(session)
     # Tests require the package to be installed
     session.install(".[test]")
@@ -81,6 +86,7 @@ def coverage(session: nox.Session) -> None:
     """
     Test coverage analysis.
     """
+
     img_path = PROJECT_ROOT.joinpath("docs/img/coverage.svg")
 
     if not img_path.exists():
@@ -99,10 +105,19 @@ def lint(session: nox.Session) -> None:
     """
     Formats project with black and isort, then runs flake8 and mypy linting.
     """
+
     update_seeds(session)
     session.install(*get_requirements("lint"))
-    session.run("isort", ".")
-    session.run("black", ".")
+
+    # If we're on CI, run in check mode so build fails if formatting isn't correct
+    if ON_CI:
+        session.run("isort", ".", "--check")
+        session.run("black", ".", "--check")
+    else:
+        # If local, go ahead and fix formatting
+        session.run("isort", ".")
+        session.run("black", ".")
+
     session.run("flake8", ".")
     session.run("mypy", ".")
 
@@ -116,6 +131,7 @@ def docs(session: nox.Session) -> None:
 
     nox -s docs -- serve
     """
+
     update_seeds(session)
     session.install(*get_requirements("docs"))
 
