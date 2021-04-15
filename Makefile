@@ -27,6 +27,7 @@ dev:
 	source .venv/bin/activate
 	python3 -m pip install --upgrade pip setuptools wheel
 	python3 -m pip install -e .[dev]
+	pre-commit install
 
 build:
 	@echo "\nBuilding: pytoil\n"
@@ -52,6 +53,7 @@ style:
 	mypy .
 
 check: cov style
+	pre-commit run --all-files
 
 clean:
 	@echo "\nCleaning project clutter\n"
