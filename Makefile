@@ -53,6 +53,7 @@ style:
 	mypy .
 
 check: cov style
+	pre-commit run --all-files
 
 clean:
 	@echo "\nCleaning project clutter\n"
