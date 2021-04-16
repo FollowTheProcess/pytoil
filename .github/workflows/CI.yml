@@ -110,9 +110,9 @@ jobs:
         run: python3 -m pip install --upgrade pip setuptools wheel twine build
 
       - name: Build sdist and wheel
-        run: python3 -m build
+        run: python3 -m build --sdist --wheel
       - name: Publish Distribution to PyPI
-        uses: pypa/gh-action-pypi-publish@master
+        uses: pypa/gh-action-pypi-publish@v1
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
