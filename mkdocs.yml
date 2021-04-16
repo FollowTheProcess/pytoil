@@ -9,7 +9,11 @@ nav:
   - Config: config.md
   - Commands:
       - Show: commands/show.md
-      - Project Management: commands/project.md
+      - New: commands/new.md
+      - Checkout: commands/checkout.md
+      - Remove: commands/remove.md
+      - Info: commands/info.md
+      - GH: commands/gh.md
       - Sync: commands/sync.md
   - Contributing: contributing.md
   - Changelog: changelog.md
