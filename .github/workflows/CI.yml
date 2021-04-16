@@ -118,7 +118,7 @@ jobs:
           password: ${{ secrets.PYPI_API_TOKEN }}
 
       - name: Generate GitHub Release Changelog
-        run: sh .github/scripts/changelog.sh > ${{ github.workflow }}_CHANGELOG.md
+        run: bash .github/scripts/changelog.sh > ${{ github.workflow }}_CHANGELOG.md
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
