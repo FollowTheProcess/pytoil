@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """
 Setuptools shim to allow editable installs.
 
