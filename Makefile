@@ -13,7 +13,7 @@ help:
 	@echo " - test      :  Runs all unit tests."
 	@echo " - cov       :  Shows test coverage."
 	@echo " - style     :  Lints and style checks the entire project (isort, black, flake8 and mypy)."
-	@echo " - check     :  Runs tests, coverage and style in sequence."
+	@echo " - check     :  Runs tests, coverage, style and all pre-commit hooks in sequence."
 	@echo " - clean     :  Removes project clutter and cache files."
 	@echo " - docs      :  Creates a clean docs build."
 	@echo " - autodocs  :  Creates and serves a clean docs build."
