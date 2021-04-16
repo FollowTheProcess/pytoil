@@ -117,9 +117,6 @@ jobs:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
 
-      - name: Generate GitHub Release Changelog
-        run: bash .github/scripts/changelog.sh > ${{ github.workflow }}_CHANGELOG.md
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         env:
@@ -128,7 +125,6 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           name: ${{ github.ref }}
-          body_path: ${{ github.workflow }}_CHANGELOG.md
           draft: false
           prerelease: false
           fail_on_unmatched_files: true
