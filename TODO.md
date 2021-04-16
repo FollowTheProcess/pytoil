@@ -13,3 +13,4 @@
 ## Nice to Have
 
 - [ ] Support for poetry. Need a config file boolean key `use_poetry` or similar which, if True, will make pytoil call poetry in a subprocess if a project contains only a `pyproject.toml` file to create and manage the environment. Because `pyproject.toml` will also exist in pip-managed packages, this should check for anything to do with setuptools (`setup.py`, `setup.cfg` etc.) only falling back to poetry when neither of these are found.
+- [ ] Be able to fork a repo?
