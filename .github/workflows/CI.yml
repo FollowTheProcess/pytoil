@@ -80,7 +80,7 @@ jobs:
       - name: Install Dependencies
         run: |
           python3 -m pip install --upgrade pip setuptools wheel
-          python3 -m pip install nox
+          python3 -m pip install .[docs]
 
       - name: Deploy Docs to GitHub Pages
         env:
