@@ -78,7 +78,7 @@ The easiest way to get your development environment set up is run the `dev` make
 make dev
 ```
 
-This will create a virtual environment for you (if it doesn't already exist), install pytoil's dependencies, and install pytoil itself in editable mode so you can work on it!
+This will create a virtual environment for you (if it doesn't already exist), install pytoil's dependencies, install pytoil itself in editable mode so you can work on it and install the pre-commit hooks to catch pesky mistakes!
 
 If you want to do this manually though, just do the following:
 
@@ -95,6 +95,9 @@ python3 -m pip install -e .[dev]
 
 # If you use zsh you might have to escape the square brackets
 python3 -m pip install -e .\[dev\]
+
+# Install pre-commit hooks
+pre-commit install
 ```
 
 ### Step 5: Do your thing
@@ -122,6 +125,16 @@ nox
 ```
 
 And it will tell you if something's wrong!
+
+Nox does everything in fresh virtual environments so it's a great tool but sometimes you want quicker feedback on test results. For this, I've included a makefile with little tasks like test, coverage etc.
+
+To run the tests this way:
+
+```shell
+make test
+```
+
+Run `make help` to see the tasks and the description of what they do
 
 ### Step 6: Commit your changes
 
