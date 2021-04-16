@@ -52,7 +52,7 @@ Now add the original pytoil repo as an upstream in your forked project:
 git remote add upstream https://github.com/FollowTheProcess/pytoil.git
 ```
 
-This makes the original version of pytoil 'upstream' but not 'origin'. Basically, this means that if your working on it for a while and the original project has changed in the meantime, you can do:
+This makes the original version of pytoil `upstream` but not `origin`. Basically, this means that if your working on it for a while and the original project has changed in the meantime, you can do:
 
 ```shell
 git checkout main
@@ -68,7 +68,9 @@ This will (in order):
 * Merge those changes in with what you have
 * Push those changes up to your fork so your fork stays up to date with the original.
 
-*Good practice is to do this before you start doing anything every time you start work, then the chances of you getting conflicting commits later on is much lower!*
+!!! note
+
+    Good practice is to do this before you start doing anything every time you start work, then the chances of you getting conflicting commits later on is much lower!
 
 ### Step 3: Create the Environment
 
@@ -85,7 +87,7 @@ If you want to do this manually though, just do the following:
 ```shell
 # Make the environment and activate it
 python3 -m venv .venv
-source ./.venv/bin/activate
+source .venv/bin/activate
 
 # Upgrade important stuff (tends to reduce install bugs etc.)
 python3 -m pip install --upgrade pip setuptools wheel
@@ -108,15 +110,11 @@ pre-commit install
 git checkout -b <name-of-your-bugfix-or-feature>
 ```
 
-So if I was going to fix a bug with the yield strength calculation I would do something like:
-
-```shell
-git checkout -b yield-strength-bugfix
-```
-
 Now you're ready to start working!
 
-*Remember! pytoil aims for high test coverage. If you implement a new feature, make sure to write tests for it! Similarly, if you fix a bug, it's good practice to write a test that would have caught that bug so we can be sure it doesn't reappear in the future!*
+!!! tip
+
+    Remember! pytoil aims for high test coverage. If you implement a new feature, make sure to write tests for it! Similarly, if you fix a bug, it's good practice to write a test that would have caught that bug so we can be sure it doesn't reappear in the future!
 
 pytoil uses [nox] for automated testing, building the docs, formatting and linting etc. So when you've made your changes, just run:
 

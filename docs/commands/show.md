@@ -1,6 +1,6 @@
 # Show
 
-We've seen some pytoil commands, mainly `init` and `config`, but these are both *meta* and control pytoil itself.
+We've seen some pytoil commands but these are *meta* and control pytoil itself.
 
 Let's look at how you can use pytoil to help *you* :thumbsup:
 
