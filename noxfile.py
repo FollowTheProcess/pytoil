@@ -36,8 +36,8 @@ def get_requirements(section: str) -> List[str]:
     of requirements for an `extras` section e.g 'lint', 'docs' etc.
 
     Similar to calling `pip install .[section]` except this
-    function does not install the package or it's dependencies as
-    some sessions do not require the installation of the package.
+    function simply returns the list of packages that would
+    be installed.
 
     Args:
         section (str): Valid `setup.cfg` extras_require header
@@ -59,6 +59,7 @@ def update_seeds(session: nox.Session) -> None:
     """
     Helper function to update the core installation seed packages
     to their latest versions in each session.
+
     Args:
         session (nox.Session): The nox session currently running.
     """
