@@ -87,7 +87,7 @@ def new(
         case_sensitive=False,
         show_default=True,
     ),
-) -> None:
+) -> None:  # sourcery no-metrics
     """
     Create a new development project locally.
 
