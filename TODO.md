@@ -3,6 +3,7 @@
 ## Tweaks & Fixes
 
 - [ ] Tweak how `Config` works such that every object/method that needs a `Config` can either have it's required arguments passed in directly into the method, or use the passed in `Config` object. This should eliminate a lot of mocking complexity in the tests and make sure we don't need to keep calling `config.get` everywhere that needs it which is IO expensive.
+- [ ] Support `$HOME/miniforge3` for conda environments. M1 mac users will have to use miniforge for conda, this should be supported.
 
 ## Essentials
 
