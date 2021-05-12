@@ -276,14 +276,17 @@ class CondaEnv(BaseEnvironment):
                 environment storage directory.
         """
 
-        # As far as I'm aware, there are only 2 possible locations
+        # As far as I'm aware, there are only 3 possible locations
         miniconda = pathlib.Path.home().joinpath("miniconda3/envs")
         anaconda = pathlib.Path.home().joinpath("anaconda3/envs")
+        miniforge = pathlib.Path.home().joinpath("miniforge3/envs")
 
         if miniconda.exists() and miniconda.is_dir():
             return miniconda
         elif anaconda.exists() and anaconda.is_dir():
             return anaconda
+        elif miniforge.exists() and miniforge.is_dir():
+            return miniforge
         else:
             raise UnknownCondaInstallationError(
                 "Could not autodetect the conda environments directory."
