@@ -488,7 +488,24 @@ def test_condaenv_get_envs_dir_returns_correctly_for_anaconda(
     assert env == expected_env_dir
 
 
-def test_condaenv_get_envs_dir_raises_if_neither_found(
+def test_condaenv_get_envs_dir_returns_correctly_for_miniforge(
+    mocker: MockerFixture, fake_home_folder_miniforge: pathlib.Path
+):
+
+    mocker.patch(
+        "pytoil.environments.conda.pathlib.Path.home",
+        autospec=True,
+        return_value=fake_home_folder_miniforge,
+    )
+
+    env = CondaEnv.get_envs_dir()
+
+    expected_env_dir = fake_home_folder_miniforge.joinpath("miniforge3/envs")
+
+    assert env == expected_env_dir
+
+
+def test_condaenv_get_envs_dir_raises_if_none_found(
     mocker: MockerFixture, fake_home_folder_neither: pathlib.Path
 ):
 

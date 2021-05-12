@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.dev
+
+* NEW: pytoil now supports the use of miniforge as a conda installation
+
 ## 0.4.1
 
 * NEW: `pytoil checkout` default behaviour changed to not create virtual environment. Now available through the `--venv` option bringing it in line with `pytoil new`

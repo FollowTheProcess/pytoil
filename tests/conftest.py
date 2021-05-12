@@ -395,6 +395,25 @@ def fake_home_folder_anaconda(tmp_path_factory):
 
 
 @pytest.fixture
+def fake_home_folder_miniforge(tmp_path_factory):
+    """
+    Returns a faked $HOME folder. Should be used as the return
+    value from pathlib.Path.home().
+
+    Designed to test the auto detection of conda environment
+    storage directory.
+    """
+
+    fake_home: pathlib.Path = tmp_path_factory.mktemp("home")
+
+    # Add in the anaconda3/envs folder
+    anaconda = fake_home.joinpath("miniforge3/envs")
+    anaconda.mkdir(parents=True)
+
+    return fake_home
+
+
+@pytest.fixture
 def fake_home_folder_neither(tmp_path_factory):
     """
     Returns a faked $HOME but without any conda dirs.
