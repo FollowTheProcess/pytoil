@@ -56,7 +56,8 @@ def all_(
     config = Config.get()
     config.validate()
 
-    api = API()
+    # Initialise a GitHub API object
+    api = API(token=config.token, username=config.username)
 
     local_projects: Set[str] = get_local_project_set(config.projects_dir)
 
@@ -87,7 +88,7 @@ def all_(
             # Create the repo object and clone
             repo = Repo(name=repo_name)
             typer.echo(f"\nCloning: {repo.name!r}.")
-            repo.clone()
+            repo.clone(api=api)
 
 
 @app.command()
@@ -117,6 +118,9 @@ def these(
     # Everything below requires a valid config
     config = Config.get()
     config.validate()
+
+    # Initialise a GitHub API object
+    api = API(token=config.token, username=config.username)
 
     local_projects: Set[str] = get_local_project_set(config.projects_dir)
 
@@ -150,4 +154,4 @@ def these(
             # Create the repo object and clone
             repo = Repo(name=repo_name)
             typer.echo(f"\nCloning: {repo.name!r}.")
-            repo.clone()
+            repo.clone(api=api)

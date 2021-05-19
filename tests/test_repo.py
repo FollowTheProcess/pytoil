@@ -14,6 +14,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 import pytoil
+from pytoil.api import API
 from pytoil.environments import CondaEnv, VirtualEnv
 from pytoil.exceptions import (
     GitNotInstalledError,
@@ -232,7 +233,7 @@ def test_repo_exists_remote_returns_false_on_missing_repo(
         # Rest of the params will be filled in by our patched config file
         repo = Repo(name=non_existing_repo_name)
 
-        assert repo.exists_remote() is False
+        assert repo.exists_remote(api=API()) is False
 
 
 @pytest.mark.parametrize("existing_repo_name", ["exist1", "exist2", "exist3", "exist4"])
@@ -253,7 +254,7 @@ def test_repo_exists_remote_returns_true_on_valid_repo(
 
         repo = Repo(name=existing_repo_name)
 
-        assert repo.exists_remote() is True
+        assert repo.exists_remote(api=API()) is True
 
 
 @pytest.mark.parametrize("which_return", ["", None, False])
@@ -271,7 +272,7 @@ def test_repo_clone_raises_on_invalid_git(
 
         with pytest.raises(GitNotInstalledError):
             repo = Repo(owner="me", name="myproject")
-            repo.clone()
+            repo.clone(api=API())
 
 
 @pytest.mark.parametrize("which_return", ["", None, False])
@@ -307,7 +308,7 @@ def test_repo_clone_raises_if_local_repo_already_exists(
 
         with pytest.raises(LocalRepoExistsError):
             repo = Repo(owner="me", name="myproject")
-            repo.clone()
+            repo.clone(api=API())
 
 
 def test_repo_clone_correctly_calls_git(mocker: MockerFixture, temp_config_file):
@@ -329,7 +330,7 @@ def test_repo_clone_correctly_calls_git(mocker: MockerFixture, temp_config_file)
 
         repo = Repo(name="fakerepo")
 
-        repo.clone()
+        repo.clone(api=API())
 
         # Assert git would have been called with correct args
         mock_subprocess.assert_called_once_with(
@@ -395,7 +396,7 @@ def test_repo_clone_raises_subprocess_error_if_anything_goes_wrong(
 
         with pytest.raises(subprocess.CalledProcessError):
 
-            repo.clone()
+            repo.clone(api=API())
 
             # Assert git would have been called with correct args
             mock_subprocess.assert_called_once_with(
@@ -459,7 +460,7 @@ def test_repo_clone_raises_on_missing_remote_repo(
         repo = Repo(name="fakerepo")
 
         with pytest.raises(RepoNotFoundError):
-            repo.clone()
+            repo.clone(api=API())
 
 
 @pytest.mark.parametrize(
@@ -729,7 +730,7 @@ def test_info_on_remote_repo(
 
         repo = Repo(name=repo_name)
 
-        assert repo.info() == {
+        assert repo.info(api=API()) == {
             "name": repo_name,
             "description": description,
             "created_at": created_at,
@@ -826,7 +827,7 @@ def test_info_on_local_only_repo(
 
         repo = Repo(name=repo_name)
 
-        assert repo.info() == {
+        assert repo.info(api=API()) == {
             "name": repo_name,
             "created_at": created_at,
             "updated_at": updated_at,
@@ -850,7 +851,7 @@ def test_repo_info_raises_if_doesnt_exist_locally_or_remotely(
 
         with pytest.raises(RepoNotFoundError):
             repo = Repo(name="blah")
-            repo.info()
+            repo.info(api=API())
 
 
 def test_repo_dispatch_env_correctly_identifies_conda(
