@@ -130,24 +130,29 @@ class Repo:
         """
         return self.path.exists()
 
-    def exists_remote(self) -> bool:
+    def exists_remote(self, api: API) -> bool:
         """
         Determines whether or not the repo called
         `self.name` exists under configured username.
+
+        Args:
+            api (API): GitHub API object.
 
         Returns:
             bool: True if repo exists on GitHub, else False.
         """
 
-        api = API()
         repos: Set[str] = set(api.get_repo_names())
 
         return self.name in repos
 
-    def clone(self) -> None:
+    def clone(self, api: API) -> None:
         """
         Invokes git in a subprocess to clone the repo
         represented by the instance.
+
+        Args:
+            api (API): GitHub API object.
 
         Raises:
             GitNotInstalledError: If 'git' not found on $PATH.
@@ -173,7 +178,7 @@ class Repo:
         Cannot clone a repo that already exists."""
             )
         # Check if the remote repo actually exists
-        elif not self.exists_remote():
+        elif not self.exists_remote(api=api):
             raise RepoNotFoundError(f"Repo: {self.url} not found on GitHub")
         else:
             # If we get here, we can safely clone
@@ -214,7 +219,7 @@ class Repo:
             except subprocess.CalledProcessError:
                 raise
 
-    def info(self) -> Dict[str, Union[str, int, bool]]:
+    def info(self, api: API) -> Dict[str, Union[str, int, bool]]:
         """
         Returns summary information about the repo
         from the API or Path.stat.
@@ -222,6 +227,9 @@ class Repo:
         Prefers the API info as it is more detailed.
         Will fall back to Path.stat only if the project
         is not available remotely.
+
+        Args:
+            api (API): GitHub API object.
 
         Returns:
             Dict[str, Union[str, int]]: Summary info.
@@ -232,9 +240,8 @@ class Repo:
         # Path.stat returns a UNIX timestamp for dates/times
         str_time_format: str = r"%Y-%m-%d %H:%M:%S"
 
-        if self.exists_remote():
+        if self.exists_remote(api=api):
             # If remote, the API does all the work
-            api = API()
             info_dict.update(api.get_repo_info(repo=self.name))
             info_dict["remote"] = True
             info_dict["local"] = self.exists_local()
@@ -251,7 +258,7 @@ class Repo:
                     ).strftime(str_time_format),
                     "size": self.path.stat().st_size,
                     "local": True,
-                    "remote": self.exists_remote(),
+                    "remote": self.exists_remote(api=api),
                 },
             )
         else:

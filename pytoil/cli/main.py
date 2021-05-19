@@ -14,6 +14,7 @@ import typer
 from cookiecutter.main import cookiecutter
 
 from pytoil import __version__
+from pytoil.api import API
 from pytoil.cli import show, sync
 from pytoil.cli.utils import get_local_project_set
 from pytoil.config import Config
@@ -122,6 +123,9 @@ def new(
     config = Config.get()
     config.validate()
 
+    # Initialise a GitHub API object
+    api = API(token=config.token, username=config.username)
+
     # Create the project repo object
     # And the VSCode object
     repo = Repo(name=project)
@@ -136,7 +140,7 @@ def new(
         typer.echo("To resume an existing project, use 'checkout'.")
         typer.echo(f"Example: '$ pytoil checkout {project}'.")
         raise typer.Abort()
-    elif repo.exists_remote():
+    elif repo.exists_remote(api=api):
         typer.secho(
             f"Project: {project!r} already exists on GitHub.",
             fg=typer.colors.YELLOW,
@@ -259,6 +263,9 @@ def checkout(
     config = Config.get()
     config.validate()
 
+    # Initialise a GitHub API object
+    api = API(token=config.token, username=config.username)
+
     # Project exists either locally or on users GitHub
     # and is to be grabbed by name only
     repo = Repo(name=project)
@@ -277,13 +284,13 @@ def checkout(
             typer.echo(f"Opening {project!r} in VSCode...")
             vscode.open()
 
-    elif repo.exists_remote():
+    elif repo.exists_remote(api=api):
         typer.secho(
             f"Project: {project!r} found on your GitHub. Cloning...",
             fg=typer.colors.BLUE,
             bold=True,
         )
-        repo.clone()
+        repo.clone(api=api)
         if venv:
             env = repo.dispatch_env()
             if not env:
@@ -421,10 +428,13 @@ def info(
     config = Config.get()
     config.validate()
 
+    # Initialise a GitHub API object
+    api = API(token=config.token, username=config.username)
+
     repo = Repo(name=project)
 
     try:
-        info_dict = repo.info()
+        info_dict = repo.info(api=api)
     except RepoNotFoundError:
         typer.secho(
             f"Project: {project!r} not found locally or on GitHub.", fg=typer.colors.RED
