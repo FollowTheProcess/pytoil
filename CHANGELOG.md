@@ -1,8 +1,9 @@
 # Changelog
 
-## 0.4.dev
+## 0.4.2
 
 * NEW: pytoil now supports the use of miniforge as a conda installation
+* CLN: Some minor refactorings and code clean up
 
 ## 0.4.1
 
