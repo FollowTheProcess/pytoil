@@ -129,8 +129,7 @@ def new(
     # Create the project repo object
     # And the VSCode object
     repo = Repo(name=project)
-    if config.vscode:
-        vscode = VSCode(root=repo.path)
+    vscode = VSCode(root=repo.path)
 
     if repo.exists_local():
         typer.secho(
@@ -269,8 +268,7 @@ def checkout(
     # Project exists either locally or on users GitHub
     # and is to be grabbed by name only
     repo = Repo(name=project)
-    if config.vscode:
-        vscode = VSCode(root=repo.path)
+    vscode = VSCode(root=repo.path)
 
     if repo.exists_local():
         # Note we don't do any environment stuff here
