@@ -8,8 +8,8 @@
 
 - [ ] Tweak how `Config` works such that every object/method that needs a `Config` can either have it's required arguments passed in directly into the method, or use the passed in `Config` object. This should eliminate a lot of mocking complexity in the tests and make sure we don't need to keep calling `config.get` everywhere that needs it which is IO expensive.
 - [x] Support `$HOME/miniforge3` for conda environments. M1 mac users will have to use miniforge for conda, this should be supported.
-- [ ] Write a yaml schema for the config file (mainly just out of curiosity)
 - [ ] `pytoil remove` shows the actual set object on confirm i.e. `{project1, project2}`. Would be nicer if it just showed the normal comma separated list of projects like `project1, project2`.
+- [ ] Things like `pytoil remove` and `pytoil sync` have an `all` action but it's inconsistent. In `remove` it's `--all` but in sync it's command `all`. Make both an option `--all`.
 
 ## Essentials
 
