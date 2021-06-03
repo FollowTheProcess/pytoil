@@ -149,7 +149,6 @@ def these(
 
         # If user said no, typer will abort and the following will not run
         # If they said yes, it will run
-        typer.echo("You said yes")
         for repo_name in to_clone:
             # Create the repo object and clone
             repo = Repo(name=repo_name)
