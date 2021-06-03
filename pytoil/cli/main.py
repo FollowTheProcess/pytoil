@@ -391,7 +391,7 @@ def remove(
         if not force:
             # Confirm with user and abort if they say no
             typer.confirm(
-                f"This will remove {to_delete} from your local filesystem."
+                f"This will remove {', '.join(to_delete)} from your local filesystem."
                 + " Are you sure?",
                 abort=True,
             )
