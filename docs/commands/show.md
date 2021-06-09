@@ -4,7 +4,7 @@ We've seen some pytoil commands but these are *meta* and control pytoil itself.
 
 Let's look at how you can use pytoil to help *you* :thumbsup:
 
-The first subcommand we will look at is `pytoil show`. 
+The first subcommand we will look at is `pytoil show`.
 
 `show` does what it says on the tin and provides a nice way of showing your local and remote projects.
 
