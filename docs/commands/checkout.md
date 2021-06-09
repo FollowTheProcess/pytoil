@@ -72,7 +72,7 @@ Opening 'my_github_project' in VSCode...
 </div>
 
 !!! note
-    
+
     pytoil looks for certain files in your project (like `setup.py`, `setup.cfg`, `environment.yml` etc.) and that's how it decides which environment to create. If it isn't totally sure what environment to create, it will just skip this step and let you know!
 
 [config]: ../config.md
