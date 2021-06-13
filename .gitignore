@@ -110,3 +110,4 @@ docs/site
 # IDE settings
 .vscode/
 .idea/
+.doit.db
