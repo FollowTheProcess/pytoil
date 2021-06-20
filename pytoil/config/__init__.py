@@ -1,7 +1,7 @@
-from pytoil.config.config import CONFIG_PATH, DEFAULT_PROJECTS_DIR, Config
+from pytoil.config import defaults
+from pytoil.config.config import Config
 
 __all__ = [
     "Config",
-    "CONFIG_PATH",
-    "DEFAULT_PROJECTS_DIR",
+    "defaults",
 ]

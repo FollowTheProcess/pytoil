@@ -74,33 +74,15 @@ This will (in order):
 
 ### Step 3: Create the Environment
 
-The easiest way to get your development environment set up is run the `dev` makefile target:
+pytoil uses [poetry] to manage development, so to work on it you'll need to get it too!
+
+All you need to do to get started is
 
 ```shell
-make dev
+poetry install
 ```
 
 This will create a virtual environment for you (if it doesn't already exist), install pytoil's dependencies, install pytoil itself in editable mode so you can work on it and install the pre-commit hooks to catch pesky mistakes!
-
-If you want to do this manually though, just do the following:
-
-```shell
-# Make the environment and activate it
-python3 -m venv .venv
-source .venv/bin/activate
-
-# Upgrade important stuff (tends to reduce install bugs etc.)
-python3 -m pip install --upgrade pip setuptools wheel
-
-# Install pytoil and it's development dependencies
-python3 -m pip install -e .[dev]
-
-# If you use zsh you might have to escape the square brackets
-python3 -m pip install -e .\[dev\]
-
-# Install pre-commit hooks
-pre-commit install
-```
 
 ### Step 5: Do your thing
 
@@ -213,3 +195,4 @@ If you add pages to the docs, make sure they are placed in the nav tree in the `
 [here too]: https://github.com/asmeurer/git-workflow
 [mkdocs]: https://www.mkdocs.org
 [mkdocs-material]: https://squidfunk.github.io/mkdocs-material/
+[poetry]: https://python-poetry.org

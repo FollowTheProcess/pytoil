@@ -2,10 +2,10 @@
 Nox configuration file for the project.
 """
 
-import configparser
 import os
+import tempfile
 from pathlib import Path
-from typing import List
+from typing import Any, Dict, List
 
 import nox
 
@@ -13,8 +13,6 @@ import nox
 ON_CI = bool(os.getenv("CI"))
 
 PROJECT_ROOT = Path(__file__).parent.resolve()
-
-SETUP_CFG = PROJECT_ROOT.joinpath("setup.cfg")
 
 DEFAULT_PYTHON: str = "3.9"
 
@@ -29,37 +27,77 @@ SEEDS: List[str] = [
     "wheel",
 ]
 
+# Dependencies for each of the nox session names
+# These names must be identical to the names of the defined nox sessions
+SESSION_REQUIREMENTS: Dict[str, List[str]] = {
+    "test": [
+        "pytest",
+        "pytest-cov",
+        "pytest-httpx",
+        "pytest-mock",
+        "coverage",
+        "toml",
+    ],
+    "lint": [
+        "flake8",
+        "isort",
+        "black",
+        "mypy",
+        "pydantic",
+    ],
+    "docs": [
+        "mkdocs",
+        "mkdocs-material",
+        "mkdocstrings",
+        "markdown-include",
+        "livereload",
+    ],
+    "coverage": [
+        "coverage",
+        "coverage-badge",
+        "toml",
+    ],
+}
 
-def get_requirements(section: str) -> List[str]:
+
+def poetry_install(session: nox.Session, *args: str, **kwargs: Any) -> None:
     """
-    Uses configparser to parse `setup.cfg` and extract a list
-    of requirements for an `extras` section e.g 'lint', 'docs' etc.
+    Install packages constrained by Poetry's lock file.
 
-    Similar to calling `pip install .[section]` except this
-    function simply returns the list of packages that would
-    be installed.
+    This function is a wrapper for nox.Session.install. It
+    invokes pip to install packages inside of the session's virtualenv.
+
+    Additionally, pip is passed a constraints file generated from
+    Poetry's lock file, to ensure that the packages are pinned to the
+    versions specified in poetry.lock.
+
+    This allows you to manage the
+    packages as Poetry development dependencies.
 
     Args:
-        section (str): Valid `setup.cfg` extras_require header
-            e.g. 'lint', 'docs' etc.
-
-    Returns:
-        List[str]: Versioned requirements from `setup.cfg`
+        session (nox.Session): The wrapping nox Session.
+        args (str): List of packages to install.
+        kwargs: Keyword arguments passed to session.install.
     """
 
-    config = configparser.ConfigParser()
-    config.read(SETUP_CFG)
-
-    extras = config["options.extras_require"]
-
-    return extras.get(section).strip().split("\n")
+    with tempfile.NamedTemporaryFile() as requirements:
+        session.run(
+            "poetry",
+            "export",
+            "--dev",
+            "--format=requirements.txt",
+            f"--output={requirements.name}",
+            "--without-hashes",
+            external=True,
+            silent=True,
+        )
+        session.install(f"--constraint={requirements.name}", *args, **kwargs)
 
 
 def update_seeds(session: nox.Session) -> None:
     """
     Helper function to update the core installation seed packages
     to their latest versions in each session.
-
     Args:
         session (nox.Session): The nox session currently running.
     """
@@ -73,12 +111,14 @@ def test(session: nox.Session) -> None:
     Runs the test suite against all supported python versions.
     """
 
+    test_requirements = SESSION_REQUIREMENTS.get("test", [""])
+
     update_seeds(session)
     # Tests require the package to be installed
-    session.install(".[test]")
-    # Posargs allows passing of tests directly
-    tests = session.posargs or ["tests/"]
-    session.run("pytest", "--cov=pytoil", *tests)
+    session.run("poetry", "install", "--no-dev", external=True, silent=True)
+    poetry_install(session, *test_requirements)
+
+    session.run("pytest", "--cov=pytoil", "tests/")
     session.notify("coverage")
 
 
@@ -88,6 +128,8 @@ def coverage(session: nox.Session) -> None:
     Test coverage analysis.
     """
 
+    coverage_requirements = SESSION_REQUIREMENTS.get("coverage", [""])
+
     img_path = PROJECT_ROOT.joinpath("docs/img/coverage.svg")
 
     if not img_path.exists():
@@ -95,7 +137,7 @@ def coverage(session: nox.Session) -> None:
         img_path.touch()
 
     update_seeds(session)
-    session.install(*get_requirements("cov"))
+    poetry_install(session, *coverage_requirements)
 
     session.run("coverage", "report", "--show-missing")
     session.run("coverage-badge", "-fo", f"{img_path}")
@@ -107,8 +149,10 @@ def lint(session: nox.Session) -> None:
     Formats project with black and isort, then runs flake8 and mypy linting.
     """
 
+    lint_requirements = SESSION_REQUIREMENTS.get("lint", [""])
+
     update_seeds(session)
-    session.install(*get_requirements("lint"))
+    poetry_install(session, *lint_requirements)
 
     # If we're on CI, run in check mode so build fails if formatting isn't correct
     if ON_CI:
@@ -127,16 +171,11 @@ def lint(session: nox.Session) -> None:
 def docs(session: nox.Session) -> None:
     """
     Builds the project documentation.
-
-    You can also serve the docs by running:
-
-    nox -s docs -- serve
     """
 
-    update_seeds(session)
-    session.install(*get_requirements("docs"))
+    docs_requirements = SESSION_REQUIREMENTS.get("docs", [""])
 
-    if "serve" in session.posargs:
-        session.run("mkdocs", "serve")
-    else:
-        session.run("mkdocs", "build", "--clean")
+    update_seeds(session)
+    poetry_install(session, *docs_requirements)
+
+    session.run("mkdocs", "build", "--clean")

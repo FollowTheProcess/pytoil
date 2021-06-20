@@ -14,7 +14,8 @@ nav:
       - Remove: commands/remove.md
       - Info: commands/info.md
       - GH: commands/gh.md
-      - Sync: commands/sync.md
+      - Pull: commands/pull.md
+      - Config: commands/config.md
   - Contributing: contributing.md
   - Changelog: changelog.md
 plugins:

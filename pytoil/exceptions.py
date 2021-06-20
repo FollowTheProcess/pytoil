@@ -1,84 +1,63 @@
-"""
-Custom exceptions for pytoil.
+class PytoilException(Exception):
+    """
+    Base pytoil exception from which all subclasses
+    must inherit.
+    """
 
-Author: Tom Fleet
-Created: 04/02/2021
-"""
-
-
-class VirtualenvAlreadyExistsError(Exception):
     def __init__(self, message: str) -> None:
         self.message = message
         super().__init__(self.message)
 
 
-class VirtualenvDoesNotExistError(Exception):
+class GitNotInstalledError(PytoilException):
     def __init__(self, message: str) -> None:
         self.message = message
         super().__init__(self.message)
 
 
-class InvalidConfigError(Exception):
+class CodeNotInstalledError(PytoilException):
     def __init__(self, message: str) -> None:
         self.message = message
         super().__init__(self.message)
 
 
-class GitNotInstalledError(Exception):
+class MissingInterpreterError(PytoilException):
     def __init__(self, message: str) -> None:
         self.message = message
         super().__init__(self.message)
 
 
-class CondaNotInstalledError(Exception):
+class CondaNotInstalledError(PytoilException):
     def __init__(self, message: str) -> None:
         self.message = message
         super().__init__(self.message)
 
 
-class LocalRepoExistsError(Exception):
+class EnvironmentAlreadyExistsError(PytoilException):
     def __init__(self, message: str) -> None:
         self.message = message
         super().__init__(self.message)
 
 
-class RepoNotFoundError(Exception):
+class BadEnvironmentFileError(PytoilException):
     def __init__(self, message: str) -> None:
         self.message = message
         super().__init__(self.message)
 
 
-class MissingInterpreterError(Exception):
+class EnvironmentDoesNotExistError(PytoilException):
     def __init__(self, message: str) -> None:
         self.message = message
         super().__init__(self.message)
 
 
-class BadEnvironmentFileError(Exception):
+class UnsupportedCondaInstallationError(PytoilException):
     def __init__(self, message: str) -> None:
         self.message = message
         super().__init__(self.message)
 
 
-class InvalidURLError(Exception):
-    def __init__(self, message: str) -> None:
-        self.message = message
-        super().__init__(self.message)
-
-
-class InvalidRepoPathError(Exception):
-    def __init__(self, message: str) -> None:
-        self.message = message
-        super().__init__(self.message)
-
-
-class CodeNotInstalledError(Exception):
-    def __init__(self, message: str) -> None:
-        self.message = message
-        super().__init__(self.message)
-
-
-class UnknownCondaInstallationError(Exception):
+class RepoNotFoundError(PytoilException):
     def __init__(self, message: str) -> None:
         self.message = message
         super().__init__(self.message)

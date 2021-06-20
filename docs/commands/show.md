@@ -1,6 +1,6 @@
 # Show
 
-We've seen some pytoil commands but these are *meta* and control pytoil itself.
+We've seen a hint at some pytoil commands but lets dive in properly.
 
 Let's look at how you can use pytoil to help *you* :thumbsup:
 
@@ -25,14 +25,24 @@ Usage: pytoil show [OPTIONS] COMMAND [ARGS]...
 
   View your local/remote projects.
 
+  The show command provides an easy way of listing of the projects you have
+  locally in your configured development directory and/or of those you have
+  on GitHub (known in pytoil-land as 'remote' projects).
+
+  Local projects will be the names of subdirectories in your configured
+  projects directory.
+
+  The remote projects listed here will be those owned by you on GitHub.
+
 Options:
   --help  Show this message and exit.
 
 Commands:
-  all     Show both local and remote projects.
+  all     Show all your projects, grouped by local and remote.
   diff    Show the difference in local/remote projects.
-  local   Show all your local projects.
-  remote  Show all your remote projects.
+  local   Show your local projects.
+  remote  Show your remote projects.
+
 ```
 
 </div>
@@ -73,7 +83,7 @@ Remote Projects:
 
 ## Local
 
-`local` shows all the projects you already have in your configured projects directory (see [config] for how to set this!).
+`local` shows all the projects you already have in your configured projects directory (see [config] for how to set this!). If you don't have any local projects yet, pytoil will let you know.
 
 <div class="termy">
 
@@ -93,7 +103,7 @@ Local Projects:
 
 ## Remote
 
-`remote` shows all the projects on your GitHub (you may or may not have some of these locally too).
+`remote` shows all the projects on your GitHub (you may or may not have some of these locally too). If you don't have any remote projects yet, pytoil will let you know.
 
 <div class="termy">
 
@@ -113,14 +123,14 @@ Remote Projects:
 
 ## Diff
 
-`diff` shows all the projects you have on GitHub, but don't yet exist locally. If your local projects folder has all your GitHub projects in it, nothing will be shown.
+`diff` shows all the projects you have on GitHub, but don't yet exist locally. If your local projects folder has all your GitHub projects in it, pytoil will let you know this too.
 
 <div class="termy">
 
 ```console
 $ pytoil show diff
 
-Remote projects that are not local:
+Diff: Remote - Local
 
 - Remote1
 - etc...

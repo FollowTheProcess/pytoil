@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.5.0
+
+Complete rewrite from the ground up!
+
+* NEW: pytoil now supports a variety of conda installations
+* NEW: `pytoil sync` changed to `pytoil pull`
+* NEW: User can configure whether or not to create a git repo on `new`
+* NEW: Additional packages can now be passed in as extra arguments when creating an environment with `pytoil new`
+* NEW: Friendlier output to the user during operations and awesome loading spinners
+* NEW: Output from invoked external tools is now captured and only surfaced when something goes wrong
+
+* CLN: Complete internal rewrite, better cohesion and looser coupling
+* CLN: Less reliance on mocks during tests
+
+* MAINT: Project build tool switched to poetry
+
 ## 0.4.2
 
 * NEW: pytoil now supports the use of miniforge as a conda installation

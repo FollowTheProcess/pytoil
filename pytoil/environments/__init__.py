@@ -1,9 +1,9 @@
-from pytoil.environments.abstract import BaseEnvironment
-from pytoil.environments.conda import CondaEnv
-from pytoil.environments.venv import VirtualEnv
+from pytoil.environments.abstract import Environment
+from pytoil.environments.conda import Conda
+from pytoil.environments.virtualenv import Venv
 
 __all__ = [
-    "CondaEnv",
-    "VirtualEnv",
-    "BaseEnvironment",
+    "Environment",
+    "Venv",
+    "Conda",
 ]

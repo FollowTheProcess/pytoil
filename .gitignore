@@ -107,7 +107,9 @@ docs/site
 # mypy
 .mypy_cache/
 
+# poetry
+poetry.lock
+
 # IDE settings
 .vscode/
 .idea/
-.doit.db

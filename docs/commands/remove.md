@@ -10,16 +10,22 @@ This one is easy! `remove` does exactly what it says. It will recursively delete
 
     Don't worry though, `remove` **DOES NOT** go near anything on your GitHub, only your local directories are affected by `remove`. pytoil only makes HTTP GET requests to the GitHub API so you couldn't even delete a repo if you wanted to, in fact you can't make any changes to any GitHub repo with pytoil whatsoever so you're completely safe! :grin:
 
-## Remove Single Project
+## Remove Individual Projects
+
+If you want to remove one or more specific projects, you need the `these` subcommand.
+
+`remove these` takes a space separated list of 1 or more projects to remove.
 
 <div class="termy">
 
 ```console
-$ pytoil remove my_project
+$ pytoil remove these my_project my_other_project this_one_too
 
-# This will remove ['my_project'] from your local filesystem. Are you sure? [y/N]:$ y
+# This will remove my_project, my_other_project, this_one_too from your local filesystem. Are you sure? [y/N]:$ y
 
 Removing project: 'my_project'.
+Removing project: 'my_other_project'.
+Removing project: 'this_one_too'
 
 Done!
 ```
@@ -31,31 +37,11 @@ And if you say no...
 <div class="termy">
 
 ```console
-$ pytoil remove my_project
+$ pytoil remove these my_project my_other_project this_one_too
 
-# This will remove ['my_project'] from your local filesystem. Are you sure? [y/N]:$ n
+# This will remove my_project, my_other_project, this_one_too from your local filesystem. Are you sure? [y/N]:$ n
 
 Aborted!
-```
-
-</div>
-
-## Remove Multiple Projects
-
-`remove` also accepts a list of projects if you want to remove a few in one go:
-
-<div class="termy">
-
-```console
-$ pytoil remove remove1 remove2 remove3
-
-# This will remove ['remove1', 'remove2', 'remove3'] from your local filesystem. Are you sure? [y/N]:$ y
-
-Removing project: 'remove1'.
-Removing project: 'remove2'.
-Removing project: 'remove3'.
-
-Done!
 ```
 
 </div>
@@ -67,9 +53,27 @@ And if you've completely given up and decided you don't want to be a developer a
 <div class="termy">
 
 ```console
-$ pytoil remove --all
+$ pytoil remove all
 
-# This will remove all your projects. Are you okay? [y/N]:$ y
+# This will remove ALL your projects. Are you okay? [y/N]:$ y
+
+Removing project: 'remove1'.
+Removing project: 'remove2'.
+Removing project: 'remove3'.
+
+Done!
+```
+
+</div>
+
+## Force Deletion
+
+If you're really sure what you're doing, you can get around the confirmation prompt by using the `--force/-f` flag.
+
+<div class="termy">
+
+```console
+$ pytoil remove these project1 project2 --force
 
 Removing project: 'remove1'.
 Removing project: 'remove2'.

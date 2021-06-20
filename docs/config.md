@@ -18,6 +18,7 @@ There are also some *optional* configurations you can tweak:
 |  `projects_dir`   |                                     Where you keep your projects                                      | `$HOME/Development` |
 |     `vscode`      |                           Whether you want pytoil to open things in VSCode                            |        False        |
 | `common_packages` | List of packages you want pytoil to inject in every environment it creates (linters, formatters etc.) |       `None`        |
+|   `init_on_new`   |        Whether you want pytoil to initialise an empty git repo when it makes a fresh project          |        True         |
 
 These optional settings don't have to be set if you're happy using the default settings!
 
@@ -36,12 +37,12 @@ These optional settings don't have to be set if you're happy using the default s
 
 ## The Config File
 
-After you install pytoil, you should run the following command:
+After you install pytoil, the first time you run it you'll get something like this.
 
 <div class="termy">
 
 ```console
-$ pytoil config
+$ pytoil
 
 No config file yet!
 Making you a default one...
@@ -61,16 +62,17 @@ When you open the default config state you just wrote, it will look like this:
 # ~/.pytoil.yml
 
 projects_dir: /Users/you/Development
-token: UNSET
-username: UNSET
+token: This is your GitHub personal access token
+username: This is your GitHub username
 vscode: false
+init_on_new: true
 ```
 
 !!! warning
 
     `projects_dir` must be the **absolute** path to where you keep your projects. So you'll need to explicitly state the entire path (as in the example above) starting from the root.
 
-You should now edit the config file to your liking. Anything currently set to `UNSET` will cause an error on most pytoil operations so these must be filled out. Everything else is optional :thumbsup:
+You should now edit the config file to your liking. Your username and token are required for GitHub API access and will cause an error on most pytoil operations so these must be filled out. Everything else is optional :thumbsup:
 
 So as an example, your filled out config file might look like this:
 
@@ -86,6 +88,11 @@ common_packages:
   - flake8
   - mypy>=0.790
   - isort
+init_on_new: true
 ```
+
+!!! tip
+
+    You can also interact with the pytoil config file via pytoil itself using the `pytoil config` command group.
 
 [docs]: https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token
