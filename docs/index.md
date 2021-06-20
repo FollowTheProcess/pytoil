@@ -162,11 +162,11 @@ Resuming 'myproject'...
 <div class="termy">
 
 ```console
-$ pytoil new myproject --venv virtualenv
+$ pytoil new myproject --venv venv
 
 Creating project: 'myproject' at '/Users/you/projects/myproject'
 
-Creating virtualenv for: 'myproject'
+Creating virtual environment for: 'myproject'
 ```
 
 </div>
@@ -176,7 +176,7 @@ Creating virtualenv for: 'myproject'
 <div class="termy">
 
 ```console
-$ pytoil new myproject --venv virtualenv --cookie https://github.com/some/cookie.git
+$ pytoil new myproject --venv venv --cookie https://github.com/some/cookie.git
 
 Creating project: 'myproject' with cookiecutter template: 'https://github.com/some/cookie.git'
 
