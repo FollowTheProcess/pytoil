@@ -64,7 +64,7 @@ Project: 'my_github_project' found on GitHub! Cloning...
 // You might see some git clone output here
 
 Auto-creating correct virtual environment
-// Here you might see some conda or virtualenv stuff
+// Here you might see some conda or venv stuff
 
 Opening 'my_github_project' in VSCode...
 ```

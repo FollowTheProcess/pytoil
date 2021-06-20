@@ -42,7 +42,7 @@ Creating new project: 'my_new_project'
 
 ## Include Virtual Environment
 
-If you are a python developer though, chances are you'll want to create a virtual environment with your project. pytoil supports both [virtualenv] and [conda] environments, although for the latter you'll have to have the conda package manager already installed on your system. I personally recommend [miniconda] as you get the package manager but none of the bundled packages (which can be quite large!).
+If you are a python developer though, chances are you'll want to create a virtual environment with your project. pytoil supports both [venv] and [conda] environments, although for the latter you'll have to have the conda package manager already installed on your system. I personally recommend [miniconda] as you get the package manager but none of the bundled packages (which can be quite large!).
 
 For standard python virtual environments, pytoil uses the standard library `venv` module so you don't need to install anything external.
 
@@ -50,7 +50,7 @@ If you want to use conda environments though, you'll need to have a `conda` pack
 
 !!! info
 
-    If you don't know what conda is: as a general rule, you'll want to use virtualenv on most python projects (particularly packages i.e. things that can be pip installed). If you do a lot of work with data (think pandas, numpy, scikit-learn) you'll probably want to use conda as a lot of python data tools include native C libraries which require compiling, and conda makes this happen seamlessly :nerd_face:
+    If you don't know what conda is: as a general rule, you'll want to use venv on most python projects (particularly packages i.e. things that can be pip installed). If you do a lot of work with data (think pandas, numpy, scikit-learn) you'll probably want to use conda as a lot of python data tools include native C libraries which require compiling, and conda makes this happen seamlessly :nerd_face:
 
 Pytoil has been tested and supports the following conda distributions:
 
@@ -59,15 +59,15 @@ Pytoil has been tested and supports the following conda distributions:
 * Miniforge
 * Mambaforge
 
-All you have to do is specify which virtual environment to create, using the `--venv/-v` option flag. You can choose from `virtualenv` or `conda`. The default is `None`.
+All you have to do is specify which virtual environment to create, using the `--venv/-v` option flag. You can choose from `venv` or `conda`. The default is `None`.
 
 <div class="termy">
 
 ```console
-$ pytoil new my_new_project --venv virtualenv
+$ pytoil new my_new_project --venv venv
 
 Creating new project: 'my_new_project'
-Creating virtualenv for: 'my_new_project'
+Creating virtual environment for: 'my_new_project'
 ```
 
 </div>
@@ -155,7 +155,7 @@ In this snippet we've:
 That's better than doing all this yourself isn't it! :thumbsup:
 
 [cookiecutter]: https://cookiecutter.readthedocs.io/en/1.7.2/
-[virtualenv]: https://virtualenv.pypa.io/en/latest/
+[venv]: https://docs.python.org/3/library/venv.html
 [conda]: https://docs.conda.io/en/latest/
 [miniconda]: https://docs.conda.io/en/latest/miniconda.html
 [typer]: https://typer.tiangolo.com
