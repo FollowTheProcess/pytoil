@@ -1,6 +1,76 @@
 [build-system]
-requires = ["setuptools>=50.3.2", "wheel>=0.35.1"]
-build-backend = "setuptools.build_meta"
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "pytoil"
+version = "0.4.2"
+description = "CLI to automate the development workflow."
+authors = ["Tom Fleet <tomfleet2018@gmail.com>"]
+license = "Apache Software License 2.0"
+homepage = "https://github.com/FollowTheProcess/pytoil"
+readme = "README.md"
+repository = "https://github.com/FollowTheProcess/pytoil"
+documentation = "https://FollowTheProcess.github.io/pytoil/"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Natural Language :: English",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Topic :: Software Development",
+    "Topic :: Utilities",
+    "Typing :: Typed"
+]
+keywords = [
+    "cli",
+    "python",
+    "developer-tools",
+    "automation"
+]
+
+[tool.poetry.scripts]
+pytoil = "pytoil.cli.root:app"
+
+[tool.poetry.urls]
+Documentation = "https://FollowTheProcess.github.io/pytoil/"
+Source = "https://github.com/FollowTheProcess/pytoil"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+typer = {extras = ["all"], version = "^0.3.2"}
+httpx = "^0.18.2"
+cookiecutter = "^1.7.3"
+wasabi = "^0.8.2"
+PyYAML = "^5.4.1"
+pydantic = "^1.8.2"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.4"
+bump2version = "^1.0.1"
+pre-commit = "^2.13.0"
+flake8 = "^3.9.2"
+isort = "^5.8.0"
+nox = "^2021.6.6"
+black = "^21.5b2"
+pytest-cov = "^2.12.1"
+coverage-badge = "^1.0.1"
+coverage = "^5.3"
+toml = "^0.10.2"
+mypy = "^0.902"
+mkdocs = "^1.2"
+mkdocs-material = "^7.1.7"
+mkdocstrings = "^0.15.1"
+markdown-include = "^0.6.0"
+livereload = "^2.6.3"
+pytest-mock = "^3.6.1"
+pytest-httpx = "^0.12.0"
 
 [tool.isort]
 # Added for compatability with black
@@ -11,6 +81,7 @@ multi_line_output = 3
 omit = [
     "*__init__.py",
     "*__main__.py",
-    "pytoil/environments/abstract.py",
+    "*abstract.py",
+    "pytoil/cli/*"
 ]
 branch = true

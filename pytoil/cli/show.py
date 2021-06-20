@@ -1,24 +1,19 @@
 """
-CLI show command.
+The `pytoil show` subcommand group.
 
 Author: Tom Fleet
-Created: 28/02/2021
+Created: 18/06/2021
 """
 
-from typing import List, Set
 
 import typer
+from wasabi import msg
 
 from pytoil.api import API
-from pytoil.cli.utils import (
-    get_local_project_list,
-    get_local_project_set,
-    get_remote_project_list,
-    get_remote_project_set,
-)
+from pytoil.cli import utils
 from pytoil.config import Config
 
-app = typer.Typer(no_args_is_help=True)
+app = typer.Typer(name="show", no_args_is_help=True)
 
 
 # Callback for documentation only
@@ -26,104 +21,107 @@ app = typer.Typer(no_args_is_help=True)
 def show() -> None:
     """
     View your local/remote projects.
+
+    The show command provides an easy way of listing of the projects you have locally
+    in your configured development directory and/or of those you have on GitHub
+    (known in pytoil-land as 'remote' projects).
+
+    Local projects will be the names of subdirectories in your configured projects
+    directory.
+
+    The remote projects listed here will be those owned by you on GitHub.
     """
 
 
 @app.command()
 def local() -> None:
     """
-    Show all your local projects.
+    Show your local projects.
+
+    Show the projects you have locally in your configured
+    projects directory.
+
+    Examples:
+
+    $ pytoil show local
     """
+    config = Config.from_file()
+    local_projects = utils.get_local_projects(path=config.projects_dir)
 
-    config = Config.get()
-    config.validate()
+    if not local_projects:
+        msg.warn("You don't have any local projects yet!", exits=0)
 
-    local_projects: List[str] = get_local_project_list(config.projects_dir)
+    typer.secho("\nLocal Projects:\n", fg=typer.colors.CYAN, bold=True)
 
-    n_locals: int = len(local_projects)
-
-    assert n_locals >= 0
-
-    if n_locals > 0:
-
-        typer.secho(
-            f"\nLocal projects ({n_locals}):\n", fg=typer.colors.BLUE, bold=True
-        )
-        for project in local_projects:
-            typer.echo(f"- {project}")
-    else:
-        typer.secho("You don't have any local projects yet!", fg=typer.colors.YELLOW)
+    for project in sorted(local_projects, key=str.casefold):
+        typer.echo(f"- {project}")
 
 
 @app.command()
 def remote() -> None:
     """
-    Show all your remote projects.
+    Show your remote projects.
+
+    Show the projects that you own on GitHub.
+
+    These mayinclude some you already have locally.
+    Use 'show diff' to see the difference between local and remote.
+
+    Examples:
+
+    $ pytoil show remote
     """
+    config = Config.from_file()
+    utils.warn_if_no_api_creds(config)
 
-    config = Config.get()
-    config.validate()
+    api = API(username=config.username, token=config.token)
 
-    api = API()
+    with msg.loading("Fetching your remote projects..."):
+        remote_projects = api.get_repo_names()
 
-    remote_projects: List[str] = get_remote_project_list(api)
+    if not remote_projects:
+        msg.warn("You dont have any projects on GitHub yet!", exits=0)
 
-    n_remotes: int = len(remote_projects)
+    typer.secho("\nRemote Projects:\n", fg=typer.colors.CYAN, bold=True)
 
-    assert n_remotes >= 0
-
-    if n_remotes > 0:
-
-        typer.secho(
-            f"\nRemote projects ({n_remotes}):\n", fg=typer.colors.BLUE, bold=True
-        )
-        for project in remote_projects:
-            typer.echo(f"- {project}")
-    else:
-        typer.secho("You don't have any remote projects yet!", fg=typer.colors.YELLOW)
+    for project in sorted(remote_projects, key=str.casefold):
+        typer.echo(f"- {project}")
 
 
-# Can't call it all, keyword!
+# Can't call it 'all', python keyword
 @app.command(name="all")
 def all_() -> None:
     """
-    Show both local and remote projects.
+    Show all your projects, grouped by local and remote.
+
+    Examples:
+
+    $ pytoil show all
     """
+    config = Config.from_file()
+    utils.warn_if_no_api_creds(config)
 
-    config = Config.get()
-    config.validate()
+    api = API(username=config.username, token=config.token)
 
-    api = API()
+    with msg.loading("Fetching your projects..."):
+        local_projects = utils.get_local_projects(path=config.projects_dir)
+        remote_projects = api.get_repo_names()
 
-    local_projects: List[str] = get_local_project_list(config.projects_dir)
+    typer.secho("\nLocal Projects:\n", fg=typer.colors.CYAN, bold=True)
 
-    remote_projects: List[str] = get_remote_project_list(api)
-
-    n_locals: int = len(local_projects)
-    n_remotes: int = len(remote_projects)
-
-    assert n_locals >= 0
-    assert n_remotes >= 0
-
-    # Show locals first
-    if n_locals > 0:
-        typer.secho(
-            f"\nLocal projects ({n_locals}):\n", fg=typer.colors.BLUE, bold=True
-        )
-        for project in local_projects:
-            typer.echo(f"- {project}")
+    if not local_projects:
+        msg.warn("You don't have any local projects yet!")
     else:
-        typer.secho("You don't have any local projects yet!", fg=typer.colors.YELLOW)
-
-    # Now remotes
-    if n_remotes > 0:
-        typer.secho(
-            f"\nRemote projects ({n_remotes}):\n", fg=typer.colors.BLUE, bold=True
-        )
-        for project in remote_projects:
+        for project in sorted(local_projects, key=str.casefold):
             typer.echo(f"- {project}")
+
+    typer.secho("\nRemote Projects:\n", fg=typer.colors.CYAN, bold=True)
+
+    if not remote_projects:
+        msg.warn("You don't have any projects on GitHub yet!")
     else:
-        typer.secho("You don't have any remote projects yet!", fg=typer.colors.YELLOW)
+        for project in sorted(remote_projects, key=str.casefold):
+            typer.echo(f"- {project}")
 
 
 @app.command()
@@ -131,37 +129,29 @@ def diff() -> None:
     """
     Show the difference in local/remote projects.
 
-    i.e. those projects you have remotely but not locally.
+    Show the projects that you own on GitHub but do not
+    have locally.
+
+    Examples:
+
+    $ pytoil show diff
     """
+    config = Config.from_file()
+    utils.warn_if_no_api_creds(config)
 
-    # Everything below requires a valid config
-    config = Config.get()
-    config.validate()
+    api = API(username=config.username, token=config.token)
 
-    api = API()
+    with msg.loading("Calculating difference..."):
+        local_projects = utils.get_local_projects(path=config.projects_dir)
+        remote_projects = api.get_repo_names()
 
-    local_projects: Set[str] = get_local_project_set(config.projects_dir)
+        diff = remote_projects.difference(local_projects)
 
-    remote_projects: Set[str] = get_remote_project_set(api)
-    difference: Set[str] = remote_projects.difference(local_projects)
+    if not diff:
+        msg.info("Your local and remote projects are in sync!")
+        msg.good("Nothing to show!", exits=0)
 
-    n_diff: int = len(difference)
+    typer.secho("\nDiff: Remote - Local\n", fg=typer.colors.CYAN, bold=True)
 
-    # Internal correctness
-    assert n_diff >= 0
-
-    if n_diff > 0:
-
-        typer.secho(
-            f"\nRemote projects that are not local ({n_diff}):\n",
-            fg=typer.colors.BLUE,
-            bold=True,
-        )
-        for project in sorted(list(difference), key=str.casefold):
-            typer.echo(f"- {project}")
-    else:
-
-        typer.secho(
-            "Your local and remote projects are all synced up. Nothing to show!",
-            fg=typer.colors.GREEN,
-        )
+    for project in sorted(diff, key=str.casefold):
+        typer.echo(f"- {project}")

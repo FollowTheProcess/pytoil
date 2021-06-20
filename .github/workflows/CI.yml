@@ -21,6 +21,7 @@ jobs:
       - name: Install Dependencies
         run: |
           python3 -m pip install --upgrade pip setuptools wheel
+          python3 -m pip install poetry
           python3 -m pip install nox
 
       - name: Run Tests and Coverage
@@ -40,6 +41,7 @@ jobs:
       - name: Install Dependencies
         run: |
           python3 -m pip install --upgrade pip setuptools wheel
+          python3 -m pip install poetry
           python3 -m pip install nox
 
       - name: Lint
@@ -59,6 +61,7 @@ jobs:
       - name: Install Dependencies
         run: |
           python3 -m pip install --upgrade pip setuptools wheel
+          python3 -m pip install poetry
           python3 -m pip install nox
 
       - name: Build Docs
@@ -80,7 +83,8 @@ jobs:
       - name: Install Dependencies
         run: |
           python3 -m pip install --upgrade pip setuptools wheel
-          python3 -m pip install .[docs]
+          python3 -m pip install poetry
+          poetry install
 
       - name: Deploy Docs to GitHub Pages
         env:
@@ -89,7 +93,7 @@ jobs:
         run: |
           git remote add gh-token "https://${GITHUB_TOKEN}@github.com/FollowTheProcess/pytoil.git";
           git fetch gh-token && git fetch gh-token gh-pages:gh-pages;
-          mkdocs gh-deploy -v --clean --remote-name gh-token;
+          poetry run mkdocs gh-deploy -v --clean --remote-name gh-token;
 
   release:
     name: Release
@@ -107,10 +111,13 @@ jobs:
       - name: Install Dependencies
         # Uses pypa build https://pypa-build.readthedocs.io/en/latest/
         # For full PEP517/518 compliance
-        run: python3 -m pip install --upgrade pip setuptools wheel twine build
+        run: |
+          python3 -m pip install --upgrade pip setuptools wheel
+          python3 -m pip install poetry
 
       - name: Build sdist and wheel
-        run: python3 -m build --sdist --wheel
+        run: poetry build
+
       - name: Publish Distribution to PyPI
         uses: pypa/gh-action-pypi-publish@master
         with:

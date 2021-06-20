@@ -2,344 +2,261 @@
 Tests for the config module.
 
 Author: Tom Fleet
-Created: 05/02/2021
+Created: 18/06/2021
 """
 
-import pathlib
+from pathlib import Path
 
 import pytest
-from pytest_mock import MockerFixture
 
-import pytoil
-from pytoil.config import DEFAULT_PROJECTS_DIR, Config
-from pytoil.exceptions import InvalidConfigError
+from pytoil.config import Config, defaults
+
+TESTDATA = Path(__file__).parent.joinpath("testdata").resolve()
+TEST_CONFIG_FILE = TESTDATA / ".pytoil.yml"
 
 
-def test_config_init_default():
+def test_config_init_defaults():
 
     config = Config()
 
-    assert config.username == "UNSET"
-    assert config.token == "UNSET"
-    # Default development path
-    assert config.projects_dir == DEFAULT_PROJECTS_DIR
-    assert config.vscode is False
+    assert config.projects_dir == defaults.PROJECTS_DIR
+    assert config.token == defaults.TOKEN
+    assert config.username == defaults.USERNAME
+    assert config.vscode == defaults.VSCODE
+    assert config.common_packages == defaults.COMMON_PACKAGES
+    assert config.init_on_new == defaults.INIT_ON_NEW
 
 
 def test_config_init_passed():
 
     config = Config(
+        projects_dir=Path("some/dir"),
+        token="sometoken",
         username="me",
-        token="definitelynotatoken",
-        projects_dir=pathlib.Path("/Users/me/projects"),
         vscode=True,
+        common_packages=["black", "mypy", "flake8"],
+        init_on_new=False,
     )
 
+    assert config.projects_dir == Path("some/dir")
+    assert config.token == "sometoken"
     assert config.username == "me"
-    assert config.token == "definitelynotatoken"
-    assert config.projects_dir == pathlib.Path("/Users/me/projects")
     assert config.vscode is True
+    assert config.common_packages == ["black", "mypy", "flake8"]
+    assert config.init_on_new is False
 
 
-def test_config_init_username():
+def test_config_helper():
 
-    config = Config(username="me")
+    config = Config.helper()
 
-    assert config.username == "me"
-    assert config.token == "UNSET"
-    assert config.projects_dir == DEFAULT_PROJECTS_DIR
-    assert config.vscode is False
-
-
-def test_config_init_token():
-
-    config = Config(token="definitelynotatoken")
-
-    assert config.username == "UNSET"
-    assert config.token == "definitelynotatoken"
-    assert config.projects_dir == DEFAULT_PROJECTS_DIR
-    assert config.vscode is False
+    assert config.projects_dir == defaults.PROJECTS_DIR
+    assert config.token == "Put your GitHub personal access token here"
+    assert config.username == "This your GitHub username"
+    assert config.vscode == defaults.VSCODE
+    assert config.common_packages == defaults.COMMON_PACKAGES
+    assert config.init_on_new == defaults.INIT_ON_NEW
 
 
-def test_config_init_projects_dir():
+def test_from_file():
 
-    config = Config(projects_dir=pathlib.Path("/Users/madeup/path"))
+    config = Config.from_file(path=TEST_CONFIG_FILE)
 
-    assert config.username == "UNSET"
-    assert config.token == "UNSET"
-    assert config.projects_dir == pathlib.Path("/Users/madeup/path")
-    assert config.vscode is False
-
-
-def test_config_init_vscode():
-
-    config = Config(vscode=True)
-
-    assert config.username == "UNSET"
-    assert config.token == "UNSET"
-    assert config.projects_dir == DEFAULT_PROJECTS_DIR
+    assert config.projects_dir == Path("/Users/me/Projects")
+    assert config.token == "ljsakdhka2387gi1hdbqw87"
+    assert config.username == "FollowTheProcess"
     assert config.vscode is True
+    assert config.common_packages == ["black", "flake8", "mypy", "isort"]
+    assert config.init_on_new is True
 
 
-def test_config_repr_default():
+def test_from_file_raises_on_missing_file():
 
-    config = Config()
-
-    assert (
-        config.__repr__()
-        == "Config(username='UNSET', "
-        + "token='UNSET', "
-        + f"projects_dir={DEFAULT_PROJECTS_DIR!r}, "
-        + "vscode=False, "
-        + "common_packages=None)"
-    )
+    with pytest.raises(FileNotFoundError):
+        Config.from_file(path=Path("not/here.yml"))
 
 
-def test_config_repr_passed():
+def test_from_dict():
 
-    path = pathlib.Path("/Users/me/projects")
-
-    config = Config(
-        username="me",
-        token="definitelynotatoken",
-        projects_dir=path,
-        vscode=True,
-        common_packages=["black", "flake8", "mypy"],
-    )
-
-    expected = (
-        "Config(username='me', "
-        + "token='definitelynotatoken', "
-        + f"projects_dir={path!r}, "
-        + "vscode=True, "
-        + "common_packages=['black', 'flake8', 'mypy'])"
-    )
-
-    assert config.__repr__() == expected
-
-
-def test_config_dict_default():
-
-    config = Config()
-
-    assert config.__dict__ == {
-        "username": "UNSET",
-        "token": "UNSET",
-        "projects_dir": DEFAULT_PROJECTS_DIR,
-        "vscode": False,
-        "common_packages": None,
-    }
-
-
-def test_config_dict_passed():
-
-    path = pathlib.Path("/Users/me/projects")
-
-    config = Config(
-        username="me",
-        token="definitelynotatoken",
-        projects_dir=path,
-        vscode=True,
-        common_packages=["black", "flake8", "mypy"],
-    )
-
-    assert config.__dict__ == {
+    config_dict = {
+        "projects_dir": "some/dir",
+        "token": "sometoken",
         "username": "me",
-        "token": "definitelynotatoken",
-        "projects_dir": path,
         "vscode": True,
-        "common_packages": ["black", "flake8", "mypy"],
+        "common_packages": ["black", "mypy", "flake8"],
+        "init_on_new": False,
     }
 
+    config = Config.from_dict(config_dict)
 
-def test_config_setters():
-
-    config = Config()
-
-    # Assert before
-    assert config.username == "UNSET"
-    assert config.token == "UNSET"
-    assert config.projects_dir == DEFAULT_PROJECTS_DIR
-    assert config.vscode is False
-
-    # Change value using setters
-    config.username = "me"
-    config.token = "definitelynotatoken"
-    config.projects_dir = pathlib.Path("/Users/me/projects")
-    config.vscode = True
-
-    # Assert after
+    assert config.projects_dir == Path("some/dir")
+    assert config.token == "sometoken"
     assert config.username == "me"
-    assert config.token == "definitelynotatoken"
-    assert config.projects_dir == pathlib.Path("/Users/me/projects")
     assert config.vscode is True
+    assert config.common_packages == ["black", "mypy", "flake8"]
+    assert config.init_on_new is False
 
 
-def test_config_get_good_file(temp_config_file, mocker: MockerFixture):
+def test_from_dict_wrong_types():
     """
-    Tests config.get on a file with valid key value pairs.
-    """
-    # Patch out the default pointer to the config file for our temp fixture
-    with mocker.patch.object(pytoil.config.config, "CONFIG_PATH", temp_config_file):
+    Tests that even if everything is brought in as a string
+    the types of the config all get handled under the hood.
 
-        config = Config.get()
-
-        assert config.username == "tempfileuser"
-        assert config.token == "tempfiletoken"
-        assert config.projects_dir == pathlib.Path("/Users/tempfileuser/projects")
-        assert config.vscode is True
-
-
-def test_config_get_raises_on_missing_file(mocker: MockerFixture):
-    """
-    Tests config.get raises the correct exception if the config
-    file is missing.
+    Thanks pydantic!
     """
 
-    with mocker.patch.object(
-        pytoil.config.config,
-        "CONFIG_PATH",
-        pathlib.Path("definitely/not/here/.pytoil.yml"),
-    ):
+    config_dict = {
+        "projects_dir": "some/dir",
+        "token": "sometoken",
+        "username": "me",
+        "vscode": "True",
+        "common_packages": ["black", "mypy", "flake8"],
+        "init_on_new": "False",
+    }
 
-        with pytest.raises(FileNotFoundError):
-            Config.get()
+    config = Config.from_dict(config_dict)
+
+    assert config.projects_dir == Path("some/dir")
+    assert config.token == "sometoken"
+    assert config.username == "me"
+    assert config.vscode is True
+    assert config.common_packages == ["black", "mypy", "flake8"]
+    assert config.init_on_new is False
+
+
+def test_from_dict_some_missing():
+    """
+    Tests that even if we pass a partial dict, the default values
+    will be used for the missing bits.
+    """
+
+    config_dict = {
+        "token": "sometoken",
+        "username": "me",
+        "common_packages": ["black", "mypy", "flake8"],
+    }
+
+    config = Config.from_dict(config_dict)
+
+    assert config.projects_dir == defaults.PROJECTS_DIR
+    assert config.token == "sometoken"
+    assert config.username == "me"
+    assert config.vscode is defaults.VSCODE
+    assert config.common_packages == ["black", "mypy", "flake8"]
+    assert config.init_on_new is defaults.INIT_ON_NEW
+
+
+def test_to_dict():
+
+    config = Config.from_file(path=TEST_CONFIG_FILE)
+
+    config_dict = config.to_dict()
+
+    assert config_dict["projects_dir"] == "/Users/me/Projects"
+    assert config_dict["token"] == "ljsakdhka2387gi1hdbqw87"
+    assert config_dict["username"] == "FollowTheProcess"
+    assert config_dict["vscode"] is True
+    assert config_dict["common_packages"] == ["black", "flake8", "mypy", "isort"]
+    assert config_dict["init_on_new"] is True
 
 
 @pytest.mark.parametrize(
-    "name, token, projects_dir, vscode, common_packages, expected_dict",
+    "username, token, expected",
     [
+        ("", "", False),
+        ("", "something", False),
+        ("something", "", False),
         (
-            "me",
-            "sillytoken",
-            pathlib.Path("/Users/me/projects"),
-            True,
-            ["black", "flake8", "mypy"],
-            {
-                "username": "me",
-                "token": "sillytoken",
-                "projects_dir": "/Users/me/projects",
-                "vscode": True,
-                "common_packages": ["black", "flake8", "mypy"],
-            },
-        ),
-        (
-            "someguy",
-            "loltoken",
-            pathlib.Path("/Users/someguy/dingleprojects"),
+            "This your GitHub username",
+            "Put your GitHub personal access token here",
             False,
-            None,
-            {
-                "username": "someguy",
-                "token": "loltoken",
-                "projects_dir": "/Users/someguy/dingleprojects",
-                "vscode": False,
-                "common_packages": None,
-            },
         ),
-        (
-            "dave",
-            "hahahatoken",
-            pathlib.Path("/Users/dave/hahaprojects"),
-            True,
-            ["pylint", "autopep8", "pytest"],
-            {
-                "username": "dave",
-                "token": "hahahatoken",
-                "projects_dir": "/Users/dave/hahaprojects",
-                "vscode": True,
-                "common_packages": ["pylint", "autopep8", "pytest"],
-            },
-        ),
+        ("", "Put your GitHub personal access token here", False),
+        ("This your GitHub username", "", False),
+        ("something", "something", True),
     ],
 )
-def test_config_to_dict_returns_correct_values(
-    name, token, projects_dir, vscode, common_packages, expected_dict
-):
+def test_can_use_api(username, token, expected):
 
-    config = Config(
-        username=name,
-        token=token,
-        projects_dir=projects_dir,
-        vscode=vscode,
-        common_packages=common_packages,
-    )
+    config = Config(username=username, token=token)
 
-    assert config.to_dict() == expected_dict
+    assert config.can_use_api() is expected
 
 
-def test_config_validate_raises_on_unset_username():
+class TestFileWrite:
+    """
+    Test Config.write will write out a config file if the file
+    does not yet exist.
+    """
 
-    config = Config(
-        username="UNSET", token="definitelynotatoken", projects_dir="/Users/me/projects"
-    )
+    target_file: Path = TESTDATA / ".testtoil.yml"
 
-    with pytest.raises(InvalidConfigError):
-        config.validate()
+    def setup_method(self):
+        pass
 
-
-def test_config_raise_if_unset_raises_on_unset_token():
-
-    config = Config(username="me", token="UNSET", projects_dir="/Users/me/projects")
-
-    with pytest.raises(InvalidConfigError):
-        config.validate()
-
-
-def test_config_show_outputs_correct_text(capsys):
-
-    config = Config(
-        username="me",
-        token="UNSET",
-        projects_dir=pathlib.Path("/Users/me/projects"),
-        vscode=True,
-        common_packages=["black", "flake8", "mypy"],
-    )
-
-    config.show()
-
-    captured = capsys.readouterr()
-
-    expected_output: str = (
-        "username: 'me'\n"
-        + "token: 'UNSET'\n"
-        + "projects_dir: '/Users/me/projects'\n"
-        + "vscode: True\n"
-        + "common_packages: ['black', 'flake8', 'mypy']\n"
-    )
-
-    assert captured.out == expected_output
-
-
-def test_config_write(mocker: MockerFixture, temp_config_file):
-
-    with mocker.patch.object(pytoil.config.config, "CONFIG_PATH", temp_config_file):
-
-        original_config = Config.get()
-
-        # Check config values before change
-        assert original_config.username == "tempfileuser"
-        assert original_config.token == "tempfiletoken"
-        assert original_config.projects_dir == pathlib.Path(
-            "/Users/tempfileuser/projects"
-        )
-        assert original_config.vscode is True
-
+    def test_write(self):
+        # Make a fake config object
         config = Config(
+            projects_dir=Path("some/dir"),
+            token="sometoken",
             username="me",
-            token="definitelynotatoken",
-            projects_dir=pathlib.Path("/Users/me/projects"),
-            vscode=False,
+            vscode=True,
+            common_packages=["black", "mypy", "flake8"],
+            init_on_new=False,
         )
 
-        # Write these new attributes to the temp config file (overwriting)
-        config.write()
+        # Assert the file doesn't exist before
+        assert self.target_file.exists() is False
 
-        # Check config values after change
+        # Write the config
+        config.write(path=self.target_file)
 
-        new_config = Config.get()
+        # Make sure it was written
+        assert self.target_file.exists()
 
-        assert new_config.username == "me"
-        assert new_config.token == "definitelynotatoken"
-        assert new_config.projects_dir == pathlib.Path("/Users/me/projects")
-        assert new_config.vscode is False
+        # Read the data from the file and check it's the same
+        file_config = Config.from_file(self.target_file)
+
+        assert config == file_config
+
+    def teardown_method(self):
+        # Ensure the file always gets deleted
+        self.target_file.unlink(missing_ok=True)
+
+
+class TestFileOverWrite:
+    """
+    Test Config.write will overwrite an already existing file.
+    """
+
+    target_file: Path = TESTDATA / ".testtoil.yml"
+
+    def setup_method(self):
+        # Create the file
+        self.target_file.touch()
+
+    def test_write(self):
+        # Make a fake config object
+        config = Config(
+            projects_dir=Path("some/dir"),
+            token="sometoken",
+            username="me",
+            vscode=True,
+            common_packages=["black", "mypy", "flake8"],
+            init_on_new=False,
+        )
+
+        # Assert the file already exists
+        assert self.target_file.exists()
+
+        # Write the config
+        config.write(path=self.target_file)
+
+        # Read the data from the file and check it's the same
+        file_config = Config.from_file(self.target_file)
+
+        assert config == file_config
+
+    def teardown_method(self):
+        # Ensure the file always gets deleted
+        self.target_file.unlink(missing_ok=True)

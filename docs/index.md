@@ -44,7 +44,7 @@ So I decided to make a robust CLI with the proper error handling and testability
 
 ## Installation
 
-As pytoil is a CLI program, I'd recommend installing with [pipx]
+As pytoil is a CLI program, I'd recommend installing with [pipx].
 
 <div class="termy">
 
@@ -56,7 +56,9 @@ Successfully installed pytoil
 
 </div>
 
-If you don't know what pipx is, go check it out! But basically it allows python CLI tools to be installed in their own sandboxed environments but you can still access the CLI as if it was installed globally!
+!!! note
+
+    If you don't know what pipx is, go check it out! But basically it allows python CLI tools to be installed in their own sandboxed environments but you can still access the CLI as if it was installed globally!
 
 You can always fall back to pip
 
@@ -84,12 +86,12 @@ pytoil will install everything it needs *in python* to work. However, it's full 
 
 `pytoil` is super easy to get started with.
 
-After installation just run
+After installation, the first time you run it it will make you a config file.
 
 <div class="termy">
 
 ```console
-$ pytoil config
+$ pytoil
 
 No config file yet!
 Making you a default one...
@@ -101,7 +103,7 @@ This will create a default config file which can be found at `~/.pytoil.yml`. Se
 
 Don't worry though, there's only a few options to configure! :sleeping:
 
-After that you're good to go! You can do things like:
+After you've set your config, you're good to go! You can do things like:
 
 #### See your local and remote projects
 
@@ -132,7 +134,7 @@ Remote Projects:
 ```console
 $ pytoil show diff
 
-Remote projects that are not local:
+Diff: Remote - Local:
 
 - Projectyoudonthave1
 - Projectyoudonthave2
@@ -150,7 +152,7 @@ $ pytoil checkout myproject
 Resuming 'myproject'...
 
 // Will now either open that project if local
-// or clone it if not
+// or clone it, then open it if not
 ```
 
 </div>
@@ -196,6 +198,8 @@ Like all good CLI programs, pytoil (aswell as all it's subcommands, and all *the
 ```console
 $ pytoil --help
 
+Usage: pytoil [OPTIONS] COMMAND [ARGS]...
+
   Helpful CLI to automate the development workflow.
 
   - Create and manage your local and remote projects
@@ -215,15 +219,16 @@ Options:
   --help                Show this message and exit.
 
 Commands:
-  checkout  Checkout a development project, either locally or from GitHub.
-  config    Display pytoil's configuration.
-  new       Create a new development project locally.
+  checkout  Checkout an existing development project.
+  config    Interact with pytoil's configuration.
   docs      Open pytoil's documentation in your browser.
-  gh        Opens a specified project on GitHub in your browser.
-  info      Show useful information about a project.
-  remove    Deletes a project from your local filesystem.
+  gh        Open one of your projects on GitHub.
+  info      Get useful info for a project.
+  new       Create a new development project.
+  pull      Pull down your remote projects.
+  remove    Remove projects from your local filesystem.
   show      View your local/remote projects.
-  sync      Synchronise your local and remote projects.
+
 ```
 
 </div>

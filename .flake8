@@ -1,0 +1,21 @@
+[flake8]
+exclude =
+    .git,
+    __pycache__,
+    .pytest_cache,
+    .mypy_cache,
+    venv/,
+    .venv/,
+    docs,
+    site,
+    .nox,
+    *.egg,
+    *.egg-info,
+    build,
+    dist,
+    pytoil/config/defaults.py
+max-complexity = 15
+max-line-length = 88
+extend-ignore =
+    E203, # Black compatability: whitespace before :
+    W503, # Black compatability: line break before binary operator

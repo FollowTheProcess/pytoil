@@ -1,26 +1,26 @@
 """
-Module managing VirtualEnvs
+Module responsible for creating and managing
+python virtual environments through the std lib `venv` module.
 
 Author: Tom Fleet
-Created: 07/03/2021
+Created: 20/06/2021
 """
 
-import pathlib
 import subprocess
+import venv
+from pathlib import Path
 from typing import List, Optional
 
-import virtualenv
-
-from pytoil.environments import BaseEnvironment
-from pytoil.exceptions import MissingInterpreterError, VirtualenvAlreadyExistsError
+from pytoil.environments import Environment
+from pytoil.exceptions import MissingInterpreterError
 
 
-class VirtualEnv(BaseEnvironment):
-    def __init__(self, project_path: pathlib.Path) -> None:
+class Venv(Environment):
+    def __init__(self, project_path: Path) -> None:
         """
         Representation of a virtualenv.
 
-        A VirtualEnv's `.executable` property (also a pathlib.Path) points
+        A VirtualEnv's `.executable` property (also a Path) points
         to the python executable of the newly created virtualenv. This
         executable may or may not exist, and the existence check is
         the primary means of checking whether or not this virtualenv
@@ -30,19 +30,19 @@ class VirtualEnv(BaseEnvironment):
         resolve back to the system python if it is a symlink.
 
         Args:
-            project_path (pathlib.Path): The root path of the current project.
+            project_root (Path): The root path of the current project.
         """
         self._project_path = project_path.resolve()
 
     def __repr__(self) -> str:
-        return self.__class__.__qualname__ + f"(project_path={self._project_path!r})"
+        return self.__class__.__qualname__ + f"(project_path={self.project_path!r})"
 
     @property
-    def project_path(self) -> pathlib.Path:
+    def project_path(self) -> Path:
         return self._project_path
 
     @property
-    def executable(self) -> pathlib.Path:
+    def executable(self) -> Path:
         return self._project_path.joinpath(".venv/bin/python")
 
     def exists(self) -> bool:
@@ -57,25 +57,34 @@ class VirtualEnv(BaseEnvironment):
 
     def create(self, packages: Optional[List[str]] = None) -> None:
         """
-        Create a new virtualenv in `project_path`.
+        Create the virtual environment in the project.
 
-        Raises:
-            VirtualenvAlreadyExistsError: If virtualenv already exists
-                in `project_path`.
+        If packages are specified here, these will be installed
+        once the environment is created.
+
+        Args:
+            packages (Optional[List[str]], optional): Packages to install immediately
+                after environment creation. Defaults to None.
         """
-        if self.exists():
-            raise VirtualenvAlreadyExistsError(
-                f"""Virtualenv with path: {self.executable}
-                already exists"""
-            )
-        # Create a new virtualenv under the project, called ".venv"
-        virtualenv.cli_run([f"{self.project_path.joinpath('.venv')}"])
+        # `clear` will ensure any existing venv is destroyed first rather
+        # than causing an error
+        # TODO: `create()` has an `upgrade_deps` arg to do what `update_seeds` does but
+        # it's only in python 3.9
+        # Add this in later
+        venv.create(
+            env_dir=self.project_path.joinpath(".venv"), clear=True, with_pip=True
+        )
+
+        # Update core deps
+        self.update_seeds()
+
+        # Install any specified packages
         if packages:
             self.install(packages=packages)
 
     def update_seeds(self) -> None:
         """
-        VirtualEnv will install 'seed' packages to a new
+        Venv will install 'seed' packages to a new
         environment: `pip`, `setuptools` and `wheel`.
 
         It is good practice to keep these packages fully up to date
@@ -92,20 +101,23 @@ class VirtualEnv(BaseEnvironment):
             raise MissingInterpreterError(f"Interpreter: {self.executable} not found.")
 
         try:
-            # Don't need to specify a 'cwd' because we have a resolved interpreter
+            # We don't need to specify a cwd here because `self.executable` is
+            # an absolute path
             subprocess.run(
                 [
-                    f"{str(self.executable)}",
+                    f"{self.executable}",
                     "-m",
                     "pip",
                     "install",
                     "--upgrade",
+                    "--quiet",
                     "pip",
                     "setuptools",
                     "wheel",
                 ],
                 check=True,
             )
+
         except subprocess.CalledProcessError:
             raise
 
@@ -118,19 +130,15 @@ class VirtualEnv(BaseEnvironment):
 
         Args:
             packages (List[str]): A list of valid packages to install.
-            Analogous to simply calling `pip install *packages` from within
-            the virtualenv. If only 1 package, still must be in a list e.g. `["black"]`.
+                Analogous to simply calling `pip install *packages` from within
+                the virtualenv. If only 1 package, still must be in a list e.g.
+                `["black"]`.
         """
 
-        # If we get here, method has been called correctly
-        # Ensure seed packages are updated, also checks interpreter
-        self.update_seeds()
-
-        cmd: List[str] = [f"{self.executable}", "-m", "pip", "install"]
+        cmd: List[str] = [f"{self.executable}", "-m", "pip", "install", "--quiet"]
 
         cmd.extend(packages)
 
-        # Run the constructed pip command
         try:
             subprocess.run(cmd, check=True)
         except subprocess.CalledProcessError:

@@ -1,167 +1,149 @@
 """
-Module responsible for handling user config.
+Module responsible for handling pytoil's programmatic
+interaction with its config file.
 
 Author: Tom Fleet
-Created: 05/02/2021
+Created: 18/06/2021
 """
 
 from __future__ import annotations
 
-import pathlib
-from dataclasses import dataclass
-from typing import List, Optional, TypedDict
+from dataclasses import field
+from pathlib import Path
+from typing import List, TypedDict
 
 import yaml
+from pydantic.dataclasses import dataclass
 
-from pytoil.exceptions import InvalidConfigError
-
-# Default value for projects_dir
-DEFAULT_PROJECTS_DIR = pathlib.Path.home().joinpath("Development").resolve()
-# Default config path location
-CONFIG_PATH = pathlib.Path.home().joinpath(".pytoil.yml").resolve()
+from pytoil.config import defaults
 
 
 class ConfigDict(TypedDict):
     """
-    Type checking for the config dictionary.
+    TypedDict for config.
 
-    Effectively a config schema, same as the dataclass
-    with the exception of pathlib.Paths which are here
-    represented as a string as this is how they will be
-    stored in the config file and thus how they will be brought
-    into python by pyyaml.
+    Exactly the same as the dataclass except projects_dir
+    is a str here because that's how it will be brought in
+    when deserialising the yaml file.
     """
 
-    username: str
-    token: str
     projects_dir: str
+    token: str
+    username: str
     vscode: bool
-    common_packages: Optional[List[str]]
+    common_packages: List[str]
+    init_on_new: bool
 
 
 @dataclass
 class Config:
-    """
-    Representation of the pytoil config.
-
-    Only real usage is the `.get` classmethod.
-    Used as the global configuration management class for the
-    whole project.
-
-
-    Args:
-        username (str): Users GitHub username.
-            Defaults to "UNSET".
-        token (str): Users GitHub personal access token.
-            Defaults to "UNSET".
-        projects_dir (pathlib.Path): Directory in which user stores
-            their development projects. Defaults to ~/Development.
-        vscode (bool): Whether or not the user uses vscode as their editor.
-            Defaults to False.
-    """
-
-    username: str = "UNSET"
-    token: str = "UNSET"
-    projects_dir: pathlib.Path = DEFAULT_PROJECTS_DIR
-    vscode: bool = False
-    common_packages: Optional[List[str]] = None
-
-    def validate(self) -> None:
-        """
-        Helper method to validate the config.
-
-        If either `username` or `token` are the fallback value
-        "UNSET" this will raise an InvalidConfigError.
-
-        Call before anything where these are required.
-        """
-
-        if self.username == "UNSET":
-            raise InvalidConfigError(
-                """No GitHub username set in ~/.pytoil.yml.
-        Please set your GitHub username in the config file with the key: `username`."""
-            )
-        elif self.token == "UNSET":
-            raise InvalidConfigError(
-                """No GitHub personal access token set in ~/.pytoil.yml.
-        Please set your GitHub personal access token in the config file with
-        the key: `token`."""
-            )
-        else:
-            return None
+    projects_dir: Path = defaults.PROJECTS_DIR
+    token: str = defaults.TOKEN
+    username: str = defaults.USERNAME
+    vscode: bool = defaults.VSCODE
+    common_packages: List[str] = field(default_factory=list)
+    init_on_new: bool = defaults.INIT_ON_NEW
 
     @classmethod
-    def get(cls) -> Config:
+    def from_file(cls, path: Path = defaults.CONFIG_FILE) -> Config:
         """
-        Fetches the configuration from the ~/.pytoil.yml config
-        file and returns a Config object with parameters set from
-        the file.
+        Reads in the .pytoil.yml config file and returns
+        a populated `Config` object.
 
-        If a key is not present in the file, or if the value associated to
-        that key is blank. The default value for that key will be used.
-
-        If the file does not exist, a FileNotFoundError will be raised.
-
-        Raises:
-            FileNotFoundError: If config file `~/.pytoil.yml` does not exist.
+        Args:
+            path (Path, optional): Path to the config file.
+                Defaults to defaults.CONFIG_FILE.
 
         Returns:
-            Config: Config object with parameters parsed from the file.
+            Config: Populated `Config` object.
         """
 
         try:
-            with open(CONFIG_PATH, mode="r", encoding="utf-8") as f:
-                config_dict = yaml.full_load(f)
+            with open(path, mode="r", encoding="utf-8") as f:
+                config_dict: ConfigDict = yaml.full_load(f)
         except FileNotFoundError:
             raise
         else:
-            # Get the config from unpacking the dict
-            config = Config(
-                username=config_dict.get("username", "UNSET"),
-                token=config_dict.get("token", "UNSET"),
-                projects_dir=pathlib.Path(
-                    config_dict.get("projects_dir", str(DEFAULT_PROJECTS_DIR))
-                ),
-                vscode=config_dict.get("vscode", False),
-                common_packages=config_dict.get("common_packages", None),
-            )
+            return Config.from_dict(config_dict)
 
-            return config
+    @classmethod
+    def from_dict(cls, config_dict: ConfigDict) -> Config:
+        """
+        Takes in a `ConfigDict` and returns a populated
+        `Config` object.
+
+        Args:
+            config_dict (ConfigDict): Populated `ConfigDict` object.
+
+        Returns:
+            Config: Returned `Config`.
+        """
+
+        # We can do this here because pydantic will handle
+        # all the conversion between types under the hood
+        return Config(**config_dict)  # type: ignore
+
+    @classmethod
+    def helper(cls) -> Config:
+        """
+        Returns a friendly placeholder object designed to be
+        written to a config file as a guide to the user on what
+        to fill in.
+
+        Most of the fields will be the default but some will have
+        helpful instructions.
+
+        Returns:
+            Config: Helper config object.
+        """
+
+        return Config(
+            token="Put your GitHub personal access token here",
+            username="This your GitHub username",
+        )
 
     def to_dict(self) -> ConfigDict:
         """
-        Generates a properly formatted dictionary of the current
-        config.
-
-        Returns:
-            ConfigDict: Dictionary showing the current config state.
+        Writes out the attributes from the calling instance
+        to a dictionary.
         """
-
-        config_dict: ConfigDict = {
-            "username": self.username,
-            "token": self.token,
+        return {
             "projects_dir": str(self.projects_dir),
+            "token": self.token,
+            "username": self.username,
             "vscode": self.vscode,
             "common_packages": self.common_packages,
+            "init_on_new": self.init_on_new,
         }
 
-        return config_dict
-
-    def show(self) -> None:
+    def write(self, path: Path = defaults.CONFIG_FILE) -> None:
         """
-        Pretty prints the current config.
-        """
+        Overwrites the config file at `path` with the attributes from
+        the calling instance.
 
-        for key, val in self.to_dict().items():
-            print(f"{key}: {val!r}")
-
-    def write(self) -> None:
-        """
-        Overwrites the config file with the attributes
-        from the calling instance.
+        Args:
+            path (Path, optional): Config file to overwrite.
+                Defaults to defaults.CONFIG_FILE.
         """
 
-        config_dict = self.to_dict()
+        with open(path, mode="w", encoding="utf-8") as f:
+            yaml.dump(self.to_dict(), f)
 
-        with open(CONFIG_PATH, mode="w", encoding="utf-8") as f:
-            yaml.dump(config_dict, f)
+    def can_use_api(self) -> bool:
+        """
+        Helper method to easily determine whether or not
+        the config instance has the required elements
+        to use the GitHub API.
+
+        Returns:
+            bool: True if can use API, else False.
+        """
+
+        conditions = [
+            self.username == "",
+            self.username == "This your GitHub username",
+            self.token == "",
+            self.token == "Put your GitHub personal access token here",
+        ]
+
+        return not any(conditions)

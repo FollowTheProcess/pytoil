@@ -1,41 +1,24 @@
 """
-Module responsible for querying the GitHub RESTv3 API.
+Module responsible for handling pytoil's interface with the
+GitHub REST v3 API.
 
 Author: Tom Fleet
-Created: 04/02/2021
+Created: 19/06/2021
 """
 
-from typing import Any, Dict, List, Optional, Union
+
+from typing import Any, Dict, List, Optional, Set, Union
 
 import httpx
 
-from pytoil.config import Config
+Response = Dict[str, Any]
 
 
 class API:
-    def __init__(
-        self, token: Optional[str] = None, username: Optional[str] = None
-    ) -> None:
-        """
-        Representation of the GitHub API.
-
-        Args:
-            token (str, optional): GitHub Personal Access Token.
-                Defaults to value from config file.
-
-            username (str, optional): Users GitHub username.
-                Defaults to value from config file.
-        """
-        # If token passed, set it
-        # if not, get from config
-        self.token = token or Config.get().token
-        # Same with username
-        self.username = username or Config.get().username
-
-        # NOTE: we might support gitlab or others in future
-        # PR's welcome!
-        self.baseurl: str = "https://api.github.com/"
-
+    def __init__(self, username: str, token: str) -> None:
+        self.username = username
+        self.token = token
+        self.baseurl = "https://api.github.com/"
         self.headers: Dict[str, str] = {
             "Accept": "application/vnd.github.v3+json",
             "Authorization": f"token {self.token}",
@@ -44,90 +27,70 @@ class API:
     def __repr__(self) -> str:
         return (
             self.__class__.__qualname__
-            + f"(token={self.token!r}, "
-            + f"username={self.username!r})"
+            + f"(username={self.username!r}, token={self.token!r})"
         )
 
-    def get(self, endpoint: str) -> Dict[str, Any]:
+    def get(self, endpoint: str, params: Optional[Dict[str, Any]] = None) -> Response:
         """
-        Makes an authenticated request to a GitHub API endpoint.
-
-        Generic base for more specific get methods below.
+        Generic authenticated GET request method, used to make a GET
+        to any valid GitHub REST v3 API endpoint e.g. 'user/repos'.
 
         Args:
-            endpoint (str): Valid GitHub API endpoint.
-                e.g. 'users/repos'.
-
-        Raises:
-            HTTPStatusError: If any HTTP error occurs, will raise an exception
-                and give a description and standard HTTP status code.
+            endpoint (str): The endpoint to GET.
+            params (Optional[Dict[str, Any]], optional): Dictionary of query params to
+            pass with the request. Defaults to None.
 
         Returns:
-            ApiResponse: JSON API response.
+            Response: JSON Response dict.
         """
-        # This needs the token from the config
-        # it could be invalid, we haven't checked until now
-        Config.get().validate()
-
-        r = httpx.get(url=self.baseurl + endpoint, headers=self.headers)
+        r = httpx.get(url=self.baseurl + endpoint, headers=self.headers, params=params)
         r.raise_for_status()
-        response: Dict[str, Any] = r.json()
+
+        response: Response = r.json()
 
         return response
 
-    def get_repo(self, repo: str) -> Dict[str, Any]:
+    def get_repo(self, repo: str) -> Response:
         """
-        Hits the GitHub REST API 'repos/{owner}/{repo}' endpoint
-        and parses the response.
-
-        In our case `owner` is `username`.
+        Get a user's repo by name.
 
         Args:
-            repo (str): The name of the repo to fetch JSON for.
+            repo (str): Name of the repo to get
+                (must be owned by the user or will raise a 404)
 
         Returns:
-            Dict[str, Any]: JSON response for a particular repo.
+            Response: JSON Response dict.
         """
 
-        return self.get(f"repos/{self.username}/{repo}")
+        return self.get(endpoint=f"repos/{self.username}/{repo}")
 
-    def get_repos(self) -> Dict[str, Any]:
+    def get_repos(self) -> Response:
         """
-        Hits the GitHub REST API 'user/{username}/repos' endpoint and parses
-        the response.
-
-        Function similar to `get_repo` the difference being `get_repos` returns
-        a list of JSON blobs each representing a repo belonging to `self.username`
-
-        This endpoint requires no parameters because it is the
-        'get repos for authenticated user' endpoint and since at this point we have
-        `self.token` this automatically fills in the {username} for us.
+        Gets all repos owned by the authenticated user.
 
         Returns:
-            Dict[str, Any]: JSON response for a list of all users repos.
+            Response: JSON Response dict.
         """
 
-        return self.get("user/repos")
+        return self.get(endpoint="user/repos", params={"type": "owner"})
 
-    def get_repo_names(self) -> List[str]:
+    def get_repo_names(self) -> Set[str]:
         """
-        Hits the GitHub REST API 'user/{username}/repos' endpoint, parses
-        the response, extracts the name of each repo and returns
-        a list of these names.
+        Gets the names of all the repos owned by the authenticated user.
 
         Returns:
-            List[str]: List of user's repo names.
+            Set[str]: Names of all authenticated user repos.
         """
 
-        return [repo["name"] for repo in self.get_repos()]  # type: ignore
-        # We type ignore here because satisfying
-        # mypy when dealing with JSON is hard
+        # For whatever reason, mypy doesn't like this even though it's totally valid
+        return {repo["name"] for repo in self.get_repos()}  # type: ignore
 
     def get_repo_info(self, repo: str) -> Dict[str, Union[str, int]]:
         """
         Returns a dictionary of key information about a particular repo.
 
         Info Keys:
+
         - name
         - description
         - created_at

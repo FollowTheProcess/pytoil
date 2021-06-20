@@ -1,225 +1,83 @@
 """
-Module responsible for managing local and remote
-repos (projects).
+Module responsible for interacting with local/remote projects.
 
 Author: Tom Fleet
-Created: 05/02/2021
+Created: 19/06/2021
 """
 
-from __future__ import annotations
-
-import pathlib
-import re
-import shutil
-import subprocess
 from datetime import datetime
-from typing import Dict, Optional, Set, Union
+from pathlib import Path
+from typing import Any, Dict, Optional
+
+import httpx
+import toml
 
 from pytoil.api import API
-from pytoil.config import Config
-from pytoil.environments import BaseEnvironment, CondaEnv, VirtualEnv
-from pytoil.exceptions import (
-    GitNotInstalledError,
-    InvalidRepoPathError,
-    InvalidURLError,
-    LocalRepoExistsError,
-    RepoNotFoundError,
-)
-
-# Stupidly basic regex, I'm bad at these
-REPO_REGEX = re.compile(r"https://github.com/[\w]+/[\w]+.git")
-REPO_PATH_REGEX = re.compile(r"[\w]+/[\w]+")
+from pytoil.environments import Conda, Environment, Venv
+from pytoil.exceptions import RepoNotFoundError
 
 
 class Repo:
-    def __init__(self, name: str, owner: Optional[str] = None) -> None:
+    def __init__(self, owner: str, name: str, local_path: Path) -> None:
         """
-        Representation of a Git/GitHub repo.
-
-        The GitHub url is constructed from `owner` and `name` and is accesible
-        through the `.url` read-only property.
-
-        If the repo has been cloned and/or exists locally, the `.path` property
-        will be set to a pathlib.Path pointing to the root of the cloned repo.
-
-        In this sense, the `Repo` object can represent both a remote GitHub
-        repo and a local project.
+        Representation of a local/remote project.
 
         Args:
-            name (str): The name of the GitHub repo.
-
-            owner (Optional[str], optional): The owner of the GitHub repo.
-                Defaults to value `username` from config file.
+            owner (str): The owner (i.e. GitHub username)
+            name (str): Project name
+            local_path (Path): The path this repo would have on the local
+                filesystem, whether it currently exists or not.
         """
-        self.owner = owner or Config.get().username
+        self.owner = owner
         self.name = name
+        self.local_path = local_path
 
-        self.url: str = f"https://github.com/{self.owner}/{self.name}.git"
-
-        # The path this repo would have were it to be cloned locally
-        self._path: pathlib.Path = Config.get().projects_dir.joinpath(self.name)
+        self.clone_url = f"https://github.com/{self.owner}/{self.name}.git"
+        self.html_url = f"https://github.com/{self.owner}/{self.name}"
 
     def __repr__(self) -> str:
         return (
-            self.__class__.__qualname__ + f"(owner={self.owner!r}, name={self.name!r})"
+            self.__class__.__qualname__
+            + f"(owner={self.owner!r}, "
+            + f"name={self.name!r}, "
+            + f"local_path={self.local_path!r})"
         )
-
-    @property
-    def path(self) -> pathlib.Path:
-        return self._path
-
-    @path.setter
-    def path(self, value: pathlib.Path) -> None:
-        self._path = value
-
-    @classmethod
-    def from_url(cls, url: str) -> Repo:
-        """
-        Constructs a Repo by extracting `owner` and `name`
-        from a valid GitHub Repo URL.
-
-        Args:
-            url (str): Valid GitHub Repo URL.
-
-        Raises:
-            InvalidURLError: If URL does not match valid REGEX.
-
-        Returns:
-            Repo: Repo with `owner` and `name` set from `url`.
-        """
-
-        if not REPO_REGEX.match(url):
-            raise InvalidURLError(f"The URL: {url!r} is not a valid GitHub repo URL.")
-        owner = url.rsplit(".git")[0].split("/")[-2]
-        name = url.rsplit(".git")[0].split("/")[-1]
-
-        return cls(name=name, owner=owner)
-
-    @classmethod
-    def from_path(cls, path: str) -> Repo:
-        """
-        Constructs a Repo by extracting `owner` and `name`
-        from a valid shorthand repo path.
-
-        Args:
-            path (str): Valid shorthand path
-                e.g. 'FollowTheProcess/pytoil'
-
-        Raises:
-            InvalidRepoPathError: If path does match valid REGEX.
-
-        Returns:
-            Repo: Repo with `owner` and `name` set from `path`.
-        """
-
-        if not REPO_PATH_REGEX.match(path):
-            raise InvalidRepoPathError(
-                f"The repo path: {path!r} is not a valid GitHub repo path."
-            )
-        owner, name = path.split("/")
-
-        return cls(name=name, owner=owner)
 
     def exists_local(self) -> bool:
         """
-        Determines whether or not the repo exists
-        locally in configured projects folder.
+        Determines whether or not a Repo exists
+        on the local filesystem
 
         Returns:
-            bool: True if repo exists locally, else False.
+            bool: True if exists locally, else False.
         """
-        return self.path.exists()
+        return self.local_path.exists()
 
     def exists_remote(self, api: API) -> bool:
         """
-        Determines whether or not the repo called
-        `self.name` exists under configured username.
+        Determines whether or not a Repo exists
+        on GitHub.
+
+        It does this simply by making a GET request
+        for the Repo in question and looking at the response
+        code.
 
         Args:
-            api (API): GitHub API object.
+            api (API): pytoil API object.
 
         Returns:
-            bool: True if repo exists on GitHub, else False.
+            bool: True if exists remote, else False.
         """
-
-        repos: Set[str] = set(api.get_repo_names())
-
-        return self.name in repos
-
-    def clone(self, api: API) -> None:
-        """
-        Invokes git in a subprocess to clone the repo
-        represented by the instance.
-
-        Args:
-            api (API): GitHub API object.
-
-        Raises:
-            GitNotInstalledError: If 'git' not found on $PATH.
-            LocalRepoExistsError: If repo already exists in configured
-                projects_dir.
-            RepoNotFoundError: If repo not found on GitHub.
-        """
-
-        # Get the user config from file and validate
-        config = Config.get()
-        config.validate()
-
-        # Check if git is installed
-        if not bool(shutil.which("git")):
-            raise GitNotInstalledError(
-                """'git' executable not installed or not found on $PATH.
-        Check your git installation."""
-            )
-        # Check if its already been cloned
-        elif self.exists_local():
-            raise LocalRepoExistsError(
-                f"""The repo {self.name} already exists at {self.path}.
-        Cannot clone a repo that already exists."""
-            )
-        # Check if the remote repo actually exists
-        elif not self.exists_remote(api=api):
-            raise RepoNotFoundError(f"Repo: {self.url} not found on GitHub")
+        try:
+            # Capture any response and throw it away to avoid
+            # accidental printing
+            _ = api.get_repo(self.name)
+        except httpx.HTTPStatusError:
+            return False
         else:
-            # If we get here, we can safely clone
-            try:
-                subprocess.run(
-                    ["git", "clone", f"{self.url}"], check=True, cwd=config.projects_dir
-                )
-            except subprocess.CalledProcessError:
-                raise
-            else:
-                # If clone succeeded, set self.path
-                self.path = config.projects_dir.joinpath(self.name)
+            return True
 
-    def init(self) -> None:
-        """
-        Invokes git in a subprocess to initialise a new repo
-        described by the instance.
-
-        Raises:
-            GitNotInstalledError: If git not on $PATH.
-            LocalRepoExistsError: If repo already exists.
-        """
-
-        # Get the user config from file and validate
-        config = Config.get()
-        config.validate()
-
-        # Check if git is installed
-        if not bool(shutil.which("git")):
-            raise GitNotInstalledError(
-                """'git' executable not installed or not found on $PATH.
-        Check your git installation."""
-            )
-        else:
-            # If we get here, we can safely init
-            try:
-                subprocess.run(["git", "init"], check=True, cwd=self.path)
-            except subprocess.CalledProcessError:
-                raise
-
-    def info(self, api: API) -> Dict[str, Union[str, int, bool]]:
+    def info(self, api: API) -> Dict[str, Any]:
         """
         Returns summary information about the repo
         from the API or Path.stat.
@@ -232,10 +90,11 @@ class Repo:
             api (API): GitHub API object.
 
         Returns:
+
             Dict[str, Union[str, int]]: Summary info.
         """
 
-        info_dict: Dict[str, Union[str, int, bool]] = {}
+        info_dict: Dict[str, Any] = {}
 
         # Path.stat returns a UNIX timestamp for dates/times
         str_time_format: str = r"%Y-%m-%d %H:%M:%S"
@@ -249,14 +108,14 @@ class Repo:
             # If local, we can get a bit of info from os.stat
             info_dict.update(
                 {
-                    "name": self.path.name,
+                    "name": self.local_path.name,
                     "created_at": datetime.utcfromtimestamp(
-                        self.path.stat().st_ctime
+                        self.local_path.stat().st_ctime
                     ).strftime(str_time_format),
                     "updated_at": datetime.utcfromtimestamp(
-                        self.path.stat().st_mtime
+                        self.local_path.stat().st_mtime
                     ).strftime(str_time_format),
-                    "size": self.path.stat().st_size,
+                    "size": self.local_path.stat().st_size,
                     "local": True,
                     "remote": self.exists_remote(api=api),
                 },
@@ -268,82 +127,84 @@ class Repo:
 
         return info_dict
 
-    def _does_file_exist(self, file: str) -> bool:
+    def file_exists(self, file: str) -> bool:
         """
-        Helper method to determine whether or not a particular file
-        exists in the root of the local repo.
+        Helper method to determine whether or not
+        the repo root directory contains `file`.
 
         Args:
-            file (str): Name of the file to check for.
-
-        Raises:
-            RepoNotFoundError: If the repo does not exist locally.
+            file (str): Name of the file, relative
+                to `self.local_path`.
 
         Returns:
-            bool: True if file exists, else False.
+            bool: True if exists, else False.
         """
-
-        if not self.exists_local():
-            raise RepoNotFoundError(f"Repo: {self.path!r} not found locally.")
-        else:
-            return self.path.joinpath(file).exists()
+        return self.local_path.joinpath(file).exists()
 
     def is_setuptools(self) -> bool:
         """
-        Is the project based on setuptools.
-
-        i.e. does it contain a `setup.py` or a `setup.cfg`
+        Is the project based on setuptools,
+        i.e. does it have a 'setup.cfg' or a 'setup.py'
 
         Returns:
-            bool: True if project is setuptools, else False.
+            bool: True if setuptools, else False.
         """
 
-        return self._does_file_exist("setup.cfg") or self._does_file_exist("setup.py")
+        return self.file_exists("setup.cfg") or self.file_exists("setup.py")
 
     def is_conda(self) -> bool:
         """
-        Is the project based on conda.
-
-        i.e. does it contain an `environment.yml`
+        Is the project based on conda,
+        the only way really of detecting this automatically
+        is to look for an 'environment.yml'
 
         Returns:
-            bool: True if project is conda, else False.
+            bool: True if conda, else False.
         """
-
-        return self._does_file_exist("environment.yml")
+        return self.file_exists("environment.yml")
 
     def is_editable(self) -> bool:
         """
-        Does the project support `pip install -e .`
+        Does the project support editable installs
+        for development
 
-        Must have a `setup.py` for this, `setup.cfg` on its own
-        is not sufficient.
+        i.e. 'pip install -e .'
 
-        Returns:
-            bool: True if project is editable, else False.
-        """
-
-        return self._does_file_exist("setup.py")
-
-    def is_pep517(self) -> bool:
-        """
-        Does the project comply with PEP517/518.
-
-        i.e. does it have a `pyproject.toml`
+        Only possible with a 'setup.py'.
 
         Returns:
-            bool: True if project supports PEP517, else False.
+            bool: True if editable, else False.
         """
+        return self.file_exists("setup.py")
 
-        return self._does_file_exist("pyproject.toml")
+    def is_PEP517(self) -> bool:
+        """
+        Does the project comply with
+        PEP517/518.
 
-    def dispatch_env(self) -> Optional[BaseEnvironment]:
+        i.e. does it have a 'pyproject.toml' file
+        specifying a build system.
+
+        Returns:
+            bool: True if yes, else False.
+        """
+        if not self.file_exists("pyproject.toml"):
+            # Can't be PEP517 if it doesn't even have one
+            return False
+
+        # Sometimes people just use it for config
+        # Check that it actually specifies a build_system
+        toml_dict = toml.load(self.local_path.joinpath("pyproject.toml"))
+
+        return bool(toml_dict.get("build-system"))
+
+    def dispatch_env(self) -> Optional[Environment]:
         """
         Returns the correct environment
         object for the calling `Repo` instance. Or `None` if it cannot
         detect the environment.
 
-        Therefore all usage should first check for `None`
+        Therefore all usage should first check for `None`.
 
         Returns:
             Optional[BaseEnvironment]: Either the correct environment
@@ -351,8 +212,8 @@ class Repo:
         """
 
         if self.is_conda():
-            return CondaEnv(name=self.name, project_path=self.path)
+            return Conda(name=self.name, project_path=self.local_path)
         elif self.is_setuptools():
-            return VirtualEnv(project_path=self.path)
+            return Venv(project_path=self.local_path)
         else:
             return None
