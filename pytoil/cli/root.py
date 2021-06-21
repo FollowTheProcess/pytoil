@@ -9,6 +9,7 @@ Created: 18/06/2021
 from enum import Enum
 from typing import List
 
+import httpx
 import typer
 from wasabi import msg
 
@@ -137,51 +138,59 @@ def checkout(
     code = VSCode(root=repo.local_path)
     git = Git()
 
-    if repo.exists_local():
-        # No environment or git stuff here, chances are if it exists locally
-        # user has already done all this stuff
-        msg.info(f"{repo.name!r} available locally.", spaced=True)
-
-        if config.vscode:
-            msg.text(f"Opening {repo.name!r} in VSCode.")
-            code.open()
-
-    elif repo.exists_remote(api=api):
-        msg.info(f"{repo.name!r} found on GitHub. Cloning...", spaced=True)
-        git.clone(url=repo.clone_url, check=True, cwd=config.projects_dir)
-
-        env = repo.dispatch_env()
-
-        if venv:
-            if not env:
-                msg.warn(
-                    "Unable to auto-detect required environent. Skipping.", spaced=True
-                )
-            else:
-                msg.info("Auto creating correct virtual environment.", spaced=True)
-
-                try:
-                    with msg.loading("Creating Environment..."):
-                        env.create(packages=config.common_packages)
-                except EnvironmentAlreadyExistsError:
-                    msg.warn(
-                        title="Environment already exists!",
-                        text="No need to create a new one. Skipping.",
-                    )
-                finally:
-                    if config.vscode:
-                        code.set_python_path(python_path=env.executable)
-
-        if config.vscode:
-            msg.info(f"Opening {repo.name!r} in VSCode.", spaced=True)
-            code.open()
-
+    is_local = repo.exists_local()
+    try:
+        is_remote = repo.exists_remote(api=api)
+    except httpx.HTTPStatusError as err:
+        utils.handle_http_status_errors(error=err)
     else:
-        msg.warn(
-            title=f"{repo.name!r} not found locally or on GitHub!",
-            text=f"Does it exist? If not, create a new project with 'pytoil new {repo.name}'.",  # noqa: E501
-            exits=1,
-        )
+
+        if is_local:
+            # No environment or git stuff here, chances are if it exists locally
+            # user has already done all this stuff
+            msg.info(f"{repo.name!r} available locally.", spaced=True)
+
+            if config.vscode:
+                msg.text(f"Opening {repo.name!r} in VSCode.")
+                code.open()
+
+        elif is_remote:
+            msg.info(f"{repo.name!r} found on GitHub. Cloning...", spaced=True)
+            git.clone(url=repo.clone_url, check=True, cwd=config.projects_dir)
+
+            env = repo.dispatch_env()
+
+            if venv:
+                if not env:
+                    msg.warn(
+                        "Unable to auto-detect required environent. Skipping.",
+                        spaced=True,
+                    )
+                else:
+                    msg.info("Auto creating correct virtual environment.", spaced=True)
+
+                    try:
+                        with msg.loading("Creating Environment..."):
+                            env.create(packages=config.common_packages)
+                    except EnvironmentAlreadyExistsError:
+                        msg.warn(
+                            title="Environment already exists!",
+                            text="No need to create a new one. Skipping.",
+                        )
+                    finally:
+                        if config.vscode:
+                            code.set_python_path(python_path=env.executable)
+
+            if config.vscode:
+                msg.info(f"Opening {repo.name!r} in VSCode.", spaced=True)
+                code.open()
+
+        else:
+            msg.warn(
+                title=f"{repo.name!r} not found locally or on GitHub!",
+                text=f"Does it exist? If not, create a new project with 'pytoil new {repo.name}'.",  # noqa: E501
+                exits=1,
+            )
 
 
 @app.command(context_settings={"allow_extra_args": True})
@@ -344,8 +353,14 @@ def info(
     )
 
     try:
+        _ = repo.exists_remote(api=api)
+    except httpx.HTTPStatusError as err:
+        utils.handle_http_status_errors(error=err)
+
+    try:
         with msg.loading(f"Fetching info for {project!r}..."):
             info_dict = repo.info(api=api)
+
     except RepoNotFoundError:
         msg.warn(
             f"{project!r} not found locally or on GitHub. Was it a typo?",
@@ -396,10 +411,16 @@ def gh(
         local_path=config.projects_dir.joinpath(project),
     )
 
-    if not repo.exists_remote(api=api):
-        msg.warn(
-            f"{project!r} not found on GitHub! Was it a typo?", spaced=True, exits=1
-        )
+    try:
+        exists_remote = repo.exists_remote(api=api)
+    except httpx.HTTPStatusError as err:
+        utils.handle_http_status_errors(error=err)
+    else:
 
-    msg.info(f"Opening {project!r} on GitHub...", spaced=True)
-    typer.launch(url=repo.html_url)
+        if not exists_remote:
+            msg.warn(
+                f"{project!r} not found on GitHub! Was it a typo?", spaced=True, exits=1
+            )
+        else:
+            msg.info(f"Opening {project!r} on GitHub...", spaced=True)
+            typer.launch(url=repo.html_url)

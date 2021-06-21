@@ -10,6 +10,7 @@ This is the dev repo for pytoil 2.0 (it won't actually be 2.0 but ya know).
 - [x] Add all known conda environment directories to env dispatcher (e.g. miniconda3, miniforge3, mambaforge etc.)
 - [x] If GitHub token isn't set in config file, try and get $GITHUB_TOKEN instead. Only if that isn't present fail, but fail nicely.
 - [ ] Full requirements file resolving like my custom shell functions do
+- [ ] When batch pulling repos, do it in parallel?
 
 ## Fixes
 
