@@ -113,9 +113,7 @@ def checkout(
     from GitHub to avoid accidentally screwing up local projects.
 
     If the '--venv/-v' flag is used, pytoil will look at your project to try and detect
-    which type of environment to create (conda or standard python). Depending on the
-    type of files present, pytoil may also install the project's dependencies
-    automatically.
+    which type of environment to create (conda or standard python).
 
     More info can be found in the documentation.
 

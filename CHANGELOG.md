@@ -10,11 +10,18 @@ Complete rewrite from the ground up!
 * NEW: Additional packages can now be passed in as extra arguments when creating an environment with `pytoil new`
 * NEW: Friendlier output to the user during operations and awesome loading spinners
 * NEW: Output from invoked external tools is now captured and only surfaced when something goes wrong
+* NEW: If `$GITHUB_TOKEN` is present in the environment, pytoil will fall back to that if `token` is not set in the config file
+* NEW: User can now interact with the config file via the tool itself
+
+* FIX: pytoil now handles common errors much nicer (missing config file, bad github token etc.)
+* FIX: Much better error handling all round
 
 * CLN: Complete internal rewrite, better cohesion and looser coupling
 * CLN: Less reliance on mocks during tests
 
 * MAINT: Project build tool switched to poetry
+
+Probably more but I forget.
 
 ## 0.4.2
 
