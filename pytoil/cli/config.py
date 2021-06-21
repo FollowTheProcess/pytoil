@@ -50,9 +50,9 @@ def config() -> None:
 @app.command()
 def show() -> None:
     """
-    Show gotoil's config.
+    Show pytoil's config.
 
-    The show command allows you to easily see gotoil's current config.
+    The show command allows you to easily see pytoil's current config.
 
     The values are taken directly from the config file where specified or
     the defaults otherwise.

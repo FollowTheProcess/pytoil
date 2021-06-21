@@ -102,7 +102,7 @@ def checkout(
     config file it will open it for you. If not, it will just tell you it already
     exists locally and where to find it.
 
-    If your project is on GitHub, gotoil will clone it for you and then open it
+    If your project is on GitHub, pytoil will clone it for you and then open it
     (or tell you where it cloned it if you dont have VSCode set up).
 
     Finally, if checkout can't find a match after searching locally and on GitHub,

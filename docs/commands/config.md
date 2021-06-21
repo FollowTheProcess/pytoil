@@ -32,7 +32,7 @@ Commands:
   get   Get the currently set value for a config key.
   help  Print a list and description of pytoil config keys.
   set   Set a config key, value pair.
-  show  Show gotoil's config.
+  show  Show pytoil's config.
 
 ```
 
