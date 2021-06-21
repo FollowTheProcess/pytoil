@@ -13,10 +13,9 @@ from typing import Optional
 
 from pytoil.config import defaults
 from pytoil.exceptions import GitNotInstalledError
-from pytoil.git import BaseGit
 
 
-class Git(BaseGit):
+class Git:
     def __init__(self, git: Optional[str] = shutil.which("git")) -> None:
         self.git = git
 
