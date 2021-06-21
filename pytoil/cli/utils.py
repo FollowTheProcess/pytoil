@@ -8,6 +8,7 @@ Created: 19/06/2021
 from pathlib import Path
 from typing import List, Set
 
+import httpx
 from cookiecutter.main import cookiecutter
 from wasabi import msg
 
@@ -49,20 +50,28 @@ def pre_new_checks(repo: Repo, api: API) -> None:
     the program if True.
     """
 
-    if repo.exists_local():
-        msg.warn(
-            title=f"{repo.name!r} already exists locally!",
-            text=f"To checkout this project, use 'pytoil checkout {repo.name}'.",
-            spaced=True,
-            exits=1,
-        )
-    elif repo.exists_remote(api=api):
-        msg.warn(
-            title=f"{repo.name!r} already exists on GitHub!",
-            text=f"To checkout this project, use 'pytoil checkout {repo.name}'.",
-            spaced=True,
-            exits=1,
-        )
+    is_local = repo.exists_local()
+
+    try:
+        is_remote = repo.exists_remote(api=api)
+    except httpx.HTTPStatusError as err:
+        handle_http_status_errors(error=err)
+    else:
+
+        if is_local:
+            msg.warn(
+                title=f"{repo.name!r} already exists locally!",
+                text=f"To checkout this project, use 'pytoil checkout {repo.name}'.",
+                spaced=True,
+                exits=1,
+            )
+        elif is_remote:
+            msg.warn(
+                title=f"{repo.name!r} already exists on GitHub!",
+                text=f"To checkout this project, use 'pytoil checkout {repo.name}'.",
+                spaced=True,
+                exits=1,
+            )
 
 
 def make_new_project(
@@ -124,3 +133,36 @@ def create_condaenv(repo: Repo, packages: List[str]) -> Environment:
         )
 
     return env
+
+
+def handle_http_status_errors(error: httpx.HTTPStatusError) -> None:
+    """
+    Handles a variety of possible HTTP Status errors, print's nicer output
+    to the user, and exits the program if necessary.
+
+    Call this in an except block on CLI commands accessing the
+    GitHub API.
+
+    Args:
+        error (httpx.HTTPStatusError): The error to be handled.
+    """
+    code = error.response.status_code
+
+    if code == 401:
+        msg.fail(
+            title="HTTP Error: 401 - Unauthorized",
+            text="This usually means something is wrong with your token!",
+            exits=1,
+        )
+    elif code == 404:
+        msg.fail(
+            title="HTTP Error: 404 - Not Found",
+            text="This usually means something is up with the GitHub API.",
+            exits=1,
+        )
+    elif code == 500:
+        msg.fail(
+            title="HTTP Error: 500 - Internal Server Error",
+            text="This usually means GitHub is not happy.",
+            exits=1,
+        )

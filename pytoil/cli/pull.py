@@ -7,6 +7,7 @@ Created: 18/06/2021
 
 from typing import List, Set
 
+import httpx
 import typer
 from wasabi import msg
 
@@ -72,13 +73,19 @@ def all_(
 
     api = API(username=config.username, token=config.token)
 
-    with msg.loading("Calculating difference..."):
-        local_projects = utils.get_local_projects(path=config.projects_dir)
-        remote_projects = api.get_repo_names()
+    try:
+        with msg.loading("Calculating difference..."):
+            local_projects = utils.get_local_projects(path=config.projects_dir)
+            remote_projects = api.get_repo_names()
 
-        diff = remote_projects.difference(local_projects)
+            diff = remote_projects.difference(local_projects)
+    except httpx.HTTPStatusError as err:
+        utils.handle_http_status_errors(error=err)
+    else:
 
-    pull_diff(diff=diff, remotes=remote_projects, force=force, config=config, git=Git())
+        pull_diff(
+            diff=diff, remotes=remote_projects, force=force, config=config, git=Git()
+        )
 
 
 @app.command()
@@ -111,21 +118,27 @@ def these(
 
     api = API(username=config.username, token=config.token)
 
-    with msg.loading("Calculating difference..."):
-        local_projects = utils.get_local_projects(path=config.projects_dir)
-        remote_projects = api.get_repo_names()
+    try:
+        with msg.loading("Calculating difference..."):
+            local_projects = utils.get_local_projects(path=config.projects_dir)
+            remote_projects = api.get_repo_names()
 
-        for project in projects:
-            if project not in remote_projects:
-                msg.warn(
-                    f"{project!r} not found on GitHub. Was it a typo?",
-                    spaced=True,
-                    exits=1,
-                )
+            for project in projects:
+                if project not in remote_projects:
+                    msg.warn(
+                        f"{project!r} not found on GitHub. Was it a typo?",
+                        spaced=True,
+                        exits=1,
+                    )
 
-        diff = set(projects).difference(local_projects)
+            diff = set(projects).difference(local_projects)
+    except httpx.HTTPStatusError as err:
+        utils.handle_http_status_errors(error=err)
+    else:
 
-    pull_diff(diff=diff, remotes=remote_projects, force=force, config=config, git=Git())
+        pull_diff(
+            diff=diff, remotes=remote_projects, force=force, config=config, git=Git()
+        )
 
 
 def pull_diff(

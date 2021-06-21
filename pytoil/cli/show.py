@@ -6,6 +6,7 @@ Created: 18/06/2021
 """
 
 
+import httpx
 import typer
 from wasabi import msg
 
@@ -76,16 +77,20 @@ def remote() -> None:
 
     api = API(username=config.username, token=config.token)
 
-    with msg.loading("Fetching your remote projects..."):
-        remote_projects = api.get_repo_names()
+    try:
+        with msg.loading("Fetching your remote projects..."):
+            remote_projects = api.get_repo_names()
+    except httpx.HTTPStatusError as err:
+        utils.handle_http_status_errors(error=err)
+    else:
 
-    if not remote_projects:
-        msg.warn("You dont have any projects on GitHub yet!", exits=0)
+        if not remote_projects:
+            msg.warn("You dont have any projects on GitHub yet!", exits=0)
 
-    typer.secho("\nRemote Projects:\n", fg=typer.colors.CYAN, bold=True)
+        typer.secho("\nRemote Projects:\n", fg=typer.colors.CYAN, bold=True)
 
-    for project in sorted(remote_projects, key=str.casefold):
-        typer.echo(f"- {project}")
+        for project in sorted(remote_projects, key=str.casefold):
+            typer.echo(f"- {project}")
 
 
 # Can't call it 'all', python keyword
@@ -103,25 +108,29 @@ def all_() -> None:
 
     api = API(username=config.username, token=config.token)
 
-    with msg.loading("Fetching your projects..."):
-        local_projects = utils.get_local_projects(path=config.projects_dir)
-        remote_projects = api.get_repo_names()
-
-    typer.secho("\nLocal Projects:\n", fg=typer.colors.CYAN, bold=True)
-
-    if not local_projects:
-        msg.warn("You don't have any local projects yet!")
+    try:
+        with msg.loading("Fetching your projects..."):
+            local_projects = utils.get_local_projects(path=config.projects_dir)
+            remote_projects = api.get_repo_names()
+    except httpx.HTTPStatusError as err:
+        utils.handle_http_status_errors(error=err)
     else:
-        for project in sorted(local_projects, key=str.casefold):
-            typer.echo(f"- {project}")
 
-    typer.secho("\nRemote Projects:\n", fg=typer.colors.CYAN, bold=True)
+        typer.secho("\nLocal Projects:\n", fg=typer.colors.CYAN, bold=True)
 
-    if not remote_projects:
-        msg.warn("You don't have any projects on GitHub yet!")
-    else:
-        for project in sorted(remote_projects, key=str.casefold):
-            typer.echo(f"- {project}")
+        if not local_projects:
+            msg.warn("You don't have any local projects yet!")
+        else:
+            for project in sorted(local_projects, key=str.casefold):
+                typer.echo(f"- {project}")
+
+        typer.secho("\nRemote Projects:\n", fg=typer.colors.CYAN, bold=True)
+
+        if not remote_projects:
+            msg.warn("You don't have any projects on GitHub yet!")
+        else:
+            for project in sorted(remote_projects, key=str.casefold):
+                typer.echo(f"- {project}")
 
 
 @app.command()
@@ -141,17 +150,21 @@ def diff() -> None:
 
     api = API(username=config.username, token=config.token)
 
-    with msg.loading("Calculating difference..."):
-        local_projects = utils.get_local_projects(path=config.projects_dir)
-        remote_projects = api.get_repo_names()
+    try:
+        with msg.loading("Calculating difference..."):
+            local_projects = utils.get_local_projects(path=config.projects_dir)
+            remote_projects = api.get_repo_names()
 
-        diff = remote_projects.difference(local_projects)
+            diff = remote_projects.difference(local_projects)
+    except httpx.HTTPStatusError as err:
+        utils.handle_http_status_errors(error=err)
+    else:
 
-    if not diff:
-        msg.info("Your local and remote projects are in sync!")
-        msg.good("Nothing to show!", exits=0)
+        if not diff:
+            msg.info("Your local and remote projects are in sync!")
+            msg.good("Nothing to show!", exits=0)
 
-    typer.secho("\nDiff: Remote - Local\n", fg=typer.colors.CYAN, bold=True)
+        typer.secho("\nDiff: Remote - Local\n", fg=typer.colors.CYAN, bold=True)
 
-    for project in sorted(diff, key=str.casefold):
-        typer.echo(f"- {project}")
+        for project in sorted(diff, key=str.casefold):
+            typer.echo(f"- {project}")

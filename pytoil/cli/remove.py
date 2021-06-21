@@ -30,7 +30,7 @@ def remove() -> None:
     if you want.
 
     As with most programmatic deleting, the directories are deleted instantly and
-    not sent to trash. As such, gotoil will prompt you for confirmation before
+    not sent to trash. As such, pytoil will prompt you for confirmation before
     doing anything.
 
     The "--force/-f" flag can be used to force deletion without the confirmation
