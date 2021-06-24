@@ -15,7 +15,11 @@ from wasabi import msg
 from pytoil.api import API
 from pytoil.config import Config
 from pytoil.environments import Conda, Environment, Venv
-from pytoil.exceptions import EnvironmentAlreadyExistsError
+from pytoil.exceptions import (
+    CargoNotInstalledError,
+    EnvironmentAlreadyExistsError,
+    GoNotInstalledError,
+)
 from pytoil.git.git import Git
 from pytoil.repo import Repo
 from pytoil.starters import GoStarter, PythonStarter, RustStarter
@@ -98,7 +102,10 @@ def make_new_project(
     elif starter == "go":
         msg.info(f"Creating {repo.name!r} from starter: {starter!r}.")
         go_st = GoStarter(path=config.projects_dir, name=repo.name)
-        go_st.generate(username=config.username)
+        try:
+            go_st.generate(username=config.username)
+        except GoNotInstalledError:
+            msg.fail("Error: Go not installed.", spaced=True, exits=1)
         if use_git:
             git.init(path=repo.local_path, check=True)
 
@@ -112,7 +119,10 @@ def make_new_project(
     elif starter == "rust":
         msg.info(f"Creating {repo.name!r} from starter: {starter!r}.")
         rs_st = RustStarter(path=config.projects_dir, name=repo.name)
-        rs_st.generate()
+        try:
+            rs_st.generate()
+        except CargoNotInstalledError:
+            msg.fail("Error: Cargo not installed.", spaced=True, exits=1)
 
     else:
         msg.info(f"Creating {repo.name!r} at {repo.local_path}.")
