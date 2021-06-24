@@ -10,6 +10,41 @@ This one is easy! `remove` does exactly what it says. It will recursively delete
 
     Don't worry though, `remove` **DOES NOT** go near anything on your GitHub, only your local directories are affected by `remove`. pytoil only makes HTTP GET requests to the GitHub API so you couldn't even delete a repo if you wanted to, in fact you can't make any changes to any GitHub repo with pytoil whatsoever so you're completely safe! :grin:
 
+## Help
+
+<div class="termy">
+
+```console
+$ pytoil remove --help
+
+Usage: pytoil remove [OPTIONS] COMMAND [ARGS]...
+
+  Remove projects from your local filesystem.
+
+  The remove command provides an easy interface for decluttering your local
+  projects directory.
+
+  You can selectively remove any number of projects or nuke the whole thing
+  if you want.
+
+  As with most programmatic deleting, the directories are deleted instantly
+  and not sent to trash. As such, pytoil will prompt you for confirmation
+  before doing anything.
+
+  The "--force/-f" flag can be used to force deletion without the
+  confirmation prompt. Use with caution!
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  all    Delete all your projects.
+  these  Delete specified projects.
+
+```
+
+</div>
+
 ## Remove Individual Projects
 
 If you want to remove one or more specific projects, you need the `these` subcommand.

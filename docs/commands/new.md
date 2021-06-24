@@ -2,6 +2,88 @@
 
 `new` will make you a new project locally. You have the option to create a new virtual environment with it and to create the project from a [cookiecutter] template :cookie:
 
+## Help
+
+<div class="termy">
+
+```console
+$ pytoil new --help
+
+Usage: pytoil new [OPTIONS] PROJECT
+
+  Create a new development project.
+
+  Bare usage will simply create an empty folder in your configured projects
+  directory.
+
+  You can also create a project from a cookiecutter template by passing a
+  valid url to the '--cookie/-c' flag.
+
+  If you just want a very simple, language-specific starting template, use
+  the '--starter/-s' option.
+
+  By default, pytoil will initialise an empty git repo in the folder,
+  following the style of modern language build tools such as rust's cargo.
+  You can disable this behaviour by setting 'init_on_new' to false in
+  pytoil's config file or by passing the '--no-git/-n' flag here.
+
+  If you want pytoil to create a new virtual environment for your project,
+  you can use the '--venv/-v' flag. Standard python and conda virtual
+  environments are supported.
+
+  If the '--venv/-v' flag is used, you may also pass a list of python
+  packages to install into the created virtual environment. These will be
+  delegated to the appropriate tool (pip or conda) depending on what
+  environment was created. If the environment is conda, the packages will be
+  passed at environment creation time meaning they will have their
+  dependencies resolved together. Normal python environments will first be
+  created and then have specified packages installed.
+
+  If 'common_packages' is specified in pytoil's config file, these will
+  automatically be included in the environment.
+
+  To specify versions of packages via the command line, you must enclose
+  them in double quotes e.g. "flask>=1.0.0" not flask>=1.0.0 otherwise this
+  will be interpreted by the shell as a command redirection.
+
+  Examples:
+
+  $ pytoil new my_project
+
+  $ pytoil new my_project --cookie https://github.com/some/cookie.git
+
+  $ pytoil new my_project --venv conda
+
+  $ pytoil new my_project -c https://github.com/some/cookie.git -v conda
+  --no-git
+
+  $ pytoil new my_project -v venv requests "flask>=1.0.0"
+
+  $ pytoil new my_project --starter python
+
+Arguments:
+  PROJECT  Name of the project to create.  [required]
+
+Options:
+  -c, --cookie TEXT               URL to a cookiecutter template repo from
+                                  which to build the project.
+
+  -s, --starter [python|go|rust|none]
+                                  Use a language-specific starter template
+                                  [default: none]
+
+  -v, --venv [venv|conda|none]    Which type of virtual environment to create
+                                  for the project.  [default: none]
+
+  -n, --no-git                    Don't initialise an empty git repo in the
+                                  app of the project.  [default: False]
+
+  --help                          Show this message and exit.
+
+```
+
+</div>
+
 ## No Options
 
 If you don't give any options, the default behaviour is to just make a new empty folder with no virtual environment for you to do whatever you want with!
@@ -129,6 +211,44 @@ Creating new project: 'my_new_project' from cookiecutter: 'https://github.com/so
 ```
 
 </div>
+
+## Create from a starter
+
+pytoil also comes with a few basic starter templates for some common languages. How it creates these templates is specific to the language, but you can use them like this....
+
+<div class="termy">
+
+```console
+// Just pass a valid starter
+$ pytoil new my_new_python_project --starter python
+
+Creating new project: 'my_new_python_project' from starter: 'python'
+```
+
+</div>
+
+<div class="termy">
+
+```console
+// Just pass a valid starter
+$ pytoil new my_new_go_project --starter go
+
+Creating new project: 'my_new_go_project' from starter: 'go'
+```
+
+</div>
+
+!!! note
+
+    Currently pytoil supports python, go and rust starter templates. The starters are super easy to implement though so if you want more languages supported, maybe throw us a PR :wink:
+
+The table below shows what happens under the hood when a starter is given to `pytoil new`:
+
+|        Starter    |                                              Implementation                                           |
+| :---------------: | :---------------------------------------------------------------------------------------------------: |
+|     `python`      |                              Creates everything internally using pathlib                              |
+|       `go`        |               Creates the root directory and main.go internally. Then calls `go mod init`             |
+|      `rust`       |                        Creates the root directory internally. Then calls `cargo init`                 |
 
 ## All in One Go
 
