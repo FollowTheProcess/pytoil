@@ -12,10 +12,10 @@ from pathlib import Path
 from typing import List, Optional
 
 from pytoil.exceptions import GoNotInstalledError
-from pytoil.starters.base import Starter
+from pytoil.starters.base import BaseStarter
 
 
-class GoStarter(Starter):
+class GoStarter(BaseStarter):
     def __init__(self, path: Path, name: str) -> None:
         """
         The pytoil go starter template.

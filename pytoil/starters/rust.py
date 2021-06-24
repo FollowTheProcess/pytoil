@@ -11,10 +11,10 @@ from pathlib import Path
 from typing import List, Optional
 
 from pytoil.exceptions import CargoNotInstalledError
-from pytoil.starters.base import Starter
+from pytoil.starters.base import BaseStarter
 
 
-class RustStarter(Starter):
+class RustStarter(BaseStarter):
     def __init__(self, path: Path, name: str) -> None:
         """
         The pytoil rust starter template.

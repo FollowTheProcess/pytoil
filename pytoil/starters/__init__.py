@@ -11,7 +11,7 @@ __all__ = [
 ]
 
 
-class Starters(str, Enum):
+class Starter(str, Enum):
     """
     Choice of starter templates.
     """
@@ -19,3 +19,4 @@ class Starters(str, Enum):
     python = "python"
     go = "go"
     rust = "rust"
+    none = "none"

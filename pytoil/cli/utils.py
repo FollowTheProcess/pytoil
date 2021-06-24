@@ -18,6 +18,7 @@ from pytoil.environments import Conda, Environment, Venv
 from pytoil.exceptions import EnvironmentAlreadyExistsError
 from pytoil.git.git import Git
 from pytoil.repo import Repo
+from pytoil.starters import GoStarter, PythonStarter, RustStarter
 
 
 def get_local_projects(path: Path) -> Set[str]:
@@ -75,17 +76,43 @@ def pre_new_checks(repo: Repo, api: API) -> None:
 
 
 def make_new_project(
-    repo: Repo, git: Git, cookie: str, use_git: bool, config: Config
+    repo: Repo, git: Git, cookie: str, starter: str, use_git: bool, config: Config
 ) -> None:
     """
     Create a new development project either from a cookiecutter
     template or from scratch.
     """
+    # Can't use starter and cookiecutter at the same time
+    if starter and cookie:
+        msg.warn(
+            "'--cookie' and '--starter' are mutually exclusive.",
+            exits=1,
+        )
+
     if cookie:
         # We don't initialise a git repo for cookiecutters
         # some templates have hooks which do this, mine do!
         msg.info(f"Creating {repo.name!r} from cookiecutter: {cookie!r}.")
         cookiecutter(template=cookie, output_dir=config.projects_dir)
+
+    elif starter == "go":
+        msg.info(f"Creating {repo.name!r} from starter: {starter!r}.")
+        go_st = GoStarter(path=config.projects_dir, name=repo.name)
+        go_st.generate(username=config.username)
+        if use_git:
+            git.init(path=repo.local_path, check=True)
+
+    elif starter == "python":
+        msg.info(f"Creating {repo.name!r} from starter: {starter!r}.")
+        py_st = PythonStarter(path=config.projects_dir, name=repo.name)
+        py_st.generate()
+        if use_git:
+            git.init(path=repo.local_path, check=True)
+
+    elif starter == "rust":
+        msg.info(f"Creating {repo.name!r} from starter: {starter!r}.")
+        rs_st = RustStarter(path=config.projects_dir, name=repo.name)
+        rs_st.generate()
 
     else:
         msg.info(f"Creating {repo.name!r} at {repo.local_path}.")

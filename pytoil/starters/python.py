@@ -8,10 +8,10 @@ Created: 23/06/2021
 from pathlib import Path
 from typing import List, Optional
 
-from pytoil.starters.base import Starter
+from pytoil.starters.base import BaseStarter
 
 
-class PythonStarter(Starter):
+class PythonStarter(BaseStarter):
     def __init__(self, path: Path, name: str) -> None:
         """
         The pytoil python starter template.
@@ -69,5 +69,7 @@ class PythonStarter(Starter):
 
         # Populate the python file
         py_file = self.root.joinpath(f"{self.name}.py")
-        py_text = 'def hello(name: str = "world") -> None:\n\tprint(f"hello {name}")\n'
+        py_text = (
+            'def hello(name: str = "world") -> None:\n    print(f"hello {name}")\n'
+        )
         py_file.write_text(py_text, encoding="utf-8")

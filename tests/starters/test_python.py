@@ -60,7 +60,7 @@ class TestPythonGenerate:
 
         assert (
             py_text
-            == 'def hello(name: str = "world") -> None:\n\tprint(f"hello {name}")\n'
+            == 'def hello(name: str = "world") -> None:\n    print(f"hello {name}")\n'
         )
 
     def test_requirements_txt_has_correct_text(self):

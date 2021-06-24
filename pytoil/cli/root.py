@@ -20,6 +20,7 @@ from pytoil.environments import VirtualEnv
 from pytoil.exceptions import EnvironmentAlreadyExistsError, RepoNotFoundError
 from pytoil.git import Git
 from pytoil.repo import Repo
+from pytoil.starters import Starter
 from pytoil.vscode import VSCode
 
 PYTOIL_DOCS_URL: str = "https://followtheprocess.github.io/pytoil/"
@@ -193,6 +194,14 @@ def new(
         "-c",
         help="URL to a cookiecutter template repo from which to build the project.",
     ),
+    starter: Starter = typer.Option(
+        Starter.none,
+        "--starter",
+        "-s",
+        help="Use a language-specific starter template",
+        case_sensitive=False,
+        show_default=True,
+    ),
     venv: VirtualEnv = typer.Option(
         VirtualEnv.none,
         "--venv",
@@ -216,6 +225,9 @@ def new(
 
     You can also create a project from a cookiecutter template by passing a valid
     url to the '--cookie/-c' flag.
+
+    If you just want a very simple, language-specific starting template, use the
+    '--starter/-s' option.
 
     By default, pytoil will initialise an empty git repo in the folder, following
     the style of modern language build tools such as rust's cargo. You can disable
@@ -251,6 +263,8 @@ def new(
     $ pytoil new my_project -c https://github.com/some/cookie.git -v conda --no-git
 
     $ pytoil new my_project -v venv requests "flask>=1.0.0"
+
+    $ pytoil new my_project --starter python
     """
     # Get config and ensure user can access API
     config = Config.from_file()
@@ -280,7 +294,12 @@ def new(
 
     # If we get here, all is well and we can create stuff!
     utils.make_new_project(
-        repo=repo, git=git, cookie=cookie, use_git=use_git, config=config
+        repo=repo,
+        git=git,
+        cookie=cookie,
+        starter=starter.value,
+        use_git=use_git,
+        config=config,
     )
 
     if venv.value == venv.venv:

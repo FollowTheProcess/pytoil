@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import List, Optional
 
 
-class Starter(ABC):
+class BaseStarter(ABC):
     """
     Abstract base class defining the interface that all
     starter templates musti implement.
