@@ -2,6 +2,58 @@
 
 `checkout` (not to be confused with `git checkout`) allows to easily resume work on an ongoing development project.
 
+## Help
+
+<div class="termy">
+
+```console
+// Some project thats already local
+$ pytoil checkout --help
+
+Usage: pytoil checkout [OPTIONS] PROJECT
+
+  Checkout an existing development project.
+
+  The checkout command lets you easily resume work on an existing project,
+  whether that project is available locally in your configured projects
+  directory, or if it is on GitHub.
+
+  If pytoil finds your project locally, and you have enabled VSCode in your
+  config file it will open it for you. If not, it will just tell you it
+  already exists locally and where to find it.
+
+  If your project is on GitHub, pytoil will clone it for you and then open
+  it (or tell you where it cloned it if you dont have VSCode set up).
+
+  Finally, if checkout can't find a match after searching locally and on
+  GitHub, it will prompt you to use 'pytoil new' to create a new one.
+
+  You can also ask pytoil to automatically create a virtual environment on
+  checkout with the '--venv/-v' flag. This only happens for projects pulled
+  down from GitHub to avoid accidentally screwing up local projects.
+
+  If the '--venv/-v' flag is used, pytoil will look at your project to try
+  and detect which type of environment to create (conda or standard python).
+
+  More info can be found in the documentation.
+
+  Examples:
+
+  $ pytoil checkout my_project
+
+  $ pytoil checkout my_project --venv
+
+Arguments:
+  PROJECT  Name of the project to checkout.  [required]
+
+Options:
+  -v, --venv  Attempt to auto-create a virtual environment.
+  --help      Show this message and exit.
+
+```
+
+</div>
+
 ## Local Project
 
 If the project is available locally, `checkout` will simply open it for you

@@ -6,7 +6,6 @@ Created: 18/06/2021
 """
 
 
-from enum import Enum
 from typing import List
 
 import httpx
@@ -17,9 +16,11 @@ from pytoil import __version__
 from pytoil.api import API
 from pytoil.cli import config, pull, remove, show, utils
 from pytoil.config import Config
+from pytoil.environments import VirtualEnv
 from pytoil.exceptions import EnvironmentAlreadyExistsError, RepoNotFoundError
 from pytoil.git import Git
 from pytoil.repo import Repo
+from pytoil.starters import Starter
 from pytoil.vscode import VSCode
 
 PYTOIL_DOCS_URL: str = "https://followtheprocess.github.io/pytoil/"
@@ -32,17 +33,6 @@ app.add_typer(show.app, name="show")
 app.add_typer(remove.app, name="remove")
 app.add_typer(config.app, name="config")
 app.add_typer(pull.app, name="pull")
-
-
-# Choice of virtual environments for a new project
-class VirtualEnv(str, Enum):
-    """
-    Choice of virtualenvs to create in a new project.
-    """
-
-    venv = "venv"
-    conda = "conda"
-    none = "none"
 
 
 def version_callback(value: bool) -> None:
@@ -136,70 +126,74 @@ def checkout(
     code = VSCode(root=repo.local_path)
     git = Git()
 
-    is_local = repo.exists_local()
-    try:
-        is_remote = repo.exists_remote(api=api)
-    except httpx.HTTPStatusError as err:
-        utils.handle_http_status_errors(error=err)
-    else:
+    if repo.exists_local():
+        # No environment or git stuff here, chances are if it exists locally
+        # user has already done all this stuff
+        msg.info(f"{repo.name!r} available locally.", spaced=True)
 
-        if is_local:
-            # No environment or git stuff here, chances are if it exists locally
-            # user has already done all this stuff
-            msg.info(f"{repo.name!r} available locally.", spaced=True)
+        if config.vscode:
+            msg.text(f"Opening {repo.name!r} in VSCode.")
+            code.open()
 
-            if config.vscode:
-                msg.text(f"Opening {repo.name!r} in VSCode.")
-                code.open()
+    elif repo.exists_remote(api=api):
+        msg.info(f"{repo.name!r} found on GitHub. Cloning...", spaced=True)
+        git.clone(url=repo.clone_url, check=True, cwd=config.projects_dir)
 
-        elif is_remote:
-            msg.info(f"{repo.name!r} found on GitHub. Cloning...", spaced=True)
-            git.clone(url=repo.clone_url, check=True, cwd=config.projects_dir)
+        env = repo.dispatch_env()
 
-            env = repo.dispatch_env()
+        if venv:
+            if not env:
+                msg.warn(
+                    "Unable to auto-detect required environent. Skipping.",
+                    spaced=True,
+                )
+            else:
+                msg.info("Auto creating correct virtual environment.", spaced=True)
 
-            if venv:
-                if not env:
+                try:
+                    with msg.loading("Creating Environment..."):
+                        env.create(packages=config.common_packages)
+                except EnvironmentAlreadyExistsError:
                     msg.warn(
-                        "Unable to auto-detect required environent. Skipping.",
-                        spaced=True,
+                        title="Environment already exists!",
+                        text="No need to create a new one. Skipping.",
                     )
-                else:
-                    msg.info("Auto creating correct virtual environment.", spaced=True)
+                finally:
+                    if config.vscode:
+                        code.set_python_path(python_path=env.executable)
 
-                    try:
-                        with msg.loading("Creating Environment..."):
-                            env.create(packages=config.common_packages)
-                    except EnvironmentAlreadyExistsError:
-                        msg.warn(
-                            title="Environment already exists!",
-                            text="No need to create a new one. Skipping.",
-                        )
-                    finally:
-                        if config.vscode:
-                            code.set_python_path(python_path=env.executable)
+        if config.vscode:
+            msg.info(f"Opening {repo.name!r} in VSCode.", spaced=True)
+            code.open()
 
-            if config.vscode:
-                msg.info(f"Opening {repo.name!r} in VSCode.", spaced=True)
-                code.open()
-
-        else:
-            msg.warn(
-                title=f"{repo.name!r} not found locally or on GitHub!",
-                text=f"Does it exist? If not, create a new project with 'pytoil new {repo.name}'.",  # noqa: E501
-                exits=1,
-            )
+    else:
+        msg.warn(
+            title=f"{repo.name!r} not found locally or on GitHub!",
+            text=f"Does it exist? If not, create a new project with 'pytoil new {repo.name}'.",  # noqa: E501
+            exits=1,
+        )
 
 
 @app.command(context_settings={"allow_extra_args": True})
 def new(
     ctx: typer.Context,
-    project: str = typer.Argument(..., help="Name of the project to create."),
+    project: str = typer.Argument(
+        ...,
+        help="Name of the project to create.",
+    ),
     cookie: str = typer.Option(
         None,
         "--cookie",
         "-c",
         help="URL to a cookiecutter template repo from which to build the project.",
+    ),
+    starter: Starter = typer.Option(
+        Starter.none,
+        "--starter",
+        "-s",
+        help="Use a language-specific starter template",
+        case_sensitive=False,
+        show_default=True,
     ),
     venv: VirtualEnv = typer.Option(
         VirtualEnv.none,
@@ -224,6 +218,9 @@ def new(
 
     You can also create a project from a cookiecutter template by passing a valid
     url to the '--cookie/-c' flag.
+
+    If you just want a very simple, language-specific starting template, use the
+    '--starter/-s' option.
 
     By default, pytoil will initialise an empty git repo in the folder, following
     the style of modern language build tools such as rust's cargo. You can disable
@@ -259,6 +256,8 @@ def new(
     $ pytoil new my_project -c https://github.com/some/cookie.git -v conda --no-git
 
     $ pytoil new my_project -v venv requests "flask>=1.0.0"
+
+    $ pytoil new my_project --starter python
     """
     # Get config and ensure user can access API
     config = Config.from_file()
@@ -288,7 +287,12 @@ def new(
 
     # If we get here, all is well and we can create stuff!
     utils.make_new_project(
-        repo=repo, git=git, cookie=cookie, use_git=use_git, config=config
+        repo=repo,
+        git=git,
+        cookie=cookie,
+        starter=starter.value,
+        use_git=use_git,
+        config=config,
     )
 
     if venv.value == venv.venv:

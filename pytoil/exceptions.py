@@ -61,3 +61,15 @@ class RepoNotFoundError(PytoilException):
     def __init__(self, message: str) -> None:
         self.message = message
         super().__init__(self.message)
+
+
+class GoNotInstalledError(PytoilException):
+    def __init__(self, message: str) -> None:
+        self.message = message
+        super().__init__(self.message)
+
+
+class CargoNotInstalledError(PytoilException):
+    def __init__(self, message: str) -> None:
+        self.message = message
+        super().__init__(self.message)

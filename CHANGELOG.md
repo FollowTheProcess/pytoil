@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.dev
+
+* NEW: User can now initialise basic starter templates for multiple languages (currently support python, go and rust)
+
 ## 0.5.0
 
 Complete rewrite from the ground up!
