@@ -6,7 +6,6 @@ Created: 18/06/2021
 """
 
 
-from enum import Enum
 from typing import List
 
 import httpx
@@ -17,6 +16,7 @@ from pytoil import __version__
 from pytoil.api import API
 from pytoil.cli import config, pull, remove, show, utils
 from pytoil.config import Config
+from pytoil.environments import VirtualEnv
 from pytoil.exceptions import EnvironmentAlreadyExistsError, RepoNotFoundError
 from pytoil.git import Git
 from pytoil.repo import Repo
@@ -32,17 +32,6 @@ app.add_typer(show.app, name="show")
 app.add_typer(remove.app, name="remove")
 app.add_typer(config.app, name="config")
 app.add_typer(pull.app, name="pull")
-
-
-# Choice of virtual environments for a new project
-class VirtualEnv(str, Enum):
-    """
-    Choice of virtualenvs to create in a new project.
-    """
-
-    venv = "venv"
-    conda = "conda"
-    none = "none"
 
 
 def version_callback(value: bool) -> None:
@@ -137,6 +126,9 @@ def checkout(
     git = Git()
 
     is_local = repo.exists_local()
+    # TODO: We don't need this try, except as any status error
+    # returns false for repo.exists_remote() and it slows down local
+    # operations to have to call the API first
     try:
         is_remote = repo.exists_remote(api=api)
     except httpx.HTTPStatusError as err:

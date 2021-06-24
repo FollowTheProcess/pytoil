@@ -83,6 +83,7 @@ omit = [
     "*__init__.py",
     "*__main__.py",
     "*abstract.py",
-    "pytoil/cli/*"
+    "pytoil/cli/*",
+    "pytoil/starters/base.py"
 ]
 branch = true
