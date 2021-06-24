@@ -118,11 +118,11 @@ def make_new_project(
 
     elif starter == "rust":
         msg.info(f"Creating {repo.name!r} from starter: {starter!r}.")
+        rs_st = RustStarter(path=config.projects_dir, name=repo.name)
         try:
-            rs_st = RustStarter(path=config.projects_dir, name=repo.name)
+            rs_st.generate()
         except CargoNotInstalledError:
             msg.fail("Error: Cargo not installed.", spaced=True, exits=1)
-        rs_st.generate()
 
     else:
         msg.info(f"Creating {repo.name!r} at {repo.local_path}.")
