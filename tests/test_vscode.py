@@ -15,7 +15,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from pytoil.exceptions import CodeNotInstalledError
-from pytoil.vscode import VSCode
+from pytoil.vscode import WORKSPACE_PYTHON_SETTING, VSCode
 
 
 def test_vscode_init():
@@ -74,7 +74,7 @@ def test_open_correctly_calls_code_executable(mocker: MockerFixture):
     mock_subprocess.assert_called_once_with(["/path/to/code", "somewhere"], check=True)
 
 
-def test_vscode_set_python_path_works_on_non_existent_settings(fake_projects_dir):
+def test_vscode_set_workspace_python_works_on_non_existent_settings(fake_projects_dir):
 
     fake_project: Path = fake_projects_dir.joinpath("myproject")
     settings = fake_project.joinpath(".vscode/settings.json")
@@ -87,7 +87,7 @@ def test_vscode_set_python_path_works_on_non_existent_settings(fake_projects_dir
     assert not settings.exists()
 
     # Set the python path
-    code.set_python_path(ppath)
+    code.set_workspace_python(ppath)
 
     # Now it should exist
     assert settings.exists()
@@ -96,12 +96,12 @@ def test_vscode_set_python_path_works_on_non_existent_settings(fake_projects_dir
     with open(settings, mode="r", encoding="utf-8") as f:
         written_settings_dict: Dict[str, Any] = json.load(f)
 
-    expected: Dict[str, Any] = {"python.pythonPath": f"{ppath.resolve()}"}
+    expected: Dict[str, Any] = {WORKSPACE_PYTHON_SETTING: f"{ppath.resolve()}"}
 
     assert written_settings_dict == expected
 
 
-def test_vscode_set_python_path_works_on_empty_file(fake_projects_dir):
+def test_vscode_set_workspace_python_works_on_empty_file(fake_projects_dir):
 
     fake_project: Path = fake_projects_dir.joinpath("myproject")
     settings = fake_project.joinpath(".vscode/settings.json")
@@ -117,7 +117,7 @@ def test_vscode_set_python_path_works_on_empty_file(fake_projects_dir):
     # Assert it's empty
     assert len(settings.read_text()) == 0
 
-    code.set_python_path(python_path=ppath)
+    code.set_workspace_python(python_path=ppath)
 
     assert len(settings.read_text()) != 0
 
@@ -125,12 +125,12 @@ def test_vscode_set_python_path_works_on_empty_file(fake_projects_dir):
     with open(settings, mode="r", encoding="utf-8") as f:
         written_settings_dict: Dict[str, Any] = json.load(f)
 
-    expected: Dict[str, Any] = {"python.pythonPath": f"{ppath.resolve()}"}
+    expected: Dict[str, Any] = {WORKSPACE_PYTHON_SETTING: f"{ppath.resolve()}"}
 
     assert written_settings_dict == expected
 
 
-def test_vscode_set_python_path_works_on_existing_settings(fake_projects_dir):
+def test_vscode_set_workspace_python_works_on_existing_settings(fake_projects_dir):
 
     fake_project: Path = fake_projects_dir.joinpath("myproject")
     settings = fake_project.joinpath(".vscode/settings.json")
@@ -148,7 +148,7 @@ def test_vscode_set_python_path_works_on_existing_settings(fake_projects_dir):
         "python.linting.blackPath": "usr/bin/black",
         "randomSetting": "yes",
         "HowHardThisIsToComeUpWith": 10,
-        "python.pythonPath": "/usr/bin/python",
+        WORKSPACE_PYTHON_SETTING: "/usr/bin/python",
         "python.testing.pytestEnabled": False,
     }
 
@@ -165,11 +165,11 @@ def test_vscode_set_python_path_works_on_existing_settings(fake_projects_dir):
         "python.linting.blackPath": "usr/bin/black",
         "randomSetting": "yes",
         "HowHardThisIsToComeUpWith": 10,
-        "python.pythonPath": "/usr/bin/sillypython",
+        WORKSPACE_PYTHON_SETTING: "/usr/bin/sillypython",
         "python.testing.pytestEnabled": False,
     }
 
-    code.set_python_path(python_path=ppath)
+    code.set_workspace_python(python_path=ppath)
 
     # Get new contents
     with open(settings, mode="r", encoding="utf-8") as f:

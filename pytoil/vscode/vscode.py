@@ -13,6 +13,12 @@ from typing import Any, Dict, Optional
 
 from pytoil.exceptions import CodeNotInstalledError
 
+# From VSCode 1.57.1 the 'python.pythonPath' setting is being
+# deprecated in favour of 'python.defaultInterpreterPath'
+# it works in a slightly different way but for us it's effectively
+# a straight swap
+WORKSPACE_PYTHON_SETTING: str = "python.defaultInterpreterPath"
+
 
 class VSCode:
     def __init__(self, root: Path, code: Optional[str] = shutil.which("code")) -> None:
@@ -43,7 +49,7 @@ class VSCode:
         except subprocess.CalledProcessError:
             raise
 
-    def set_python_path(self, python_path: Path) -> None:
+    def set_workspace_python(self, python_path: Path) -> None:
         """
         Sets the VSCode workspace setting `python.pythonPath`
         to `python_path`, overwriting if already exists.
@@ -58,7 +64,7 @@ class VSCode:
                 virtual environments python interpreter.
         """
 
-        new_settings_dict: Dict[str, str] = {"python.pythonPath": str(python_path)}
+        new_settings_dict: Dict[str, str] = {WORKSPACE_PYTHON_SETTING: str(python_path)}
 
         if not self.workspace_settings.exists():
             self.workspace_settings.parent.mkdir(parents=True)
