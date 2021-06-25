@@ -29,7 +29,7 @@ Usage: pytoil pull [OPTIONS] [PROJECTS]...
   those projects that don't already exist locally.
 
   It's very possible to accidentally clone a lot of repos when using pull so
-  you will be prompted for confirmation before gotoil does anything.
+  you will be prompted for confirmation before pytoil does anything.
 
   The "--force/-f" flag can be used to override this confirmation prompt if
   desired.
