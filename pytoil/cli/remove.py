@@ -14,82 +14,16 @@ from wasabi import msg
 from pytoil.cli import utils
 from pytoil.config import Config
 
-app = typer.Typer(name="remove", no_args_is_help=True)
-
-
-# Callback for documentation only
-@app.callback()
-def remove() -> None:
-    """
-    Remove projects from your local filesystem.
-
-    The remove command provides an easy interface for decluttering your local
-    projects directory.
-
-    You can selectively remove any number of projects or nuke the whole thing
-    if you want.
-
-    As with most programmatic deleting, the directories are deleted instantly and
-    not sent to trash. As such, pytoil will prompt you for confirmation before
-    doing anything.
-
-    The "--force/-f" flag can be used to force deletion without the confirmation
-    prompt. Use with caution!
-    """
-
-
-# Again, can't call it 'all', python keyword
-@app.command(name="all")
-def all_(
-    force: bool = typer.Option(
-        False,
-        "--force",
-        "-f",
-        help="Force delete without confirmation.",
-        show_default=False,
-    )
-) -> None:
-    """
-    Delete all your projects.
-
-    Recursively delete every subdirectory in your configured
-    projects directory.
-
-    This is really reserved for those "I'm having a really bad day" moments
-    and should be treated with caution.
-
-    You will be prompted for confirmation unless the '--force/-f' flag is used.
-
-    Examples:
-
-    $ pytoil remove all
-
-    $ pytoil remove all --force
-    """
-    config = Config.from_file()
-
-    local_projects = utils.get_local_projects(path=config.projects_dir)
-
-    if not local_projects:
-        msg.warn("You don't have any local projects to remove!", spaced=True, exits=1)
-
-    if not force:
-        typer.confirm(
-            "This will remove ALL of your projects. Are you sure?", abort=True
-        )
-
-    # If we get here, user either used '--force' or said yes
-
-    for project in sorted(local_projects, key=str.casefold):
-        typer.secho(f"Removing project: {project!r}.", fg=typer.colors.YELLOW)
-        shutil.rmtree(config.projects_dir.joinpath(project))
-
-    msg.good("Done!", spaced=True)
+app = typer.Typer()
 
 
 @app.command()
-def these(
-    projects: List[str] = typer.Argument(..., help="Name of the project(s) to delete."),
+def remove(
+    projects: List[str] = typer.Argument(
+        None,
+        help="Name of the project(s) to delete.",
+        show_default=False,
+    ),
     force: bool = typer.Option(
         False,
         "--force",
@@ -97,20 +31,39 @@ def these(
         help="Force delete without confirmation.",
         show_default=False,
     ),
+    all_: bool = typer.Option(
+        False,
+        "--all",
+        "-a",
+        help="Delete all of your local projects.",
+        show_default=False,
+    ),
 ) -> None:
     """
-    Delete specified projects.
+    Remove projects from your local filesystem.
 
-    Recursively delete the specified projects from your configured
+    The remove command provides an easy interface for decluttering your local
     projects directory.
 
-    You will be prompted for confirmation unless the '--force/-f' flag is used.
+    You can selectively remove any number of projects by passing them as
+    arguments or nuke the whole lot with "--all/-a" if you want.
+
+    As with most programmatic deleting, the directories are deleted instantly and
+    not sent to trash. As such, pytoil will prompt you for confirmation before
+    doing anything.
+
+    The "--force/-f" flag can be used to force deletion without the confirmation
+    prompt. Use with caution!
 
     Examples:
 
-    $ pytoil remove these project1 project2 project
+    $ pytoil remove project1 project2 project3
 
-    $ pytoil remove these project1 project2 project3 --force
+    $ pytoil remove project1 project2 project3 --force
+
+    $ pytoil remove --all
+
+    $ pytoil remove --all --force
     """
     config = Config.from_file()
 
@@ -118,6 +71,13 @@ def these(
 
     if not local_projects:
         msg.warn("You don't have any local projects to remove!", spaced=True, exits=1)
+
+    if not projects and not all_:
+        msg.warn(
+            "If not using the '--all' flag, you must specify projects to delete.",
+            exits=1,
+            spaced=True,
+        )
 
     # If user gives a project that isn't here (e.g. typo), abort
     for project in projects:
@@ -128,23 +88,31 @@ def these(
                 exits=1,
             )
 
+    to_delete = local_projects if all_ else projects
+
     if not force:
-        if len(projects) <= 5:
-            # A manageable length to display each one
+        if all_:
             typer.confirm(
-                f"This will remove {', '.join(projects)} from your local filesystem. Are you sure?",  # noqa: E501
+                "This will delete ALL of your projects. Are you sure?", abort=True
+            )
+            # We want to delete everything
+            to_delete = local_projects
+
+        elif len(projects) <= 5:
+            typer.confirm(
+                f"This will delete {', '.join(projects)} from your local filesystem. Are you sure?",  # noqa: E501
                 abort=True,
             )
         else:
-            # Too many to show and look nice, just show a number
+            # Too many to print out nicely
             typer.confirm(
-                f"This will remove {len(projects)} projects from your local filesystem. Are you sure?",  # noqa: E501
+                f"This will delete {len(projects)} projects from your local filesystem. Are you sure?",  # noqa: E501
                 abort=True,
             )
 
-    # If we get here, user either used '--force' or said yes to the prompt
+    # If we get here, user has used --force or said yes when prompted
 
-    for project in sorted(projects, key=str.casefold):
+    for project in sorted(to_delete, key=str.casefold):
         typer.secho(f"Removing project: {project!r}.", fg=typer.colors.YELLOW)
         shutil.rmtree(config.projects_dir.joinpath(project))
 

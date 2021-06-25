@@ -12,7 +12,7 @@ from wasabi import msg
 
 from pytoil.config import Config, defaults
 
-app = typer.Typer(name="config", no_args_is_help=True)
+app = typer.Typer(name="config")
 
 # If the file doesn't exist, let's make a default one nicely
 # This will check if the config file exists

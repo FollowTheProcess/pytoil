@@ -27,13 +27,14 @@ app.registered_commands += (
     + docs.app.registered_commands
     + gh.app.registered_commands
     + info.app.registered_commands
+    + remove.app.registered_commands
+    + pull.app.registered_commands
 )
 
 # Add the sub command groups
+# these are commands with their own subcommands
 app.add_typer(show.app, name="show")
-app.add_typer(remove.app, name="remove")
 app.add_typer(config.app, name="config")
-app.add_typer(pull.app, name="pull")
 
 
 def version_callback(value: bool) -> None:
