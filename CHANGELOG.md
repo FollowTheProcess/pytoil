@@ -5,7 +5,7 @@
 * NEW: User can now initialise basic starter templates for multiple languages (currently support python, go and rust)
 * NEW: `pytoil remove` and `pytoil pull` changed to take projects as arguments, `remove|pull all` functionality is now in the `--all` option.
 
-* FIX: pytoil now supports the `python.defaultInterpreterPath` workspace setting rather than the soon to be deprecated `python.pythonPath`. See: https://github.com/microsoft/vscode-python/issues/12313
+* FIX: pytoil now supports the `python.defaultInterpreterPath` workspace setting rather than the soon to be deprecated `python.pythonPath`. See: [https://github.com/microsoft/vscode-python/issues/12313](https://github.com/microsoft/vscode-python/issues/12313)
 
 * FIX: On checking out a local project, pytoil no longer needs to call the GitHub API to determine if it exists remotely, improving performance of this command.
 
