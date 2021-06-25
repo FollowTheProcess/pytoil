@@ -14,7 +14,7 @@ from pytoil.api import API
 from pytoil.cli import utils
 from pytoil.config import Config
 
-app = typer.Typer(name="show", no_args_is_help=True)
+app = typer.Typer(name="show")
 
 
 # Callback for documentation only
