@@ -1,8 +1,12 @@
 # Changelog
 
-## 0.dev
+## 0.6.dev
 
 * NEW: User can now initialise basic starter templates for multiple languages (currently support python, go and rust)
+
+* FIX: pytoil now supports the `python.defaultInterpreterPath` workspace setting rather than the soon to be deprecated `python.pythonPath`. See: https://github.com/microsoft/vscode-python/issues/12313
+
+* FIX: On checking out a local project, pytoil no longer needs to call the GitHub API to determine if it exists remotely, improving performance of this command.
 
 ## 0.5.0
 

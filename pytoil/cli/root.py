@@ -160,7 +160,7 @@ def checkout(
                     )
                 finally:
                     if config.vscode:
-                        code.set_python_path(python_path=env.executable)
+                        code.set_workspace_python(python_path=env.executable)
 
         if config.vscode:
             msg.info(f"Opening {repo.name!r} in VSCode.", spaced=True)
@@ -300,7 +300,7 @@ def new(
 
         if config.vscode:
             msg.info(f"Opening {repo.name!r} in VSCode.", spaced=True)
-            code.set_python_path(env.executable)
+            code.set_workspace_python(env.executable)
             code.open()
 
     elif venv.value == venv.conda:
@@ -308,7 +308,7 @@ def new(
 
         if config.vscode:
             msg.info(f"Opening {repo.name!r} in VSCode.", spaced=True)
-            code.set_python_path(env.executable)
+            code.set_workspace_python(env.executable)
             code.open()
 
     else:
