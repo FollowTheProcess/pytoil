@@ -63,6 +63,16 @@ def pull(
 
     The "--force/-f" flag can be used to override this confirmation prompt if
     desired.
+
+    Examples:
+
+    $ pytoil pull project1 project2 project3
+
+    $ pytoil pull project1 project2 project3 --force
+
+    $ pytoil pull --all
+
+    $ pytoil pull --all --force
     """
     config = Config.from_file()
     utils.warn_if_no_api_creds(config)

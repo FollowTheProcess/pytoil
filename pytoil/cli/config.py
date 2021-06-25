@@ -56,6 +56,10 @@ def show() -> None:
 
     The values are taken directly from the config file where specified or
     the defaults otherwise.
+
+    Examples:
+
+    $ pytoil config show
     """
     config = Config.from_file()
 
@@ -73,6 +77,10 @@ def get(
     Get the currently set value for a config key.
 
     The get command only allows valid pytoil config keys.
+
+    Examples:
+
+    $ pytoil config get vscode
     """
     if key not in defaults.CONFIG_KEYS:
         msg.warn(f"{key!r} is not a valid pytoil config key.", exits=1)
@@ -102,6 +110,12 @@ def set(
     overwritten with the new data.
 
     The '--force/-f' flag can be used to force overwrite without confirmation.
+
+    Examples:
+
+    $ pytoil config set projects_dir "/Users/me/projects"
+
+    $ pytoil config set vscode False --force
     """
     if key not in defaults.CONFIG_KEYS:
         msg.warn(f"{key!r} is not a valid pytoil config key.", exits=1)
@@ -140,6 +154,10 @@ def set(
 def help_() -> None:
     """
     Print a list and description of pytoil config keys.
+
+    Examples:
+
+    $ pytoil config help
     """
     msg.divider("The '.pytoil.yml' config file")
     print(defaults.CONFIG_SCHEMA)

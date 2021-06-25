@@ -17,15 +17,15 @@ This one is easy! `remove` does exactly what it says. It will recursively delete
 ```console
 $ pytoil remove --help
 
-Usage: pytoil remove [OPTIONS] COMMAND [ARGS]...
+Usage: pytoil remove [OPTIONS] [PROJECTS]...
 
   Remove projects from your local filesystem.
 
   The remove command provides an easy interface for decluttering your local
   projects directory.
 
-  You can selectively remove any number of projects or nuke the whole thing
-  if you want.
+  You can selectively remove any number of projects by passing them as
+  arguments or nuke the whole lot with "--all/-a" if you want.
 
   As with most programmatic deleting, the directories are deleted instantly
   and not sent to trash. As such, pytoil will prompt you for confirmation
@@ -34,12 +34,23 @@ Usage: pytoil remove [OPTIONS] COMMAND [ARGS]...
   The "--force/-f" flag can be used to force deletion without the
   confirmation prompt. Use with caution!
 
-Options:
-  --help  Show this message and exit.
+  Examples:
 
-Commands:
-  all    Delete all your projects.
-  these  Delete specified projects.
+  $ pytoil remove project1 project2 project3
+
+  $ pytoil remove project1 project2 project3 --force
+
+  $ pytoil remove --all
+
+  $ pytoil remove --all --force
+
+Arguments:
+  [PROJECTS]...  Name of the project(s) to delete.
+
+Options:
+  -f, --force  Force delete without confirmation.
+  -a, --all    Delete all of your local projects.
+  --help       Show this message and exit.
 
 ```
 
@@ -47,14 +58,12 @@ Commands:
 
 ## Remove Individual Projects
 
-If you want to remove one or more specific projects, you need the `these` subcommand.
-
-`remove these` takes a space separated list of 1 or more projects to remove.
+If you want to remove one or more specific projects, just pass them to `remove` as arguments.
 
 <div class="termy">
 
 ```console
-$ pytoil remove these my_project my_other_project this_one_too
+$ pytoil remove my_project my_other_project this_one_too
 
 # This will remove my_project, my_other_project, this_one_too from your local filesystem. Are you sure? [y/N]:$ y
 
@@ -72,7 +81,7 @@ And if you say no...
 <div class="termy">
 
 ```console
-$ pytoil remove these my_project my_other_project this_one_too
+$ pytoil remove my_project my_other_project this_one_too
 
 # This will remove my_project, my_other_project, this_one_too from your local filesystem. Are you sure? [y/N]:$ n
 
@@ -88,7 +97,7 @@ And if you've completely given up and decided you don't want to be a developer a
 <div class="termy">
 
 ```console
-$ pytoil remove all
+$ pytoil remove --all
 
 # This will remove ALL your projects. Are you okay? [y/N]:$ y
 
@@ -108,7 +117,7 @@ If you're really sure what you're doing, you can get around the confirmation pro
 <div class="termy">
 
 ```console
-$ pytoil remove these project1 project2 --force
+$ pytoil remove project1 project2 --force
 
 Removing project: 'remove1'.
 Removing project: 'remove2'.
