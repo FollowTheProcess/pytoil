@@ -4,8 +4,6 @@ Ideas for enhancements or fixes.
 
 ## Enhancements
 
-- [ ] When batch pulling repos, do it in parallel?
-- [x] Add a `--type` or `--lang` or something to `pytoil new` which points to an `Enum` of languages with a basic starter template implemented. This would then act like `cargo new` or `poetry new` and set up a basic structure. For rust it's probably best to call `cargo new` in a subprocess, for go it should create a basic structure and then run `go mod init`. For python I think we'll just have to do std lib stuff to keep it universal. Or maybe have a `flit`, `poetry`, `std` enum or something
-- [x] Remove and pull should be able to accept bare args as typing remove these is counter intuitive.
+- [ ] When batch pulling repos, do it in parallel? Wouldn't need threads or anything like that, just a series of calls to `subprocess.Popen` which spawns a subprocess but does not wait for it to complete like `subprocess.run` does. Therefore we could fire off all the `git clones` for each url and just report when they're all done.
 
 ## Fixes

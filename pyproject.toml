@@ -40,7 +40,6 @@ pytoil = "pytoil.cli.root:app"
 
 [tool.poetry.urls]
 Documentation = "https://FollowTheProcess.github.io/pytoil/"
-Source = "https://github.com/FollowTheProcess/pytoil"
 
 [tool.poetry.dependencies]
 python = "^3.8"
