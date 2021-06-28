@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.dev
+
+* NEW: `pytoil show` subcommands now have `--count/-c` option which shows a count of projects rather than simply listing them out.
+
 ## 0.6.0
 
 * NEW: User can now initialise basic starter templates for multiple languages (currently support python, go and rust)
