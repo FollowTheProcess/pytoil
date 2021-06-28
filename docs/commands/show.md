@@ -137,3 +137,26 @@ Diff: Remote - Local
 ```
 
 </div>
+
+## Count
+
+Every `show` subcommand has a `--count/-c` flag which, if used, will simply show you a count of the projects in that category.
+
+For example:
+
+<div class="termy">
+
+```console
+$ pytoil show all --count
+
+Local Projects:
+
+You have 6 local projects. 27.27% of total.
+
+Remote Projects:
+
+You have 16 remote projects. 72.73% of total.
+
+```
+
+</div>
