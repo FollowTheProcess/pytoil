@@ -22,7 +22,7 @@ from pytoil.exceptions import (
 )
 from pytoil.git.git import Git
 from pytoil.repo import Repo
-from pytoil.starters import GoStarter, PythonStarter, RustStarter
+from pytoil.starters import GoStarter, PythonStarter, RustStarter, Starter
 
 
 def get_local_projects(path: Path) -> Set[str]:
@@ -87,7 +87,7 @@ def make_new_project(
     template or from scratch.
     """
     # Can't use starter and cookiecutter at the same time
-    if starter and cookie:
+    if starter != Starter.none and cookie:
         msg.warn(
             "'--cookie' and '--starter' are mutually exclusive.",
             exits=1,
