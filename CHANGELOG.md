@@ -3,6 +3,7 @@
 ## 0.6.dev
 
 * NEW: `pytoil show` subcommands now have `--count/-c` option which shows a count of projects rather than simply listing them out.
+* FIX: Fix bug where pytoil would incorrectly error on `new` if certain combinations of args were used.
 
 ## 0.6.0
 
