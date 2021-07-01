@@ -216,6 +216,8 @@ Creating new project: 'my_new_project' from cookiecutter: 'https://github.com/so
 
 pytoil also comes with a few basic starter templates for some common languages. How it creates these templates is specific to the language, but you can use them like this....
 
+Here's a python one:
+
 <div class="termy">
 
 ```console
@@ -226,6 +228,8 @@ Creating new project: 'my_new_python_project' from starter: 'python'
 ```
 
 </div>
+
+And with go:
 
 <div class="termy">
 
