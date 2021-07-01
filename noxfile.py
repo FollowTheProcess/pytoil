@@ -9,6 +9,9 @@ from typing import Any, Dict, List
 
 import nox
 
+# Minimum nox version
+nox.needs_version = ">=2021.6.6"
+
 # GitHub Actions
 ON_CI = bool(os.getenv("CI"))
 
