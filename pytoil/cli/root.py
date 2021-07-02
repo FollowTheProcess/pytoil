@@ -12,8 +12,8 @@ Created: 18/06/2021
 
 import typer
 
-from pytoil import __version__
 from pytoil.cli import checkout, config, docs, gh, info, new, pull, remove, show
+from pytoil.cli.version import version_callback
 
 # Create the root app
 app = typer.Typer(name="pytoil", no_args_is_help=True)
@@ -35,12 +35,6 @@ app.registered_commands += (
 # these are commands with their own subcommands
 app.add_typer(show.app, name="show")
 app.add_typer(config.app, name="config")
-
-
-def version_callback(value: bool) -> None:
-    if value:
-        typer.echo(f"pytoil version: {__version__}")
-        raise typer.Exit(0)
 
 
 # Callback for documentation only
