@@ -26,13 +26,14 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Topic :: Software Development",
     "Topic :: Utilities",
-    "Typing :: Typed"
+    "Typing :: Typed",
 ]
+
 keywords = [
     "cli",
     "python",
     "developer-tools",
-    "automation"
+    "automation",
 ]
 
 [tool.poetry.scripts]
@@ -83,6 +84,28 @@ omit = [
     "*__main__.py",
     "*abstract.py",
     "pytoil/cli/*",
-    "pytoil/starters/base.py"
+    "pytoil/starters/base.py",
 ]
 branch = true
+
+[tool.mypy]
+ignore_missing_imports = true
+strict = true
+disallow_untyped_decorators = false
+pretty = true
+
+[[tool.mypy.overrides]]
+module = [
+    "venv.*",
+    ".venv.*",
+    "tests.*",
+]
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "yaml.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "toml.*"
+ignore_missing_imports = true
