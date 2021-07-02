@@ -48,7 +48,7 @@ style:
 	@echo "\nRunning: flake8"
 	poetry run flake8 .
 	@echo "\nRunning: mypy"
-	poetry run mypy .
+	poetry run mypy
 
 check: cov style
 	poetry run pre-commit run --all-files
