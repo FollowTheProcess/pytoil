@@ -163,20 +163,6 @@ class Repo:
         """
         return self.file_exists("environment.yml")
 
-    def is_editable(self) -> bool:
-        """
-        Does the project support editable installs
-        for development
-
-        i.e. 'pip install -e .'
-
-        Only possible with a 'setup.py'.
-
-        Returns:
-            bool: True if editable, else False.
-        """
-        return self.file_exists("setup.py")
-
     def is_PEP517(self) -> bool:
         """
         Does the project comply with
