@@ -66,7 +66,11 @@ def show() -> None:
     typer.secho("\nPytoil Config:\n", fg=typer.colors.CYAN, bold=True)
 
     for key, val in config.to_dict().items():
-        typer.echo(f"{key}: {val!r}")
+        # Make the key a nice colour
+        config_start = typer.style(f"{key}: ", fg=typer.colors.CYAN)
+        config_msg = config_start + f"{val!r}"
+
+        typer.echo(config_msg)
 
 
 @app.command()

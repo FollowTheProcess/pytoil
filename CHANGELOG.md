@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.dev
+
+* NEW: `pytoil config show` now prints the keys in a nice colour
+* NEW: Added some fun ASCII art on `pytoil --version`
+
 ## 0.6.1
 
 * NEW: `pytoil show` subcommands now have `--count/-c` option which shows a count of projects rather than simply listing them out.
