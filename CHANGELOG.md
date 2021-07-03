@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.dev
+
+* NEW: `pytoil config get` now prints the key in a nice colour too
+
 ## 0.6.2
 
 * NEW: `pytoil config show` now prints the keys in a nice colour

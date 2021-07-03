@@ -90,7 +90,10 @@ def get(
         msg.warn(f"{key!r} is not a valid pytoil config key.", exits=1)
 
     config = Config.from_file().to_dict()
-    typer.secho(f"\n{key}: {config.get(key)!r}\n")
+    # Make the key a nice colour
+    config_start = typer.style(f"\n{key}: ", fg=typer.colors.CYAN)
+    config_msg = config_start + f"{config.get(key)!r}\n"
+    typer.secho(config_msg)
 
 
 @app.command()
