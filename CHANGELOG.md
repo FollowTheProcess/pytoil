@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.6.dev
+## 0.6.2
 
 * NEW: `pytoil config show` now prints the keys in a nice colour
 * NEW: Added some fun ASCII art on `pytoil --version`
