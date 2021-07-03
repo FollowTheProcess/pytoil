@@ -364,28 +364,6 @@ def test_is_conda(repo_folder_with_random_existing_files, file, expect):
     "file, expect",
     [
         ("setup.cfg", False),
-        ("setup.py", True),
-        ("dingle.cfg", False),
-        ("dingle.py", False),
-        ("pyproject.toml", False),
-        ("environment.yml", False),
-    ],
-)
-def test_is_editable(repo_folder_with_random_existing_files, file, expect):
-
-    folder: Path = repo_folder_with_random_existing_files
-    repo = Repo(owner="me", name="test", local_path=folder)
-
-    # Add in the required file to trigger
-    folder.joinpath(file).touch()
-
-    assert repo.is_editable() is expect
-
-
-@pytest.mark.parametrize(
-    "file, expect",
-    [
-        ("setup.cfg", False),
         ("setup.py", False),
         ("dingle.cfg", False),
         ("dingle.py", False),
