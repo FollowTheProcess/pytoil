@@ -3,6 +3,7 @@
 ## 0.6.dev
 
 * NEW: `pytoil config get` now prints the key in a nice colour too
+* MAINT: Switch from makefile to doit for project automation
 
 ## 0.6.2
 

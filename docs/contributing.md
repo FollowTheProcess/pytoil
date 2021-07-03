@@ -74,17 +74,51 @@ This will (in order):
 
 ### Step 3: Create the Environment
 
-pytoil uses [poetry] to manage development, so to work on it you'll need to get it too!
+Before you do anything, you'll want to set up your virtual environment...
 
-All you need to do to get started is
+pytoil uses [poetry] to manage development, so to work on it you'll need to get it too! Once you've installed it, come back and follow the below steps.
+
+The good news is we use [doit] to automate the crap out of the setup.
+
+All you need to do is install doit (We recommend [pipx] to keep it isolated) and then run...
 
 ```shell
-poetry install
+doit
 ```
 
-This will create a virtual environment for you (if it doesn't already exist), install pytoil's dependencies, install pytoil itself in editable mode so you can work on it and install the pre-commit hooks to catch pesky mistakes!
+!!! note
 
-### Step 5: Do your thing
+    If you've never used doit before, go check it out. It's great!
+
+    It is effectively a pythonic makefile that knows what has or hasn't been done yet, if you run doit twice in succession, it won't do anything the second time because it knows it's just done everything, very clever!
+
+When you run this, doit will:
+
+* Create a fresh python virtual environment in the project for you (.venv)
+* Install pytoil for you along with all of it's development dependencies
+* Make sure VSCode is set up to use this environment (if you use it)
+* Run the unit tests
+* Run all linting, type checking and formatting
+* Perform test coverage analysis
+* Build the docs
+
+Not bad for a single command! Doing it this way means that before you start working on pytoil you know its all been installed and works correctly.
+
+Wait for it to do it's thing and then simply activate the environment normally if you want
+
+=== "macOS & Linux"
+
+    ```shell
+    source .venv/bin/activate
+    ```
+
+=== "Windows"
+
+    ```shell
+    .\.venv.\Scripts.\Activate.ps1
+    ```
+
+### Step 4: Do your thing
 
 **Always checkout a new branch before changing anything**
 
@@ -94,9 +128,7 @@ git checkout -b <name-of-your-bugfix-or-feature>
 
 Now you're ready to start working!
 
-!!! tip
-
-    Remember! pytoil aims for high test coverage. If you implement a new feature, make sure to write tests for it! Similarly, if you fix a bug, it's good practice to write a test that would have caught that bug so we can be sure it doesn't reappear in the future!
+*Remember! pytoil aims for high test coverage. If you implement a new feature, make sure to write tests for it! Similarly, if you fix a bug, it's good practice to write a test that would have caught that bug so we can be sure it doesn't reappear in the future!*
 
 pytoil uses [nox] for automated testing, building the docs, formatting and linting etc. So when you've made your changes, just run:
 
@@ -106,17 +138,7 @@ nox
 
 And it will tell you if something's wrong!
 
-Nox does everything in fresh virtual environments so it's a great tool but sometimes you want quicker feedback on test results. For this, I've included a makefile with little tasks like test, coverage etc.
-
-To run the tests this way:
-
-```shell
-make test
-```
-
-Run `make help` to see the tasks and the description of what they do
-
-### Step 6: Commit your changes
+### Step 5: Commit your changes
 
 Once you're happy with what you've done, add the files you've changed:
 
@@ -150,7 +172,7 @@ Now push your changes to your fork:
 git push origin <your-branch-name>
 ```
 
-### Step 7: Create a Pull Request
+### Step 6: Create a Pull Request
 
 Now go to the original pytoil [repo] and create a Pull Request. Make sure to choose upstream repo "main" as the destination branch and your forked repo "your-branch-name" as the source.
 
@@ -178,15 +200,11 @@ nox -s docs -- serve
 make autodocs
 ```
 
+*If you installed with `.[dev]` earlier, you could also just run `mkdocs build --clean` and `mkdocs serve` if you wanted*
+
 If you use the `serve` option, you can navigate to the localhost IP address it gives you and as you make changes to the source files, it will automatically reload your browser! Automation is power! :robot:
 
 If you add pages to the docs, make sure they are placed in the nav tree in the `mkdocs.yml` file and you're good to go!
-
-!!! note
-
-    There is also a makefile with some handy tasks built in if you want to run them quickly. Things like `make test` and `make docs`.
-
-    But you'll have to have the virtual environment activated to run these!
 
 [GH CLI]: https://cli.github.com
 [nox]: https://nox.thea.codes/en/stable/
@@ -195,4 +213,5 @@ If you add pages to the docs, make sure they are placed in the nav tree in the `
 [here too]: https://github.com/asmeurer/git-workflow
 [mkdocs]: https://www.mkdocs.org
 [mkdocs-material]: https://squidfunk.github.io/mkdocs-material/
-[poetry]: https://python-poetry.org
+[doit]: https://pydoit.org.
+[pipx]: https://pypa.github.io/pipx/installation/
