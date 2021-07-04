@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Union
 
 import pytest
+import toml
 import yaml
 
 TESTDATA = Path(__file__).parent.joinpath("testdata")
@@ -294,5 +295,101 @@ def repo_folder_with_random_existing_files(tmp_path_factory):
     for file in files:
         # Create each file under the myrepo folder
         folder.joinpath(file).touch()
+
+    return folder
+
+
+@pytest.fixture
+def project_with_no_build_system(tmp_path_factory):
+    """
+    Returns a temporary directory containing a
+    pyproject.toml but this file does not specify
+    a build-system, which is bad.
+    """
+
+    # Create the folder and pyproject.toml file
+    folder: Path = tmp_path_factory.mktemp("myrepo")
+    pyproject_toml = folder.joinpath("pyproject.toml")
+    pyproject_toml.touch()
+
+    return folder
+
+
+@pytest.fixture
+def project_with_no_build_backend(tmp_path_factory):
+    """
+    Returns a temporary directory containing a
+    pyproject.toml.
+
+    This time we do write a 'build-system' but no
+    'build-backend'.
+    """
+
+    # Create the folder and pyproject.toml file
+    folder: Path = tmp_path_factory.mktemp("myrepo")
+    pyproject_toml = folder.joinpath("pyproject.toml")
+    pyproject_toml.touch()
+
+    # Create some fake build-system
+    build_system = {
+        "build-system": {
+            "requires": ["poetry-core>=1.0.0"],
+        },
+    }
+
+    with open(pyproject_toml, mode="w", encoding="utf-8") as f:
+        toml.dump(build_system, f)
+
+    return folder
+
+
+@pytest.fixture
+def fake_poetry_project(tmp_path_factory):
+    """
+    Returns a temporary directory containing a
+    valid poetry pyproject.toml file.
+    """
+
+    # Create the folder and pyproject.toml file
+    folder: Path = tmp_path_factory.mktemp("myrepo")
+    pyproject_toml = folder.joinpath("pyproject.toml")
+    pyproject_toml.touch()
+
+    # Create some fake poetry content
+    build_system = {
+        "build-system": {
+            "requires": ["poetry-core>=1.0.0"],
+            "build-backend": "poetry.core.masonry.api",
+        },
+    }
+
+    with open(pyproject_toml, mode="w", encoding="utf-8") as f:
+        toml.dump(build_system, f)
+
+    return folder
+
+
+@pytest.fixture
+def fake_flit_project(tmp_path_factory):
+    """
+    Returns a temporary directory containing a
+    valid flit pyproject.toml file.
+    """
+
+    # Create the folder and pyproject.toml file
+    folder: Path = tmp_path_factory.mktemp("myrepo")
+    pyproject_toml = folder.joinpath("pyproject.toml")
+    pyproject_toml.touch()
+
+    # Create some fake poetry content
+    build_system = {
+        "build-system": {
+            "requires": ["flit_core >=2,<4"],
+            "build-backend": "flit_core.buildapi",
+        },
+    }
+
+    with open(pyproject_toml, mode="w", encoding="utf-8") as f:
+        toml.dump(build_system, f)
 
     return folder

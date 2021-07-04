@@ -16,6 +16,10 @@ nox.needs_version = ">=2021.6.6"
 ON_CI = bool(os.getenv("CI"))
 
 PROJECT_ROOT = Path(__file__).parent.resolve()
+PROJECT_SRC = PROJECT_ROOT / "pytoil"
+PROJECT_TESTS = PROJECT_ROOT / "tests"
+
+COVERAGE_BADGE = PROJECT_ROOT / "docs" / "img" / "coverage.svg"
 
 DEFAULT_PYTHON: str = "3.9"
 
@@ -121,7 +125,7 @@ def test(session: nox.Session) -> None:
     session.run("poetry", "install", "--no-dev", external=True, silent=True)
     poetry_install(session, *test_requirements)
 
-    session.run("pytest", "--cov=pytoil", "tests/")
+    session.run("pytest", f"--cov={PROJECT_SRC}", f"{PROJECT_TESTS}/")
     session.notify("coverage")
 
 
@@ -133,7 +137,7 @@ def coverage(session: nox.Session) -> None:
 
     coverage_requirements = SESSION_REQUIREMENTS.get("coverage", [""])
 
-    img_path = PROJECT_ROOT.joinpath("docs/img/coverage.svg")
+    img_path = COVERAGE_BADGE
 
     if not img_path.exists():
         img_path.parent.mkdir(parents=True)
