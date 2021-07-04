@@ -110,8 +110,6 @@ jobs:
           python-version: 3.9
 
       - name: Install Dependencies
-        # Uses pypa build https://pypa-build.readthedocs.io/en/latest/
-        # For full PEP517/518 compliance
         run: |
           python3 -m pip install --upgrade pip setuptools wheel
           python3 -m pip install poetry

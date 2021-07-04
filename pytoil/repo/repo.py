@@ -152,6 +152,16 @@ class Repo:
 
         return self.file_exists("setup.cfg") or self.file_exists("setup.py")
 
+    def has_pyproject_toml(self) -> bool:
+        """
+        Does the project have a 'pyproject.toml' file.
+
+        Returns:
+            bool: True if yes, else False.
+        """
+
+        return self.file_exists("pyproject.toml")
+
     def is_conda(self) -> bool:
         """
         Is the project based on conda,
@@ -163,26 +173,61 @@ class Repo:
         """
         return self.file_exists("environment.yml")
 
-    def is_PEP517(self) -> bool:
+    def is_poetry(self) -> bool:
         """
-        Does the project comply with
-        PEP517/518.
-
-        i.e. does it have a 'pyproject.toml' file
-        specifying a build system.
+        Does the project specify a poetry build_system.
 
         Returns:
-            bool: True if yes, else False.
+            bool: True if yes, else False
         """
-        if not self.file_exists("pyproject.toml"):
-            # Can't be PEP517 if it doesn't even have one
+
+        # First check if it even has a pyproject.toml
+        if not self.has_pyproject_toml():
             return False
 
-        # Sometimes people just use it for config
-        # Check that it actually specifies a build_system
         toml_dict = toml.load(self.local_path.joinpath("pyproject.toml"))
+        build_system = toml_dict.get("build-system")
+        # No build system means no poetry
+        if not build_system:
+            return False
 
-        return bool(toml_dict.get("build-system"))
+        build_backend: str = build_system.get("build-backend")
+        # No build backend means a bad toml file
+        # also no poetry
+        if not build_backend:
+            return False
+
+        # Now we know the toml file is valid
+        # check if it specifies poetry
+        return "poetry" in build_backend.strip().lower()
+
+    def is_flit(self) -> bool:
+        """
+        Does the project specify a flit build_system.
+
+        Returns:
+            bool: True if yes, else False
+        """
+
+        # First check if it even has a pyproject.toml
+        if not self.has_pyproject_toml():
+            return False
+
+        toml_dict = toml.load(self.local_path.joinpath("pyproject.toml"))
+        build_system = toml_dict.get("build-system")
+        # No build system, no flit
+        if not build_system:
+            return False
+
+        build_backend: str = build_system.get("build-backend")
+        # No build backend means bad toml file
+        # also no flit
+        if not build_backend:
+            return False
+
+        # Now we know the toml file is valid
+        # check if it specifies flit
+        return "flit" in build_backend.strip().lower()
 
     def dispatch_env(self) -> Optional[Environment]:
         """

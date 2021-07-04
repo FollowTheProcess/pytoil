@@ -360,38 +360,74 @@ def test_is_conda(repo_folder_with_random_existing_files, file, expect):
     assert repo.is_conda() is expect
 
 
-@pytest.mark.parametrize(
-    "file, expect",
-    [
-        ("setup.cfg", False),
-        ("setup.py", False),
-        ("dingle.cfg", False),
-        ("dingle.py", False),
-        ("pyproject.toml", False),
-        ("environment.yml", False),
-    ],
-)
-def test_is_PEP517(repo_folder_with_random_existing_files, file, expect):
+def test_is_poetry_true_on_valid_poetry_project(fake_poetry_project):
 
-    folder: Path = repo_folder_with_random_existing_files
-    repo = Repo(owner="me", name="test", local_path=folder)
+    repo = Repo(owner="blah", name="test", local_path=fake_poetry_project)
 
-    # Add in the required file to trigger
-    folder.joinpath(file).touch()
-
-    # We haven't written a build system to the toml so should
-    # return False
-    assert repo.is_PEP517() is expect
+    assert repo.is_poetry() is True
 
 
-def test_is_PEP517_detects_build_system():
+def test_is_poetry_false_on_non_poetry_project(fake_flit_project):
 
-    # This project has a valid pyproject.toml
-    # let's use that!
-    this_project = Path(__file__).parent.parent.resolve()
-    repo = Repo(owner="FollowTheProcess", name="pytoil", local_path=this_project)
+    repo = Repo(owner="blah", name="test", local_path=fake_flit_project)
 
-    assert repo.is_PEP517() is True
+    assert repo.is_poetry() is False
+
+
+def test_is_poetry_false_if_no_pyproject_toml():
+
+    repo = Repo(owner="blah", name="test", local_path=Path("nowhere"))
+
+    assert repo.is_poetry() is False
+
+
+def test_is_poetry_false_if_no_build_system(project_with_no_build_system):
+
+    repo = Repo(owner="blah", name="test", local_path=project_with_no_build_system)
+
+    assert repo.is_poetry() is False
+
+
+def test_is_poetry_false_if_no_build_backend(project_with_no_build_backend):
+
+    repo = Repo(owner="blah", name="test", local_path=project_with_no_build_backend)
+
+    assert repo.is_poetry() is False
+
+
+def test_is_flit_true_on_valid_flit_project(fake_flit_project):
+
+    repo = Repo(owner="blah", name="test", local_path=fake_flit_project)
+
+    assert repo.is_flit() is True
+
+
+def test_is_flit_false_on_non_flit_project(fake_poetry_project):
+
+    repo = Repo(owner="blah", name="test", local_path=fake_poetry_project)
+
+    assert repo.is_flit() is False
+
+
+def test_is_flit_false_if_no_pyproject_toml():
+
+    repo = Repo(owner="blah", name="test", local_path=Path("nowhere"))
+
+    assert repo.is_flit() is False
+
+
+def test_is_flit_false_if_no_build_system(project_with_no_build_system):
+
+    repo = Repo(owner="blah", name="test", local_path=project_with_no_build_system)
+
+    assert repo.is_flit() is False
+
+
+def test_is_flit_false_if_no_build_backend(project_with_no_build_backend):
+
+    repo = Repo(owner="blah", name="test", local_path=project_with_no_build_backend)
+
+    assert repo.is_flit() is False
 
 
 def test_dispatch_env_correctly_identifies_conda(mocker: MockerFixture):
