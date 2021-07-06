@@ -97,11 +97,11 @@ class Conda(Environment):
         interpreter exists inside the environments directory
         under that name.
 
-        Raises:
-            CondaNotInstalledError: If `conda` not found on $PATH.
-
         Returns:
             bool: True if the environment exists on system, else False.
+
+        Raises:
+            CondaNotInstalledError: If `conda` not found on $PATH.
         """
 
         self.raise_for_conda()

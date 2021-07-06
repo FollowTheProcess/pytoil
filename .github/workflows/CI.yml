@@ -118,7 +118,7 @@ jobs:
         run: poetry build
 
       - name: Publish Distribution to PyPI
-        uses: pypa/gh-action-pypi-publish@master
+        uses: pypa/gh-action-pypi-publish@v1.4.2
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
@@ -133,3 +133,8 @@ jobs:
           prerelease: false
           files: |
             dist/*
+
+      - name: Publish Release Notes
+        uses: release-drafter/release-drafter@v5.15.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

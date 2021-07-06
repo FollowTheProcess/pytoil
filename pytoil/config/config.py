@@ -56,6 +56,9 @@ class Config:
 
         Returns:
             Config: Populated `Config` object.
+
+        Raises:
+            FileNotFoundError: If config file not found.
         """
 
         try:

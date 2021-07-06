@@ -50,7 +50,6 @@ SESSION_REQUIREMENTS: Dict[str, List[str]] = {
         "isort",
         "black",
         "mypy",
-        "pydantic",
     ],
     "docs": [
         "mkdocs",
