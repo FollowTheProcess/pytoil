@@ -170,7 +170,7 @@ def lint(session: nox.Session) -> None:
         session.run("black", ".")
 
     session.run("flake8", ".")
-    session.run("mypy", "--install-types")
+    session.run("mypy", "--install-types", "--non-interactive")
 
 
 @nox.session(python=DEFAULT_PYTHON)
