@@ -80,14 +80,14 @@ def pre_new_checks(repo: Repo, api: API) -> None:
 
 
 def make_new_project(
-    repo: Repo, git: Git, cookie: str, starter: str, use_git: bool, config: Config
+    repo: Repo, git: Git, cookie: str, starter: Starter, use_git: bool, config: Config
 ) -> None:
     """
     Create a new development project either from a cookiecutter
     template or from scratch.
     """
     # Can't use starter and cookiecutter at the same time
-    if starter != Starter.none and cookie:
+    if starter.value != Starter.none and cookie:
         msg.warn(
             "'--cookie' and '--starter' are mutually exclusive.",
             exits=1,
@@ -99,7 +99,7 @@ def make_new_project(
         msg.info(f"Creating {repo.name!r} from cookiecutter: {cookie!r}.")
         cookiecutter(template=cookie, output_dir=config.projects_dir)
 
-    elif starter == "go":
+    elif starter == Starter.go:
         msg.info(f"Creating {repo.name!r} from starter: {starter!r}.")
         go_st = GoStarter(path=config.projects_dir, name=repo.name)
         try:
@@ -109,14 +109,14 @@ def make_new_project(
         if use_git:
             git.init(path=repo.local_path, check=True)
 
-    elif starter == "python":
+    elif starter == Starter.python:
         msg.info(f"Creating {repo.name!r} from starter: {starter!r}.")
         py_st = PythonStarter(path=config.projects_dir, name=repo.name)
         py_st.generate()
         if use_git:
             git.init(path=repo.local_path, check=True)
 
-    elif starter == "rust":
+    elif starter == Starter.rust:
         msg.info(f"Creating {repo.name!r} from starter: {starter!r}.")
         rs_st = RustStarter(path=config.projects_dir, name=repo.name)
         try:
