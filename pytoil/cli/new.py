@@ -133,12 +133,18 @@ def new(
     # Check is project already exists and warn/exit if so
     utils.pre_new_checks(repo=repo, api=api)
 
+    # Cant use --venv with non-python starters
+    if starter.value != starter.python and venv.value != venv.none:
+        msg.warn(
+            f"Can't create a venv for {starter.value} project!", spaced=True, exits=1
+        )
+
     # If we get here, all is well and we can create stuff!
     utils.make_new_project(
         repo=repo,
         git=git,
         cookie=cookie,
-        starter=starter.value,
+        starter=starter,
         use_git=use_git,
         config=config,
     )
