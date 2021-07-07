@@ -182,7 +182,7 @@ def lint_mypy():
 
     return {
         "name": "mypy",
-        "actions": [f"{PYTHON} -m mypy"],
+        "actions": [f"{PYTHON} -m mypy --install-types --non-interactive"],
         "file_dep": PYTHON_FILES,
         "task_dep": ["dev"],
     }
