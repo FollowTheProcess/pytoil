@@ -100,17 +100,8 @@ disallow_untyped_decorators = false
 pretty = true
 
 [[tool.mypy.overrides]]
-module = "dodo.*"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "yaml.*"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "toml.*"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "tests.*"
+module = [
+    "dodo.*",
+    "tests.*",
+]
 ignore_errors = true
