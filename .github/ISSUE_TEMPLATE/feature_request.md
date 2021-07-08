@@ -1,26 +1,16 @@
 ---
 name: Feature request
 about: Suggest an idea for this project
-title: "[FEATURE]"
+title: "[FEATURE]: "
 labels: enhancement
 assignees: ''
-
 ---
 
-### Is your feature request related to a problem
+## How would this feature be useful?
+<!-- Describe any use cases this solves or frustrations it alleviates.   -->
 
-Is your feature request related to a problem?
+## Describe the solution you'd like
+<!-- If you have an idea of how to do this, write it here! -->
 
-Add a clear and concise description of what the problem is. Ex. I want to be able to [...] but I can't because [...]
-
-### The solution you would like
-
-Add a clear and concise description of what you want to happen.
-
-### Describe alternatives you've considered
-
-Add a clear and concise description of any alternative solutions or features you've considered.
-
-### Additional context
-
-Add any other context or screenshots about the feature request here.
+## Describe alternatives you've considered
+<!-- If there's some workaround or alternative solutions, let us know. -->
