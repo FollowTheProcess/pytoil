@@ -8,6 +8,7 @@ Ideas for enhancements or fixes.
 - [ ] On `pytoil new --starter --venv` make it export a `requirement.txt` or `environment.yml`
 - [ ] If the repo passed to `pytoil checkout` is of the form `username/repo`, pytoil will first fork that repo to the user, then clone it as normal. This means pytoil can now be used to easily collaborate on open source stuff.
 - [ ] Automatically detect requirements. E.g. if project is checked out with `--venv` pytoil should look for things like `requirements.txt`, `requirements_dev.txt`, `setup.cfg`, `pyproject.toml` etc and see if it can parse requirements and install them.
+- [ ] Add all sorts of debugging info to `pytoil --version`, version of python, OS, architecture etc. Handy for bug reports.
 
 ## Fixes
 
