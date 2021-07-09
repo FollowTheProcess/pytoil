@@ -24,17 +24,8 @@ If applicable, add screenshots to help explain your problem.
 
 ### Environment
 
-* OS: [e.g. Linux / Windows / macOS]
-* pytoil Version [e.g. 0.3.0], get it with:
-
 ```bash
 pytoil --version
-```
-
-* Python version, get it with:
-
-```bash
-python --version
 ```
 
 ### Additional context
