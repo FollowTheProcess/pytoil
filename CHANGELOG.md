@@ -1,8 +1,9 @@
 # Changelog
 
-## 0.6.dev
+## 0.6.3
 
 * NEW: `pytoil config get` now prints the key in a nice colour too
+* NEW: `pytoil --version` outputs a much more comprehensive list of version info
 * MAINT: Switch from makefile to doit for project automation
 
 ## 0.6.2
