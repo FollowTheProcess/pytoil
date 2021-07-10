@@ -5,6 +5,7 @@ Author: Tom Fleet
 Created: 25/06/2021
 """
 
+import httpx
 import typer
 from wasabi import msg
 
@@ -77,6 +78,34 @@ def checkout(
     )
     code = VSCode(root=repo.local_path)
     git = Git()
+
+    # Naively detect a "user/repo" type pattern
+    # in which case fork the repo
+    if "/" in project:
+        owner, name = project.split("/")
+        if owner == config.username:
+            msg.warn(
+                "You don't need the '/' when checking out a repo you own!",
+                spaced=True,
+                exits=1,
+            )
+
+        msg.info(f"{project!r} belongs to {owner!r}. Making you a fork.")
+        with msg.loading(f"Forking {project!r}..."):
+            try:
+                api.create_fork(owner=owner, repo=name)
+            except httpx.HTTPStatusError as err:
+                utils.handle_http_status_errors(err)
+
+        # Forking happens asynchronously so we can't clone straight away
+        # so just report success and exit
+        msg.good(
+            "Done!",
+            text="Note: Forking happens asynchronously on GitHub which means "
+            "it may not be available to clone right away.",
+            spaced=True,
+            exits=0,
+        )
 
     if repo.exists_local():
         # No environment or git stuff here, chances are if it exists locally
