@@ -45,11 +45,16 @@ def checkout(
     config file it will open it for you. If not, it will just tell you it already
     exists locally and where to find it.
 
-    If your project is on GitHub, pytoil will clone it for you and then open it
+    If your project is on your GitHub, pytoil will clone it for you and then open it
     (or tell you where it cloned it if you dont have VSCode set up).
 
     Finally, if checkout can't find a match after searching locally and on GitHub,
     it will prompt you to use 'pytoil new' to create a new one.
+
+    If you pass the shorthand to someone elses repo e.g. 'someoneelse/repo' pytoil
+    will detect this and automatically create a fork of this repo for you. Forking
+    happens asynchronously so we can't clone your fork straight away. Give it a
+    few seconds then a 'pytoil checkout repo' will bring it down as normal.
 
     You can also ask pytoil to automatically create a virtual environment on
     checkout with the '--venv/-v' flag. This only happens for projects pulled down
@@ -65,6 +70,8 @@ def checkout(
     $ pytoil checkout my_project
 
     $ pytoil checkout my_project --venv
+
+    $ pytoil checkout someoneelse/project
     """
     config = Config.from_file()
     utils.warn_if_no_api_creds(config)
@@ -91,11 +98,10 @@ def checkout(
             )
 
         msg.info(f"{project!r} belongs to {owner!r}. Making you a fork.")
-        with msg.loading(f"Forking {project!r}..."):
-            try:
-                api.create_fork(owner=owner, repo=name)
-            except httpx.HTTPStatusError as err:
-                utils.handle_http_status_errors(err)
+        try:
+            api.create_fork(owner=owner, repo=name)
+        except httpx.HTTPStatusError as err:
+            utils.handle_http_status_errors(err)
 
         # Forking happens asynchronously so we can't clone straight away
         # so just report success and exit

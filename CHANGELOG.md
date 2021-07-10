@@ -1,5 +1,9 @@
 # Changelog
 
+## Dev
+
+* NEW: `pytoil checkout` can now fork someone else's repo is "user/repo" pattern is passed as an argument
+
 ## 0.6.3
 
 * NEW: `pytoil config get` now prints the key in a nice colour too
