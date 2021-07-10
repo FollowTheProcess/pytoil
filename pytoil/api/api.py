@@ -50,6 +50,42 @@ class API:
 
         return response
 
+    def post(self, endpoint: str, params: Optional[Dict[str, Any]] = None) -> Response:
+        """
+        Generic authenticated POST request method, used to make a POST
+        to any valid GitHub REST v3 API endpoint.
+
+        Args:
+            endpoint (str): The endpoint to POST.
+            params (Optional[Dict[str, Any]], optional): Dictionary of query params to
+            pass with the request. Defaults to None.
+
+        Returns:
+            Response: JSON Response dict.
+        """
+
+        r = httpx.post(url=self.baseurl + endpoint, headers=self.headers, params=params)
+        r.raise_for_status()
+
+        response: Response = r.json()
+
+        return response
+
+    def create_fork(self, owner: str, repo: str) -> Response:
+        """
+        Create a fork of the specified repository for the authenticated
+        user.
+
+        Args:
+            owner (str): Owner of the repo to be forked.
+            repo (str): Name of the repo to be forked.
+
+        Returns:
+            Response: JSON Response dict.
+        """
+
+        return self.post(endpoint=f"repos/{owner}/{repo}/forks")
+
     def get_repo(self, repo: str) -> Response:
         """
         Get a user's repo by name.

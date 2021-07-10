@@ -60,6 +60,34 @@ def test_get_returns_correct_response(httpx_mock: HTTPXMock, fake_repos_response
     assert r == fake_repos_response
 
 
+@pytest.mark.parametrize("bad_status_code", [400, 401, 403, 404, 500, 504, 505])
+def test_post_raises_on_bad_status(httpx_mock: HTTPXMock, bad_status_code):
+
+    httpx_mock.add_response(
+        url="https://api.github.com/user/repos", status_code=bad_status_code
+    )
+
+    api = API(token="definitelynotatoken", username="me")
+
+    with pytest.raises(httpx.HTTPStatusError):
+        api.post("user/repos")
+
+
+def test_post_returns_correct_response(httpx_mock: HTTPXMock, fake_repos_response):
+
+    httpx_mock.add_response(
+        url="https://api.github.com/user/repos",
+        json=fake_repos_response,
+        status_code=200,
+    )
+
+    api = API(token="definitelynotatoken", username="me")
+
+    r = api.post("user/repos")
+
+    assert r == fake_repos_response
+
+
 def test_get_repo_returns_correct_response(httpx_mock: HTTPXMock, fake_repo_response):
 
     httpx_mock.add_response(
@@ -146,3 +174,22 @@ def test_get_repo_info_correctly_handles_missing_license(httpx_mock: HTTPXMock):
     api = API(token="definitelynotatoken", username="me")
 
     assert api.get_repo_info(repo="repo")["license"] is None
+
+
+def test_create_fork(httpx_mock: HTTPXMock):
+
+    httpx_mock.add_response(
+        url="https://api.github.com/repos/someone/project/forks",
+        json={
+            "some": "yes",
+            "fake": "info",
+        },
+        status_code=202,
+    )
+
+    api = API(token="definitelynotatoken", username="me")
+
+    assert api.create_fork(owner="someone", repo="project") == {
+        "some": "yes",
+        "fake": "info",
+    }

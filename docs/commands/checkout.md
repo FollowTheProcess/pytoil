@@ -22,11 +22,17 @@ Usage: pytoil checkout [OPTIONS] PROJECT
   config file it will open it for you. If not, it will just tell you it
   already exists locally and where to find it.
 
-  If your project is on GitHub, pytoil will clone it for you and then open
-  it (or tell you where it cloned it if you dont have VSCode set up).
+  If your project is on your GitHub, pytoil will clone it for you and then
+  open it (or tell you where it cloned it if you dont have VSCode set up).
 
   Finally, if checkout can't find a match after searching locally and on
   GitHub, it will prompt you to use 'pytoil new' to create a new one.
+
+  If you pass the shorthand to someone elses repo e.g. 'someoneelse/repo'
+  pytoil will detect this and automatically create a fork of this repo for
+  you. Forking happens asynchronously so we can't clone your fork straight
+  away. Give it a few seconds then a 'pytoil checkout repo' will bring it
+  down as normal.
 
   You can also ask pytoil to automatically create a virtual environment on
   checkout with the '--venv/-v' flag. This only happens for projects pulled
@@ -42,6 +48,8 @@ Usage: pytoil checkout [OPTIONS] PROJECT
   $ pytoil checkout my_project
 
   $ pytoil checkout my_project --venv
+
+  $ pytoil checkout someoneelse/project
 
 Arguments:
   PROJECT  Name of the project to checkout.  [required]
@@ -97,6 +105,29 @@ Opening 'my_github_project' in VSCode...
     When developing pytoil I was debating how to handle this. I use VSCode for everything but I know other people have different editor preferences. Initially I looked at using the `$EDITOR` environment variable but working out how best to launch a variety of possible editors from a CLI was tricky. Plus pytoil does things like alter workspace settings to point at the right virtual environment, and I only know how to do this with VSCode.
 
     PR's are very welcome though if you think you can introduce support for your preferred editor! :grin:
+
+## Someone else's project
+
+A common workflow in open source is to fork someone elses project and then work on your fork. With `pytoil` this can be done in the same command! If you provide the shorthand repo path to `pytoil checkout` e.g. `someoneelse/repo`, `pytoil` will fork the repo for you!
+
+<div class="termy">
+
+```console
+// Someone else's project
+$ pytoil checkout someone/their_github_project
+
+Project: 'someone/their_github_project' belongs to 'someone'. Making you a fork.
+
+Done!
+Note: Forking happens asynchronously on GitHub which means it may not be available to clone right away
+```
+
+</div>
+
+!!! note
+
+    As it says in the command line above, `pytoil` can't clone your fork right away because it happens in the background on GitHub's end
+    which means when we get the `202: Accepted` response from the API, there's no guarantee that your fork exists yet. The best bet is to give it a few seconds and then try checking it out as normal :thumbsup:
 
 ## Automatically Create a Virtual Environment
 
