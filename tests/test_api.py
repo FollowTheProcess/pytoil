@@ -174,3 +174,22 @@ def test_get_repo_info_correctly_handles_missing_license(httpx_mock: HTTPXMock):
     api = API(token="definitelynotatoken", username="me")
 
     assert api.get_repo_info(repo="repo")["license"] is None
+
+
+def test_create_fork(httpx_mock: HTTPXMock):
+
+    httpx_mock.add_response(
+        url="https://api.github.com/repos/someone/project/forks",
+        json={
+            "some": "yes",
+            "fake": "info",
+        },
+        status_code=202,
+    )
+
+    api = API(token="definitelynotatoken", username="me")
+
+    assert api.create_fork(owner="someone", repo="project") == {
+        "some": "yes",
+        "fake": "info",
+    }

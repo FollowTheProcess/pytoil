@@ -61,7 +61,7 @@ class API:
             pass with the request. Defaults to None.
 
         Returns:
-            Response: JSON Response dict
+            Response: JSON Response dict.
         """
 
         r = httpx.post(url=self.baseurl + endpoint, headers=self.headers, params=params)
@@ -70,6 +70,21 @@ class API:
         response: Response = r.json()
 
         return response
+
+    def create_fork(self, owner: str, repo: str) -> Response:
+        """
+        Create a fork of the specified repository for the authenticated
+        user.
+
+        Args:
+            owner (str): Owner of the repo to be forked.
+            repo (str): Name of the repo to be forked.
+
+        Returns:
+            Response: JSON Response dict.
+        """
+
+        return self.post(endpoint=f"repos/{owner}/{repo}/forks")
 
     def get_repo(self, repo: str) -> Response:
         """
