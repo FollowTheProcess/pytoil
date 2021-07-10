@@ -90,37 +90,12 @@ def checkout(
     # in which case fork the repo
     if "/" in project:
         owner, name = project.split("/")
-        if owner == config.username:
-            msg.warn(
-                "You don't need the '/' when checking out a repo you own!",
-                spaced=True,
-                exits=1,
-            )
-
-        msg.info(f"{project!r} belongs to {owner!r}. Making you a fork.")
-        try:
-            api.create_fork(owner=owner, repo=name)
-        except httpx.HTTPStatusError as err:
-            utils.handle_http_status_errors(err)
-
-        # Forking happens asynchronously so we can't clone straight away
-        # so just report success and exit
-        msg.good(
-            "Done!",
-            text="Note: Forking happens asynchronously on GitHub which means "
-            "it may not be available to clone right away.",
-            spaced=True,
-            exits=0,
-        )
+        fork_repo(owner=owner, name=name, api=api, config=config)
 
     if repo.exists_local():
         # No environment or git stuff here, chances are if it exists locally
         # user has already done all this stuff
-        msg.info(f"{repo.name!r} available locally.", spaced=True)
-
-        if config.vscode:
-            msg.text(f"Opening {repo.name!r} in VSCode.")
-            code.open()
+        checkout_local(repo=repo, code=code, config=config)
 
     elif repo.exists_remote(api=api):
         msg.info(f"{repo.name!r} found on GitHub. Cloning...", spaced=True)
@@ -159,3 +134,55 @@ def checkout(
             text=f"Does it exist? If not, create a new project with 'pytoil new {repo.name}'.",  # noqa: E501
             exits=1,
         )
+
+
+def fork_repo(owner: str, name: str, api: API, config: Config) -> None:
+    """
+    Forks the passed repo and informs the user.
+
+    Args:
+        owner (str): Owner of the repo to be forked.
+        name (str): Name of the repo to be forked.
+        api (API): Configured API object.
+        config (Config): Configured Config object.
+    """
+
+    if owner == config.username:
+        msg.warn(
+            "You don't need the '/' when checking out a repo you own!",
+            spaced=True,
+            exits=1,
+        )
+
+    msg.info(f"'{owner}/{name}' belongs to {owner!r}. Making you a fork.")
+    try:
+        api.create_fork(owner=owner, repo=name)
+    except httpx.HTTPStatusError as err:
+        utils.handle_http_status_errors(err)
+
+    # Forking happens asynchronously so we can't clone straight away
+    # so just report success and exit
+    msg.good(
+        "Done!",
+        text="Note: Forking happens asynchronously on GitHub which means "
+        "it may not be available to clone right away.",
+        spaced=True,
+        exits=0,
+    )
+
+
+def checkout_local(repo: Repo, code: VSCode, config: Config) -> None:
+    """
+    Helper function to checkout a local repo.
+
+    Args:
+        repo (Repo): Repo to checkout.
+        code (VSCode): VSCode instance to handle opening.
+        config (Config): Configured Config object.
+    """
+
+    msg.info(f"{repo.name!r} available locally.", spaced=True)
+
+    if config.vscode:
+        msg.text(f"Opening {repo.name!r} in VSCode.")
+        code.open()
