@@ -60,6 +60,34 @@ def test_get_returns_correct_response(httpx_mock: HTTPXMock, fake_repos_response
     assert r == fake_repos_response
 
 
+@pytest.mark.parametrize("bad_status_code", [400, 401, 403, 404, 500, 504, 505])
+def test_post_raises_on_bad_status(httpx_mock: HTTPXMock, bad_status_code):
+
+    httpx_mock.add_response(
+        url="https://api.github.com/user/repos", status_code=bad_status_code
+    )
+
+    api = API(token="definitelynotatoken", username="me")
+
+    with pytest.raises(httpx.HTTPStatusError):
+        api.post("user/repos")
+
+
+def test_post_returns_correct_response(httpx_mock: HTTPXMock, fake_repos_response):
+
+    httpx_mock.add_response(
+        url="https://api.github.com/user/repos",
+        json=fake_repos_response,
+        status_code=200,
+    )
+
+    api = API(token="definitelynotatoken", username="me")
+
+    r = api.post("user/repos")
+
+    assert r == fake_repos_response
+
+
 def test_get_repo_returns_correct_response(httpx_mock: HTTPXMock, fake_repo_response):
 
     httpx_mock.add_response(
