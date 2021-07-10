@@ -12,8 +12,10 @@ on:
 
 jobs:
   draft_release:
+    name: Draft Release
     runs-on: ubuntu-latest
     steps:
-      - uses: release-drafter/release-drafter@v5.15.0
+      - name: Run Release Drafter
+        uses: release-drafter/release-drafter@v5.15.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
