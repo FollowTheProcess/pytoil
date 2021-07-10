@@ -7,16 +7,23 @@ Created: 25/06/2021
 
 from typing import List
 
+import httpx
 import typer
+from cookiecutter.main import cookiecutter
 from wasabi import msg
 
 from pytoil.api import API
 from pytoil.cli import utils
 from pytoil.config import Config
-from pytoil.environments import VirtualEnv
+from pytoil.environments import Conda, Environment, Venv, VirtualEnv
+from pytoil.exceptions import (
+    CargoNotInstalledError,
+    EnvironmentAlreadyExistsError,
+    GoNotInstalledError,
+)
 from pytoil.git import Git
 from pytoil.repo import Repo
-from pytoil.starters import Starter
+from pytoil.starters import GoStarter, PythonStarter, RustStarter, Starter
 from pytoil.vscode import VSCode
 
 app = typer.Typer()
@@ -131,7 +138,7 @@ def new(
     use_git: bool = config.init_on_new and not no_git
 
     # Check is project already exists and warn/exit if so
-    utils.pre_new_checks(repo=repo, api=api)
+    pre_new_checks(repo=repo, api=api)
 
     # Cant use --venv with non-python starters
     if starter.value != starter.python and venv.value != venv.none:
@@ -140,7 +147,7 @@ def new(
         )
 
     # If we get here, all is well and we can create stuff!
-    utils.make_new_project(
+    make_new_project(
         repo=repo,
         git=git,
         cookie=cookie,
@@ -150,7 +157,7 @@ def new(
     )
 
     if venv.value == venv.venv:
-        env = utils.create_virtualenv(repo=repo, packages=packages)
+        env = create_virtualenv(repo=repo, packages=packages)
 
         if config.vscode:
             msg.info(f"Opening {repo.name!r} in VSCode.", spaced=True)
@@ -158,7 +165,7 @@ def new(
             code.open()
 
     elif venv.value == venv.conda:
-        env = utils.create_condaenv(repo=repo, packages=packages)
+        env = create_condaenv(repo=repo, packages=packages)
 
         if config.vscode:
             msg.info(f"Opening {repo.name!r} in VSCode.", spaced=True)
@@ -175,3 +182,132 @@ def new(
         if config.vscode:
             msg.info(f"Opening {repo.name!r} in VSCode.", spaced=True)
             code.open()
+
+
+def make_new_project(
+    repo: Repo, git: Git, cookie: str, starter: Starter, use_git: bool, config: Config
+) -> None:
+    """
+    Create a new development project either from a cookiecutter
+    template or from scratch.
+    """
+    # Can't use starter and cookiecutter at the same time
+    if starter.value != Starter.none and cookie:
+        msg.warn(
+            "'--cookie' and '--starter' are mutually exclusive.",
+            exits=1,
+        )
+
+    if cookie:
+        # We don't initialise a git repo for cookiecutters
+        # some templates have hooks which do this, mine do!
+        msg.info(f"Creating {repo.name!r} from cookiecutter: {cookie!r}.")
+        cookiecutter(template=cookie, output_dir=config.projects_dir)
+
+    elif starter == Starter.go:
+        msg.info(f"Creating {repo.name!r} from starter: {starter!r}.")
+        go_st = GoStarter(path=config.projects_dir, name=repo.name)
+
+        try:
+            go_st.generate(username=config.username)
+        except GoNotInstalledError:
+            msg.fail("Error: Go not installed.", spaced=True, exits=1)
+
+        if use_git:
+            git.init(path=repo.local_path, check=True)
+
+    elif starter == Starter.python:
+        msg.info(f"Creating {repo.name!r} from starter: {starter!r}.")
+        py_st = PythonStarter(path=config.projects_dir, name=repo.name)
+        py_st.generate()
+
+        if use_git:
+            git.init(path=repo.local_path, check=True)
+
+    elif starter == Starter.rust:
+        msg.info(f"Creating {repo.name!r} from starter: {starter!r}.")
+        rs_st = RustStarter(path=config.projects_dir, name=repo.name)
+
+        try:
+            rs_st.generate()
+        except CargoNotInstalledError:
+            msg.fail("Error: Cargo not installed.", spaced=True, exits=1)
+
+    else:
+        msg.info(f"Creating {repo.name!r} at {repo.local_path}.")
+        # Make an empty dir and git repo
+        repo.local_path.mkdir(parents=True)
+
+        if use_git:
+            git.init(path=repo.local_path, check=True)
+
+
+def pre_new_checks(repo: Repo, api: API) -> None:
+    """
+    Checks whether the repo already exists either locally
+    or remotely, prints helpful warning messages and exits
+    the program if True.
+    """
+
+    is_local = repo.exists_local()
+
+    try:
+        is_remote = repo.exists_remote(api=api)
+    except httpx.HTTPStatusError as err:
+        utils.handle_http_status_errors(error=err)
+    else:
+
+        if is_local:
+            msg.warn(
+                title=f"{repo.name!r} already exists locally!",
+                text=f"To checkout this project, use 'pytoil checkout {repo.name}'.",
+                spaced=True,
+                exits=1,
+            )
+        elif is_remote:
+            msg.warn(
+                title=f"{repo.name!r} already exists on GitHub!",
+                text=f"To checkout this project, use 'pytoil checkout {repo.name}'.",
+                spaced=True,
+                exits=1,
+            )
+
+
+def create_virtualenv(repo: Repo, packages: List[str]) -> Environment:
+    """
+    Creates and returns new virtual environment with packages and reports
+    to user.
+    """
+
+    msg.info(
+        f"Creating virtual environment for {repo.name!r}",
+        text=f"Including packages: {', '.join(packages)}",
+        spaced=True,
+    )
+    env = Venv(project_path=repo.local_path)
+    with msg.loading("Working..."):
+        env.create(packages=packages)
+
+    return env
+
+
+def create_condaenv(repo: Repo, packages: List[str]) -> Environment:
+    """
+    Creates and returns new conda environment with packages and reports
+    to user.
+    """
+    msg.info(
+        f"Creating conda environment for {repo.name!r}",
+        text=f"Including packages: {', '.join(packages)}",
+        spaced=True,
+    )
+    env = Conda(name=repo.name, project_path=repo.local_path)
+    try:
+        with msg.loading("Working..."):
+            env.create(packages=packages)
+    except EnvironmentAlreadyExistsError:
+        msg.warn(
+            f"Conda environment {env.name!r} already exists!", spaced=True, exits=1
+        )
+
+    return env
