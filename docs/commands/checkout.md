@@ -139,7 +139,7 @@ If you pass the `--venv` option, `checkout` will also:
 
 !!! note
 
-    From about version 1.57.1, VSCode have been deprecating the workspace setting `python.pythonPath` in favour of `python.defaultInterpreterPath` which up until v0.6.0, pytoil used as part of the whole "automate your dev life" thing! These settings do differ in their functionality, which you can read about here: https://github.com/microsoft/vscode-python/issues/12313.
+    From about version 1.57.1, VSCode have been deprecating the workspace setting `python.pythonPath` in favour of `python.defaultInterpreterPath` which up until v0.6.0, pytoil used as part of the whole "automate your dev life" thing! These settings do differ in their functionality, which you can read about here: [https://github.com/microsoft/vscode-python/issues/12313](https://github.com/microsoft/vscode-python/issues/12313).
 
     But it turns out that because the only time we set this is when creating brand new projects, or checking out remote projects, these settings behave exactly the same for us, so it effectively represents a straight swap.
 
