@@ -141,9 +141,15 @@ def new(
     pre_new_checks(repo=repo, api=api)
 
     # Cant use --venv with non-python starters
-    if starter.value != starter.python and venv.value != venv.none:
+    if (
+        starter.value != starter.none  # User specified starter
+        and starter.value != starter.python  # The starter is not python
+        and venv.value != venv.none  # And the user wants a virtual environment
+    ):
         msg.warn(
-            f"Can't create a venv for {starter.value} project!", spaced=True, exits=1
+            f"Can't create a venv for {starter.value} project!",
+            spaced=True,
+            exits=1,
         )
 
     # If we get here, all is well and we can create stuff!
