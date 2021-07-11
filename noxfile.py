@@ -5,10 +5,11 @@ Nox configuration file for the project.
 import json
 import os
 import shutil
+import subprocess
 import tempfile
 import webbrowser
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Set
 
 import nox
 
@@ -22,6 +23,9 @@ ON_CI = bool(os.getenv("CI"))
 PROJECT_ROOT = Path(__file__).parent.resolve()
 PROJECT_SRC = PROJECT_ROOT / "pytoil"
 PROJECT_TESTS = PROJECT_ROOT / "tests"
+
+# Git info
+DEFAULT_BRANCH = "main"
 
 # Where to save the coverage badge
 COVERAGE_BADGE = PROJECT_ROOT / "docs" / "img" / "coverage.svg"
@@ -221,6 +225,60 @@ def get_session_requirements(session: nox.Session) -> List[str]:
     return requirements
 
 
+def has_changes() -> bool:
+    """
+    Invoke git in a subprocess to check if we have
+    any uncommitted changes in the local repo.
+
+    Returns:
+        bool: True if uncommitted changes, else False.
+    """
+    status = (
+        subprocess.run(
+            "git status --porcelain", shell=True, check=True, stdout=subprocess.PIPE
+        )
+        .stdout.decode()
+        .strip()
+    )
+    return len(status) > 0
+
+
+def get_branch() -> str:
+    """
+    Invoke git in a subprocess to get the name of
+    the current branch.
+
+    Returns:
+        str: Name of current branch.
+    """
+    return (
+        subprocess.run(
+            "git rev-parse --abbrev-ref HEAD",
+            shell=True,
+            check=True,
+            stdout=subprocess.PIPE,
+        )
+        .stdout.decode()
+        .strip()
+    )
+
+
+def enforce_branch_no_changes(session: nox.Session) -> None:
+    """
+    Errors out the current session if we're not on
+    default branch or if there are uncommitted changes.
+    """
+    if has_changes():
+        session.error("All changes must be committed or removed before release")
+
+    branch = get_branch()
+
+    if branch != DEFAULT_BRANCH:
+        session.error(
+            f"Must be on {DEFAULT_BRANCH!r} branch. Currently on {branch!r} branch"
+        )
+
+
 @nox.session(python=False)
 def dev(session: nox.Session) -> None:
     """
@@ -353,3 +411,49 @@ def build(session: nox.Session) -> None:
     session.run("poetry", "install", "--no-dev", external=True, silent=True)
 
     session.run("poetry", "build", external=True)
+
+
+@nox.session(python=DEFAULT_PYTHON)
+def release(session: nox.Session) -> None:
+    """
+    Kicks off the automated release process by creating and pushing a new tag.
+
+    Invokes bump2version with the posarg setting the version.
+
+    Usage:
+
+    $ nox -s release -- [major|minor|patch]
+    """
+
+    enforce_branch_no_changes(session)
+
+    allowed_args: Set[str] = {"major", "minor", "patch"}
+    n_args: int = len(session.posargs)
+
+    if n_args != 1:
+        session.error(
+            f"Only 1 session arg allowed, got {n_args}. Pass one of: {allowed_args}"
+        )
+
+    # If we get here, we know there's only 1 posarg
+    version = session.posargs.pop()
+
+    if version not in allowed_args:
+        session.error(
+            f"Invalid argument: got {version!r}, expected one of: {allowed_args}"
+        )
+
+    # If we get here, we should be good to go
+
+    # Error out if user does not have poetry installed
+    session_requires(session, "poetry")
+    update_seeds(session)
+
+    poetry_install(session, "bump2version")
+
+    session.log(f"Bumping the {version!r} version")
+    session.run("bump2version", version)
+
+    session.log("Pushing the new tag")
+    session.run("git", "push")
+    session.run("git", "push", "--tags")
