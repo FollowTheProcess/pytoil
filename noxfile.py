@@ -455,5 +455,5 @@ def release(session: nox.Session) -> None:
     session.run("bump2version", version)
 
     session.log("Pushing the new tag")
-    session.run("git", "push")
-    session.run("git", "push", "--tags")
+    session.run("git", "push", external=True)
+    session.run("git", "push", "--tags", external=True)
