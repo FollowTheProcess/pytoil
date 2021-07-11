@@ -4,6 +4,7 @@ site_url: https://FollowTheProcess.github.io/pytoil/
 site_description: CLI to automate the development workflow.
 site_author: Tom Fleet
 use_directory_urls: false
+strict: true
 nav:
   - Home: index.md
   - Config: config.md
