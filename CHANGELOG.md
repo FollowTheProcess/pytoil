@@ -1,8 +1,9 @@
 # Changelog
 
-## Dev
+## 0.7.0
 
 * NEW: `pytoil checkout` can now fork someone else's repo is "user/repo" pattern is passed as an argument
+* FIX: Fix unnecessary error when using `pytoil new` with `--venv` and no starter
 
 ## 0.6.3
 
