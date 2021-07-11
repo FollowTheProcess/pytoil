@@ -211,7 +211,7 @@ def make_new_project(
         cookiecutter(template=cookie, output_dir=config.projects_dir)
 
     elif starter == Starter.go:
-        msg.info(f"Creating {repo.name!r} from starter: {starter!r}.")
+        msg.info(f"Creating {repo.name!r} from starter: {starter.value!r}.")
         go_st = GoStarter(path=config.projects_dir, name=repo.name)
 
         try:
@@ -223,7 +223,7 @@ def make_new_project(
             git.init(path=repo.local_path, check=True)
 
     elif starter == Starter.python:
-        msg.info(f"Creating {repo.name!r} from starter: {starter!r}.")
+        msg.info(f"Creating {repo.name!r} from starter: {starter.value!r}.")
         py_st = PythonStarter(path=config.projects_dir, name=repo.name)
         py_st.generate()
 
@@ -231,7 +231,7 @@ def make_new_project(
             git.init(path=repo.local_path, check=True)
 
     elif starter == Starter.rust:
-        msg.info(f"Creating {repo.name!r} from starter: {starter!r}.")
+        msg.info(f"Creating {repo.name!r} from starter: {starter.value!r}.")
         rs_st = RustStarter(path=config.projects_dir, name=repo.name)
 
         try:
