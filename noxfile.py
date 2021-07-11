@@ -6,6 +6,7 @@ import json
 import os
 import shutil
 import tempfile
+import webbrowser
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -333,6 +334,7 @@ def docs(session: nox.Session) -> None:
     poetry_install(session, *requirements)
 
     if "serve" in session.posargs:
+        webbrowser.open(url="http://127.0.0.1:8000/pytoil/")
         session.run("mkdocs", "serve")
     else:
         session.run("mkdocs", "build", "--clean")
