@@ -544,3 +544,11 @@ def test_get_envs_dir_raises_if_none_found(
 
     with pytest.raises(UnsupportedCondaInstallationError):
         Conda.get_envs_dir()
+
+
+def test_install_self_raises_not_implemented_error():
+
+    env = Conda(name="notimplemented", project_path=Path("not/here"), conda="testconda")
+
+    with pytest.raises(NotImplementedError):
+        env.install_self()

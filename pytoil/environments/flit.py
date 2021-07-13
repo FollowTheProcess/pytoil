@@ -1,9 +1,12 @@
 """
-Module responsible for creating and managing
-python virtual environments through the std lib `venv` module.
+Module responsible for creating and managing virtual environments
+for flit.
+
+This is done in a very similar way to `virtualenv.py` as flit
+does not create it's own environments.
 
 Author: Tom Fleet
-Created: 20/06/2021
+Created: 13/07/2021
 """
 
 import subprocess
@@ -15,22 +18,19 @@ from pytoil.environments import Environment
 from pytoil.exceptions import MissingInterpreterError
 
 
-class Venv(Environment):
+class FlitEnv(Environment):
     def __init__(self, project_path: Path) -> None:
         """
-        Representation of a virtualenv.
+        Representation of a flit virtualenv.
 
-        A VirtualEnv's `.executable` property (also a Path) points
-        to the python executable of the newly created virtualenv. This
-        executable may or may not exist, and the existence check is
-        the primary means of checking whether or not this virtualenv
-        exists.
+        Actually not overtly different from the `Venv` class
+        in `virtualenv.py` as flit uses standard python
+        virtual environments.
 
-        Note: It is important not to resolve `.executable` as it could
-        resolve back to the system python if it is a symlink.
+        The main difference is found in install commands.
 
         Args:
-            project_root (Path): The root path of the current project.
+            project_path (Path): The root path of the current project.
         """
         self._project_path = project_path.resolve()
 
@@ -52,6 +52,9 @@ class Venv(Environment):
 
         If this executable exists then both the project and virtual environment
         must also exist and must be valid.
+
+        Returns:
+            bool: True if environment exists, else False.
         """
         return self.executable.exists()
 
@@ -146,20 +149,20 @@ class Venv(Environment):
 
     def install_self(self) -> None:
         """
-        Installs current package.
+        Installs the current package.
         """
         cmd: List[str] = [
-            f"{self.executable}",
-            "-m",
-            "pip",
+            "flit",
             "install",
-            "--quiet",
-            "-e",
-            ".[dev]",
+            "--deps",
+            "develop",
+            "--symlink",
+            "--python",
+            f"{self.executable}",
         ]
 
         try:
-            # Must specify cwd for self install as looks in current dir
+            # Here we must specify the cwd as flit will search for it's pyproject.toml
             subprocess.run(cmd, check=True, cwd=self.project_path)
         except subprocess.CalledProcessError:
             raise

@@ -149,7 +149,6 @@ class Repo:
         Returns:
             bool: True if setuptools, else False.
         """
-
         return self.file_exists("setup.cfg") or self.file_exists("setup.py")
 
     def has_pyproject_toml(self) -> bool:
@@ -159,7 +158,6 @@ class Repo:
         Returns:
             bool: True if yes, else False.
         """
-
         return self.file_exists("pyproject.toml")
 
     def is_conda(self) -> bool:
@@ -173,7 +171,7 @@ class Repo:
         """
         return self.file_exists("environment.yml")
 
-    def _specifies_build_tool(self, build_tool: str) -> bool:
+    def specifies_build_tool(self, build_tool: str) -> bool:
         """
         Generalised method to check for a particular
         build tool specification in pyproject.toml.
@@ -219,8 +217,7 @@ class Repo:
         Returns:
             bool: True if yes, else False
         """
-
-        return self._specifies_build_tool("poetry")
+        return self.specifies_build_tool("poetry")
 
     def is_flit(self) -> bool:
         """
@@ -229,8 +226,7 @@ class Repo:
         Returns:
             bool: True if yes, else False
         """
-
-        return self._specifies_build_tool("flit")
+        return self.specifies_build_tool("flit")
 
     def dispatch_env(self) -> Optional[Environment]:
         """

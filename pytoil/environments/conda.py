@@ -300,6 +300,14 @@ class Conda(Environment):
         except subprocess.CalledProcessError:
             raise
 
+    def install_self(self) -> None:
+        """
+        This method is not implemented for Conda environments.
+
+        Conda projects cannot be self installed.
+        """
+        raise NotImplementedError
+
     @staticmethod
     def get_envs_dir() -> Path:
         """
