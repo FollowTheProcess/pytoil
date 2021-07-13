@@ -64,3 +64,12 @@ class Environment(ABC):
             packages (List[str]): List of valid packages to install.
         """
         raise NotImplementedError
+
+    @abstractmethod
+    def install_self(self) -> None:
+        """
+        Installs the current project.
+
+        For example: `pip install -e .[dev]`
+        """
+        raise NotImplementedError
