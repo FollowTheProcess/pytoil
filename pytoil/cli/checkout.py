@@ -5,6 +5,8 @@ Author: Tom Fleet
 Created: 25/06/2021
 """
 
+from typing import Optional
+
 import httpx
 import typer
 from wasabi import msg
@@ -12,6 +14,7 @@ from wasabi import msg
 from pytoil.api import API
 from pytoil.cli import utils
 from pytoil.config import Config
+from pytoil.environments.abstract import Environment
 from pytoil.exceptions import EnvironmentAlreadyExistsError
 from pytoil.git import Git
 from pytoil.repo import Repo
@@ -104,28 +107,7 @@ def checkout(
         env = repo.dispatch_env()
 
         if venv:
-            if not env:
-                msg.warn(
-                    "Unable to auto-detect required environent. Skipping.",
-                    spaced=True,
-                )
-            else:
-                msg.info(
-                    f"Auto creating virtual environment using: {env.info_name!r}",
-                    spaced=True,
-                )
-
-                try:
-                    with msg.loading("Working..."):
-                        env.create(packages=config.common_packages)
-                except EnvironmentAlreadyExistsError:
-                    msg.warn(
-                        title="Environment already exists!",
-                        text="No need to create a new one. Skipping.",
-                    )
-                finally:
-                    if config.vscode:
-                        code.set_workspace_python(python_path=env.executable)
+            handle_venv_creation(env=env, config=config, code=code)
 
         if config.vscode:
             msg.info(f"Opening {repo.name!r} in VSCode.", spaced=True)
@@ -189,3 +171,40 @@ def checkout_local(repo: Repo, code: VSCode, config: Config) -> None:
     if config.vscode:
         msg.text(f"Opening {repo.name!r} in VSCode.")
         code.open()
+
+
+def handle_venv_creation(
+    env: Optional[Environment], config: Config, code: VSCode
+) -> None:
+    """
+    Handles the automatic detection and/or creation of
+    python virtual environments based on detected repo
+    contents and reports to the user.
+
+    Args:
+        env (Optional[Environment]): The Environment object
+        config (Config): Populated Config object.
+        code (VSCode): VSCode object.
+    """
+    if not env:
+        msg.warn(
+            "Unable to auto-detect required environent. Skipping.",
+            spaced=True,
+        )
+    else:
+        msg.info(
+            f"Auto creating virtual environment using: {env.info_name!r}",
+            spaced=True,
+        )
+
+        try:
+            with msg.loading("Working..."):
+                env.create(packages=config.common_packages)
+        except EnvironmentAlreadyExistsError:
+            msg.warn(
+                title="Environment already exists!",
+                text="No need to create a new one. Skipping.",
+            )
+        finally:
+            if config.vscode:
+                code.set_workspace_python(python_path=env.executable)
