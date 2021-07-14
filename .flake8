@@ -19,4 +19,3 @@ max-line-length = 88
 extend-ignore =
     E203, # Black compatability: whitespace before :
     W503, # Black compatability: line break before binary operator
-    F811, # Weird spurious github actions failure, can't replicate locally
