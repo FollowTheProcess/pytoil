@@ -305,6 +305,17 @@ def dev(session: nox.Session) -> None:
         set_up_vscode(session)
 
 
+@nox.session(python=False)
+def update(session: nox.Session) -> None:
+    """
+    Updates the dependencies in the poetry.lock file.
+    """
+
+    # Error out if user does not have poetry installed
+    session_requires(session, "poetry")
+    session.run("poetry", "update")
+
+
 @nox.session(python=PYTHON_VERSIONS)
 def test(session: nox.Session) -> None:
     """
