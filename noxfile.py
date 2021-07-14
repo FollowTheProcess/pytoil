@@ -291,7 +291,9 @@ def dev(session: nox.Session) -> None:
     session_requires(session, "poetry")
 
     # Ensure the poetry venv is created in the project root
-    session.run("poetry", "config", "virtualenvs.in-project", "true", external=True)
+    session.run(
+        "poetry", "config", "virtualenvs.in-project", "true", "--local", external=True
+    )
     session.run("poetry", "install", external=True)
 
     # Poetry doesn't always install latest pip
