@@ -9,13 +9,25 @@ class PytoilException(Exception):
         super().__init__(self.message)
 
 
-class GitNotInstalledError(PytoilException):
+class ExternalToolNotInstalledException(PytoilException):
+    """
+    Base exception for any child exception responsible
+    for raising in the presence of a required external
+    tool that's not installed.
+    """
+
     def __init__(self, message: str) -> None:
         self.message = message
         super().__init__(self.message)
 
 
-class CodeNotInstalledError(PytoilException):
+class GitNotInstalledError(ExternalToolNotInstalledException):
+    def __init__(self, message: str) -> None:
+        self.message = message
+        super().__init__(self.message)
+
+
+class CodeNotInstalledError(ExternalToolNotInstalledException):
     def __init__(self, message: str) -> None:
         self.message = message
         super().__init__(self.message)
@@ -27,7 +39,7 @@ class MissingInterpreterError(PytoilException):
         super().__init__(self.message)
 
 
-class CondaNotInstalledError(PytoilException):
+class CondaNotInstalledError(ExternalToolNotInstalledException):
     def __init__(self, message: str) -> None:
         self.message = message
         super().__init__(self.message)
@@ -63,25 +75,25 @@ class RepoNotFoundError(PytoilException):
         super().__init__(self.message)
 
 
-class GoNotInstalledError(PytoilException):
+class GoNotInstalledError(ExternalToolNotInstalledException):
     def __init__(self, message: str) -> None:
         self.message = message
         super().__init__(self.message)
 
 
-class CargoNotInstalledError(PytoilException):
+class CargoNotInstalledError(ExternalToolNotInstalledException):
     def __init__(self, message: str) -> None:
         self.message = message
         super().__init__(self.message)
 
 
-class FlitNotInstalledError(PytoilException):
+class FlitNotInstalledError(ExternalToolNotInstalledException):
     def __init__(self, message: str) -> None:
         self.message = message
         super().__init__(self.message)
 
 
-class PoetryNotInstalledError(PytoilException):
+class PoetryNotInstalledError(ExternalToolNotInstalledException):
     def __init__(self, message: str) -> None:
         self.message = message
         super().__init__(self.message)
