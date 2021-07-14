@@ -282,6 +282,17 @@ def enforce_branch_no_changes(session: nox.Session) -> None:
 
 
 @nox.session(python=False)
+def update(session: nox.Session) -> None:
+    """
+    Updates the dependencies in the poetry.lock file.
+    """
+
+    # Error out if user does not have poetry installed
+    session_requires(session, "poetry")
+    session.run("poetry", "update")
+
+
+@nox.session(python=False)
 def dev(session: nox.Session) -> None:
     """
     Sets up a python dev environment for the project if one doesn't already exist.
@@ -291,7 +302,9 @@ def dev(session: nox.Session) -> None:
     session_requires(session, "poetry")
 
     # Ensure the poetry venv is created in the project root
-    session.run("poetry", "config", "virtualenvs.in-project", "true", external=True)
+    session.run(
+        "poetry", "config", "virtualenvs.in-project", "true", "--local", external=True
+    )
     session.run("poetry", "install", external=True)
 
     # Poetry doesn't always install latest pip

@@ -110,10 +110,13 @@ def checkout(
                     spaced=True,
                 )
             else:
-                msg.info("Auto creating correct virtual environment.", spaced=True)
+                msg.info(
+                    f"Auto creating virtual environment using: {env.info_name!r}",
+                    spaced=True,
+                )
 
                 try:
-                    with msg.loading("Creating Environment..."):
+                    with msg.loading("Working..."):
                         env.create(packages=config.common_packages)
                 except EnvironmentAlreadyExistsError:
                     msg.warn(

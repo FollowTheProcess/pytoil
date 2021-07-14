@@ -73,6 +73,10 @@ class Conda(Environment):
         envs_dir = self.get_envs_dir()
         return envs_dir.joinpath(f"{self.name}/bin/python")
 
+    @property
+    def info_name(self) -> str:
+        return "conda"
+
     def raise_for_conda(self) -> None:
         """
         Helper method which either raises if no `conda` found.
@@ -143,10 +147,7 @@ class Conda(Environment):
         if packages:
             cmd.extend(packages)
 
-        try:
-            _ = subprocess.run(cmd, check=True, capture_output=True)
-        except subprocess.CalledProcessError:
-            raise
+        subprocess.run(cmd, check=True, capture_output=True)
 
     @staticmethod
     def create_from_yml(project_path: Path) -> Conda:

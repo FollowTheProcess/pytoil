@@ -45,6 +45,10 @@ class Venv(Environment):
     def executable(self) -> Path:
         return self._project_path.joinpath(".venv/bin/python")
 
+    @property
+    def info_name(self) -> str:
+        return "venv"
+
     def exists(self) -> bool:
         """
         Checks whether the virtual environment exists by a proxy

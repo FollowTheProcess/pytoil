@@ -57,6 +57,14 @@ def test_conda_repr():
     assert repr(env) == expected
 
 
+def test_conda_info_name():
+
+    fake_project = Path("/Users/me/project/fakeproject")
+    env = Conda(name="test", project_path=fake_project, conda="testconda")
+
+    assert env.info_name == "conda"
+
+
 def test_raise_for_conda_raises_when_conda_not_installed():
 
     fake_project = Path("/Users/me/project/fakeproject")
