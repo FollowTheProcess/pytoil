@@ -62,7 +62,7 @@ def new(
         False,
         "--no-git",
         "-n",
-        help="Don't initialise an empty git repo in the app of the project.",
+        help="Don't initialise an empty git repo in the root of the project.",
     ),
 ) -> None:
     """

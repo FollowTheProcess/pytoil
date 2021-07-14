@@ -59,7 +59,7 @@ def handle_http_status_errors(error: httpx.HTTPStatusError) -> None:
     elif code == 404:
         msg.fail(
             title="HTTP Error: 404 - Not Found",
-            text="This usually means something is up with the GitHub API.",
+            text="This usually means you've made a typo.",
             exits=1,
         )
     elif code == 500:

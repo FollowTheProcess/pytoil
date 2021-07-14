@@ -18,7 +18,6 @@ nav:
       - Pull: commands/pull.md
       - Config: commands/config.md
   - Contributing: contributing.md
-  - Changelog: changelog.md
 plugins:
   - mkdocstrings:
       watch:
