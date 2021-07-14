@@ -9,13 +9,14 @@ Author: Tom Fleet
 Created: 13/07/2021
 """
 
+import shutil
 import subprocess
 import venv
 from pathlib import Path
 from typing import List, Optional
 
 from pytoil.environments import Environment
-from pytoil.exceptions import MissingInterpreterError
+from pytoil.exceptions import FlitNotInstalledError, MissingInterpreterError
 
 
 class FlitEnv(Environment):
@@ -44,6 +45,10 @@ class FlitEnv(Environment):
     @property
     def executable(self) -> Path:
         return self._project_path.joinpath(".venv/bin/python")
+
+    @property
+    def info_name(self) -> str:
+        return "flit"
 
     def exists(self) -> bool:
         """
@@ -103,26 +108,22 @@ class FlitEnv(Environment):
         if not self.exists():
             raise MissingInterpreterError(f"Interpreter: {self.executable} not found.")
 
-        try:
-            # We don't need to specify a cwd here because `self.executable` is
-            # an absolute path
-            subprocess.run(
-                [
-                    f"{self.executable}",
-                    "-m",
-                    "pip",
-                    "install",
-                    "--upgrade",
-                    "--quiet",
-                    "pip",
-                    "setuptools",
-                    "wheel",
-                ],
-                check=True,
-            )
-
-        except subprocess.CalledProcessError:
-            raise
+        # We don't need to specify a cwd here because `self.executable` is
+        # an absolute path
+        subprocess.run(
+            [
+                f"{self.executable}",
+                "-m",
+                "pip",
+                "install",
+                "--upgrade",
+                "--quiet",
+                "pip",
+                "setuptools",
+                "wheel",
+            ],
+            check=True,
+        )
 
     def install(self, packages: List[str]) -> None:
         """
@@ -142,15 +143,21 @@ class FlitEnv(Environment):
 
         cmd.extend(packages)
 
-        try:
-            subprocess.run(cmd, check=True)
-        except subprocess.CalledProcessError:
-            raise
+        subprocess.run(cmd, check=True)
 
     def install_self(self) -> None:
         """
         Installs the current package.
+
+        Raises:
+            FlitNotInstalledError: If `flit` not installed.
         """
+
+        if not bool(shutil.which("flit")):
+            raise FlitNotInstalledError(
+                "Flit not installed, cannot install flit based project."
+            )
+
         cmd: List[str] = [
             "flit",
             "install",
@@ -161,8 +168,5 @@ class FlitEnv(Environment):
             f"{self.executable}",
         ]
 
-        try:
-            # Here we must specify the cwd as flit will search for it's pyproject.toml
-            subprocess.run(cmd, check=True, cwd=self.project_path)
-        except subprocess.CalledProcessError:
-            raise
+        # Here we must specify the cwd as flit will search for it's pyproject.toml
+        subprocess.run(cmd, check=True, cwd=self.project_path)

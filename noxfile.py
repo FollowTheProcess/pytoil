@@ -281,6 +281,17 @@ def enforce_branch_no_changes(session: nox.Session) -> None:
         )
 
 
+@nox.session(python=False, name="update")
+def update_poetry(session: nox.Session) -> None:
+    """
+    Updates the dependencies in the poetry.lock file.
+    """
+
+    # Error out if user does not have poetry installed
+    session_requires(session, "poetry")
+    session.run("poetry", "update")
+
+
 @nox.session(python=False)
 def dev(session: nox.Session) -> None:
     """

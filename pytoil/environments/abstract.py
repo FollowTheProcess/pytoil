@@ -33,6 +33,18 @@ class Environment(ABC):
         """
         raise NotImplementedError
 
+    @property
+    def info_name(self) -> str:
+        """
+        Returns the type of environment implemented by the concrete instance.
+
+        Useful for logging and debugging.
+
+        Returns:
+            str: Type of environment e.g. 'conda', 'venv' etc.
+        """
+        raise NotImplementedError
+
     @abstractmethod
     def exists(self) -> bool:
         """

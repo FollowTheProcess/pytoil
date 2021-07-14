@@ -73,3 +73,15 @@ class CargoNotInstalledError(PytoilException):
     def __init__(self, message: str) -> None:
         self.message = message
         super().__init__(self.message)
+
+
+class FlitNotInstalledError(PytoilException):
+    def __init__(self, message: str) -> None:
+        self.message = message
+        super().__init__(self.message)
+
+
+class PoetryNotInstalledError(PytoilException):
+    def __init__(self, message: str) -> None:
+        self.message = message
+        super().__init__(self.message)

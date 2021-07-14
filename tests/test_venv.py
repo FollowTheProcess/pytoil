@@ -32,6 +32,14 @@ def test_venv_repr():
     assert repr(venv) == f"Venv(project_path={root!r})"
 
 
+def test_venv_info_name():
+
+    root = Path("/Users/me/fakeproject")
+    venv = Venv(project_path=root)
+
+    assert venv.info_name == "venv"
+
+
 def test_executable_points_to_correct_path():
 
     root = Path("/Users/me/fakeproject")
