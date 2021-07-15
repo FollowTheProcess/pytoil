@@ -93,3 +93,27 @@ class Git:
         """
 
         self.run("init", check=check, cwd=path)
+
+    def set_upstream(
+        self, owner: str, repo: str, path: Path, check: bool = True
+    ) -> None:
+        """
+        Sets the upstream repo for a local repo, e.g. on a cloned fork.
+
+        Note difference between origin and upstream, origin of a cloned fork
+        would be user/forked_repo where as upstream would be
+        original_user/forked_repo.
+
+        Args:
+            owner (str): Owner of the upstream repo.
+            repo (str): Name of the upstream repo.
+            path (Path): Root of the project where the local git
+                repo is.
+            check (bool, optional): Raise CalledProcessError on failure.
+                Defaults to True.
+        """
+        base_url = "https://github.com"
+        constructed_upstream = f"{base_url}/{owner}/{repo}.git"
+        self.run(
+            "remote", "add", "upstream", constructed_upstream, check=check, cwd=path
+        )

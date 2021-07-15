@@ -128,3 +128,26 @@ def test_init_passes_correct_command_to_subprocess(mocker: MockerFixture):
         cwd=Path("some/dir/project"),
         check=True,
     )
+
+
+def test_set_upstream_passes_correct_command_to_subprocess(mocker: MockerFixture):
+
+    git = Git(git="testgit")
+
+    mock_subprocess = mocker.patch("pytoil.git.git.subprocess.run", autospec=True)
+
+    git.set_upstream(
+        owner="someone", repo="project", path=Path("some/dir/project"), check=True
+    )
+
+    mock_subprocess.assert_called_once_with(
+        [
+            "testgit",
+            "remote",
+            "add",
+            "upstream",
+            "https://github.com/someone/project.git",
+        ],
+        check=True,
+        cwd=Path("some/dir/project"),
+    )

@@ -7,7 +7,6 @@
 <div class="termy">
 
 ```console
-// Some project thats already local
 $ pytoil checkout --help
 
 Usage: pytoil checkout [OPTIONS] PROJECT
@@ -39,9 +38,14 @@ Usage: pytoil checkout [OPTIONS] PROJECT
   down from GitHub to avoid accidentally screwing up local projects.
 
   If the '--venv/-v' flag is used, pytoil will look at your project to try
-  and detect which type of environment to create (conda or standard python).
+  and detect which type of environment to create e.g. conda, flit, poetry,
+  standard python etc.
 
-  More info can be found in the documentation.
+  The '--venv/-v' flag will also attempt to detect if the project you're
+  checking out is a python package, in which case it will install it's
+  requirements into the created environment.
+
+  More info about this can be found in the documentation.
 
   Examples:
 
@@ -57,6 +61,7 @@ Arguments:
 Options:
   -v, --venv  Attempt to auto-create a virtual environment.
   --help      Show this message and exit.
+
 
 ```
 
@@ -108,7 +113,13 @@ Opening 'my_github_project' in VSCode...
 
 ## Someone else's project
 
-A common workflow in open source is to fork someone elses project and then work on your fork. With `pytoil` this can be done in the same command! If you provide the shorthand repo path to `pytoil checkout` e.g. `someoneelse/repo`, `pytoil` will fork the repo for you!
+A common workflow in open source is to fork someone elses project and then work on your fork. With `pytoil` this can be done in the same command! If you provide the shorthand repo path to `pytoil checkout` e.g. `someoneelse/repo`, `pytoil` will:
+
+* Fork the repo for you
+* Clone your fork
+* Add the original repo as remote 'upstream'
+
+Basically all the chores you would have to do to work on a open source project! :tada:
 
 <div class="termy">
 
@@ -116,18 +127,20 @@ A common workflow in open source is to fork someone elses project and then work 
 // Someone else's project
 $ pytoil checkout someone/their_github_project
 
-Project: 'someone/their_github_project' belongs to 'someone'. Making you a fork.
+Project: 'someone/their_github_project' belongs to 'someone'
 
-Done!
-Note: Forking happens asynchronously on GitHub which means it may not be available to clone right away
+Forking...
+
+Cloning...
+
+More awesome stuff!
 ```
 
 </div>
 
 !!! note
 
-    As it says in the command line above, `pytoil` can't clone your fork right away because it happens in the background on GitHub's end
-    which means when we get the `202: Accepted` response from the API, there's no guarantee that your fork exists yet. The best bet is to give it a few seconds and then try checking it out as normal :thumbsup:
+    Forking happens asynchronously on GitHub's end so we make a best effort here to wait for GitHub's internal state to synchronise and check if the fork was a success. However, this can sometimes time out, in which case pytoil will let you know and handle this gracefully :thumbsup:
 
 ## Automatically Create a Virtual Environment
 
