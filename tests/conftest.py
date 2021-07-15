@@ -393,3 +393,31 @@ def fake_flit_project(tmp_path_factory):
         toml.dump(build_system, f)
 
     return folder
+
+
+@pytest.fixture
+def requirements_dev_project(tmp_path_factory):
+    """
+    Returns a temp directory containing a requirements_dev.txt
+    file.
+    """
+
+    folder: Path = tmp_path_factory.mktemp("myrepo")
+    req_dev_txt = folder.joinpath("requirements_dev.txt")
+    req_dev_txt.touch()
+
+    return folder
+
+
+@pytest.fixture
+def requirements_project(tmp_path_factory):
+    """
+    Returns a temp directory containing a requirements.txt
+    file.
+    """
+
+    folder: Path = tmp_path_factory.mktemp("myrepo")
+    req_txt = folder.joinpath("requirements.txt")
+    req_txt.touch()
+
+    return folder

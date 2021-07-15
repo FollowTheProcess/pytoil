@@ -152,6 +152,11 @@ class Venv(Environment):
         """
         Installs current package.
         """
+        # Before installing the package, ensure
+        # the virtual env is created
+        if not self.exists():
+            self.create()
+
         cmd: List[str] = [
             f"{self.executable}",
             "-m",

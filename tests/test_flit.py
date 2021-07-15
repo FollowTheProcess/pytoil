@@ -67,7 +67,7 @@ def test_install_self_passes_correct_command_to_subprocess(mocker: MockerFixture
     venv = FlitEnv(project_path=root)
 
     mock_subprocess = mocker.patch(
-        "pytoil.environments.virtualenv.subprocess.run", autospec=True
+        "pytoil.environments.flit.subprocess.run", autospec=True
     )
 
     mocker.patch(
@@ -77,10 +77,51 @@ def test_install_self_passes_correct_command_to_subprocess(mocker: MockerFixture
     # Trick it into thinking the venv already exists so as not
     # to raise a MissingInterpreterError
     mocker.patch(
-        "pytoil.environments.virtualenv.Venv.exists", autospec=True, return_value=True
+        "pytoil.environments.flit.FlitEnv.exists", autospec=True, return_value=True
     )
 
     venv.install_self()
+
+    mock_subprocess.assert_called_once_with(
+        [
+            "flit",
+            "install",
+            "--deps",
+            "develop",
+            "--symlink",
+            "--python",
+            f"{venv.executable}",
+        ],
+        check=True,
+        cwd=venv.project_path,
+    )
+
+
+def test_install_self_calls_create_if_env_doesnt_exist(mocker: MockerFixture):
+
+    root = Path("/Users/me/fakeproject")
+    venv = FlitEnv(project_path=root)
+
+    mock_subprocess = mocker.patch(
+        "pytoil.environments.flit.subprocess.run", autospec=True
+    )
+
+    mock_create = mocker.patch("pytoil.environments.flit.FlitEnv.create", autospec=True)
+
+    mocker.patch(
+        "pytoil.environments.flit.shutil.which", autospec=True, return_value="flit"
+    )
+
+    # Trick it into thinking the venv already exists so as not
+    # to raise a MissingInterpreterError
+    mocker.patch(
+        "pytoil.environments.flit.FlitEnv.exists", autospec=True, return_value=False
+    )
+
+    venv.install_self()
+
+    # Should have called create before calling install self
+    mock_create.assert_called_once()
 
     mock_subprocess.assert_called_once_with(
         [
@@ -103,7 +144,7 @@ def test_install_self_raises_on_subprocess_error(mocker: MockerFixture):
     venv = FlitEnv(project_path=root)
 
     mocker.patch(
-        "pytoil.environments.virtualenv.subprocess.run",
+        "pytoil.environments.flit.subprocess.run",
         autospec=True,
         side_effect=[subprocess.CalledProcessError(-1, "cmd")],
     )
@@ -115,7 +156,7 @@ def test_install_self_raises_on_subprocess_error(mocker: MockerFixture):
     # Trick it into thinking the venv already exists so as not
     # to raise a MissingInterpreterError
     mocker.patch(
-        "pytoil.environments.virtualenv.Venv.exists", autospec=True, return_value=True
+        "pytoil.environments.flit.FlitEnv.exists", autospec=True, return_value=True
     )
 
     with pytest.raises(subprocess.CalledProcessError):
