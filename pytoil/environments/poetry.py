@@ -116,5 +116,8 @@ class PoetryEnv(Environment):
         """
         self.enforce_local_config()
         subprocess.run(
-            ["poetry", "install", "--quiet"], check=True, cwd=self.project_path
+            ["poetry", "install", "--quiet"],
+            check=True,
+            cwd=self.project_path,
+            capture_output=True,
         )

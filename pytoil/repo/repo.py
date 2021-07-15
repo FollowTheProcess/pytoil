@@ -13,7 +13,7 @@ import httpx
 import toml
 
 from pytoil.api import API
-from pytoil.environments import Conda, Environment, Venv
+from pytoil.environments import Conda, Environment, FlitEnv, PoetryEnv, ReqTxtEnv, Venv
 from pytoil.exceptions import RepoNotFoundError
 
 
@@ -240,10 +240,31 @@ class Repo:
             Optional[BaseEnvironment]: Either the correct environment
                 object if it was able to detect. Or None.
         """
+        # This is where the magic happens for automatic environment detection
+        # and installation
+
+        # Each of the environment objects below has an `install_self` method
+        # which does the correct thing for each type of environment
 
         if self.is_conda():
+            # Conda projects might also contain some of the below files
+            # check for environment.yml first so this works as expected
             return Conda(name=self.name, project_path=self.local_path)
+
+        elif self.file_exists("requirements.txt") or self.file_exists(
+            "requirements_dev.txt"
+        ):
+            return ReqTxtEnv(project_path=self.local_path)
+
         elif self.is_setuptools():
             return Venv(project_path=self.local_path)
+
+        elif self.is_poetry():
+            return PoetryEnv(project_path=self.local_path)
+
+        elif self.is_flit():
+            return FlitEnv(project_path=self.local_path)
         else:
+            # We couldn't detect an appropriate environment
+            # this is handled by the CLI
             return None

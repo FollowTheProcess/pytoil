@@ -205,7 +205,6 @@ class Conda(Environment):
                     "conda",
                     "env",
                     "create",
-                    "-y",
                     "--file",
                     f"{yml_file}",
                 ],

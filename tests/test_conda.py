@@ -245,7 +245,6 @@ def test_create_from_yml_correctly_calls_subprocess(
         "conda",
         "env",
         "create",
-        "-y",
         "--file",
         f"{temp_environment_yml.resolve()}",
     ]

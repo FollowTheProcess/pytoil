@@ -15,7 +15,10 @@ from pytoil.api import API
 from pytoil.cli import utils
 from pytoil.config import Config
 from pytoil.environments.abstract import Environment
-from pytoil.exceptions import EnvironmentAlreadyExistsError
+from pytoil.exceptions import (
+    EnvironmentAlreadyExistsError,
+    ExternalToolNotInstalledException,
+)
 from pytoil.git import Git
 from pytoil.repo import Repo
 from pytoil.vscode import VSCode
@@ -64,9 +67,13 @@ def checkout(
     from GitHub to avoid accidentally screwing up local projects.
 
     If the '--venv/-v' flag is used, pytoil will look at your project to try and detect
-    which type of environment to create (conda or standard python).
+    which type of environment to create e.g. conda, flit, poetry, standard python etc.
 
-    More info can be found in the documentation.
+    The '--venv/-v' flag will also attempt to detect if the project you're checking out
+    is a python package, in which case it will install it's requirements into the
+    created environment.
+
+    More info about this can be found in the documentation.
 
     Examples:
 
@@ -196,15 +203,21 @@ def handle_venv_creation(
             f"Auto creating virtual environment using: {env.info_name!r}",
             spaced=True,
         )
+        if env.info_name == "conda":
+            msg.text("Note: Conda environments can take up to a few minutes to create.")
 
         try:
             with msg.loading("Working..."):
-                env.create(packages=config.common_packages)
+                env.install_self()
+        except ExternalToolNotInstalledException:
+            msg.fail(title=f"{env.info_name!r} not installed", spaced=True, exits=1)
         except EnvironmentAlreadyExistsError:
             msg.warn(
                 title="Environment already exists!",
                 text="No need to create a new one. Skipping.",
             )
         finally:
+            # Because the first exception will exit, this is okay
+            # to call as finally
             if config.vscode:
                 code.set_workspace_python(python_path=env.executable)
