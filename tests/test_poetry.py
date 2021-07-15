@@ -157,5 +157,8 @@ def test_install_self_correctly_calls_poetry(mocker: MockerFixture):
     venv.install_self()
 
     mock_subprocess.assert_called_once_with(
-        ["poetry", "install", "--quiet"], check=True, cwd=venv.project_path
+        ["poetry", "install", "--quiet"],
+        check=True,
+        cwd=venv.project_path,
+        capture_output=True,
     )

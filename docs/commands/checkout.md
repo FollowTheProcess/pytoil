@@ -133,8 +133,9 @@ Note: Forking happens asynchronously on GitHub which means it may not be availab
 
 If you pass the `--venv` option, `checkout` will also:
 
-* Try to detect what environment would work best for the project (conda or virtualenv)
-* Auto create this virtual environment and install any configured common packages
+* Try to detect what environment would work best for the project (conda, venv, flit, poetry)
+* Auto create this virtual environment
+* Look for requirements files that specify dependencies such as `environment.yml` for conda, `setup.cfg` or `setup.py` for normal python packages etc.
 * If you have VSCode configured, `pytoil` will also set your workspace `python.defaultInterpreterPath`
 
 !!! note
@@ -164,4 +165,50 @@ Opening 'my_github_project' in VSCode...
 
     pytoil looks for certain files in your project (like `setup.py`, `setup.cfg`, `environment.yml` etc.) and that's how it decides which environment to create. If it isn't totally sure what environment to create, it will just skip this step and let you know!
 
+### How pytoil Knows What to Install
+
+The `--venv` implementation is quite complex (and it took me a while to get it right!) but effectively, `pytoil` will look at the contents of your cloned project to decide what to do, create the matching virtual environment, then delegate to the appropriate tool to install dependencies.
+
+A summary of what `pytoil` does when it finds certain files is found below, the search priority is in the same order as presented and `pytoil` will match on the first found condition to create the environment:
+
+### `environment.yml`
+
+Must mean it's a conda project, delegate to conda using `conda env create --file environment.yml`
+
+### `requirements.txt` or `requirements_dev.txt`
+
+Python project, delegate to pip using `pip install -r requirements`
+
+Prefers dev if present as it will have everything needed to work on the project, falls back to `requirements.txt` if not.
+
+### `setup.cfg` or `setup.py`
+
+Python package, again delegate to pip using `pip install -e .[dev]`
+
+Defaults to using the [dev] target for convention, if this isn't present it falls back to `pip install -e .`
+
+### `pyproject.toml` specifying poetry as a build tool
+
+Python package managed with [poetry], here we basically delegate everything to poetry as it handles both the virtual environment and installation of dependencies.
+
+`pytoil` is effectively doing `poetry install` as you might yourself.
+
+### `pyproject.toml` specifying flit as a build tool
+
+Python package managed with [flit], here we create a virtual environment the normal python way, then delegate to flit to install dependencies.
+
+Something like `flit install` called from the directory of the project. (We actually do a bit more than this to make sure it only targets your local environment for that project, but thats the gist of it!)
+
+### Else
+
+If we get here, `pytoil` gives up and will tell you something along the lines of "could not detect correct virtual environment. skipping". Your project will still be checked out, but you'll have to do the virtual environment stuff yourself I'm afraid! :pensive: But we gave it our best shot!
+
+!!! note
+
+    Although we've tried to make the implementation of this as robust as possible, it's quite complex and there's bound to be edge cases lurking here somewhere. If you hit any, please file an issue and maybe even try and fix it yourself and throw us a PR :tada:
+
+    Remember if you need more custom behaviour than this, you can just plain `pytoil checkout` without the `--venv` and `pytoil` won't try and be clever, it will just straight up clone the project for you to do whatever you want with!
+  
 [config]: ../config.md
+[poetry]: https://python-poetry.org
+[flit]: https://flit.readthedocs.io/en/latest/

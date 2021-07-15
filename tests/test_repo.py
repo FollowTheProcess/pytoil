@@ -13,7 +13,7 @@ from pytest_httpx import HTTPXMock
 from pytest_mock import MockerFixture
 
 from pytoil.api import API
-from pytoil.environments import Conda, Venv
+from pytoil.environments import Conda, FlitEnv, PoetryEnv, ReqTxtEnv, Venv
 from pytoil.exceptions import RepoNotFoundError
 from pytoil.repo import Repo
 
@@ -441,7 +441,29 @@ def test_dispatch_env_correctly_identifies_conda(mocker: MockerFixture):
     assert isinstance(env, Conda)
 
 
-def test_dispatch_env_correctly_identifies_venv(mocker: MockerFixture):
+def test_dispatch_env_correctly_identifies_requirements_txt(
+    mocker: MockerFixture, requirements_project
+):
+
+    repo = Repo(name="test", owner="me", local_path=requirements_project)
+
+    env = repo.dispatch_env()
+
+    assert isinstance(env, ReqTxtEnv)
+
+
+def test_dispatch_env_correctly_identifies_requirements_dev_txt(
+    mocker: MockerFixture, requirements_dev_project
+):
+
+    repo = Repo(name="test", owner="me", local_path=requirements_dev_project)
+
+    env = repo.dispatch_env()
+
+    assert isinstance(env, ReqTxtEnv)
+
+
+def test_dispatch_env_correctly_identifies_setuptools(mocker: MockerFixture):
 
     mocker.patch("pytoil.repo.Repo.is_conda", autospec=True, return_value=False)
 
@@ -452,6 +474,28 @@ def test_dispatch_env_correctly_identifies_venv(mocker: MockerFixture):
     env = repo.dispatch_env()
 
     assert isinstance(env, Venv)
+
+
+def test_dispatch_env_correctly_identifies_poetry(
+    mocker: MockerFixture, fake_poetry_project
+):
+
+    repo = Repo(name="test", owner="me", local_path=fake_poetry_project)
+
+    env = repo.dispatch_env()
+
+    assert isinstance(env, PoetryEnv)
+
+
+def test_dispatch_env_correctly_identifies_flit(
+    mocker: MockerFixture, fake_flit_project
+):
+
+    repo = Repo(name="test", owner="me", local_path=fake_flit_project)
+
+    env = repo.dispatch_env()
+
+    assert isinstance(env, FlitEnv)
 
 
 def test_dispatch_env_returns_none_if_it_cant_detect(mocker: MockerFixture):
