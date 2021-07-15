@@ -5,6 +5,7 @@ Author: Tom Fleet
 Created: 25/06/2021
 """
 
+import time
 from typing import Optional
 
 import httpx
@@ -100,7 +101,15 @@ def checkout(
     # in which case fork the repo
     if "/" in project:
         owner, name = project.split("/")
-        fork_repo(owner=owner, name=name, api=api, config=config)
+        fork_repo(
+            owner=owner,
+            name=name,
+            api=api,
+            config=config,
+            git=git,
+            venv=venv,
+        )
+        msg.good("Done!", spaced=True, exits=0)
 
     if repo.exists_local():
         # No environment or git stuff here, chances are if it exists locally
@@ -128,16 +137,23 @@ def checkout(
         )
 
 
-def fork_repo(owner: str, name: str, api: API, config: Config) -> None:
+def fork_repo(
+    owner: str, name: str, api: API, config: Config, git: Git, venv: bool
+) -> None:
     """
-    Forks the passed repo and informs the user.
+    Forks the passed repo, clones it, sets the upstream
+    and informs the user along the way.
 
     Args:
         owner (str): Owner of the repo to be forked.
         name (str): Name of the repo to be forked.
         api (API): Configured API object.
         config (Config): Configured Config object.
+        git (Git): The Git object.
+        venv (bool): Whether or not the user wants a virtual environment.
     """
+    # TODO: Lots of duplicated code here with the rest of checkout
+    # simplify this so it integrates a bit better
 
     if owner == config.username:
         msg.warn(
@@ -146,21 +162,49 @@ def fork_repo(owner: str, name: str, api: API, config: Config) -> None:
             exits=1,
         )
 
-    msg.info(f"'{owner}/{name}' belongs to {owner!r}. Making you a fork.")
-    try:
-        api.create_fork(owner=owner, repo=name)
-    except httpx.HTTPStatusError as err:
-        utils.handle_http_status_errors(err)
+    msg.info(f"'{owner}/{name}' belongs to {owner!r}.", spaced=True)
+    with msg.loading(f"Forking '{owner}/{name}'..."):
+        try:
+            api.create_fork(owner=owner, repo=name)
+        except httpx.HTTPStatusError as err:
+            utils.handle_http_status_errors(err)
 
-    # Forking happens asynchronously so we can't clone straight away
-    # so just report success and exit
-    msg.good(
-        "Done!",
-        text="Note: Forking happens asynchronously on GitHub which means "
-        "it may not be available to clone right away.",
-        spaced=True,
-        exits=0,
+        # Forking happens asynchronously
+        # see https://docs.github.com/en/rest/reference/repos#create-a-fork
+        # So here we naively just wait a few seconds before trying to clone the fork
+        # this may need to change and there is most likely a better way of doing this
+        time.sleep(3)
+
+    # Now we check if the user's fork exists
+    # If not, we report that to the user and exit
+    fork = Repo(
+        owner=config.username, name=name, local_path=config.projects_dir.joinpath(name)
     )
+    code = VSCode(root=fork.local_path)
+    if not fork.exists_remote(api=api):
+        msg.warn(
+            "Fork not available yet",
+            text="Forking happens asynchronously so this is normal. "
+            "Give it a few more seconds and try checking it out again.",
+            exits=1,
+        )
+
+    # If we get here, the fork was a success
+    msg.info(f"Cloning your fork: {config.username}/{name}.", spaced=True)
+    git.clone(url=fork.clone_url, cwd=config.projects_dir)
+
+    # Set upstream
+    msg.info("Setting 'upstream' to original repo.", spaced=True)
+    git.set_upstream(owner=owner, repo=name, path=fork.local_path)
+
+    env = fork.dispatch_env()
+
+    if venv:
+        handle_venv_creation(env=env, config=config, code=code)
+
+    if config.vscode:
+        msg.info(f"Opening {fork.name!r} in VSCode.")
+        code.open()
 
 
 def checkout_local(repo: Repo, code: VSCode, config: Config) -> None:
