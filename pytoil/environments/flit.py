@@ -27,7 +27,9 @@ class FlitEnv(Venv):
         in `virtualenv.py` as flit uses standard python
         virtual environments.
 
-        The main difference is found in install commands.
+        The main difference is found in install commands. Hence why
+        we subclass from the standard `Venv` class here and other
+        classes subclass from the `Environment` ABC.
 
         Args:
             project_path (Path): The root path of the current project.
