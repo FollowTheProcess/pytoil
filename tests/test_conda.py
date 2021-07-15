@@ -554,9 +554,14 @@ def test_get_envs_dir_raises_if_none_found(
         Conda.get_envs_dir()
 
 
-def test_install_self_raises_not_implemented_error():
+def test_install_self_calls_create_from_yml(mocker: MockerFixture):
 
-    env = Conda(name="notimplemented", project_path=Path("not/here"), conda="testconda")
+    env = Conda(name="hello", project_path=Path("not/here"), conda="testconda")
 
-    with pytest.raises(NotImplementedError):
-        env.install_self()
+    mock_create_from_yml = mocker.patch(
+        "pytoil.environments.conda.Conda.create_from_yml", autospec=True
+    )
+
+    env.install_self()
+
+    mock_create_from_yml.assert_called_once_with(project_path=env.project_path)

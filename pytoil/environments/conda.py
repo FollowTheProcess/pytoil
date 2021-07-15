@@ -303,11 +303,10 @@ class Conda(Environment):
 
     def install_self(self) -> None:
         """
-        This method is not implemented for Conda environments.
-
-        Conda projects cannot be self installed.
+        Creates a conda environment from an environment.yml,
+        this is conda's closest concept to `installing self`.
         """
-        raise NotImplementedError
+        self.create_from_yml(project_path=self.project_path)
 
     @staticmethod
     def get_envs_dir() -> Path:
