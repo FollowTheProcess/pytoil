@@ -53,6 +53,11 @@ class FlitEnv(Venv):
                 "Flit not installed, cannot install flit based project."
             )
 
+        # Unlike poetry, conda etc. flit does not make it's own virtual environment
+        # we must make one here before installing the project
+        if not self.exists():
+            self.create()
+
         cmd: List[str] = [
             "flit",
             "install",

@@ -279,6 +279,37 @@ def test_install_self_passes_correct_command_to_subprocess(mocker: MockerFixture
     )
 
 
+def test_install_self_calls_create_if_env_doesnt_exist(mocker: MockerFixture):
+
+    root = Path("/Users/me/fakeproject")
+    venv = Venv(project_path=root)
+
+    mock_create = mocker.patch(
+        "pytoil.environments.virtualenv.Venv.create", autospec=True
+    )
+
+    # Trick it into thinking the venv already exists so as not
+    # to raise a MissingInterpreterError
+    mocker.patch(
+        "pytoil.environments.virtualenv.Venv.exists", autospec=True, return_value=False
+    )
+
+    mock_subprocess = mocker.patch(
+        "pytoil.environments.virtualenv.subprocess.run", autospec=True
+    )
+
+    venv.install_self()
+
+    # Should have called create before calling install self
+    mock_create.assert_called_once()
+
+    mock_subprocess.assert_called_once_with(
+        [f"{venv.executable}", "-m", "pip", "install", "--quiet", "-e", ".[dev]"],
+        check=True,
+        cwd=venv.project_path,
+    )
+
+
 def test_install_self_raises_on_subprocess_error(mocker: MockerFixture):
 
     root = Path("/Users/me/fakeproject")
