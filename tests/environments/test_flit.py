@@ -94,6 +94,7 @@ def test_install_self_passes_correct_command_to_subprocess(mocker: MockerFixture
         ],
         check=True,
         cwd=venv.project_path,
+        capture_output=True,
     )
 
 
@@ -135,6 +136,7 @@ def test_install_self_calls_create_if_env_doesnt_exist(mocker: MockerFixture):
         ],
         check=True,
         cwd=venv.project_path,
+        capture_output=True,
     )
 
 

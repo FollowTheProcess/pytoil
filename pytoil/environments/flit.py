@@ -69,4 +69,4 @@ class FlitEnv(Venv):
         ]
 
         # Here we must specify the cwd as flit will search for it's pyproject.toml
-        subprocess.run(cmd, check=True, cwd=self.project_path)
+        subprocess.run(cmd, check=True, cwd=self.project_path, capture_output=True)
