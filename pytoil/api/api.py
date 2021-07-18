@@ -15,7 +15,19 @@ Response = Dict[str, Any]
 
 
 class API:
+    """
+    The GitHub API class.
+    """
+
     def __init__(self, username: str, token: str) -> None:
+        """
+        A container with useful attributes and methods for
+        hitting the GitHub REST API.
+
+        Args:
+            username (str): The user's GitHub username.
+            token (str): The user's GitHub OAUTH token (personal access token)
+        """
         self.username = username
         self.token = token
         self.baseurl = "https://api.github.com/"

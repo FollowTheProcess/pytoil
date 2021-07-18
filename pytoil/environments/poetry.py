@@ -19,6 +19,10 @@ from pytoil.exceptions import PoetryNotInstalledError
 
 
 class PoetryEnv(Environment):
+    """
+    Poetry EnvManager class.
+    """
+
     def __init__(self, project_path: Path) -> None:
         """
         Representation of a poetry managed virtual environment.

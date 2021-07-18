@@ -21,7 +21,20 @@ WORKSPACE_PYTHON_SETTING: str = "python.defaultInterpreterPath"
 
 
 class VSCode:
+    """
+    VSCode manager class.
+    """
+
     def __init__(self, root: Path, code: Optional[str] = shutil.which("code")) -> None:
+        """
+        VSCode manager class.
+
+        Args:
+            root (Path): Root dir of the linked project.
+            code (Optional[str], optional): Path to the `code` binary.
+                primarily used for separation of concerns during tests.
+                Defaults to shutil.which("code").
+        """
         self.root = root
         self.code = code
         self.workspace_settings = self.root.joinpath(".vscode/settings.json")
@@ -30,6 +43,9 @@ class VSCode:
         return self.__class__.__qualname__ + f"(root={self.root!r}, code={self.code!r})"
 
     def raise_for_code(self) -> None:
+        """
+        Raises an error if the user doesn't have VSCode installed.
+        """
         if not self.code:
             raise CodeNotInstalledError(
                 "VSCode binary application `code` not found on $PATH."

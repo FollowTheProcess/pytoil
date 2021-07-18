@@ -19,6 +19,10 @@ from pytoil.exceptions import FlitNotInstalledError
 
 
 class FlitEnv(Venv):
+    """
+    Flit EnvManager class.
+    """
+
     def __init__(self, project_path: Path) -> None:
         """
         Representation of a flit virtualenv.

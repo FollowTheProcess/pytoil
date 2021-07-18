@@ -73,6 +73,7 @@ pytest-mock = "^3.6.1"
 pytest-httpx = "^0.12.0"
 types-PyYAML = "^5.4.3"
 types-toml = "^0.1.3"
+interrogate = "^1.4.0"
 
 [tool.isort]
 # Added for compatability with black
@@ -105,3 +106,20 @@ module = [
     "tests.*",
 ]
 ignore_errors = true
+
+
+[tool.interrogate]
+ignore-magic = true
+ignore-private = true
+ignore-init-module = true
+ignore-module = true
+ignore-property-decorators = true
+fail-under = 95
+exclude = [
+    "pytoil/exceptions.py",
+    "docs",
+    "build",
+    ".venv",
+]
+verbose = 0
+color = true

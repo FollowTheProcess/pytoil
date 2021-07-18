@@ -15,6 +15,10 @@ from pytoil.starters.base import BaseStarter
 
 
 class RustStarter(BaseStarter):
+    """
+    Rust starter template class.
+    """
+
     def __init__(self, path: Path, name: str) -> None:
         """
         The pytoil rust starter template.
@@ -48,6 +52,9 @@ class RustStarter(BaseStarter):
         return [self.root.joinpath(filename) for filename in self._files]
 
     def raise_for_cargo(self) -> None:
+        """
+        Raises an error if user doesn't have cargo installed.
+        """
         if not bool(shutil.which("cargo")):
             raise CargoNotInstalledError("Cargo not found on $PATH.")
 
