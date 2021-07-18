@@ -5,6 +5,7 @@ Author: Tom Fleet
 Created: 25/06/2021
 """
 
+import re
 import time
 from typing import Optional
 
@@ -25,6 +26,12 @@ from pytoil.repo import Repo
 from pytoil.vscode import VSCode
 
 app = typer.Typer()
+
+# The username/repo pattern
+USER_REPO_REGEX = re.compile(r"^([A-Za-z0-9_.-])+/([A-Za-z0-9_.-])+$")
+
+# The bare 'project' pattern
+PROJECT_REGEX = re.compile(r"^([A-Za-z0-9_.-])+$")
 
 
 @app.command()
@@ -97,9 +104,9 @@ def checkout(
     code = VSCode(root=repo.local_path)
     git = Git()
 
-    # Naively detect a "user/repo" type pattern
-    # in which case fork the repo
-    if "/" in project:
+    if bool(USER_REPO_REGEX.match(project)):
+        # We've matched the "user/repo" pattern, meaning the user
+        # wants to create a fork
         owner, name = project.split("/")
         fork_repo(
             owner=owner,
@@ -111,29 +118,42 @@ def checkout(
         )
         msg.good("Done!", spaced=True, exits=0)
 
-    if repo.exists_local():
-        # No environment or git stuff here, chances are if it exists locally
-        # user has already done all this stuff
-        checkout_local(repo=repo, code=code, config=config)
+    elif bool(PROJECT_REGEX.match(project)):
+        # User has just passed a single project
 
-    elif repo.exists_remote(api=api):
-        msg.info(f"{repo.name!r} found on GitHub. Cloning...", spaced=True)
-        git.clone(url=repo.clone_url, check=True, cwd=config.projects_dir)
+        if repo.exists_local():
+            # No environment or git stuff here, chances are if it exists locally
+            # user has already done all this stuff
+            checkout_local(repo=repo, code=code, config=config)
 
-        env = repo.dispatch_env()
+        elif repo.exists_remote(api=api):
+            msg.info(f"{repo.name!r} found on GitHub. Cloning...", spaced=True)
+            git.clone(url=repo.clone_url, check=True, cwd=config.projects_dir)
 
-        if venv:
-            handle_venv_creation(env=env, config=config, code=code)
+            env = repo.dispatch_env()
 
-        if config.vscode:
-            msg.info(f"Opening {repo.name!r} in VSCode.", spaced=True)
-            code.open()
+            if venv:
+                handle_venv_creation(env=env, config=config, code=code)
+
+            if config.vscode:
+                msg.info(f"Opening {repo.name!r} in VSCode.", spaced=True)
+                code.open()
+
+        else:
+            msg.warn(
+                title=f"{repo.name!r} not found locally or on GitHub!",
+                text=f"Does it exist? If not, create a new project with 'pytoil new {repo.name}'.",  # noqa: E501
+                exits=1,
+            )
 
     else:
-        msg.warn(
-            title=f"{repo.name!r} not found locally or on GitHub!",
-            text=f"Does it exist? If not, create a new project with 'pytoil new {repo.name}'.",  # noqa: E501
+        # User has passed garbage
+        msg.fail(
+            f"Argument: {project} did not match any valid syntax.",
+            text="Valid syntax is 'project' for a local or remote project you own, "
+            "or 'user/project' to fork a repo you don't own.",
             exits=1,
+            spaced=True,
         )
 
 
