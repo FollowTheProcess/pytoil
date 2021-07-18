@@ -78,6 +78,7 @@ SESSION_REQUIREMENTS: Dict[str, List[str]] = {
         "mypy",
         "types-PyYAML",
         "types-toml",
+        "interrogate",
     ],
     "docs": [
         "mkdocs",
@@ -401,6 +402,7 @@ def lint(session: nox.Session) -> None:
 
     session.run("flake8", ".")
     session.run("mypy")
+    session.run("interrogate", f"{PROJECT_SRC}", "-v")
 
 
 @nox.session(python=DEFAULT_PYTHON)

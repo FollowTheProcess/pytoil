@@ -14,6 +14,10 @@ from pytoil.environments.virtualenv import Venv
 
 
 class ReqTxtEnv(Venv):
+    """
+    requirements.txt | requirements_dev.txt EnvManager class.
+    """
+
     def __init__(self, project_path: Path) -> None:
         """
         Representation of a virtual environment in a python

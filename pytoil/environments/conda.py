@@ -28,6 +28,10 @@ EnvironmentYml = Dict[str, Union[List[str], str]]
 
 
 class Conda(Environment):
+    """
+    Conda EnvManager class.
+    """
+
     def __init__(
         self,
         name: str,

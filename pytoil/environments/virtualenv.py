@@ -16,6 +16,10 @@ from pytoil.exceptions import MissingInterpreterError
 
 
 class Venv(Environment):
+    """
+    Standard python venv EnvManager class.
+    """
+
     def __init__(self, project_path: Path) -> None:
         """
         Representation of a virtualenv.

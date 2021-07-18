@@ -16,6 +16,10 @@ from pytoil.starters.base import BaseStarter
 
 
 class GoStarter(BaseStarter):
+    """
+    The go starter template class.
+    """
+
     def __init__(self, path: Path, name: str) -> None:
         """
         The pytoil go starter template.
@@ -49,6 +53,9 @@ class GoStarter(BaseStarter):
         return [self.root.joinpath(filename) for filename in self._files]
 
     def raise_for_go(self) -> None:
+        """
+        Raises an error if the user doesn't have go installed.
+        """
         if not bool(shutil.which("go")):
             raise GoNotInstalledError("Go not found on $PATH.")
 

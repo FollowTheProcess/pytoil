@@ -12,6 +12,10 @@ from pytoil.starters.base import BaseStarter
 
 
 class PythonStarter(BaseStarter):
+    """
+    Python starter template class.
+    """
+
     def __init__(self, path: Path, name: str) -> None:
         """
         The pytoil python starter template.

@@ -18,6 +18,10 @@ from pytoil.exceptions import RepoNotFoundError
 
 
 class Repo:
+    """
+    Wrapper around a user's local/remote repo.
+    """
+
     def __init__(self, owner: str, name: str, local_path: Path) -> None:
         """
         Representation of a local/remote project.

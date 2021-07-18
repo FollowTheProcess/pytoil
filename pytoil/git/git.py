@@ -16,13 +16,29 @@ from pytoil.exceptions import GitNotInstalledError
 
 
 class Git:
+    """
+    Wrapper around the user installed `git`.
+    """
+
     def __init__(self, git: Optional[str] = shutil.which("git")) -> None:
+        """
+        A handy wrapper around the user installed `git`.
+
+        Args:
+            git (Optional[str], optional): The path to the `git` binary
+                primarily used for separation of concerns during testing.
+                Defaults to shutil.which("git").
+        """
         self.git = git
 
     def __repr__(self) -> str:
         return self.__class__.__qualname__ + f"(git={self.git!r})"
 
     def raise_for_git(self) -> None:
+        """
+        Raises an exception if the user does not have
+        git installed.
+        """
         if not self.git:
             raise GitNotInstalledError(
                 "'git' executable not found on $PATH. Is git installed?"

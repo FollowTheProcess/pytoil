@@ -37,6 +37,28 @@ class ConfigDict(TypedDict):
 
 @dataclass
 class Config:
+    """
+    Pydantic dataclass representing pytoil's config.
+
+    Args:
+        projects_dir (Path): Where the user keeps their development
+            projects.
+
+        token (str): The user's GitHub OAUTH personal access token.
+
+        username (str): User's GitHub username.
+
+        vscode (bool): Whether or not the user wants pytoil to use VSCode
+            to auto-open projects.
+
+        common_packages (List[str]): List of common packages the user wants to
+            inject into every python environment pytoil creates. Typically
+            used for linters, formatters etc.
+
+        init_on_new (bool): Whether or not the user wants pytoil to
+            initialise a new git repo when creating a new local project.
+    """
+
     projects_dir: Path = defaults.PROJECTS_DIR
     token: str = defaults.TOKEN
     username: str = defaults.USERNAME
