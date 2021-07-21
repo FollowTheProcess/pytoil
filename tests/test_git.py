@@ -76,6 +76,7 @@ def test_run_passes_correct_command_to_subprocess(mocker: MockerFixture):
         ],
         cwd=Path("some/dir"),
         check=True,
+        capture_output=False,
     )
 
 
@@ -103,12 +104,18 @@ def test_clone_passes_correct_command_to_subprocess(mocker: MockerFixture):
     # Mock the subprocess of calling git
     mock_subprocess = mocker.patch("pytoil.git.git.subprocess.run", autospec=True)
 
-    git.clone(url="https://testhub.com/fake/repo.git", check=True, cwd=Path("some/dir"))
+    git.clone(
+        url="https://testhub.com/fake/repo.git",
+        check=True,
+        cwd=Path("some/dir"),
+        silent=True,
+    )
 
     mock_subprocess.assert_called_once_with(
         ["testgit", "clone", "https://testhub.com/fake/repo.git"],
         cwd=Path("some/dir"),
         check=True,
+        capture_output=True,
     )
 
 
@@ -127,6 +134,7 @@ def test_init_passes_correct_command_to_subprocess(mocker: MockerFixture):
         ["testgit", "init"],
         cwd=Path("some/dir/project"),
         check=True,
+        capture_output=False,
     )
 
 
@@ -150,4 +158,5 @@ def test_set_upstream_passes_correct_command_to_subprocess(mocker: MockerFixture
         ],
         check=True,
         cwd=Path("some/dir/project"),
+        capture_output=False,
     )

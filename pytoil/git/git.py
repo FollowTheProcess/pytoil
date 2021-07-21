@@ -45,7 +45,11 @@ class Git:
             )
 
     def run(
-        self, *args: str, check: bool = True, cwd: Path = defaults.PROJECTS_DIR
+        self,
+        *args: str,
+        check: bool = True,
+        cwd: Path = defaults.PROJECTS_DIR,
+        silent: bool = False,
     ) -> None:
         """
         Generic method to run `git` in a subprocess.
@@ -61,6 +65,9 @@ class Git:
             cwd (Path, optional): Working directory of the subprocess.
                 Defaults to defaults.PROJECTS_DIR.
 
+            silent (bool): Whether to suppress showing the clone output.
+                Defaults to False.
+
         Raises:
             subprocess.CalledProcessError: If the subprocess command fails.
         """
@@ -68,12 +75,18 @@ class Git:
         self.raise_for_git()
 
         try:
-            subprocess.run([f"{self.git}", *args], check=check, cwd=cwd)
+            subprocess.run(
+                [f"{self.git}", *args], check=check, cwd=cwd, capture_output=silent
+            )
         except subprocess.CalledProcessError:
             raise
 
     def clone(
-        self, url: str, check: bool = True, cwd: Path = defaults.PROJECTS_DIR
+        self,
+        url: str,
+        check: bool = True,
+        cwd: Path = defaults.PROJECTS_DIR,
+        silent: bool = True,
     ) -> None:
         """
         Convenience wrapper around `self.run` to clone a repo.
@@ -87,13 +100,16 @@ class Git:
             cwd (Path, optional): Working directory of the subprocess.
                 Defaults to defaults.PROJECTS_DIR.
 
+            silent (bool): Whether to suppress showing the clone output.
+                Defaults to True.
+
         Raises:
             subprocess.CalledProcessError: If the subprocess command fails.
         """
 
-        self.run("clone", url, check=check, cwd=cwd)
+        self.run("clone", url, check=check, cwd=cwd, silent=silent)
 
-    def init(self, path: Path, check: bool = True) -> None:
+    def init(self, path: Path, check: bool = True, silent: bool = False) -> None:
         """
         Convenience wrapper around `self.run` to initialise a repo.
 
@@ -104,14 +120,22 @@ class Git:
             check (bool, optional): Raise CalledProcessError on failure.
                 Defaults to True.
 
+            silent (bool): Whether to suppress showing the clone output.
+                Defaults to False.
+
         Raises:
             subprocess.CalledProcessError: If the subprocess command fails.
         """
 
-        self.run("init", check=check, cwd=path)
+        self.run("init", check=check, cwd=path, silent=silent)
 
     def set_upstream(
-        self, owner: str, repo: str, path: Path, check: bool = True
+        self,
+        owner: str,
+        repo: str,
+        path: Path,
+        check: bool = True,
+        silent: bool = False,
     ) -> None:
         """
         Sets the upstream repo for a local repo, e.g. on a cloned fork.
@@ -127,9 +151,17 @@ class Git:
                 repo is.
             check (bool, optional): Raise CalledProcessError on failure.
                 Defaults to True.
+            silent (bool): Whether to suppress showing the clone output.
+            Defaults to True.
         """
         base_url = "https://github.com"
         constructed_upstream = f"{base_url}/{owner}/{repo}.git"
         self.run(
-            "remote", "add", "upstream", constructed_upstream, check=check, cwd=path
+            "remote",
+            "add",
+            "upstream",
+            constructed_upstream,
+            check=check,
+            cwd=path,
+            silent=silent,
         )

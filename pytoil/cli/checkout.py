@@ -128,7 +128,9 @@ def checkout(
 
         elif repo.exists_remote(api=api):
             msg.info(f"{repo.name!r} found on GitHub. Cloning...", spaced=True)
-            git.clone(url=repo.clone_url, check=True, cwd=config.projects_dir)
+            git.clone(
+                url=repo.clone_url, check=True, cwd=config.projects_dir, silent=False
+            )
 
             env = repo.dispatch_env()
 
@@ -211,7 +213,7 @@ def fork_repo(
 
     # If we get here, the fork was a success
     msg.info(f"Cloning your fork: {config.username}/{name}.", spaced=True)
-    git.clone(url=fork.clone_url, cwd=config.projects_dir)
+    git.clone(url=fork.clone_url, cwd=config.projects_dir, silent=False)
 
     # Set upstream
     msg.info("Setting 'upstream' to original repo.", spaced=True)

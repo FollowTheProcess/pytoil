@@ -24,6 +24,9 @@ Usage: pytoil pull [OPTIONS] [PROJECTS]...
   You can also use pull to batch clone multiple repos, even all of them ("--
   all/-a") if you're into that sorta thing.
 
+  If more than 1 repo is passed (or if "--all/-a" is used) pytoil will pull
+  the repos concurrently, speeding up the process.
+
   Any remote project that already exists locally will be skipped and none of
   your local projects are changed in any way. pytoil will only pull down
   those projects that don't already exist locally.
@@ -36,13 +39,13 @@ Usage: pytoil pull [OPTIONS] [PROJECTS]...
 
   Examples:
 
-    $ pytoil pull project1 project2 project3
+  $ pytoil pull project1 project2 project3
 
-    $ pytoil pull project1 project2 project3 --force
+  $ pytoil pull project1 project2 project3 --force
 
-    $ pytoil pull --all
+  $ pytoil pull --all
 
-    $ pytoil pull --all --force
+  $ pytoil pull --all --force
 
 Arguments:
   [PROJECTS]...  Name of the project(s) to pull down.
@@ -52,14 +55,13 @@ Options:
   -a, --all    Pull down all of your projects.
   --help       Show this message and exit.
 
-
 ```
 
 </div>
 
 ## All
 
-When you run `pytoil pull --all` pytoil will scan your projects directory and your GitHub repos to calculate what's missing locally and then go and grab the missing projects from GitHub one by one.
+When you run `pytoil pull --all` pytoil will scan your projects directory and your GitHub repos to calculate what's missing locally and then go and grab the required repos concurrently so it's as fast as possible (useful if you have a lot of repos!) :dash:
 
 <div class="termy">
 
@@ -68,9 +70,9 @@ $ pytoil pull --all
 
 # This will clone 7 repos. Are you sure you wish to proceed? [y/N]:$ y
 
-Cloning 'repo1'...
+Cloned 'repo1'...
 
-Cloning 'repo2'...
+Cloned 'repo2'...
 
 etc...
 ```
@@ -79,7 +81,7 @@ etc...
 
 !!! warning
 
-    If you have lots of GitHub repos this could take a while, you might be better off selecting specific repos to pull by using `pytoil pull [project(s)]`. More on that down here :point_down:
+    Even though this is done concurrently, if you have lots of GitHub repos (> 50 or so) this could still take a few seconds, you might be better off selecting specific repos to pull by using `pytoil pull [project(s)]`. More on that down here :point_down:
 
     However, it will prompt you telling you exactly how many repos it is going to clone and ask you to confirm! This confirmation can be disabled by using the `--force/-f` flag.
 
@@ -136,3 +138,7 @@ Aborted!
 ```
 
 </div>
+
+!!! note
+
+    If you pass more than 1 repo as an argument, it will also be cloned concurrently :dash:
