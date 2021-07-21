@@ -147,7 +147,7 @@ def pull_diff(
     n_diff = len(diff)
 
     if not force:
-        if n_diff <= 5:
+        if n_diff <= 3:
             # A managable length to display each one
             typer.confirm(
                 f"This will pull down {', '.join(diff)}. Are you sure?", abort=True
