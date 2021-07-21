@@ -5,6 +5,7 @@ Author: Tom Fleet
 Created: 18/06/2021
 """
 
+import concurrent.futures
 from typing import List, Set
 
 import httpx
@@ -53,6 +54,9 @@ def pull(
 
     You can also use pull to batch clone multiple repos, even all of them ("--all/-a")
     if you're into that sorta thing.
+
+    If more than 1 repo is passed (or if "--all/-a" is used) pytoil will pull
+    the repos concurrently, speeding up the process.
 
     Any remote project that already exists locally will be skipped and none of
     your local projects are changed in any way. pytoil will only pull down
@@ -140,8 +144,10 @@ def pull_diff(
     if not remotes:
         msg.warn("You don't have any remote projects to pull!", spaced=True, exits=1)
 
+    n_diff = len(diff)
+
     if not force:
-        if len(diff) <= 5:
+        if n_diff <= 3:
             # A managable length to display each one
             typer.confirm(
                 f"This will pull down {', '.join(diff)}. Are you sure?", abort=True
@@ -149,11 +155,27 @@ def pull_diff(
         else:
             # Too many to show to look nice, just show number
             typer.confirm(
-                f"This will pull down {len(diff)} projects. Are you sure?", abort=True
+                f"This will pull down {n_diff} projects. Are you sure?", abort=True
             )
 
     # If we get here, we're good to go
 
+    if n_diff < 2:
+        # Doesn't make sense to spin up a thread pool for 1 repo
+        _pull_diff_synchronously(diff=diff, config=config, git=Git())
+    else:
+        # Let's go concurrency baby!
+        _pull_diff_concurrently(diff=diff, config=config, git=Git())
+
+
+def _pull_diff_synchronously(diff: Set[str], config: Config, git: Git) -> None:
+    """
+    Helper function to pull the diff synchronously, i.e.
+    one repo at a time.
+
+    To be used when the user only wants 1 repo, as it doesn't make sense
+    to spin up a thread pool for 1.
+    """
     for project in diff:
         # Make a Repo object for each
         repo = Repo(
@@ -163,6 +185,55 @@ def pull_diff(
         )
 
         msg.info(f"Cloning {project!r}", spaced=True)
-        git.clone(url=repo.clone_url, cwd=config.projects_dir)
+        # Because we're cloning just one, makes sense to show clone output
+        git.clone(url=repo.clone_url, cwd=config.projects_dir, silent=False)
 
     msg.good("Done!", spaced=True)
+
+
+def _pull_diff_concurrently(diff: Set[str], config: Config, git: Git) -> None:
+    """
+    Helper function to pull the diff concurrently using a pool
+    of worker threads.
+
+    Useful when more than 1 repo as the cost of spinning up a thread
+    pool is easily outweighed by the average repo clone time.
+    """
+    # Create a task queue
+    to_clone: List[Repo] = []
+    for project in diff:
+        # Make a Repo object for each to access the attributes
+        repo = Repo(
+            owner=config.username,
+            name=project,
+            local_path=config.projects_dir.joinpath(project),
+        )
+        to_clone.append(repo)
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+
+        # Start the cloning and mark each future with it's clone url
+        # Set silent=True in git.clone to prevent weird output ordering
+        future_to_repo = {
+            executor.submit(
+                git.clone, url=repo.clone_url, cwd=config.projects_dir, silent=True
+            ): repo
+            for repo in to_clone
+        }
+
+        for future in concurrent.futures.as_completed(future_to_repo):
+
+            current = future_to_repo.get(future)
+            if not current:
+                # Hopefully absolutely no chance of this happening but I like
+                # to always handle the None case from .get
+                raise ValueError(f"Repo in task queue for future: {future!r} was None")
+
+            try:
+                # Gather the result
+                future.result()
+            except Exception as err:
+                # This should only be very odd things
+                msg.fail(f"Error cloning {current.name!r}", text=f"{err}")
+            else:
+                msg.good(f"Cloned {current.name!r}")
