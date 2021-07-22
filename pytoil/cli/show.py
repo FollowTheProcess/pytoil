@@ -275,7 +275,7 @@ def forks(
 
         fork_parent_map = {fork: parent for fork, parent in zip(forks, parents)}
 
-    typer.secho("\nForked Projects\n", fg=typer.colors.CYAN, bold=True)
+    typer.secho("\nForked Projects:\n", fg=typer.colors.CYAN, bold=True)
 
     if count:
         typer.echo(f"You have {len(fork_parent_map)} forked repos.")

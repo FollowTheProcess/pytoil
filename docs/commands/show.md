@@ -34,12 +34,15 @@ Usage: pytoil show [OPTIONS] COMMAND [ARGS]...
 
   The remote projects listed here will be those owned by you on GitHub.
 
+  The "--count/-c" flag can be used if you just want to see a count.
+
 Options:
   --help  Show this message and exit.
 
 Commands:
   all     Show all your projects, grouped by local and remote.
   diff    Show the difference in local/remote projects.
+  forks   Show your forked projects.
   local   Show your local projects.
   remote  Show your remote projects.
 
@@ -134,6 +137,23 @@ Diff: Remote - Local
 
 - Remote1
 - etc...
+```
+
+</div>
+
+## Forks
+
+You can also see all your forked repos and whether or not they are available locally!
+
+<div class="termy">
+
+```console
+$ pytoil show forks
+
+Forked Projects:
+
+cool_project: Forked from 'someoneelse/cool_project' Local
+other: Forked from 'other/other' Local
 ```
 
 </div>
