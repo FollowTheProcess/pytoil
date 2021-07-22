@@ -67,4 +67,8 @@ def info(
     else:
         typer.secho(f"\nInfo for {project!r}:\n", fg=typer.colors.CYAN, bold=True)
         for key, val in info_dict.items():
-            typer.echo(f"{key}: {val}")
+            # Make the key a nice colour
+            info_start = typer.style(f"{key}: ", fg=typer.colors.CYAN)
+            info_msg = info_start + f"{val}"
+
+            typer.echo(info_msg)
