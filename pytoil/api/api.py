@@ -98,6 +98,43 @@ class API:
 
         return self.post(endpoint=f"repos/{owner}/{repo}/forks")
 
+    def get_forks(self) -> Response:
+        """
+        Gets all the repos that are forks.
+
+        Returns:
+            Response: JSON Response.
+        """
+        repos = self.get_repos()
+        # Mypy and JSON is hard!
+        return [repo for repo in repos if repo.get("fork", False)]  # type: ignore
+
+    def get_fork_names(self) -> List[str]:
+        """
+        Gets the names of all the user's repos that are forks
+        of other repos.
+
+        Returns:
+            List[str]: Names of all the forked repos.
+        """
+        forks = self.get_forks()
+
+        return [fork.get("name") for fork in forks]  # type: ignore
+
+    def get_fork_parents(self, forks: List[str]) -> List[str]:
+        """
+        Gets the parent repos for all the users forks
+
+        Args:
+            forks (List[str]): Names of all users forks.
+
+        Returns:
+            List[str]: Full names (user/repo) of the fork parents.
+        """
+        forked_repos = [self.get_repo(fork) for fork in forks]
+        # Again, mypy and JSON is hard!
+        return [repo.get("parent").get("full_name") for repo in forked_repos]  # type: ignore # noqa: E501
+
     def get_repo(self, repo: str) -> Response:
         """
         Get a user's repo by name.
