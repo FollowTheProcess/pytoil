@@ -13,6 +13,7 @@ from wasabi import msg
 from pytoil.api import API
 from pytoil.cli import utils
 from pytoil.config import Config
+from pytoil.repo import Repo
 
 app = typer.Typer(name="show")
 
@@ -244,3 +245,50 @@ def diff(
         else:
             for project in sorted(diff, key=str.casefold):
                 typer.echo(f"- {project}")
+
+
+@app.command()
+def forks(
+    count: bool = typer.Option(
+        False,
+        "--count",
+        "-c",
+        help="Display a count of the diff.",
+        show_default=False,
+    )
+) -> None:
+    """
+    Show your forked projects.
+
+    Show all the repos you own that are forks of other repos.
+
+    The "--count/-c" flag will show a count of forks.
+    """
+    config = Config.from_file()
+    utils.warn_if_no_api_creds(config)
+
+    api = API(username=config.username, token=config.token)
+
+    with msg.loading("Getting your Forks..."):
+        forks = api.get_fork_names()
+        parents = api.get_fork_parents(forks)
+
+        fork_parent_map = {fork: parent for fork, parent in zip(forks, parents)}
+
+    typer.secho("\nForked Projects\n", fg=typer.colors.CYAN, bold=True)
+
+    if count:
+        typer.echo(f"You have {len(fork_parent_map)} forked repos.")
+    else:
+        for fork, parent in fork_parent_map.items():
+            # Make it a nice colour
+            fork_start = typer.style(f"{fork}: ", fg=typer.colors.CYAN)
+            fork_local = Repo(
+                owner=config.username,
+                name=fork,
+                local_path=config.projects_dir.joinpath(fork),
+            ).exists_local()
+            fork_end = typer.style("Local", fg=typer.colors.GREEN) if fork_local else ""
+            fork_msg = fork_start + f"Forked from {parent!r} " + fork_end
+
+            typer.echo(fork_msg)
