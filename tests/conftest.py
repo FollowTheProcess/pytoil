@@ -53,9 +53,9 @@ def fake_repos_response():
     """
 
     response: Dict[str, Any] = [
-        {"name": "repo1", "owner": "me", "blah": "bleh"},
-        {"name": "repo2", "owner": "someguy", "blah": "bluh"},
-        {"name": "repo3", "owner": "somegirl", "blah": "blah"},
+        {"name": "repo1", "owner": "me", "blah": "bleh", "fork": True},
+        {"name": "repo2", "owner": "someguy", "blah": "bluh", "fork": False},
+        {"name": "repo3", "owner": "somegirl", "blah": "blah", "fork": True},
     ]
 
     return response

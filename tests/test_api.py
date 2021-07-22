@@ -8,6 +8,7 @@ Created: 19/06/2021
 import httpx
 import pytest
 from pytest_httpx import HTTPXMock
+from pytest_mock import MockerFixture
 
 from pytoil.api import API
 
@@ -193,3 +194,59 @@ def test_create_fork(httpx_mock: HTTPXMock):
         "some": "yes",
         "fake": "info",
     }
+
+
+def test_get_forks(httpx_mock: HTTPXMock):
+
+    httpx_mock.add_response(
+        url="https://api.github.com/user/repos?type=owner",
+        json=[
+            {"name": "testy", "fork": True},
+            {"name": "other", "fork": True},
+            {"name": "hello", "fork": False},
+        ],
+        status_code=200,
+    )
+
+    api = API(username="me", token="definitelynotatoken")
+
+    # Should only return the ones where fork is True
+    assert api.get_forks() == [
+        {"name": "testy", "fork": True},
+        {"name": "other", "fork": True},
+    ]
+
+
+def test_get_fork_names(httpx_mock: HTTPXMock):
+
+    httpx_mock.add_response(
+        url="https://api.github.com/user/repos?type=owner",
+        json=[
+            {"name": "testy", "fork": True},
+            {"name": "other", "fork": True},
+            {"name": "hello", "fork": False},
+        ],
+        status_code=200,
+    )
+
+    api = API(username="me", token="definitelynotatoken")
+
+    # Should only return the ones where fork is True
+    assert api.get_fork_names() == ["testy", "other"]
+
+
+def test_get_fork_parents(mocker: MockerFixture):
+
+    mocker.patch(
+        "pytoil.api.API.get_repo",
+        autospec=True,
+        return_value={
+            "name": "test",
+            "fork": True,
+            "parent": {"full_name": "someone/test"},
+        },
+    )
+
+    api = API(username="me", token="definitelynotatoken")
+
+    assert api.get_fork_parents(forks=["test"]) == ["someone/test"]
