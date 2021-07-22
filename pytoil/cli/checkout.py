@@ -124,6 +124,11 @@ def checkout(
         if repo.exists_local():
             # No environment or git stuff here, chances are if it exists locally
             # user has already done all this stuff
+            if venv:
+                typer.secho(
+                    "Note: '--venv' is ignored for local projects.",
+                    fg=typer.colors.YELLOW,
+                )
             checkout_local(repo=repo, code=code, config=config)
 
         elif repo.exists_remote(api=api):
