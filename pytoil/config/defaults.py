@@ -25,7 +25,7 @@ CONFIG_KEYS: Set[str] = {
 
 # Defaults for pytoil config
 PROJECTS_DIR: Path = Path.home().joinpath("Development").resolve()
-TOKEN: str = os.getenv("GITHUB_TOKEN") or ""
+TOKEN: str = os.getenv("GITHUB_TOKEN", "")
 USERNAME: str = ""
 VSCODE: bool = False
 COMMON_PACKAGES: List[str] = []
