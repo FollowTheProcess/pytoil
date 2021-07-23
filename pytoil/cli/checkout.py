@@ -122,14 +122,7 @@ def checkout(
         # User has just passed a single project
 
         if repo.exists_local():
-            # No environment or git stuff here, chances are if it exists locally
-            # user has already done all this stuff
-            if venv:
-                typer.secho(
-                    "Note: '--venv' is ignored for local projects.",
-                    fg=typer.colors.YELLOW,
-                )
-            checkout_local(repo=repo, code=code, config=config)
+            checkout_local(repo=repo, code=code, config=config, venv=venv)
 
         elif repo.exists_remote(api=api):
             msg.info(f"{repo.name!r} found on GitHub. Cloning...", spaced=True)
@@ -234,7 +227,7 @@ def fork_repo(
         code.open()
 
 
-def checkout_local(repo: Repo, code: VSCode, config: Config) -> None:
+def checkout_local(repo: Repo, code: VSCode, config: Config, venv: bool) -> None:
     """
     Helper function to checkout a local repo.
 
@@ -242,9 +235,18 @@ def checkout_local(repo: Repo, code: VSCode, config: Config) -> None:
         repo (Repo): Repo to checkout.
         code (VSCode): VSCode instance to handle opening.
         config (Config): Configured Config object.
+        venv (bool): The value from the --venv flag.
     """
 
     msg.info(f"{repo.name!r} available locally.", spaced=True)
+
+    # No environment or git stuff here, chances are if it exists locally
+    # user has already done all this stuff
+    if venv:
+        typer.secho(
+            "Note: '--venv' is ignored for local projects.",
+            fg=typer.colors.YELLOW,
+        )
 
     if config.vscode:
         msg.text(f"Opening {repo.name!r} in VSCode.")
