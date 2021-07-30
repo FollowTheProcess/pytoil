@@ -28,6 +28,10 @@ classifiers = [
     "Topic :: Utilities",
     "Typing :: Typed",
 ]
+include = [
+    "docs/img/coverage.svg",
+    "docs/img/logo.png",
+]
 
 keywords = [
     "cli",
