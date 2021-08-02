@@ -46,6 +46,7 @@ DEFAULT_PYTHON: str = "3.9"
 PYTHON_VERSIONS: List[str] = [
     "3.8",
     "3.9",
+    "3.10.0-beta.4",
 ]
 
 # List of seed packages to upgrade to their most
