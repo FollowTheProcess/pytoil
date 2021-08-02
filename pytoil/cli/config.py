@@ -8,6 +8,9 @@ Created: 18/06/2021
 import time
 
 import typer
+from rich import box
+from rich.console import Console
+from rich.table import Table
 from wasabi import msg
 
 from pytoil.config import Config, defaults
@@ -65,12 +68,15 @@ def show() -> None:
 
     typer.secho("\nPytoil Config:\n", fg=typer.colors.CYAN, bold=True)
 
-    for key, val in config.to_dict().items():
-        # Make the key a nice colour
-        config_start = typer.style(f"{key}: ", fg=typer.colors.CYAN)
-        config_msg = config_start + f"{val!r}"
+    table = Table(box=box.SIMPLE)
+    table.add_column("Key", style="cyan", justify="right")
+    table.add_column("Value", justify="left")
 
-        typer.echo(config_msg)
+    for key, val in config.to_dict().items():
+        table.add_row(f"{key}:", str(val))
+
+    console = Console()
+    console.print(table)
 
 
 @app.command()
