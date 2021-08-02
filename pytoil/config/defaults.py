@@ -34,36 +34,40 @@ INIT_ON_NEW: bool = True
 # Config Schema
 CONFIG_SCHEMA = """
 
-- projects_dir (bool)
+# The .pytoil.yml config file
 
-    The absolute path to where you keep your development projects
-    (e.g. /Users/you/Projects)
+## projects_dir *(bool)*
 
-- token (str)
+The absolute path to where you keep your development projects
+(e.g. /Users/you/Projects).
 
-    Your GitHub personal access token. This must have a minimum of repo
-    read access. See the documentation here:
-    https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token
+## token *(str)*
 
-    Pytoil will try and get this from the config file initially, then fall back to the $GITHUB_TOKEN environment
-    variable. If neither of these places are set, you will not be able to use pytoil commands that rely on the
-    GitHub API. Pytoil will notify you of this when any of these commands are called.
+Your GitHub personal access token. This must have a minimum of repo read access. See the documentation here:
+https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token
 
-- username (str)
+Pytoil will try and get this from the config file initially, then fall back to the $GITHUB_TOKEN environment
+variable. If neither of these places are set, you will not be able to use pytoil commands that rely on the
+GitHub API. Pytoil will notify you of this when any of these commands are called.
 
-    Your GitHub username.
+## username *(str)*
 
-- vscode (bool)
+Your GitHub username. Pytoil needs this so it can construct urls to your projects.
 
-    Whether you want pytoil to open projects up using VSCode. This will happen on 'new' and 'checkout'.
+## vscode *(bool)*
 
-- common_packages (List[str])
+Whether you want pytoil to open projects up using VSCode. This will happen on 'new' and 'checkout'.
 
-    A list of python package names to inject into every virtual environment pytoil creates
-    (e.g. linters, formatters and other dev dependencies).
+## common_packages *(List[str])*
 
-- init_on_new (bool)
+A list of python packages to inject into every virtual environment pytoil creates
+(e.g. linters, formatters and other dev dependencies).
 
-    Whether or not you want pytoil to create an empty git repo when you make a new project with
-    'pytoil new'. This can also be disabled on a per use basis using the '--no-git' flag.
+Any versioning syntax (e.g. mypy>=0.902) will work as expected here as these packages
+are passed straight through to installation tools like pip and conda.
+
+## init_on_new *(bool)*
+
+Whether or not you want pytoil to create an empty git repo when you make a new project with
+'pytoil new'. This can also be disabled on a per use basis using the '--no-git' flag.
 """
