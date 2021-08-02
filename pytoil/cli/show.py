@@ -8,6 +8,10 @@ Created: 18/06/2021
 
 import httpx
 import typer
+from rich import box
+from rich.console import Console
+from rich.table import Table
+from rich.text import Text
 from wasabi import msg
 
 from pytoil.api import API
@@ -277,18 +281,34 @@ def forks(
 
     typer.secho("\nForked Projects:\n", fg=typer.colors.CYAN, bold=True)
 
+    if not forks:
+        msg.warn("You don't have any forks yet!", exits=0)
+
     if count:
         typer.echo(f"You have {len(fork_parent_map)} forked repos.")
     else:
+        # Make a pretty table
+        table = Table(box=box.SIMPLE)
+        table.add_column("Project", justify="center")
+        table.add_column("Forked from", justify="center")
+        table.add_column("Location", justify="center")
+
+        # Populate the rows
         for fork, parent in fork_parent_map.items():
-            # Make it a nice colour
-            fork_start = typer.style(f"{fork}: ", fg=typer.colors.CYAN)
             fork_local = Repo(
                 owner=config.username,
                 name=fork,
                 local_path=config.projects_dir.joinpath(fork),
             ).exists_local()
-            fork_end = typer.style("Local", fg=typer.colors.GREEN) if fork_local else ""
-            fork_msg = fork_start + f"Forked from {parent!r} " + fork_end
 
-            typer.echo(fork_msg)
+            local_message = (
+                Text("Local", style="green")
+                if fork_local
+                else Text("Remote", style="yellow")
+            )
+
+            table.add_row(fork, parent, local_message)
+
+        # Show the table
+        console = Console()
+        console.print(table)
