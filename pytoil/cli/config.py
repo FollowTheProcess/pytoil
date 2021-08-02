@@ -10,6 +10,7 @@ import time
 import typer
 from rich import box
 from rich.console import Console
+from rich.markdown import Markdown
 from rich.table import Table
 from wasabi import msg
 
@@ -172,5 +173,6 @@ def help_() -> None:
 
     $ pytoil config help
     """
-    msg.divider("The '.pytoil.yml' config file")
-    print(defaults.CONFIG_SCHEMA)
+    console = Console()
+    markdown = Markdown(defaults.CONFIG_SCHEMA, justify="center")
+    console.print(markdown)
