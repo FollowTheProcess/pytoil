@@ -183,6 +183,9 @@ def fork_repo(
         )
 
     msg.info(f"'{owner}/{name}' belongs to {owner!r}.", spaced=True)
+    typer.confirm(
+        f"This will fork '{owner}/{name}' to your GitHub. Are you sure?", abort=True
+    )
     with msg.loading(f"Forking '{owner}/{name}'..."):
         try:
             api.create_fork(owner=owner, repo=name)
