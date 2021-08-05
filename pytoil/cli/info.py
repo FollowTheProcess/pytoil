@@ -7,6 +7,9 @@ Created: 25/06/2021
 
 import httpx
 import typer
+from rich import box
+from rich.console import Console
+from rich.table import Table
 from wasabi import msg
 
 from pytoil.api import API
@@ -66,9 +69,14 @@ def info(
         )
     else:
         typer.secho(f"\nInfo for {project!r}:\n", fg=typer.colors.CYAN, bold=True)
+
+        table = Table(box=box.SIMPLE)
+        table.add_column("Key", style="cyan", justify="right")
+        table.add_column("Value", justify="left")
+
         for key, val in info_dict.items():
             # Make the key a nice colour
-            info_start = typer.style(f"{key}: ", fg=typer.colors.CYAN)
-            info_msg = info_start + f"{val}"
+            table.add_row(f"{key}:", str(val))
 
-            typer.echo(info_msg)
+        console = Console()
+        console.print(table)
