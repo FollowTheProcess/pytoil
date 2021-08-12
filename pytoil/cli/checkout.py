@@ -67,8 +67,11 @@ def checkout(
 
     If you pass the shorthand to someone elses repo e.g. 'someoneelse/repo' pytoil
     will detect this and automatically create a fork of this repo for you. Forking
-    happens asynchronously so we can't clone your fork straight away. Give it a
-    few seconds then a 'pytoil checkout repo' will bring it down as normal.
+    happens asynchronously so we give it a few seconds, then check whether or not
+    your fork exists yet. If it does, all is well and we can clone it for you
+    automatically. If not, (which is totally normal), we'll let you know. In
+    which case just give it a few seconds then a 'pytoil checkout repo'
+    will bring it down as normal.
 
     You can also ask pytoil to automatically create a virtual environment on
     checkout with the '--venv/-v' flag. This only happens for projects pulled down

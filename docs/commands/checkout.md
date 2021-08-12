@@ -29,9 +29,11 @@ Usage: pytoil checkout [OPTIONS] PROJECT
 
   If you pass the shorthand to someone elses repo e.g. 'someoneelse/repo'
   pytoil will detect this and automatically create a fork of this repo for
-  you. Forking happens asynchronously so we can't clone your fork straight
-  away. Give it a few seconds then a 'pytoil checkout repo' will bring it
-  down as normal.
+  you. Forking happens asynchronously so we give it a few seconds, then
+  check whether or not your fork exists yet. If it does, all is well and we
+  can clone it for you automatically. If not, (which is totally normal),
+  we'll let you know. In which case just give it a few seconds then a
+  'pytoil checkout repo' will bring it down as normal.
 
   You can also ask pytoil to automatically create a virtual environment on
   checkout with the '--venv/-v' flag. This only happens for projects pulled
@@ -61,8 +63,6 @@ Arguments:
 Options:
   -v, --venv  Attempt to auto-create a virtual environment.
   --help      Show this message and exit.
-
-
 ```
 
 </div>
@@ -86,7 +86,7 @@ Opening 'my_github_project' in VSCode...
 
 ## Remote Project
 
-If pytoil can't find your project locally, `checkout` will:
+If pytoil can't find your project locally, but it is on your GitHub `checkout` will:
 
 * Clone it to your projects directory
 * Open it for you (if you configure VSCode in [config])
@@ -140,7 +140,9 @@ More awesome stuff!
 
 !!! note
 
-    Forking happens asynchronously on GitHub's end so we make a best effort here to wait for GitHub's internal state to synchronise and check if the fork was a success. However, this can sometimes time out, in which case pytoil will let you know and handle this gracefully :thumbsup:
+    Forking happens asynchronously on GitHub's end and there is no guarantee on a timeline (although GitHub is very well engineered and this normally happens pretty much straight away) so we make a best effort here to wait for GitHub's internal state to synchronise and check if the fork was a success. However, this can sometimes time out, in which case pytoil will let you know and handle this gracefully :thumbsup:
+
+    If this happens to you, all you need to do is wait a few seconds and then try `pytoil checkout <project>` again.
 
 ## Automatically Create a Virtual Environment
 
@@ -176,7 +178,9 @@ Opening 'my_github_project' in VSCode...
 
 !!! note
 
-    pytoil looks for certain files in your project (like `setup.py`, `setup.cfg`, `environment.yml` etc.) and that's how it decides which environment to create. If it isn't totally sure what environment to create, it will just skip this step and let you know!
+    pytoil looks for certain files in your project (like `setup.py`, `setup.cfg`, `pyproject.toml`, `environment.yml` etc.) and that's how it decides which environment to create. If it isn't totally sure what environment to create, it will just skip this step and let you know!
+
+    I've personally tested this on every type of environment pytoil supports and it works really well!
 
 ### How pytoil Knows What to Install
 
@@ -190,15 +194,15 @@ Must mean it's a conda project, delegate to conda using `conda env create --file
 
 ### `requirements.txt` or `requirements_dev.txt`
 
-Python project, delegate to pip using `pip install -r requirements`
+Python script or non-package project e.g. django web app, delegate to pip using `pip install -r <file>`
 
-Prefers dev if present as it will have everything needed to work on the project, falls back to `requirements.txt` if not.
+Prefers `requirements_dev.txt` if present as it will have everything needed to work on the project, falls back to `requirements.txt` if not.
 
 ### `setup.cfg` or `setup.py`
 
 Python package, again delegate to pip using `pip install -e .[dev]`
 
-Defaults to using the [dev] target for convention, if this isn't present it falls back to `pip install -e .`
+Defaults to using the [dev] target for convention and to ensure the entire dev environment is set up, if this isn't present pip automatically falls back to `pip install -e .`
 
 ### `pyproject.toml` specifying poetry as a build tool
 
