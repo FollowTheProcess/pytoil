@@ -43,10 +43,11 @@ PYTHON = os.fsdecode(VENV_DIR / "bin" / "python")
 DEFAULT_PYTHON: str = "3.9"
 
 # All supported python versions for pytoil
+# TODO: Change 3.10.0-beta.4 to 3.10 when it's released
 PYTHON_VERSIONS: List[str] = [
     "3.8",
     "3.9",
-    "3.10.0-beta.4",
+    "3.10.0-beta.4",  # This has to be like this to run on GitHub Actions properly
 ]
 
 # List of seed packages to upgrade to their most
@@ -239,7 +240,10 @@ def has_changes() -> bool:
     """
     status = (
         subprocess.run(
-            "git status --porcelain", shell=True, check=True, stdout=subprocess.PIPE
+            "git status --porcelain",
+            shell=True,
+            check=True,
+            stdout=subprocess.PIPE,
         )
         .stdout.decode()
         .strip()
