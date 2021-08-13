@@ -24,10 +24,13 @@ These optional settings don't have to be set if you're happy using the default s
 
 !!! info
 
-    Don't worry about giving pytoil your personal token. All we do with it is make HTTP GET requests to the GitHub
-    API using your token to authenticate the requests so we can tell which repos you have on GitHub and some very basic information about them.
+    Don't worry about giving pytoil your personal token. All we do with it is make HTTP GET and POST requests to the GitHub
+    API using your token to authenticate the requests. This is essential to pytoil's functionality and it lets us:
 
-    In fact, the only permissions pytoil needs is read repo access! :smiley:
+    * See your repos and get some basic info about them (name, date created etc.)
+    * Create forks of other people's projects when requested (e.g. when using [checkout])
+
+    In fact, the only permissions pytoil needs is repo and user access! :smiley:
 
 !!! note
 
@@ -54,7 +57,7 @@ pytoil will then will write a default config state to a file: `~/.pytoil.yml`.
 
 !!! note
 
-    This command will only write a config file if it doesn't find one already. If one already exists, it will simply show you the settings from that file.
+    This command will only write a config file if it doesn't find one already. If one already exists, running `pytoil config show` will show you the settings from that file.
 
 When you open the default config state you just wrote, it will look like this:
 
@@ -96,3 +99,4 @@ init_on_new: true
     You can also interact with the pytoil config file via pytoil itself using the `pytoil config` command group.
 
 [docs]: https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token
+[checkout]: ./commands/checkout.md

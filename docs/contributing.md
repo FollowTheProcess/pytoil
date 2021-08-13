@@ -166,7 +166,9 @@ Now go to the original pytoil [repo] and create a Pull Request. Make sure to cho
 
 Thats it! Your code will be tested automatically by pytoil's CI suite and if everything passes and your PR is approved and merged then it will become part of pytoil!
 
-*Note: There is a good guide to open source contribution workflow [here] and also [here too]*
+!!! note
+
+    There is a good guide to open source contribution workflow [here] and also [here too]
 
 ## Contributing to Docs
 
@@ -194,3 +196,4 @@ If you add pages to the docs, make sure they are placed in the nav tree in the `
 [mkdocs]: https://www.mkdocs.org
 [mkdocs-material]: https://squidfunk.github.io/mkdocs-material/
 [pipx]: https://pypa.github.io/pipx/installation/
+[poetry]: https://python-poetry.org

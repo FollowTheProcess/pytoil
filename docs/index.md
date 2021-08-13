@@ -186,8 +186,7 @@ Creating project: 'myproject' with cookiecutter template: 'https://github.com/so
 
 </div>
 
-[pipx]: https://pipxproject.github.io/pipx/
-[cookiecutter]: https://cookiecutter.readthedocs.io/en/1.7.2/
+And loads more!
 
 ### Help
 
@@ -257,3 +256,5 @@ Opening pytoil's documentation in your browser...
 [conda]: https://docs.conda.io/en/latest/
 [VSCode]: https://code.visualstudio.com
 [config]: config.md
+[pipx]: https://pipxproject.github.io/pipx/
+[cookiecutter]: https://cookiecutter.readthedocs.io/en/1.7.2/
