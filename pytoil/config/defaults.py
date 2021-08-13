@@ -23,6 +23,9 @@ CONFIG_KEYS: Set[str] = {
     "init_on_new",
 }
 
+# Pytoil docs URL
+PYTOIL_DOCS_URL: str = "https://followtheprocess.github.io/pytoil/"
+
 # Defaults for pytoil config
 PROJECTS_DIR: Path = Path.home().joinpath("Development").resolve()
 TOKEN: str = os.getenv("GITHUB_TOKEN", "")

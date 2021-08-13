@@ -212,7 +212,7 @@ def _pull_diff_concurrently(diff: Set[str], config: Config, git: Git) -> None:
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
 
-        # Start the cloning and mark each future with it's clone url
+        # Start the cloning concurrently and map each Future to it's Repo
         # Set silent=True in git.clone to prevent weird output ordering
         future_to_repo = {
             executor.submit(
