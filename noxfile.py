@@ -299,6 +299,14 @@ def dev(session: nox.Session) -> None:
     """
     Sets up a python dev environment for the project if one doesn't already exist.
     """
+    # Check if dev has been run before
+    # this prevents manual running nox -s dev more than once
+    # thus potentially corrupting an environment
+    if VENV_DIR.exists():
+        session.error(
+            "There is already a virtual environment deactivate and remove it "
+            "before running 'dev' again"
+        )
 
     # Error out if user does not have poetry installed
     session_requires(session, "poetry")
