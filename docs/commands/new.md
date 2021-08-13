@@ -197,7 +197,7 @@ It means that if you find a template you like (or make your own) you can use it 
 
 !!! note
 
-    In fact, pytoil was itself started from a cookiecutter template!
+    In fact, pytoil was itself started from a cookiecutter template! This one: [https://github.com/FollowTheProcess/poetry_pypackage](https://github.com/FollowTheProcess/poetry_pypackage)
 
 Because I love cookiecutter so much, I built pytoil to support them easily. You can create a new project from a cookiecutter template by using the `--cookie/-c` flag like this:
 

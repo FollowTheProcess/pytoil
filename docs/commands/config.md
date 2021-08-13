@@ -86,6 +86,8 @@ Config changed successfully!
 
     If you want to change this config setting, you will have to do it in the config file itself unfortunately :unamused:
 
+    Luckily, this tends to be a "fire and forget" setting, typically used for linters and formatters common to all python projects so you won't have to change it much!
+
 ## Show
 
 `show` is just a handy way of seeing what the current config is without having to go to the config file!
