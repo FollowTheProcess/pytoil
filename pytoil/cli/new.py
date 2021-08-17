@@ -265,7 +265,7 @@ def pre_new_checks(repo: Repo, api: API) -> None:
 
         if is_local:
             msg.warn(
-                title=f"{repo.name!r} already exists locally!",
+                title=f"{repo.name} already exists locally!",
                 text=f"To checkout this project, use 'pytoil checkout {repo.name}'.",
                 spaced=True,
                 exits=1,
