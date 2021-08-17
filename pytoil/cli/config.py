@@ -164,14 +164,14 @@ def set(
         msg.text(f"{key!r} is now {config[key]}")  # type: ignore
 
 
-@app.command(name="help")
-def help_() -> None:
+@app.command()
+def explain() -> None:
     """
     Print a list and description of pytoil config keys.
 
     Examples:
 
-    $ pytoil config help
+    $ pytoil config explain
     """
     console = Console()
     markdown = Markdown(defaults.CONFIG_SCHEMA, justify="center")

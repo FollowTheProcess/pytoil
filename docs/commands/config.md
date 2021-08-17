@@ -110,14 +110,14 @@ init_on_new: True
 
 </div>
 
-## Help (The other help)
+## Explain
 
-This help (`pytoil config help` not `pytoil config --help`) outputs a (hopefully) helpful description of the pytoil configuration schema.
+The command `pytoil config explain` outputs a (hopefully) helpful description of the pytoil configuration schema.
 
 <div class="termy">
 
 ```console
-$ pytoil config help
+$ pytoil config explain
 
 ======================= The '.pytoil.yml' config file =======================
 
