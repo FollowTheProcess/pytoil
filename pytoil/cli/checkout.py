@@ -128,7 +128,7 @@ def checkout(
             checkout_local(repo=repo, code=code, config=config, venv=venv)
 
         elif repo.exists_remote(api=api):
-            msg.info(f"{repo.name!r} found on GitHub. Cloning...", spaced=True)
+            msg.info(f"{repo.name} found on GitHub. Cloning...", spaced=True)
             git.clone(
                 url=repo.clone_url, check=True, cwd=config.projects_dir, silent=False
             )
@@ -144,7 +144,7 @@ def checkout(
 
         else:
             msg.warn(
-                title=f"{repo.name!r} not found locally or on GitHub!",
+                title=f"{repo.name} not found locally or on GitHub!",
                 text=f"Does it exist? If not, create a new project with 'pytoil new {repo.name}'.",  # noqa: E501
                 exits=1,
             )
@@ -244,7 +244,7 @@ def checkout_local(repo: Repo, code: VSCode, config: Config, venv: bool) -> None
         venv (bool): The value from the --venv flag.
     """
 
-    msg.info(f"{repo.name!r} available locally.", spaced=True)
+    msg.info(f"{repo.name} available locally.", spaced=True)
 
     # No environment or git stuff here, chances are if it exists locally
     # user has already done all this stuff
