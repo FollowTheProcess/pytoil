@@ -11,6 +11,6 @@ updates:
     open-pull-requests-limit: 5
     rebase-strategy: auto
     allow:
-      - dependency-type: direct
+      - dependency-type: all
     schedule:
       interval: daily
