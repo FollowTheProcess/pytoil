@@ -17,11 +17,10 @@ nav:
       - GH: commands/gh.md
       - Pull: commands/pull.md
       - Config: commands/config.md
-  - Contributing: contributing.md
+  - Contributing:
+      - Guide: contributing/contributing.md
+      - Code of Conduct: contributing/code_of_conduct.md
 plugins:
-  - mkdocstrings:
-      watch:
-        - pytoil
   - search
 theme:
   name: material
@@ -35,8 +34,6 @@ theme:
     accent: blue
 markdown_extensions:
   - codehilite
-  - markdown_include.include:
-      base_path: docs
   - pymdownx.highlight:
       use_pygments: true
   - pymdownx.emoji:

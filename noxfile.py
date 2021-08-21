@@ -85,9 +85,6 @@ SESSION_REQUIREMENTS: Dict[str, List[str]] = {
     "docs": [
         "mkdocs",
         "mkdocs-material",
-        "mkdocstrings",
-        "markdown-include",
-        "livereload",
     ],
     "coverage": [
         "coverage",
