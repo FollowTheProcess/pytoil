@@ -2,6 +2,10 @@
 
 I've tried to structure pytoil to make it nice and easy for people to contribute. Here's how to go about doing it! :smiley:
 
+!!! note
+
+    All contributors must follow the [Code of Conduct](code_of_conduct.md)
+
 ## Developing
 
 If you want to fix a bug, improve the docs, add tests, add a feature or any other type of direct contribution to pytoil: here's how you do it!
