@@ -120,4 +120,4 @@ This package was created with [cookiecutter] and the [FollowTheProcess/poetry_py
 [wasabi]: https://github.com/ines/wasabi
 [httpx]: https://www.python-httpx.org
 [pydantic]: https://pydantic-docs.helpmanual.io
-[contributing guide]: https://followtheprocess.github.io/pytoil/contributing.html
+[contributing guide]: https://followtheprocess.github.io/pytoil/contributing/contributing.html
