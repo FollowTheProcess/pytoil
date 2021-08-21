@@ -94,6 +94,12 @@ pytoil new my_project --venv venv --cookie https://github.com/some/cookie.git
 
 Check out the [docs] for more :boom:
 
+## Contributing
+
+`pytoil` is an open source project and, as such, welcomes contributions of all kinds :smiley:
+
+Your best bet is to check out the [contributing guide] in the docs!
+
 ### Credits
 
 This package was created with [cookiecutter] and the [FollowTheProcess/poetry_pypackage] project template.
@@ -114,3 +120,4 @@ This package was created with [cookiecutter] and the [FollowTheProcess/poetry_py
 [wasabi]: https://github.com/ines/wasabi
 [httpx]: https://www.python-httpx.org
 [pydantic]: https://pydantic-docs.helpmanual.io
+[contributing guide]: https://followtheprocess.github.io/pytoil/contributing.html
