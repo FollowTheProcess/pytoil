@@ -8,7 +8,6 @@ updates:
 
   - package-ecosystem: pip
     directory: "/"
-    open-pull-requests-limit: 5
     rebase-strategy: auto
     allow:
       - dependency-type: all
