@@ -85,27 +85,9 @@ omit = [
     "*abstract.py",
     "pytoil/cli/*",
     "pytoil/starters/base.py",
+    "pytoil/api/models.py" # For now
 ]
 branch = true
-
-[tool.mypy]
-files = [
-    "pytoil/**/*.py",
-    "noxfile.py",
-]
-
-ignore_missing_imports = true
-strict = true
-disallow_untyped_decorators = false
-pretty = true
-disallow_subclassing_any = false
-
-[[tool.mypy.overrides]]
-module = [
-    "tests.*",
-]
-ignore_errors = true
-
 
 [tool.interrogate]
 ignore-magic = true

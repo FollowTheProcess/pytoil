@@ -78,6 +78,7 @@ SESSION_REQUIREMENTS: Dict[str, List[str]] = {
         "isort",
         "black",
         "mypy",
+        "pydantic",
         "types-PyYAML",
         "types-toml",
         "interrogate",
