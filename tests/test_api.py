@@ -8,9 +8,9 @@ Created: 19/06/2021
 import httpx
 import pytest
 from pytest_httpx import HTTPXMock
-from pytest_mock import MockerFixture
 
 from pytoil.api import API
+from pytoil.api.models import Repository, RepoSummaryInfo
 
 
 def test_api_init():
@@ -99,7 +99,7 @@ def test_get_repo_returns_correct_response(httpx_mock: HTTPXMock, fake_repo_resp
 
     api = API(token="definitelynotatoken", username="me")
 
-    assert api.get_repo(repo="pytoil") == fake_repo_response
+    assert api.get_repo(repo="pytoil") == Repository(**fake_repo_response)
 
 
 def test_get_repos_returns_correct_response(httpx_mock: HTTPXMock, fake_repos_response):
@@ -112,7 +112,7 @@ def test_get_repos_returns_correct_response(httpx_mock: HTTPXMock, fake_repos_re
 
     api = API(token="definitelynotatoken", username="me")
 
-    assert api.get_repos() == fake_repos_response
+    assert api.get_repos() == [Repository(**repo) for repo in fake_repos_response]
 
 
 def test_get_repo_names_returns_correct_names(
@@ -128,7 +128,23 @@ def test_get_repo_names_returns_correct_names(
     api = API(token="definitelynotatoken", username="me")
 
     # These are the names in the fake_repos_response fixture
-    wanted_names = {"repo1", "repo2", "repo3"}
+    wanted_names = {
+        "aircraft_crashes",
+        "cookie_pypackage",
+        "eu_energy_analysis",
+        "FollowTheProcess",
+        "followtheprocess.github.io",
+        "goignore",
+        "gotoil",
+        "go_cookie",
+        "lightweight_ds_cookie",
+        "msc_project",
+        "nox",
+        "poetry_pypackage",
+        "pymechtest",
+        "pytoil",
+        "testygo",
+    }
 
     assert api.get_repo_names() == wanted_names
 
@@ -147,64 +163,51 @@ def test_get_repo_info_returns_correct_info(httpx_mock: HTTPXMock, fake_repo_res
     # This comes from an actual gh response for pytoil
     want = {
         "name": "pytoil",
-        "description": "CLI to automate the development workflow.",
+        "description": "CLI to automate the development workflow :robot:",
         "created_at": "2021-02-04T15:05:23Z",
-        "updated_at": "2021-06-13T12:09:52Z",
-        "size": 1922,
+        "updated_at": "2021-09-01T15:29:56Z",
+        "size": 4443,
         "license": "Apache License 2.0",
     }
 
-    assert api.get_repo_info("pytoil") == want
+    assert api.get_repo_info("pytoil") == RepoSummaryInfo(**want)
 
 
-def test_get_repo_info_correctly_handles_missing_license(httpx_mock: HTTPXMock):
+def test_get_repo_info_correctly_handles_missing_license(
+    httpx_mock: HTTPXMock, fake_repo_response_no_license
+):
 
     httpx_mock.add_response(
         url="https://api.github.com/repos/me/repo",
-        json={
-            "name": "repo",
-            "description": "This is only a test",
-            "created_at": "2021-01-02",
-            "updated_at": "2021-01-03",
-            "size": 1024,
-            "license": None,
-        },
+        json=fake_repo_response_no_license,
         status_code=200,
     )
 
     api = API(token="definitelynotatoken", username="me")
 
-    assert api.get_repo_info(repo="repo")["license"] is None
+    assert api.get_repo_info(repo="repo").license is None
 
 
-def test_create_fork(httpx_mock: HTTPXMock):
+def test_create_fork(httpx_mock: HTTPXMock, fake_repo_response):
 
     httpx_mock.add_response(
         url="https://api.github.com/repos/someone/project/forks",
-        json={
-            "some": "yes",
-            "fake": "info",
-        },
+        json=fake_repo_response,
         status_code=202,
     )
 
     api = API(token="definitelynotatoken", username="me")
 
-    assert api.create_fork(owner="someone", repo="project") == {
-        "some": "yes",
-        "fake": "info",
-    }
+    assert api.create_fork(owner="someone", repo="project") == Repository(
+        **fake_repo_response
+    )
 
 
-def test_get_forks(httpx_mock: HTTPXMock):
+def test_get_forks(httpx_mock: HTTPXMock, fake_repos_response):
 
     httpx_mock.add_response(
         url="https://api.github.com/user/repos?type=owner",
-        json=[
-            {"name": "testy", "fork": True},
-            {"name": "other", "fork": True},
-            {"name": "hello", "fork": False},
-        ],
+        json=fake_repos_response,
         status_code=200,
     )
 
@@ -212,41 +215,19 @@ def test_get_forks(httpx_mock: HTTPXMock):
 
     # Should only return the ones where fork is True
     assert api.get_forks() == [
-        {"name": "testy", "fork": True},
-        {"name": "other", "fork": True},
+        Repository(**repo) for repo in fake_repos_response if repo["fork"]
     ]
 
 
-def test_get_fork_names(httpx_mock: HTTPXMock):
+def test_get_fork_names(httpx_mock: HTTPXMock, fake_repos_response):
 
     httpx_mock.add_response(
         url="https://api.github.com/user/repos?type=owner",
-        json=[
-            {"name": "testy", "fork": True},
-            {"name": "other", "fork": True},
-            {"name": "hello", "fork": False},
-        ],
+        json=fake_repos_response,
         status_code=200,
     )
 
     api = API(username="me", token="definitelynotatoken")
 
     # Should only return the ones where fork is True
-    assert api.get_fork_names() == ["testy", "other"]
-
-
-def test_get_fork_parents(mocker: MockerFixture):
-
-    mocker.patch(
-        "pytoil.api.API.get_repo",
-        autospec=True,
-        return_value={
-            "name": "test",
-            "fork": True,
-            "parent": {"full_name": "someone/test"},
-        },
-    )
-
-    api = API(username="me", token="definitelynotatoken")
-
-    assert api.get_fork_parents(forks=["test"]) == ["someone/test"]
+    assert api.get_fork_names() == ["nox"]

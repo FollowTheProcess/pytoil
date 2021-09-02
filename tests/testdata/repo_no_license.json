@@ -86,13 +86,7 @@
     "archived": false,
     "disabled": false,
     "open_issues_count": 2,
-    "license": {
-        "key": "apache-2.0",
-        "name": "Apache License 2.0",
-        "spdx_id": "Apache-2.0",
-        "url": "https://api.github.com/licenses/apache-2.0",
-        "node_id": "MDc6TGljZW5zZTI="
-    },
+    "license": null,
     "forks": 0,
     "open_issues": 2,
     "watchers": 1,

@@ -128,7 +128,7 @@ class Config:
         return Config(
             token="Put your GitHub personal access token here",
             username="This your GitHub username",
-        )  # type: ignore
+        )
 
     def to_dict(self) -> ConfigDict:
         """

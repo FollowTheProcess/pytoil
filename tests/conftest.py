@@ -7,7 +7,7 @@ Created: 18/06/2021
 
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Union
+from typing import Dict, List, Union
 
 import pytest
 import toml
@@ -15,6 +15,8 @@ import yaml
 
 TESTDATA = Path(__file__).parent.joinpath("testdata")
 REPO_JSON = TESTDATA / "repo.json"
+REPO_NO_LICENSE = TESTDATA / "repo_no_license.json"
+REPO_LIST = TESTDATA / "repolist.json"
 
 
 @pytest.fixture
@@ -52,11 +54,8 @@ def fake_repos_response():
     cares about the name
     """
 
-    response: Dict[str, Any] = [
-        {"name": "repo1", "owner": "me", "blah": "bleh", "fork": True},
-        {"name": "repo2", "owner": "someguy", "blah": "bluh", "fork": False},
-        {"name": "repo3", "owner": "somegirl", "blah": "blah", "fork": True},
-    ]
+    with open(REPO_LIST, mode="r", encoding="utf-8") as f:
+        response = json.load(f)
 
     return response
 
@@ -71,9 +70,22 @@ def fake_repo_response():
     """
 
     with open(REPO_JSON, mode="r", encoding="utf-8") as f:
-        response_dict = json.load(f)
+        response = json.load(f)
 
-    return response_dict
+    return response
+
+
+@pytest.fixture
+def fake_repo_response_no_license():
+    """
+    Identical in every respect to fake_repo_response
+    but the license field is null.
+    """
+
+    with open(REPO_NO_LICENSE, mode="r", encoding="utf-8") as f:
+        response = json.load(f)
+
+    return response
 
 
 @pytest.fixture

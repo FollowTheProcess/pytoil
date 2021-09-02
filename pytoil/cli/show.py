@@ -8,16 +8,11 @@ Created: 18/06/2021
 
 import httpx
 import typer
-from rich import box
-from rich.console import Console
-from rich.table import Table
-from rich.text import Text
 from wasabi import msg
 
 from pytoil.api import API
 from pytoil.cli import utils
 from pytoil.config import Config
-from pytoil.repo import Repo
 
 app = typer.Typer(name="show")
 
@@ -113,7 +108,7 @@ def remote(
     api = API(username=config.username, token=config.token)
 
     try:
-        with msg.loading("Fetching your remote projects..."):
+        with msg.loading("Getting your remote projects...."):
             remote_projects = api.get_repo_names()
     except httpx.HTTPStatusError as err:
         utils.handle_http_status_errors(error=err)
@@ -273,42 +268,19 @@ def forks(
 
     api = API(username=config.username, token=config.token)
 
-    with msg.loading("Getting your Forks..."):
-        forks = api.get_fork_names()
-        parents = api.get_fork_parents(forks)
-
-        fork_parent_map = {fork: parent for fork, parent in zip(forks, parents)}
-
-    typer.secho("\nForked Projects:\n", fg=typer.colors.CYAN, bold=True)
-
-    if not forks:
-        msg.warn("You don't have any forks yet!", exits=0)
-
-    if count:
-        typer.echo(f"You have {len(fork_parent_map)} forked repos.")
+    try:
+        with msg.loading("Getting your forks..."):
+            forks = api.get_fork_names()
+    except httpx.HTTPStatusError as err:
+        utils.handle_http_status_errors(error=err)
     else:
-        # Make a pretty table
-        table = Table(box=box.SIMPLE)
-        table.add_column("Project", justify="center")
-        table.add_column("Forked from", justify="center")
-        table.add_column("Location", justify="center")
+        typer.secho("\nForked Projects:\n", fg=typer.colors.CYAN, bold=True)
 
-        # Populate the rows
-        for fork, parent in fork_parent_map.items():
-            fork_local = Repo(
-                owner=config.username,
-                name=fork,
-                local_path=config.projects_dir.joinpath(fork),
-            ).exists_local()
+        if not forks:
+            msg.warn("You don't have any forks yet!", exits=0)
 
-            local_message = (
-                Text("Local", style="green")
-                if fork_local
-                else Text("Remote", style="yellow")
-            )
-
-            table.add_row(fork, parent, local_message)
-
-        # Show the table
-        console = Console()
-        console.print(table)
+        if count:
+            typer.echo(f"You have {len(forks)} forked repos.")
+        else:
+            for fork in forks:
+                typer.echo(f"- {fork}")
