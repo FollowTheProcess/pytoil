@@ -47,7 +47,7 @@ DEFAULT_PYTHON: str = "3.9"
 PYTHON_VERSIONS: List[str] = [
     "3.8",
     "3.9",
-    "3.10.0-beta.4",  # This has to be like this to run on GitHub Actions properly
+    "3.10.0-rc.1",  # This has to be like this to run on GitHub Actions properly
 ]
 
 # List of seed packages to upgrade to their most
