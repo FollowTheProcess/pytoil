@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Optional, Set, Union
 
 import httpx
 
-Response = Dict[str, Any]
+from pytoil.api.models import Repository, RepoSummaryInfo
 
 
 class API:
@@ -42,7 +42,9 @@ class API:
             + f"(username={self.username!r}, token={self.token!r})"
         )
 
-    def get(self, endpoint: str, params: Optional[Dict[str, Any]] = None) -> Response:
+    def get(
+        self, endpoint: str, params: Optional[Dict[str, Any]] = None
+    ) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """
         Generic authenticated GET request method, used to make a GET
         to any valid GitHub REST v3 API endpoint e.g. 'user/repos'.
@@ -53,16 +55,17 @@ class API:
             pass with the request. Defaults to None.
 
         Returns:
-            Response: JSON Response dict.
+            Dict[str, Any]: JSON Response dict.
         """
         r = httpx.get(url=self.baseurl + endpoint, headers=self.headers, params=params)
         r.raise_for_status()
+        resp: Dict[str, Any] = r.json()
 
-        response: Response = r.json()
+        return resp
 
-        return response
-
-    def post(self, endpoint: str, params: Optional[Dict[str, Any]] = None) -> Response:
+    def post(
+        self, endpoint: str, params: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         """
         Generic authenticated POST request method, used to make a POST
         to any valid GitHub REST v3 API endpoint.
@@ -73,17 +76,16 @@ class API:
             pass with the request. Defaults to None.
 
         Returns:
-            Response: JSON Response dict.
+            Dict[str, Any]: JSON Response dict.
         """
 
         r = httpx.post(url=self.baseurl + endpoint, headers=self.headers, params=params)
         r.raise_for_status()
+        resp: Dict[str, Any] = r.json()
 
-        response: Response = r.json()
+        return resp
 
-        return response
-
-    def create_fork(self, owner: str, repo: str) -> Response:
+    def create_fork(self, owner: str, repo: str) -> Repository:
         """
         Create a fork of the specified repository for the authenticated
         user.
@@ -93,21 +95,21 @@ class API:
             repo (str): Name of the repo to be forked.
 
         Returns:
-            Response: JSON Response dict.
+            Repository: The GitHub Repository model for the new fork.
         """
+        response = self.post(endpoint=f"repos/{owner}/{repo}/forks")
+        return Repository(**response)
 
-        return self.post(endpoint=f"repos/{owner}/{repo}/forks")
-
-    def get_forks(self) -> Response:
+    def get_forks(self) -> List[Repository]:
         """
         Gets all the repos that are forks.
 
         Returns:
-            Response: JSON Response.
+            List[Repository]: List of GitHub Repositories belonging
+                to the authenticated user that are forks.
         """
         repos = self.get_repos()
-        # Mypy and JSON is hard!
-        return [repo for repo in repos if repo.get("fork", False)]  # type: ignore
+        return [repo for repo in repos if repo.fork]
 
     def get_fork_names(self) -> List[str]:
         """
@@ -118,24 +120,9 @@ class API:
             List[str]: Names of all the forked repos.
         """
         forks = self.get_forks()
+        return [fork.name for fork in forks]
 
-        return [fork.get("name") for fork in forks]  # type: ignore
-
-    def get_fork_parents(self, forks: List[str]) -> List[str]:
-        """
-        Gets the parent repos for all the users forks
-
-        Args:
-            forks (List[str]): Names of all users forks.
-
-        Returns:
-            List[str]: Full names (user/repo) of the fork parents.
-        """
-        forked_repos = [self.get_repo(fork) for fork in forks]
-        # Again, mypy and JSON is hard!
-        return [repo.get("parent").get("full_name") for repo in forked_repos]  # type: ignore # noqa: E501
-
-    def get_repo(self, repo: str) -> Response:
+    def get_repo(self, repo: str) -> Repository:
         """
         Get a user's repo by name.
 
@@ -144,20 +131,21 @@ class API:
                 (must be owned by the user or will raise a 404)
 
         Returns:
-            Response: JSON Response dict.
+            Repository: The GitHub Repository response model for the repo.
         """
+        response = self.get(endpoint=f"repos/{self.username}/{repo}")
+        return Repository(**response)  # type: ignore
 
-        return self.get(endpoint=f"repos/{self.username}/{repo}")
-
-    def get_repos(self) -> Response:
+    def get_repos(self) -> List[Repository]:
         """
         Gets all repos owned by the authenticated user.
 
         Returns:
-            Response: JSON Response dict.
+            List[Repository]: List of GitHub Repository objects belonging
+                to the authenticated user.
         """
-
-        return self.get(endpoint="user/repos", params={"type": "owner"})
+        response = self.get(endpoint="user/repos", params={"type": "owner"})
+        return [Repository(**item) for item in response]  # type: ignore
 
     def get_repo_names(self) -> Set[str]:
         """
@@ -166,11 +154,9 @@ class API:
         Returns:
             Set[str]: Names of all authenticated user repos.
         """
+        return {repo.name for repo in self.get_repos()}
 
-        # For whatever reason, mypy doesn't like this even though it's totally valid
-        return {repo["name"] for repo in self.get_repos()}  # type: ignore
-
-    def get_repo_info(self, repo: str) -> Dict[str, Union[str, int]]:
+    def get_repo_info(self, repo: str) -> RepoSummaryInfo:
         """
         Returns a dictionary of key information about a particular repo.
 
@@ -187,29 +173,17 @@ class API:
             repo (str): Name of the repo to get info for.
 
         Returns:
-            Dict[str, Union[str, int]]: Dict of repo information.
+            RepoSummaryInfo:
         """
+        repository = self.get_repo(repo)
 
-        raw_repo_data = self.get_repo(repo=repo)
-
-        keys_to_get: List[str] = [
-            "name",
-            "description",
-            "created_at",
-            "updated_at",
-            "size",
-            "license",
-        ]
-
-        display_dict: Dict[str, Union[str, int]] = {
-            key: raw_repo_data.get(key, "Not found") for key in keys_to_get
+        info_dict = {
+            "name": repository.name,
+            "description": repository.description,
+            "created_at": repository.created_at,
+            "updated_at": repository.updated_at,
+            "size": repository.size,
+            "license": repository.license.name if repository.license else None,
         }
 
-        # License is itself a dict
-        # Couldn't be bothered doing some clever recursive thing for one key
-        if raw_repo_data["license"]:
-            display_dict["license"] = raw_repo_data.get("license", "Not Found").get(
-                "name", "Not Found"
-            )
-
-        return display_dict
+        return RepoSummaryInfo(**info_dict)

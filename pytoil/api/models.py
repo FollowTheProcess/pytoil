@@ -112,7 +112,7 @@ class Repository(BaseModel):
     hooks_url: str
     svn_url: str
     homepage: Optional[str]
-    language: str
+    language: Optional[str]
     forks_count: int
     forks: int
     stargazers_count: int
@@ -137,18 +137,41 @@ class Repository(BaseModel):
     updated_at: datetime.datetime
     permissions: Dict[str, bool]
     allow_rebase_merge: Optional[bool]
-    temp_clone_token: str
+    temp_clone_token: Optional[str]
     allow_squash_merge: Optional[bool]
     allow_auto_merge: Optional[bool]
     delete_branch_on_merge: Optional[bool]
     allow_merge_commit: Optional[bool]
-    subscribers_count: int
-    network_count: int
+    subscribers_count: Optional[int]
+    network_count: Optional[int]
     template_repository: Optional[Repository]
-    license: License
+    license: Optional[License]
     organization: Optional[Owner]
     parent: Optional[Repository]
     source: Optional[Repository]
+
+
+class RepoSummaryInfo(BaseModel):
+    """
+    RepoSummaryInfo is the internal pytoil model used
+    to display basic info to the user about a repo.
+    """
+
+    name: str
+    description: str
+    created_at: datetime.datetime
+    updated_at: datetime.datetime
+    size: int
+    license: Optional[str]
+
+
+class RepoList(BaseModel):
+    """
+    RepoList is the model responsible for handling multiple
+    Repositories e.g. from the response from 'user/repos'
+    """
+
+    repos: List[Repository]
 
 
 # This ensures that recursive model definitions work as expected
