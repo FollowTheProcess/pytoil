@@ -135,7 +135,7 @@ class Repository(BaseModel):
     pushed_at: datetime.datetime
     created_at: datetime.datetime
     updated_at: datetime.datetime
-    permissions: Dict[str, bool]
+    permissions: Optional[Dict[str, bool]]
     allow_rebase_merge: Optional[bool]
     temp_clone_token: Optional[str]
     allow_squash_merge: Optional[bool]
