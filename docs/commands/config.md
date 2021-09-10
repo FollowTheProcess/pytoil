@@ -80,14 +80,6 @@ Config changed successfully!
 
     Pytoil uses [pydantic] under the hood to ensure the types of the values (e.g. bool, str, pathlib.Path etc.) are all handled properly so you basically can't go wrong!
 
-!!! warning
-
-    The only config key you can't currently set via the command line is `common_packages`. This is to do with the way shells and CLI apps handle lists and I don't see an easy way to solve it!
-
-    If you want to change this config setting, you will have to do it in the config file itself unfortunately :unamused:
-
-    Luckily, this tends to be a "fire and forget" setting, typically used for linters and formatters common to all python projects so you won't have to change it much!
-
 ## Show
 
 `show` is just a handy way of seeing what the current config is without having to go to the config file!
