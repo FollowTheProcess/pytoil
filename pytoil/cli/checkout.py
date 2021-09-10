@@ -189,6 +189,20 @@ def fork_repo(
     typer.confirm(
         f"This will fork '{owner}/{name}' to your GitHub. Are you sure?", abort=True
     )
+
+    # Check if we've already forked it, in which case the repo will already
+    # exist under the user's namespace
+    fork = Repo(
+        owner=config.username, name=name, local_path=config.projects_dir.joinpath(name)
+    )
+    if fork.exists_remote(api=api):
+        msg.warn(
+            f"Looks like you've already forked '{owner}/{name}'.",
+            text=f"Use 'pytoil checkout {name}' to pull down your fork.",
+            spaced=True,
+            exits=1,
+        )
+
     with msg.loading(f"Forking '{owner}/{name}'..."):
         try:
             api.create_fork(owner=owner, repo=name)
@@ -201,11 +215,6 @@ def fork_repo(
         # this may need to change and there is most likely a better way of doing this
         time.sleep(3)
 
-    # Now we check if the user's fork exists
-    # If not, we report that to the user and exit
-    fork = Repo(
-        owner=config.username, name=name, local_path=config.projects_dir.joinpath(name)
-    )
     code = VSCode(root=fork.local_path)
     if not fork.exists_remote(api=api):
         msg.warn(
