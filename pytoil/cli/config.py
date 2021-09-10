@@ -6,6 +6,7 @@ Created: 18/06/2021
 """
 
 import time
+from typing import Optional
 
 import typer
 from rich import box
@@ -103,10 +104,10 @@ def get(
     typer.secho(config_msg)
 
 
-@app.command()
+@app.command(context_settings={"allow_extra_args": True})
 def set(
+    ctx: typer.Context,
     key: str = typer.Argument(..., help="Config key to set the value for."),
-    val: str = typer.Argument(..., help="Value to set for <key>."),
     force: bool = typer.Option(
         False,
         "--force",
@@ -134,20 +135,47 @@ def set(
     if key not in defaults.CONFIG_KEYS:
         msg.warn(f"{key!r} is not a valid pytoil config key.", exits=1)
 
-    # Can't set a list via the command line
+    # This is how we handle setting common_packages which could be
+    # any length list
+    # Set max allowed args to 1 by default, but could also be None
+    max_allowed_args: Optional[int] = 1
+
+    # If user wants to set common packages, we unlock the limit for max
+    # allowed args, allowing them to pass whatever they like
     if key == "common_packages":
-        msg.warn("You can't set common_packages at the command line", exits=1)
+        max_allowed_args = None
 
     config = Config.from_file().to_dict()
 
-    new_setting = {key: val}
+    # If the max allowed args limit is in force (not None) and the
+    # length of the list of args is greater than the limit, we fail
+    # This means that every other config key will behave as before
+    if max_allowed_args and len(ctx.args) > max_allowed_args:
+        msg.fail(
+            f"Error: Expected {max_allowed_args} argument, got {ctx.args}",
+            spaced=True,
+            exits=1,
+        )
+
+    # Now we're good to go, we check if max_allowed_args limit is in force
+    # and pop it off the ctx.args list if so because we know there will only
+    # ever be 1
+    if isinstance(max_allowed_args, int):
+        arg = ctx.args.pop()
+    else:
+        # Here we know the max_allowed_args limit has been dropped so
+        # we simply return the list of arguments, which is exactly
+        # how we want common_packages to be encoded, happy days :)
+        arg = ctx.args
+
+    new_setting = {key: arg}
 
     config.update(new_setting)  # type: ignore
 
     new_config = Config.from_dict(config)
 
     if not force:
-        typer.confirm(f"This will set {key!r} to {val}. Are you sure?", abort=True)
+        typer.confirm(f"This will set {key!r} to {arg}. Are you sure?", abort=True)
 
     try:
         new_config.write()
