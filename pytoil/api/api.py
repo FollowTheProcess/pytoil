@@ -57,9 +57,12 @@ class API:
         Returns:
             Dict[str, Any]: JSON Response dict.
         """
-        r = httpx.get(url=self.baseurl + endpoint, headers=self.headers, params=params)
-        r.raise_for_status()
-        resp: Dict[str, Any] = r.json()
+        with httpx.Client(http2=True) as client:
+            r = client.get(
+                url=self.baseurl + endpoint, headers=self.headers, params=params
+            )
+            r.raise_for_status()
+            resp: Dict[str, Any] = r.json()
 
         return resp
 
@@ -78,10 +81,12 @@ class API:
         Returns:
             Dict[str, Any]: JSON Response dict.
         """
-
-        r = httpx.post(url=self.baseurl + endpoint, headers=self.headers, params=params)
-        r.raise_for_status()
-        resp: Dict[str, Any] = r.json()
+        with httpx.Client(http2=True) as client:
+            r = client.post(
+                url=self.baseurl + endpoint, headers=self.headers, params=params
+            )
+            r.raise_for_status()
+            resp: Dict[str, Any] = r.json()
 
         return resp
 
