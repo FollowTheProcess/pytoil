@@ -43,11 +43,9 @@ PYTHON = os.fsdecode(VENV_DIR / "bin" / "python")
 DEFAULT_PYTHON: str = "3.9"
 
 # All supported python versions for pytoil
-# TODO: Change 3.10-rc to 3.10 when it's released
 PYTHON_VERSIONS: List[str] = [
     "3.8",
     "3.9",
-    "3.10.0-rc.2",  # This has to be like this to run on GitHub Actions properly
 ]
 
 # List of seed packages to upgrade to their most
