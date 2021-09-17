@@ -71,7 +71,6 @@ pytest-mock = "^3.6.1"
 pytest-httpx = "^0.13.0"
 types-PyYAML = "^5.4.10"
 types-toml = "^0.1.5"
-interrogate = "^1.5.0"
 
 [tool.isort]
 # Added for compatability with black
@@ -85,22 +84,5 @@ omit = [
     "*abstract.py",
     "pytoil/cli/*",
     "pytoil/starters/base.py",
-    "pytoil/api/models.py" # For now
 ]
 branch = true
-
-[tool.interrogate]
-ignore-magic = true
-ignore-private = true
-ignore-init-module = true
-ignore-module = true
-ignore-property-decorators = true
-fail-under = 95
-exclude = [
-    "pytoil/exceptions.py",
-    "docs",
-    "build",
-    ".venv",
-]
-verbose = 0
-color = true
