@@ -19,7 +19,6 @@ def get_local_projects(path: Path) -> Set[str]:
     Returns all the projects (directories) under
     `path`.
     """
-
     return {f.name for f in path.iterdir() if f.is_dir() and not f.name.startswith(".")}
 
 
@@ -28,7 +27,6 @@ def warn_if_no_api_creds(config: Config) -> None:
     Will print a helpful warning message and exit the program
     if username or token are not filled out in the config file.
     """
-
     if not config.can_use_api():
         msg.warn(
             "You must fill set your username and token to use API features!",

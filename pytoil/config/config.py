@@ -82,7 +82,6 @@ class Config:
         Raises:
             FileNotFoundError: If config file not found.
         """
-
         try:
             with open(path, mode="r", encoding="utf-8") as f:
                 config_dict: ConfigDict = yaml.full_load(f)
@@ -103,7 +102,6 @@ class Config:
         Returns:
             Config: Returned `Config`.
         """
-
         # We can do this here because pydantic will handle
         # all the conversion between types under the hood
         return Config(**config_dict)  # type: ignore
@@ -121,7 +119,6 @@ class Config:
         Returns:
             Config: Helper config object.
         """
-
         # Typed ignored here because we know we're correct, mypy doesn't like this
         # probably something to do with Config being a pydantic model
         # not a pure python class
@@ -153,7 +150,6 @@ class Config:
             path (Path, optional): Config file to overwrite.
                 Defaults to defaults.CONFIG_FILE.
         """
-
         with open(path, mode="w", encoding="utf-8") as f:
             yaml.dump(self.to_dict(), f)
 
@@ -166,7 +162,6 @@ class Config:
         Returns:
             bool: True if can use API, else False.
         """
-
         conditions = [
             self.username == "",
             self.username == "This your GitHub username",

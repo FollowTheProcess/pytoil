@@ -71,7 +71,6 @@ class Git:
         Raises:
             subprocess.CalledProcessError: If the subprocess command fails.
         """
-
         self.raise_for_git()
 
         try:
@@ -106,7 +105,6 @@ class Git:
         Raises:
             subprocess.CalledProcessError: If the subprocess command fails.
         """
-
         self.run("clone", url, check=check, cwd=cwd, silent=silent)
 
     def init(self, path: Path, check: bool = True, silent: bool = False) -> None:
@@ -126,7 +124,6 @@ class Git:
         Raises:
             subprocess.CalledProcessError: If the subprocess command fails.
         """
-
         self.run("init", check=check, cwd=path, silent=silent)
 
     def set_upstream(

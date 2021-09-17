@@ -111,7 +111,6 @@ class Conda(Environment):
         Raises:
             CondaNotInstalledError: If `conda` not found on $PATH.
         """
-
         self.raise_for_conda()
 
         return self.executable.exists()
@@ -131,7 +130,6 @@ class Conda(Environment):
 
             EnvironmentAlreadyExistsError: If the conda environment already exists.
         """
-
         self.raise_for_conda()
 
         if self.exists():
@@ -176,7 +174,6 @@ class Conda(Environment):
         Returns:
             Conda: The returned Conda environment object for later use.
         """
-
         # Ensure we have a resolved project root filepath
         resolved_project_path = project_path.resolve()
         yml_file = resolved_project_path.joinpath("environment.yml")
@@ -229,7 +226,6 @@ class Conda(Environment):
             EnvironmentDoesNotExistError: If the conda env does not exist,
                 an environment file cannot be created.
         """
-
         self.raise_for_conda()
 
         if not self.exists():
@@ -278,7 +274,6 @@ class Conda(Environment):
         Raises:
             EnvironmentDoesNotExistError: If the conda environment does not exist.
         """
-
         self.raise_for_conda()
 
         if not self.exists():
@@ -326,7 +321,6 @@ class Conda(Environment):
             Path: The path to the users conda
                 environment storage directory.
         """
-
         # Map of all supported conda installations to their root directories
         supported: Dict[str, Path] = {
             "anaconda": Path.home().joinpath("anaconda3"),
