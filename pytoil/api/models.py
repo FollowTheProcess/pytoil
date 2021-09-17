@@ -165,15 +165,6 @@ class RepoSummaryInfo(BaseModel):
     license: Optional[str]
 
 
-class RepoList(BaseModel):
-    """
-    RepoList is the model responsible for handling multiple
-    Repositories e.g. from the response from 'user/repos'
-    """
-
-    repos: List[Repository]
-
-
 # This ensures that recursive model definitions work as expected
 # see https://pydantic-docs.helpmanual.io/usage/models/#recursive-models
 Repository.update_forward_refs()

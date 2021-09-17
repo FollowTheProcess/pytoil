@@ -97,7 +97,6 @@ class Repo:
 
             Dict[str, Union[str, int]]: Summary info.
         """
-
         info_dict: Dict[str, Any] = {}
 
         # Path.stat returns a UNIX timestamp for dates/times
@@ -193,7 +192,6 @@ class Repo:
             bool: True if pyproject.toml specifies
                 that build tool, else False.
         """
-
         # First check if it even has a pyproject.toml
         if not self.has_pyproject_toml():
             return False

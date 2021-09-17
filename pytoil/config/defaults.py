@@ -5,7 +5,6 @@ Author: Tom Fleet
 Created: 18/06/2021
 """
 
-
 import os
 from pathlib import Path
 from typing import List, Set

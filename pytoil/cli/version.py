@@ -49,7 +49,6 @@ def version_callback(value: bool) -> None:
     """
     Callback responsible for printing the version info.
     """
-
     version_dict: Dict[str, str] = {
         "python version": get_python_version(),
         "pytoil version": get_pytoil_version(),

@@ -56,7 +56,6 @@ class VSCode:
         Opens a project root in VSCode using the
         `code` CLI command.
         """
-
         self.raise_for_code()
 
         try:
@@ -79,7 +78,6 @@ class VSCode:
             python_path (pathlib.Path): The path of the
                 virtual environments python interpreter.
         """
-
         new_settings_dict: Dict[str, str] = {WORKSPACE_PYTHON_SETTING: str(python_path)}
 
         if not self.workspace_settings.exists():

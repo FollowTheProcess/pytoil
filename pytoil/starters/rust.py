@@ -65,7 +65,6 @@ class RustStarter(BaseStarter):
         This is basically all cargo, the only additional
         thing we do here is add in a README.
         """
-
         # Must have cargo installed
         self.raise_for_cargo()
 

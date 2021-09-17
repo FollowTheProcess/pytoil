@@ -103,7 +103,6 @@ class Venv(Environment):
         `python -m pip install --upgrade pip setuptools wheel`
         from the command line with the virtualenv activated.
         """
-
         # Validate the executable
         if not self.exists():
             raise MissingInterpreterError(f"Interpreter: {self.executable} not found.")
@@ -142,7 +141,6 @@ class Venv(Environment):
                 the virtualenv. If only 1 package, still must be in a list e.g.
                 `["black"]`.
         """
-
         cmd: List[str] = [f"{self.executable}", "-m", "pip", "install", "--quiet"]
 
         cmd.extend(packages)

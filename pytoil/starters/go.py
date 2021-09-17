@@ -67,7 +67,6 @@ class GoStarter(BaseStarter):
         `go mod init` in a subprocess to initialise the go
         modules file.
         """
-
         # Must have go installed to run go mod init
         self.raise_for_go()
 

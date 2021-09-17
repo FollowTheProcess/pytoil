@@ -51,7 +51,6 @@ class FlitEnv(Venv):
         Raises:
             FlitNotInstalledError: If `flit` not installed.
         """
-
         if not bool(shutil.which("flit")):
             raise FlitNotInstalledError(
                 "Flit not installed, cannot install flit based project."
