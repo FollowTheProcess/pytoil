@@ -79,7 +79,6 @@ SESSION_REQUIREMENTS: Dict[str, List[str]] = {
         "pydantic",
         "types-PyYAML",
         "types-toml",
-        "interrogate",
     ],
     "docs": [
         "mkdocs",
@@ -121,7 +120,6 @@ def poetry_install(session: nox.Session, *args: str, **kwargs: Any) -> None:
 
         kwargs: Keyword arguments passed to session.install.
     """
-
     with tempfile.NamedTemporaryFile() as requirements:
         session.run(
             "poetry",
@@ -148,7 +146,6 @@ def set_up_vscode(session: nox.Session) -> None:
     Args:
         session (nox.Session): The enclosing nox session.
     """
-
     if not VSCODE_DIR.exists():
         session.log("Setting up VSCode Workspace.")
         VSCODE_DIR.mkdir(parents=True)
@@ -172,7 +169,6 @@ def update_seeds(session: nox.Session) -> None:
     Args:
         session (nox.Session): The enclosing nox session.
     """
-
     session.install("--upgrade", *SEEDS)
 
 
@@ -195,7 +191,6 @@ def session_requires(session: nox.Session, tool: str) -> None:
 
         tool (str): Name of the external tool to check for.
     """
-
     if not bool(shutil.which(tool)):
         session.error(
             f"{tool!r} not installed. Session: {session.name!r} requires {tool!r}."
@@ -216,7 +211,6 @@ def get_session_requirements(session: nox.Session) -> List[str]:
     Returns:
         List[str]: List of requirements for the session.
     """
-
     requirements = SESSION_REQUIREMENTS.get(f"{session.name}", [])
     if not requirements:
         session.error(
@@ -288,7 +282,6 @@ def update_poetry(session: nox.Session) -> None:
     """
     Updates the dependencies in the poetry.lock file.
     """
-
     # Error out if user does not have poetry installed
     session_requires(session, "poetry")
     session.run("poetry", "update")
@@ -327,7 +320,6 @@ def update(session: nox.Session) -> None:
     """
     Updates the dependencies in the poetry.lock file.
     """
-
     # Error out if user does not have poetry installed
     session_requires(session, "poetry")
     session.run("poetry", "update")
@@ -338,7 +330,6 @@ def test(session: nox.Session) -> None:
     """
     Runs the test suite against all supported python versions.
     """
-
     # Error out if user does not have poetry installed
     session_requires(session, "poetry")
 
@@ -365,7 +356,6 @@ def coverage(session: nox.Session) -> None:
     """
     Test coverage analysis.
     """
-
     # Error out if user does not have poetry installed
     session_requires(session, "poetry")
 
@@ -387,7 +377,6 @@ def lint(session: nox.Session) -> None:
     """
     Formats project with black and isort, then runs flake8 and mypy linting.
     """
-
     # Error out if user does not have poetry installed
     session_requires(session, "poetry")
 
@@ -407,7 +396,6 @@ def lint(session: nox.Session) -> None:
 
     session.run("flake8", ".")
     session.run("mypy")
-    session.run("interrogate", f"{PROJECT_SRC}", "-v")
 
 
 @nox.session(python=DEFAULT_PYTHON)
@@ -415,7 +403,6 @@ def docs(session: nox.Session) -> None:
     """
     Builds the project documentation. Use '-- serve' to see changes live.
     """
-
     # Error out if user does not have poetry installed
     session_requires(session, "poetry")
 
@@ -436,7 +423,6 @@ def build(session: nox.Session) -> None:
     """
     Builds the package sdist and wheel.
     """
-
     # Error out if user does not have poetry installed
     session_requires(session, "poetry")
 
@@ -457,7 +443,6 @@ def release(session: nox.Session) -> None:
 
     $ nox -s release -- [major|minor|patch]
     """
-
     enforce_branch_no_changes(session)
 
     allowed_args: Set[str] = {"major", "minor", "patch"}
