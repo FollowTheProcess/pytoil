@@ -388,11 +388,11 @@ def lint(session: nox.Session) -> None:
     # If we're on CI, run in check mode so build fails if formatting isn't correct
     if ON_CI:
         session.run("isort", ".", "--check")
-        session.run("black", ".", "--check")
+        session.run("black", ".", "--check", "--experimental-string-processing")
     else:
         # If local, go ahead and fix formatting
         session.run("isort", ".")
-        session.run("black", ".")
+        session.run("black", ".", "--experimental-string-processing")
 
     session.run("flake8", ".")
     session.run("mypy")

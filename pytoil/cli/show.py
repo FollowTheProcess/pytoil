@@ -239,7 +239,8 @@ def diff(
 
         if count:
             typer.echo(
-                f"You have {len(diff)} projects on GitHub that aren't available locally."  # noqa: E501
+                f"You have {len(diff)} projects on GitHub that aren't available"
+                " locally."
             )
         else:
             for project in sorted(diff, key=str.casefold):

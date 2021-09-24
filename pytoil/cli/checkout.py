@@ -145,7 +145,10 @@ def checkout(
         else:
             msg.warn(
                 title=f"{repo.name} not found locally or on GitHub!",
-                text=f"Does it exist? If not, create a new project with 'pytoil new {repo.name}'.",  # noqa: E501
+                text=(
+                    "Does it exist? If not, create a new project with 'pytoil new"
+                    f" {repo.name}'."
+                ),
                 exits=1,
             )
 
@@ -153,8 +156,10 @@ def checkout(
         # User has passed garbage
         msg.fail(
             f"Argument: {project} did not match any valid syntax.",
-            text="Valid syntax is 'project' for a local or remote project you own, "
-            "or 'user/project' to fork a repo you don't own.",
+            text=(
+                "Valid syntax is 'project' for a local or remote project you own, or"
+                " 'user/project' to fork a repo you don't own."
+            ),
             exits=1,
             spaced=True,
         )
@@ -219,8 +224,10 @@ def fork_repo(
     if not fork.exists_remote(api=api):
         msg.warn(
             "Fork not available yet",
-            text="Forking happens asynchronously so this is normal. "
-            "Give it a few more seconds and try checking it out again.",
+            text=(
+                "Forking happens asynchronously so this is normal. Give it a few more"
+                " seconds and try checking it out again."
+            ),
             exits=1,
         )
 
