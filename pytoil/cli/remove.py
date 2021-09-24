@@ -101,14 +101,14 @@ def remove(
         elif len(projects) <= 5:
             typer.confirm(
                 f"This will delete {', '.join(projects)} from your local filesystem."
-                " Are you sure?",  # noqa: E501
+                " Are you sure?",
                 abort=True,
             )
         else:
             # Too many to print out nicely
             typer.confirm(
                 f"This will delete {len(projects)} projects from your local filesystem."
-                " Are you sure?",  # noqa: E501
+                " Are you sure?",
                 abort=True,
             )
 
