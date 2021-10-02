@@ -1,5 +1,5 @@
 """
-Nox configuration file for the project.
+Nox automation tasks for pytoil.
 """
 
 import json
@@ -14,7 +14,7 @@ from typing import Any, Dict, List, Set
 import nox
 
 # Nox config
-nox.needs_version = ">=2021.6.6"
+nox.needs_version = ">=2021.10.1"
 nox.options.error_on_external_run = True
 
 # GitHub Actions
