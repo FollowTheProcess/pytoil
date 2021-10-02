@@ -38,7 +38,7 @@ CONFIG_SCHEMA = """
 
 # The .pytoil.yml config file
 
-## projects_dir *(bool)*
+## projects_dir *(str)*
 
 The absolute path to where you keep your development projects
 (e.g. /Users/you/Projects).
