@@ -2,6 +2,7 @@
 Nox automation tasks for pytoil.
 """
 
+import argparse
 import json
 import os
 import shutil
@@ -9,7 +10,7 @@ import subprocess
 import tempfile
 import webbrowser
 from pathlib import Path
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List
 
 import nox
 
@@ -445,21 +446,16 @@ def release(session: nox.Session) -> None:
     """
     enforce_branch_no_changes(session)
 
-    allowed_args: Set[str] = {"major", "minor", "patch"}
-    n_args: int = len(session.posargs)
-
-    if n_args != 1:
-        session.error(
-            f"Only 1 session arg allowed, got {n_args}. Pass one of: {allowed_args}"
-        )
-
-    # If we get here, we know there's only 1 posarg
-    version = session.posargs.pop()
-
-    if version not in allowed_args:
-        session.error(
-            f"Invalid argument: got {version!r}, expected one of: {allowed_args}"
-        )
+    parser = argparse.ArgumentParser(description="Release a semver version.")
+    parser.add_argument(
+        "version",
+        type=str,
+        nargs=1,
+        help="The type of semver release to make.",
+        choices={"major", "minor", "patch"},
+    )
+    args: argparse.Namespace = parser.parse_args(args=session.posargs)
+    version: str = args.version.pop()
 
     # If we get here, we should be good to go
     # Let's do a final check for safety
