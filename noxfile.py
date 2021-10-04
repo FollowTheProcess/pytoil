@@ -69,8 +69,7 @@ SESSION_REQUIREMENTS: Dict[str, List[str]] = {
         "pytest-cov",
         "pytest-httpx",
         "pytest-mock",
-        "coverage",
-        "toml",
+        "coverage[toml]",
     ],
     "lint": [
         "flake8",
@@ -86,9 +85,8 @@ SESSION_REQUIREMENTS: Dict[str, List[str]] = {
         "mkdocs-material",
     ],
     "coverage": [
-        "coverage",
+        "coverage[toml]",
         "coverage-badge",
-        "toml",
     ],
 }
 
