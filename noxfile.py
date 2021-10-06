@@ -41,12 +41,13 @@ VENV_DIR = PROJECT_ROOT / ".venv"
 PYTHON = os.fsdecode(VENV_DIR / "bin" / "python")
 
 # Python to use for non-test sessions
-DEFAULT_PYTHON: str = "3.9"
+DEFAULT_PYTHON: str = "3.10"
 
 # All supported python versions for pytoil
 PYTHON_VERSIONS: List[str] = [
     "3.8",
     "3.9",
+    "3.10",
 ]
 
 # List of seed packages to upgrade to their most
