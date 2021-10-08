@@ -241,6 +241,13 @@ def test_create_from_yml_correctly_calls_subprocess(
         return_value=Path("/Users/testyconda3/envs"),
     )
 
+    # Ensure it doesn't raise if conda doesn't exist
+    mocker.patch(
+        "pytoil.environments.conda.Conda.raise_for_conda",
+        autospec=True,
+        return_value=None,
+    )
+
     expected_cmd: List[str] = [
         "conda",
         "env",
@@ -285,6 +292,13 @@ def test_create_from_yml_raises_if_env_already_exists(
 
     mocker.patch("pytoil.environments.Conda.exists", autospec=True, return_value=True)
 
+    # Ensure it doesn't raise if conda doesn't exist
+    mocker.patch(
+        "pytoil.environments.conda.Conda.raise_for_conda",
+        autospec=True,
+        return_value=None,
+    )
+
     with pytest.raises(EnvironmentAlreadyExistsError):
         Conda.create_from_yml(project_path=temp_environment_yml.parent)
 
@@ -304,6 +318,13 @@ def test_create_from_yml_raises_on_subprocess_error(
         "pytoil.environments.conda.Conda.get_envs_dir",
         autospec=True,
         return_value=Path("/Users/testyconda3/envs"),
+    )
+
+    # Ensure it doesn't raise if conda doesn't exist
+    mocker.patch(
+        "pytoil.environments.conda.Conda.raise_for_conda",
+        autospec=True,
+        return_value=None,
     )
 
     with pytest.raises(subprocess.CalledProcessError):
