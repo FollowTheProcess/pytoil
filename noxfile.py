@@ -418,6 +418,37 @@ def docs(session: nox.Session) -> None:
         session.run("mkdocs", "build", "--clean")
 
 
+@nox.session
+def deploy_docs(session: nox.Session) -> None:
+    """
+    Used by GitHub actions to deploy docs to GitHub Pages.
+    """
+    session_requires(session, "poetry")
+
+    requirements = SESSION_REQUIREMENTS.get("docs")
+    if not requirements:
+        session.error("Could not find requirements for 'docs' in SESSION_REQUIREMENTS")
+
+    update_seeds(session)
+    poetry_install(session, *requirements)
+
+    if ON_CI:
+        session.run(
+            "git",
+            "remote",
+            "add",
+            "gh-token",
+            "https://${GITHUB_TOKEN}@github.com/FollowTheProcess/gotoil.git",
+            external=True,
+        )
+        session.run("git", "fetch", "gh-token", external=True)
+        session.run("git", "fetch", "gh-token", "gh-pages:gh-pages", external=True)
+
+        session.run("mkdocs", "gh-deploy", "-v", "--clean", "--remote-name", "gh-token")
+    else:
+        session.run("mkdocs", "gh-deploy")
+
+
 @nox.session(python=DEFAULT_PYTHON)
 def build(session: nox.Session) -> None:
     """
