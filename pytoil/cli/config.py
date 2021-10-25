@@ -166,7 +166,7 @@ def set(
         # Here we know the max_allowed_args limit has been dropped so
         # we simply return the list of arguments, which is exactly
         # how we want common_packages to be encoded, happy days :)
-        arg = ctx.args
+        arg = ctx.args  # type: ignore
 
     new_setting = {key: arg}
 
