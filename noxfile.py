@@ -430,7 +430,7 @@ def deploy_docs(session: nox.Session) -> None:
         session.error("Could not find requirements for 'docs' in SESSION_REQUIREMENTS")
 
     update_seeds(session)
-    poetry_install(session, *requirements)
+    poetry_install(session, *requirements)  # type: ignore
 
     if ON_CI:
         session.run(
