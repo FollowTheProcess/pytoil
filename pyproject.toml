@@ -70,7 +70,7 @@ mkdocs = "^1.2.3"
 mkdocs-material = "^7.3.5"
 pytest-mock = "^3.6.1"
 pytest-httpx = "^0.13.0"
-types-PyYAML = "^5.4.11"
+types-PyYAML = "^6.0.0"
 types-toml = "^0.10.1"
 
 [tool.isort]
