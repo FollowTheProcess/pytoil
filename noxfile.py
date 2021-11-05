@@ -438,7 +438,7 @@ def deploy_docs(session: nox.Session) -> None:
             "remote",
             "add",
             "gh-token",
-            "https://${GITHUB_TOKEN}@github.com/FollowTheProcess/gotoil.git",
+            "https://${GITHUB_TOKEN}@github.com/FollowTheProcess/pytoil.git",
             external=True,
         )
         session.run("git", "fetch", "gh-token", external=True)
