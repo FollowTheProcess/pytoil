@@ -222,14 +222,14 @@ toml = ["toml"]
 
 [[package]]
 name = "coverage-badge"
-version = "1.0.2"
+version = "1.1.0"
 description = "Generate coverage badges for Coverage.py."
 category = "dev"
 optional = false
 python-versions = "*"
 
 [package.dependencies]
-coverage = ">=5.0.0,<6.0.0"
+coverage = "*"
 
 [[package]]
 name = "distlib"
@@ -989,7 +989,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "e9b33eb369f3a6eca41c4ac8bf279ac46b8507bfbe8d121a9abfaf9c3dad1864"
+content-hash = "39a6eaf76e84ab3857ca6e8222af7a7a109f11ceaf4b99f55c5fe2e18c35d935"
 
 [metadata.files]
 anyio = [
@@ -1115,8 +1115,8 @@ coverage = [
     {file = "coverage-5.5.tar.gz", hash = "sha256:ebe78fe9a0e874362175b02371bdfbee64d8edc42a044253ddf4ee7d3c15212c"},
 ]
 coverage-badge = [
-    {file = "coverage-badge-1.0.2.tar.gz", hash = "sha256:5060b991040cc0a5d7e3e45f96dd75db9ed7bc921f1802df6eec8706fc79b2ec"},
-    {file = "coverage_badge-1.0.2-py2.py3-none-any.whl", hash = "sha256:76aa88a7d78e9b48931226a2b3275118dfbf3d40975f0170a19abe1aa26521d3"},
+    {file = "coverage-badge-1.1.0.tar.gz", hash = "sha256:c824a106503e981c02821e7d32f008fb3984b2338aa8c3800ec9357e33345b78"},
+    {file = "coverage_badge-1.1.0-py2.py3-none-any.whl", hash = "sha256:e365d56e5202e923d1b237f82defd628a02d1d645a147f867ac85c58c81d7997"},
 ]
 distlib = [
     {file = "distlib-0.3.3-py2.py3-none-any.whl", hash = "sha256:c8b54e8454e5bf6237cc84c20e8264c3e991e824ef27e8f1e81049867d861e31"},
