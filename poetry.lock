@@ -222,14 +222,14 @@ toml = ["toml"]
 
 [[package]]
 name = "coverage-badge"
-version = "1.0.2"
+version = "1.1.0"
 description = "Generate coverage badges for Coverage.py."
 category = "dev"
 optional = false
 python-versions = "*"
 
 [package.dependencies]
-coverage = ">=5.0.0,<6.0.0"
+coverage = "*"
 
 [[package]]
 name = "distlib"
@@ -647,7 +647,7 @@ python-versions = ">=3.5"
 
 [[package]]
 name = "pymdown-extensions"
-version = "9.0"
+version = "9.1"
 description = "Extension pack for Python Markdown."
 category = "dev"
 optional = false
@@ -989,7 +989,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "e9b33eb369f3a6eca41c4ac8bf279ac46b8507bfbe8d121a9abfaf9c3dad1864"
+content-hash = "39a6eaf76e84ab3857ca6e8222af7a7a109f11ceaf4b99f55c5fe2e18c35d935"
 
 [metadata.files]
 anyio = [
@@ -1115,8 +1115,8 @@ coverage = [
     {file = "coverage-5.5.tar.gz", hash = "sha256:ebe78fe9a0e874362175b02371bdfbee64d8edc42a044253ddf4ee7d3c15212c"},
 ]
 coverage-badge = [
-    {file = "coverage-badge-1.0.2.tar.gz", hash = "sha256:5060b991040cc0a5d7e3e45f96dd75db9ed7bc921f1802df6eec8706fc79b2ec"},
-    {file = "coverage_badge-1.0.2-py2.py3-none-any.whl", hash = "sha256:76aa88a7d78e9b48931226a2b3275118dfbf3d40975f0170a19abe1aa26521d3"},
+    {file = "coverage-badge-1.1.0.tar.gz", hash = "sha256:c824a106503e981c02821e7d32f008fb3984b2338aa8c3800ec9357e33345b78"},
+    {file = "coverage_badge-1.1.0-py2.py3-none-any.whl", hash = "sha256:e365d56e5202e923d1b237f82defd628a02d1d645a147f867ac85c58c81d7997"},
 ]
 distlib = [
     {file = "distlib-0.3.3-py2.py3-none-any.whl", hash = "sha256:c8b54e8454e5bf6237cc84c20e8264c3e991e824ef27e8f1e81049867d861e31"},
@@ -1371,8 +1371,8 @@ pygments = [
     {file = "Pygments-2.10.0.tar.gz", hash = "sha256:f398865f7eb6874156579fdf36bc840a03cab64d1cde9e93d68f46a425ec52c6"},
 ]
 pymdown-extensions = [
-    {file = "pymdown-extensions-9.0.tar.gz", hash = "sha256:01e4bec7f4b16beaba0087a74496401cf11afd69e3a11fe95cb593e5c698ef40"},
-    {file = "pymdown_extensions-9.0-py3-none-any.whl", hash = "sha256:430cc2fbb30cef2df70edac0b4f62614a6a4d2b06462e32da4ca96098b7c1dfb"},
+    {file = "pymdown-extensions-9.1.tar.gz", hash = "sha256:74247f2c80f1d9e3c7242abe1c16317da36c6f26c7ad4b8a7f457f0ec20f0365"},
+    {file = "pymdown_extensions-9.1-py3-none-any.whl", hash = "sha256:b03e66f91f33af4a6e7a0e20c740313522995f69a03d86316b1449766c473d0e"},
 ]
 pyparsing = [
     {file = "pyparsing-3.0.6-py3-none-any.whl", hash = "sha256:04ff808a5b90911829c55c4e26f75fa5ca8a2f5f36aa3a51f68e27033341d3e4"},
@@ -1542,6 +1542,7 @@ types-toml = [
 ]
 typing-extensions = [
     {file = "typing_extensions-4.0.0-py3-none-any.whl", hash = "sha256:829704698b22e13ec9eaf959122315eabb370b0884400e9818334d8b677023d9"},
+    {file = "typing_extensions-4.0.0.tar.gz", hash = "sha256:2cdf80e4e04866a9b3689a51869016d36db0814d84b8d8a568d22781d45d27ed"},
 ]
 urllib3 = [
     {file = "urllib3-1.26.7-py2.py3-none-any.whl", hash = "sha256:c4fdf4019605b6e5423637e01bc9fe4daef873709a7973e195ceba0a62bbc844"},
