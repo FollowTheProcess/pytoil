@@ -64,7 +64,7 @@ nox = ">=2021.10.1"
 black = ">=21.8b0"
 pytest-cov = "^3.0.0"
 coverage-badge = "^1.1.0"
-coverage = {extras = ["toml"], version = "^5.5.0"}
+coverage = {extras = ["toml"], version = "^6.1.2"}
 mypy = ">=0.910"
 mkdocs = "^1.2.3"
 mkdocs-material = "^7.3.6"
