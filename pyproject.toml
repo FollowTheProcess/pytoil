@@ -67,7 +67,7 @@ coverage-badge = "^1.1.0"
 coverage = {extras = ["toml"], version = "^6.2"}
 mypy = ">=0.910"
 mkdocs = "^1.2.3"
-mkdocs-material = "^8.0.2"
+mkdocs-material = "^8.0.4"
 pytest-mock = "^3.6.1"
 pytest-httpx = "^0.13.0"
 types-PyYAML = "^6.0.1"
