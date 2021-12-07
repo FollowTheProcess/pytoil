@@ -951,7 +951,7 @@ testing = ["coverage (>=4)", "coverage-enable-subprocess (>=1)", "flaky (>=3)", 
 
 [[package]]
 name = "wasabi"
-version = "0.8.2"
+version = "0.9.0"
 description = "A lightweight console printing and formatting toolkit"
 category = "main"
 optional = false
@@ -983,7 +983,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "c05e3fc61547e1c6693370c138c5d23265c0a0fc7e94d0cd290999dbe4dafce8"
+content-hash = "48115b08541abec17d2f63c1c3a78250839ef1b8b54a28c4d8858393a2c876a8"
 
 [metadata.files]
 anyio = [
@@ -1491,8 +1491,8 @@ virtualenv = [
     {file = "virtualenv-20.10.0.tar.gz", hash = "sha256:576d05b46eace16a9c348085f7d0dc8ef28713a2cabaa1cf0aea41e8f12c9218"},
 ]
 wasabi = [
-    {file = "wasabi-0.8.2-py3-none-any.whl", hash = "sha256:a493e09d86109ec6d9e70d040472f9facc44634d4ae6327182f94091ca73a490"},
-    {file = "wasabi-0.8.2.tar.gz", hash = "sha256:b4a36aaa9ca3a151f0c558f269d442afbb3526f0160fd541acd8a0d5e5712054"},
+    {file = "wasabi-0.9.0-py3-none-any.whl", hash = "sha256:f40f317981d019903db5b69eb2bf78519c9e165c1dfdbd0452e4ca81ff9a31d2"},
+    {file = "wasabi-0.9.0.tar.gz", hash = "sha256:152245d892030a3a7b511038e9472acff6d0e237cfe4123fef0d147f2d3274fc"},
 ]
 watchdog = [
     {file = "watchdog-2.1.6-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:9693f35162dc6208d10b10ddf0458cc09ad70c30ba689d9206e02cd836ce28a3"},
