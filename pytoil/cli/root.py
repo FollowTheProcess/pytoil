@@ -12,7 +12,7 @@ Created: 18/06/2021
 
 import typer
 
-from pytoil.cli import checkout, config, docs, gh, info, new, pull, remove, show
+from pytoil.cli import checkout, config, docs, find, gh, info, new, pull, remove, show
 from pytoil.cli.version import version_callback
 
 # Create the root app
@@ -29,6 +29,7 @@ app.registered_commands += (
     + info.app.registered_commands
     + remove.app.registered_commands
     + pull.app.registered_commands
+    + find.app.registered_commands
 )
 
 # Add the sub command groups
