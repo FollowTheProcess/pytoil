@@ -14,6 +14,7 @@ nav:
       - Checkout: commands/checkout.md
       - Remove: commands/remove.md
       - Info: commands/info.md
+      - Find: commands/find.md
       - GH: commands/gh.md
       - Pull: commands/pull.md
       - Config: commands/config.md
