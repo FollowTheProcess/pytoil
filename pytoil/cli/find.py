@@ -61,14 +61,16 @@ def find(
 
     api = API(username=config.username, token=config.token)
 
-    local_projects = utils.get_local_projects(path=config.projects_dir)
-    remote_projects = api.get_repo_names()
+    with msg.loading("Searching your projects..."):
 
-    all_projects = local_projects.union(remote_projects)
+        local_projects = utils.get_local_projects(path=config.projects_dir)
+        remote_projects = api.get_repo_names()
 
-    matches: List[Tuple[str, int]] = process.extractBests(
-        project, all_projects, limit=results, score_cutoff=FUZZY_SCORE_CUTOFF
-    )
+        all_projects = local_projects.union(remote_projects)
+
+        matches: List[Tuple[str, int]] = process.extractBests(
+            project, all_projects, limit=results, score_cutoff=FUZZY_SCORE_CUTOFF
+        )
 
     table = Table(box=box.SIMPLE)
     table.add_column("Project", style="cyan", justify="center")
