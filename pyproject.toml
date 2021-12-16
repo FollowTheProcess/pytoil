@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "pytoil"
-version = "0.14.4"
+version = "0.15.0"
 description = "CLI to automate the development workflow."
 authors = ["Tom Fleet <tomfleet2018@gmail.com>"]
 maintainers = ["Tom Fleet <tomfleet2018@gmail.com>"]
