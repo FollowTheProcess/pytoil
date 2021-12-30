@@ -1,91 +1,128 @@
-"""
-Test fixtures and other handy stuff.
-
-Author: Tom Fleet
-Created: 18/06/2021
-"""
-
-import json
 from pathlib import Path
 from typing import Dict, List, Union
 
+import aiofiles
 import pytest
-import toml
+import tomlkit
 import yaml
 
-TESTDATA = Path(__file__).parent.joinpath("testdata")
-REPO_JSON = TESTDATA / "repo.json"
-REPO_NO_LICENSE = TESTDATA / "repo_no_license.json"
-REPO_LIST = TESTDATA / "repolist.json"
-
 
 @pytest.fixture
-def temp_config_file(tmp_path_factory):
+def fake_get_repo_names_response():
     """
-    Returns a totally valid config file.
+    Response snippet for the get_repo_names GraphQL
+    query.
     """
 
-    config_file = tmp_path_factory.mktemp("temp").joinpath(".pytoil.yml")
-
-    yaml_dict: Dict[str, str] = {
-        "username": "tempfileuser",
-        "token": "tempfiletoken",
-        "projects_dir": "/Users/tempfileuser/projects",
-        "vscode": True,
-        "common_packages": ["black", "flake8", "mypy"],
-        "init_on_new": True,
+    return {
+        "data": {
+            "user": {
+                "repositories": {
+                    "nodes": [
+                        {"name": "dingle"},
+                        {"name": "dongle"},
+                        {"name": "dangle"},
+                        {"name": "a_cool_project"},
+                        {"name": "another"},
+                        {"name": "yetanother"},
+                        {"name": "hello"},
+                    ]
+                }
+            }
+        }
     }
 
-    with open(config_file, "w") as f:
-        yaml.dump(yaml_dict, f)
 
-    return config_file
+@pytest.fixture
+def fake_get_fork_names_response():
+    """
+    Response snippet for the get_fork_names
+    graphQL query.
+    """
+    return {
+        "data": {
+            "user": {
+                "repositories": {
+                    "nodes": [
+                        {"name": "afork"},
+                        {"name": "aspoon"},
+                        {"name": "anotherfork"},
+                    ]
+                }
+            }
+        }
+    }
 
 
 @pytest.fixture
-def fake_repos_response():
+def fake_repo_exists_false_response():
     """
-    Made up response with a list of repos.
-
-    I tried using an actual snipped from my own user/repos JSON
-    but it was too big to deal with efficiently during tests.
-
-    Plus when dealing with a list of repo's pytoil only really
-    cares about the name
+    Response snippet for the check_repo_exists GraphQL
+    query when the requested repo does not exist.
     """
-
-    with open(REPO_LIST, mode="r", encoding="utf-8") as f:
-        response = json.load(f)
-
-    return response
+    return {
+        "data": {"repository": None},
+        "errors": [
+            {
+                "type": "NOT_FOUND",
+                "path": ["repository"],
+                "locations": [{"line": 7, "column": 3}],
+                "message": (
+                    "Could not resolve to a Repository with the name"
+                    " 'FollowTheProcess/dave'."
+                ),
+            }
+        ],
+    }
 
 
 @pytest.fixture
-def fake_repo_response():
+def fake_repo_exists_true_response():
     """
-    Actual repo JSON taken from this repo.
-
-    Pytoil gets much more out of an individual repo's JSON
-    response so this is an actual response.
+    Response snippet for the check_repo_exists GraphQL
+    query when the requested repo exists.
     """
-
-    with open(REPO_JSON, mode="r", encoding="utf-8") as f:
-        response = json.load(f)
-
-    return response
+    return {"data": {"repository": {"name": "pytoil"}}}
 
 
 @pytest.fixture
-def fake_repo_response_no_license():
+def fake_repo_info_response():
     """
-    Identical in every respect to fake_repo_response
-    but the license field is null.
+    Response snippet for the get_repo_info GraphQL
+    query.
     """
+    return {
+        "data": {
+            "repository": {
+                "name": "pytoil",
+                "description": "CLI to automate the development workflow :robot:",
+                "createdAt": "2021-02-04T15:05:23Z",
+                "updatedAt": "2021-12-27T13:31:53Z",
+                "diskUsage": 3153,
+                "licenseInfo": {"name": "Apache License 2.0"},
+            }
+        }
+    }
 
-    with open(REPO_NO_LICENSE, mode="r", encoding="utf-8") as f:
-        response = json.load(f)
 
-    return response
+@pytest.fixture
+def fake_repo_info_response_no_license():
+    """
+    Response snippet for the get_repo_info GraphQL
+    query.
+    """
+    return {
+        "data": {
+            "repository": {
+                "name": "pytoil",
+                "description": "CLI to automate the development workflow :robot:",
+                "createdAt": "2021-02-04T15:05:23Z",
+                "updatedAt": "2021-12-27T13:31:53Z",
+                "diskUsage": 3153,
+                "licenseInfo": None,
+            }
+        }
+    }
 
 
 @pytest.fixture
@@ -113,7 +150,7 @@ def fake_projects_dir(tmp_path_factory):
 
 
 @pytest.fixture
-def temp_environment_yml(tmp_path_factory):
+async def temp_environment_yml(tmp_path_factory):
     """
     Returns a valid temporary environment.yml file
     """
@@ -121,30 +158,31 @@ def temp_environment_yml(tmp_path_factory):
     env_file: Path = tmp_path_factory.mktemp("temp").joinpath("environment.yml")
 
     fake_env_info: Dict[str, Union[str, List[str]]] = {
-        "name": "my_yml_env",
+        "name": "testy",
         "channels": ["defaults", "conda-forge"],
         "dependencies": [
-            "python>3.7",
+            "python=3",
             "invoke",
             "black",
             "flake8",
             "isort",
             "mypy",
             "rich",
-            "requests",
             "numpy",
+            "requests",
             "pandas",
         ],
     }
 
-    with open(env_file, mode="w", encoding="utf-8") as f:
-        yaml.dump(fake_env_info, f)
+    async with aiofiles.open(env_file, mode="w", encoding="utf-8") as f:
+        content = yaml.dump(fake_env_info)
+        await f.write(content)
 
     return env_file
 
 
 @pytest.fixture
-def bad_temp_environment_yml(tmp_path_factory):
+async def bad_temp_environment_yml(tmp_path_factory):
     """
     Returns an invalid temporary environment.yml file
     """
@@ -169,40 +207,9 @@ def bad_temp_environment_yml(tmp_path_factory):
         ],
     }
 
-    with open(env_file, "w") as f:
-        yaml.dump(fake_env_info, f)
-
-    return env_file
-
-
-@pytest.fixture
-def bad_temp_environment_yml_2(tmp_path_factory):
-    """
-    Returns an invalid temporary environment.yml file
-    """
-
-    env_file: Path = tmp_path_factory.mktemp("temp").joinpath("environment.yml")
-
-    # name must be a string
-    fake_env_info = {
-        "name": ["list", "of", "names"],
-        "channels": ["defaults", "conda-forge"],
-        "dependencies": [
-            "python>3.7",
-            "invoke",
-            "black",
-            "flake8",
-            "isort",
-            "mypy",
-            "rich",
-            "requests",
-            "numpy",
-            "pandas",
-        ],
-    }
-
-    with open(env_file, "w") as f:
-        yaml.dump(fake_env_info, f)
+    async with aiofiles.open(env_file, "w") as f:
+        content = yaml.dump(fake_env_info)
+        await f.write(content)
 
     return env_file
 
@@ -212,7 +219,6 @@ def fake_home_folder_miniconda(tmp_path_factory):
     """
     Returns a faked $HOME folder. Should be used as the return
     value from pathlib.Path.home().
-
     Designed to test the auto detection of conda environment
     storage directory.
     """
@@ -230,7 +236,6 @@ def fake_home_folder_anaconda(tmp_path_factory):
     """
     Returns a faked $HOME folder. Should be used as the return
     value from pathlib.Path.home().
-
     Designed to test the auto detection of conda environment
     storage directory.
     """
@@ -248,7 +253,6 @@ def fake_home_folder_miniforge(tmp_path_factory):
     """
     Returns a faked $HOME folder. Should be used as the return
     value from pathlib.Path.home().
-
     Designed to test the auto detection of conda environment
     storage directory.
     """
@@ -266,7 +270,6 @@ def fake_home_folder_mambaforge(tmp_path_factory):
     """
     Returns a faked $HOME folder. Should be used as the return
     value from pathlib.Path.home().
-
     Designed to test the auto detection of conda environment
     storage directory.
     """
@@ -283,7 +286,6 @@ def fake_home_folder_mambaforge(tmp_path_factory):
 def fake_home_folder_no_conda(tmp_path_factory):
     """
     Returns a faked $HOME but without any conda dirs.
-
     To test whether get_envs_dir raises correctly.
     """
 
@@ -332,7 +334,6 @@ def project_with_no_build_backend(tmp_path_factory):
     """
     Returns a temporary directory containing a
     pyproject.toml.
-
     This time we do write a 'build-system' but no
     'build-backend'.
     """
@@ -350,7 +351,7 @@ def project_with_no_build_backend(tmp_path_factory):
     }
 
     with open(pyproject_toml, mode="w", encoding="utf-8") as f:
-        toml.dump(build_system, f)
+        tomlkit.dump(build_system, f)
 
     return folder
 
@@ -376,7 +377,7 @@ def fake_poetry_project(tmp_path_factory):
     }
 
     with open(pyproject_toml, mode="w", encoding="utf-8") as f:
-        toml.dump(build_system, f)
+        tomlkit.dump(build_system, f)
 
     return folder
 
@@ -402,7 +403,7 @@ def fake_flit_project(tmp_path_factory):
     }
 
     with open(pyproject_toml, mode="w", encoding="utf-8") as f:
-        toml.dump(build_system, f)
+        tomlkit.dump(build_system, f)
 
     return folder
 

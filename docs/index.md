@@ -24,6 +24,7 @@ pytoil is:
 * Easy to use :white_check_mark:
 * Easy to configure :white_check_mark:
 * Safe (it won't edit your repos at all) :white_check_mark:
+* Snappy (it's asynchronous from the ground up and as much as possible is done concurrently, clone all your repos in seconds!) 💨
 * Useful! (I hope :smiley:)
 
 Say goodbye to janky bash scripts :wave:

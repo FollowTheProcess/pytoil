@@ -1,194 +1,214 @@
 """
 Module responsible for handling pytoil's interface with the
-GitHub REST v3 API.
+GitHub GraphQL v4 API.
+
 
 Author: Tom Fleet
-Created: 19/06/2021
+Created: 21/12/2021
 """
 
 
-from typing import Any, Dict, List, Optional, Set, Union
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Any, Dict, Set
 
 import httpx
 
-from pytoil.api.models import Repository, RepoSummaryInfo
+from pytoil import __version__
+from pytoil.api import queries
+
+URL = "https://api.github.com/graphql"
+
+STR_TIME_FORMAT = r"%Y-%m-%d %H:%M:%S"
+GITHUB_TIME_FORMAT = r"%Y-%m-%dT%H:%M:%SZ"
 
 
+@dataclass
 class API:
     """
-    The GitHub API class.
+    Container for methods and data for hitting the GitHub v4
+    GraphQL API
+
+    Args:
+        username (str): User's GitHub username.
+        token (str): User's personal access token.
+        url (str, optional): GraphQL URL
+            defaults to https://api.github.com/graphql
     """
 
-    def __init__(self, username: str, token: str) -> None:
-        """
-        A container with useful attributes and methods for
-        hitting the GitHub REST API.
+    username: str
+    token: str
+    url: str = URL
 
-        Args:
-            username (str): The user's GitHub username.
-            token (str): The user's GitHub OAUTH token (personal access token)
-        """
-        self.username = username
-        self.token = token
-        self.baseurl = "https://api.github.com/"
-        self.headers: Dict[str, str] = {
-            "Accept": "application/vnd.github.v3+json",
+    @property
+    def headers(self) -> Dict[str, str]:
+        return {
             "Authorization": f"token {self.token}",
+            "User-Agent": f"pytoil/{__version__}",
+            "Accept": "application/vnd.github.v4+json",
         }
 
-    def __repr__(self) -> str:
-        return (
-            self.__class__.__qualname__
-            + f"(username={self.username!r}, token={self.token!r})"
-        )
-
-    def get(
-        self, endpoint: str, params: Optional[Dict[str, Any]] = None
-    ) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+    async def get_repo_names(self, limit: int = 50) -> Set[str]:
         """
-        Generic authenticated GET request method, used to make a GET
-        to any valid GitHub REST v3 API endpoint e.g. 'user/repos'.
+        Gets the names of all repos owned by the authenticated user.
 
         Args:
-            endpoint (str): The endpoint to GET.
-            params (Optional[Dict[str, Any]], optional): Dictionary of query params to
-            pass with the request. Defaults to None.
+            limit (int, optional): Maximum number of repos to return.
+                Defaults to 50.
+
+        Raises:
+            ValueError: If the GraphQL query is malformed.
 
         Returns:
-            Dict[str, Any]: JSON Response dict.
+            Set[str]: The names of the user's repos.
         """
-        with httpx.Client(http2=True) as client:
-            r = client.get(
-                url=self.baseurl + endpoint, headers=self.headers, params=params
+
+        async with httpx.AsyncClient(http2=True, headers=self.headers) as client:
+            r = await client.post(
+                self.url,
+                json={
+                    "query": queries.GET_REPO_NAMES,
+                    "variables": {"username": self.username, "limit": limit},
+                },
             )
             r.raise_for_status()
-            resp: Dict[str, Any] = r.json()
 
-        return resp
+        raw: Dict[str, Any] = r.json()
 
-    def post(
-        self, endpoint: str, params: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        # TODO: I don't like the indexing here, must be a more type safe way of doing this
+        # What happens when there are no nodes? e.g. user has no forks
+        if data := raw.get("data"):
+            return {node["name"] for node in data["user"]["repositories"]["nodes"]}
+
+        else:
+            raise ValueError(f"Bad GraphQL: {raw}")
+
+    async def get_fork_names(self, limit: int = 50) -> Set[str]:
         """
-        Generic authenticated POST request method, used to make a POST
-        to any valid GitHub REST v3 API endpoint.
+        Gets the names of all repos owned by the authenticated user,
+        that are forks of other repos.
 
         Args:
-            endpoint (str): The endpoint to POST.
-            params (Optional[Dict[str, Any]], optional): Dictionary of query params to
-            pass with the request. Defaults to None.
+            limit (int, optional): Maximum number of repos to return.
+                Defaults to 50.
+
+        Raises:
+            ValueError: If the GraphQL query is malformed.
 
         Returns:
-            Dict[str, Any]: JSON Response dict.
+            Set[str]: The names of the user's forked repos.
         """
-        with httpx.Client(http2=True) as client:
-            r = client.post(
-                url=self.baseurl + endpoint, headers=self.headers, params=params
+
+        async with httpx.AsyncClient(http2=True, headers=self.headers) as client:
+            r = await client.post(
+                self.url,
+                json={
+                    "query": queries.GET_FORK_NAMES,
+                    "variables": {"username": self.username, "limit": limit},
+                },
             )
             r.raise_for_status()
-            resp: Dict[str, Any] = r.json()
 
-        return resp
+        raw: Dict[str, Any] = r.json()
 
-    def create_fork(self, owner: str, repo: str) -> Repository:
+        if data := raw.get("data"):
+            return {node["name"] for node in data["user"]["repositories"]["nodes"]}
+        else:
+            raise ValueError(f"Bad GraphQL: {raw}")
+
+    async def check_repo_exists(self, name: str) -> bool:
         """
-        Create a fork of the specified repository for the authenticated
-        user.
+        Checks whether or not a repo given by `name` exists
+        under the current user
 
         Args:
-            owner (str): Owner of the repo to be forked.
-            repo (str): Name of the repo to be forked.
+            name (str): Repo name to check for
 
         Returns:
-            Repository: The GitHub Repository model for the new fork.
+            bool: True if repo exists on GitHub, else False.
         """
-        response = self.post(endpoint=f"repos/{owner}/{repo}/forks")
-        return Repository(**response)
+        async with httpx.AsyncClient(http2=True, headers=self.headers) as client:
+            r = await client.post(
+                self.url,
+                json={
+                    "query": queries.CHECK_REPO_EXISTS,
+                    "variables": {"username": self.username, "name": name},
+                },
+            )
+            r.raise_for_status()
 
-    def get_forks(self) -> List[Repository]:
-        """
-        Gets all the repos that are forks.
+        raw: Dict[str, Any] = r.json()
 
-        Returns:
-            List[Repository]: List of GitHub Repositories belonging
-                to the authenticated user that are forks.
-        """
-        repos = self.get_repos()
-        return [repo for repo in repos if repo.fork]
+        if data := raw.get("data"):
+            if data["repository"] is None:
+                return False
+            else:
+                return True
+        else:
+            raise ValueError(f"Bad GraphQL: {raw}")
 
-    def get_fork_names(self) -> List[str]:
+    async def create_fork(self, owner: str, repo: str) -> None:
         """
-        Gets the names of all the user's repos that are forks
-        of other repos.
-
-        Returns:
-            List[str]: Names of all the forked repos.
-        """
-        forks = self.get_forks()
-        return [fork.name for fork in forks]
-
-    def get_repo(self, repo: str) -> Repository:
-        """
-        Get a user's repo by name.
+        Use the v3 REST API to create a fork of the specified repository
+        under the authenticated user.
 
         Args:
-            repo (str): Name of the repo to get
-                (must be owned by the user or will raise a 404)
-
-        Returns:
-            Repository: The GitHub Repository response model for the repo.
+            owner (str): Owner of the original repo.
+            repo (str): Name of the original repo.
         """
-        response = self.get(endpoint=f"repos/{self.username}/{repo}")
-        return Repository(**response)  # type: ignore
+        rest_headers = self.headers.copy()
+        rest_headers["Accept"] = "application/vnd.github.v3+json"
+        fork_url = f"https://api.github.com/repos/{owner}/{repo}/forks"
 
-    def get_repos(self) -> List[Repository]:
+        async with httpx.AsyncClient(http2=True, headers=rest_headers) as client:
+            r = await client.post(fork_url)
+            r.raise_for_status()
+
+    @staticmethod
+    def _normalize_datetime(dt: str) -> str:
         """
-        Gets all repos owned by the authenticated user.
-
-        Returns:
-            List[Repository]: List of GitHub Repository objects belonging
-                to the authenticated user.
+        Takes a string datetime of GITHUB_TIME_FORMAT
+        and converts it to our STR_TIME_FORMAT.
         """
-        response = self.get(endpoint="user/repos", params={"type": "owner"})
-        return [Repository(**item) for item in response]  # type: ignore
+        return datetime.strptime(dt, GITHUB_TIME_FORMAT).strftime(STR_TIME_FORMAT)
 
-    def get_repo_names(self) -> Set[str]:
+    async def get_repo_info(self, name: str) -> Dict[str, Any]:
         """
-        Gets the names of all the repos owned by the authenticated user.
-
-        Returns:
-            Set[str]: Names of all authenticated user repos.
-        """
-        return {repo.name for repo in self.get_repos()}
-
-    def get_repo_info(self, repo: str) -> RepoSummaryInfo:
-        """
-        Returns a dictionary of key information about a particular repo.
-
-        Info Keys:
-
-        - name
-        - description
-        - created_at
-        - updated_at
-        - size
-        - license
+        Gets some descriptive info for the repo given by
+        `name` under the current user.
 
         Args:
-            repo (str): Name of the repo to get info for.
+            name (str): Name of the repo to fetch info for.
 
         Returns:
-            RepoSummaryInfo:
+            Dict[str, Any]: Repository info.
         """
-        repository = self.get_repo(repo)
+        async with httpx.AsyncClient(http2=True, headers=self.headers) as client:
+            r = await client.post(
+                self.url,
+                json={
+                    "query": queries.GET_REPO_INFO,
+                    "variables": {"username": self.username, "name": name},
+                },
+            )
+            r.raise_for_status()
 
-        info_dict = {
-            "name": repository.name,
-            "description": repository.description,
-            "created_at": repository.created_at,
-            "updated_at": repository.updated_at,
-            "size": repository.size,
-            "license": repository.license.name if repository.license else None,
-        }
+        raw: Dict[str, Any] = r.json()
 
-        return RepoSummaryInfo(**info_dict)
+        if data := raw.get("data"):
+            if repo := data.get("repository"):
+                return {
+                    "name": repo["name"],
+                    "description": repo["description"],
+                    "created_at": self._normalize_datetime(repo["createdAt"]),
+                    "updated_at": self._normalize_datetime(repo["updatedAt"]),
+                    "size": repo["diskUsage"],
+                    "license": repo["licenseInfo"]["name"]
+                    if repo.get("licenseInfo")
+                    else None,
+                    "remote": True,
+                }
+            else:
+                raise ValueError(f"Bad GraphQL: {raw}")
+        else:
+            raise ValueError(f"Bad GraphQL: {raw}")

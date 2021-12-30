@@ -32,8 +32,8 @@ class GitNotInstalledError(ExternalToolNotInstalledException):
     to have git installed.
     """
 
-    def __init__(self, message: str) -> None:
-        self.message = message
+    def __init__(self) -> None:
+        self.message = "'git' executable not found on $PATH. Is git installed?"
         super().__init__(self.message)
 
 
@@ -43,20 +43,8 @@ class CodeNotInstalledError(ExternalToolNotInstalledException):
     VSCode (specifically the `code` command) installed.
     """
 
-    def __init__(self, message: str) -> None:
-        self.message = message
-        super().__init__(self.message)
-
-
-class MissingInterpreterError(PytoilException):
-    """
-    Trying to install or otherwise manipulate a python
-    virtual environment that does not have a valid python
-    interpreter.
-    """
-
-    def __init__(self, message: str) -> None:
-        self.message = message
+    def __init__(self) -> None:
+        self.message = "VSCode binary not found on $PATH. Is VSCode installed?"
         super().__init__(self.message)
 
 
@@ -66,8 +54,8 @@ class CondaNotInstalledError(ExternalToolNotInstalledException):
     the `conda` package manager installed.
     """
 
-    def __init__(self, message: str) -> None:
-        self.message = message
+    def __init__(self) -> None:
+        self.message = "Conda not found on $PATH. Is it installed?"
         super().__init__(self.message)
 
 
@@ -129,8 +117,8 @@ class GoNotInstalledError(ExternalToolNotInstalledException):
     The user does not have `go` installed.
     """
 
-    def __init__(self, message: str) -> None:
-        self.message = message
+    def __init__(self) -> None:
+        self.message = "Go not found on $PATH. Is it installed?"
         super().__init__(self.message)
 
 
@@ -139,8 +127,8 @@ class CargoNotInstalledError(ExternalToolNotInstalledException):
     The user does not have `cargo` installed.
     """
 
-    def __init__(self, message: str) -> None:
-        self.message = message
+    def __init__(self) -> None:
+        self.message = "Cargo not found on $PATH. Is it installed?"
         super().__init__(self.message)
 
 
@@ -149,14 +137,24 @@ class FlitNotInstalledError(ExternalToolNotInstalledException):
     The user does not have `flit` installed.
     """
 
-    def __init__(self, message: str) -> None:
-        self.message = message
+    def __init__(self) -> None:
+        self.message = "Flit not found on $PATH. Is it installed?"
         super().__init__(self.message)
 
 
 class PoetryNotInstalledError(ExternalToolNotInstalledException):
     """
     The user does not have `poetry` installed.
+    """
+
+    def __init__(self) -> None:
+        self.message = "Poetry not found on $PATH. Is it installed?"
+        super().__init__(self.message)
+
+
+class MissingInterpreterError(PytoilException):
+    """
+    A virtualenvs python is not present.
     """
 
     def __init__(self, message: str) -> None:

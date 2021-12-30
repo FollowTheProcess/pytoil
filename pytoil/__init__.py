@@ -1,5 +1,7 @@
-"""
-Helpful CLI to automate the development workflow.
-"""
+__version__ = "0.1.0"
 
-__version__ = "0.15.1"
+__doc__ = """
+
+Experimental async version of pytoil.
+
+"""

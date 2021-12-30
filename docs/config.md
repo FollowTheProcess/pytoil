@@ -17,6 +17,7 @@ There are also some *optional* configurations you can tweak:
 | :---------------: | :---------------------------------------------------------------------------------------------------: | :-----------------: |
 |  `projects_dir`   |                                     Where you keep your projects                                      | `$HOME/Development` |
 |     `vscode`      |                           Whether you want pytoil to open things in VSCode                            |        False        |
+|     `code_bin`    |                           The name of the VSCode binary (code or code-insiders)                       |        `code`       |
 | `common_packages` | List of packages you want pytoil to inject in every environment it creates (linters, formatters etc.) |       `None`        |
 |   `init_on_new`   |        Whether you want pytoil to initialise an empty git repo when it makes a fresh project          |        True         |
 

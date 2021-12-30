@@ -1,295 +1,77 @@
-"""
-Tests for the repo module.
-
-Author: Tom Fleet
-Created: 19/06/2021
-"""
-
 from pathlib import Path
-from typing import NamedTuple
 
 import pytest
 from pytest_httpx import HTTPXMock
 from pytest_mock import MockerFixture
 
 from pytoil.api import API
-from pytoil.environments import Conda, FlitEnv, PoetryEnv, ReqTxtEnv, Venv
-from pytoil.exceptions import RepoNotFoundError
+from pytoil.environments import Conda, Flit, Poetry, Requirements, Venv
 from pytoil.repo import Repo
 
 PROJECT_ROOT = Path(__file__).parent.parent.resolve()
 
 
-def test_repo_init():
+def test_clone_url():
+    repo = Repo(owner="me", name="project", local_path=Path("doesnt/matter"))
 
-    repo = Repo(owner="me", name="test", local_path=Path("some/dir/test"))
-
-    assert repo.owner == "me"
-    assert repo.name == "test"
-    assert repo.local_path == Path("some/dir/test")
-    assert repo.clone_url == "https://github.com/me/test.git"
-    assert repo.html_url == "https://github.com/me/test"
+    assert repo.clone_url == "https://github.com/me/project.git"
 
 
-def test_repo_repr():
+def test_html_url():
+    repo = Repo(owner="me", name="project", local_path=Path("doesnt/matter"))
 
-    repo = Repo(owner="me", name="test", local_path=Path("some/dir/test"))
-
-    assert (
-        repr(repo)
-        == f"Repo(owner='me', name='test', local_path={repr(Path('some/dir/test'))})"
-    )
+    assert repo.html_url == "https://github.com/me/project"
 
 
-def test_exists_local_returns_true_when_path_exists():
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "path, exists",
+    [
+        (PROJECT_ROOT, True),  # This project should hopefully exist!
+        (Path("not/here"), False),
+    ],
+)
+async def test_exists_local(path: Path, exists: bool):
+    repo = Repo(owner="me", name="test", local_path=path)
 
-    # Make a fake repo but give it this projects path so we know
-    # it should exist
-
-    repo = Repo(owner="me", name="test", local_path=PROJECT_ROOT)
-
-    assert repo.exists_local() is True
-
-
-def test_exists_local_returns_false_when_path_doesnt_exist():
-
-    repo = Repo(owner="me", name="test", local_path=Path("not/here"))
-
-    assert repo.exists_local() is False
+    assert await repo.exists_local() is exists
 
 
-def test_exists_remote_returns_true_when_remote_exists(
-    httpx_mock: HTTPXMock, fake_repo_response
+@pytest.mark.asyncio
+async def test_exists_remote_returns_false_when_remote_doesnt_exist(
+    httpx_mock: HTTPXMock, fake_repo_exists_false_response
 ):
 
     api = API(username="me", token="something")
 
     repo = Repo(owner="me", name="test", local_path=Path("doesnt/matter"))
 
-    # The way we test for a repo existing is look for a bad status code
-    # 4xx or 5xx
-
-    # Let's make httpx return a good code to indicate this repo exists
     httpx_mock.add_response(
-        url="https://api.github.com/repos/me/test",
-        status_code=200,
-        json=fake_repo_response,
+        url=api.url, json=fake_repo_exists_false_response, status_code=200
     )
 
-    assert repo.exists_remote(api=api) is True
+    result = await repo.exists_remote(api=api)
+    assert result is False
 
 
-def test_exists_remote_returns_false_when_remote_doesnt_exist(httpx_mock: HTTPXMock):
+@pytest.mark.asyncio
+async def test_exists_remote_returns_true_when_remote_exists(
+    httpx_mock: HTTPXMock, fake_repo_exists_true_response
+):
 
     api = API(username="me", token="something")
 
     repo = Repo(owner="me", name="test", local_path=Path("doesnt/matter"))
 
-    # The way we test for a repo existing is look for a bad status code
-    # 4xx or 5xx
-
-    # Let's make httpx return a bad code to simulate this repo not existing
-    httpx_mock.add_response(url="https://api.github.com/repos/me/test", status_code=404)
-
-    assert repo.exists_remote(api=api) is False
-
-
-@pytest.mark.parametrize(
-    "repo_name, description, created_at, updated_at, size, license_name, exist_local,"
-    + " exist_remote",
-    [
-        (
-            "repo1",
-            "my project",
-            "2020-02-27",
-            "2020-04-02",
-            4096,
-            "MIT License",
-            True,
-            True,
-        ),
-        (
-            "repo2",
-            "someguys project",
-            "2021-01-18",
-            "2021-01-23",
-            1024,
-            "Apache 2.0",
-            False,
-            True,
-        ),
-        (
-            "repo3",
-            "somegirls project",
-            "2020-07-01",
-            "2021-02-28",
-            2048,
-            "GPL v3",
-            True,
-            True,
-        ),
-    ],
-)
-def test_info_on_remote_repo(
-    mocker: MockerFixture,
-    repo_name,
-    description,
-    created_at,
-    updated_at,
-    size,
-    license_name,
-    exist_remote,
-    exist_local,
-):
-    """
-    If a repo exists remotely, regardless of whether or not it is also
-    local. info should return info from the API as it is more detailed.
-    """
-
-    # Convince it the repo exists remotely and locally
-    mocker.patch(
-        "pytoil.repo.Repo.exists_remote", autospec=True, return_value=exist_remote
-    )
-    mocker.patch(
-        "pytoil.repo.Repo.exists_local", autospec=True, return_value=exist_local
+    httpx_mock.add_response(
+        url=api.url, json=fake_repo_exists_true_response, status_code=200
     )
 
-    api = API(username="me", token="sometoken")
-
-    # Have the get_repo_info method just return our made up dict
-    mocker.patch(
-        "pytoil.api.API.get_repo_info",
-        autospec=True,
-        return_value={
-            "name": repo_name,
-            "description": description,
-            "created_at": created_at,
-            "updated_at": updated_at,
-            "size": size,
-            "license": license_name,
-            "local": exist_local,
-            "remote": exist_remote,
-        },
-    )
-
-    repo = Repo(name=repo_name, owner="me", local_path=Path("somewhere"))
-
-    assert repo.info(api=api) == {
-        "name": repo_name,
-        "description": description,
-        "created_at": created_at,
-        "updated_at": updated_at,
-        "size": size,
-        "license": license_name,
-        "local": exist_local,
-        "remote": exist_remote,
-    }
+    result = await repo.exists_remote(api=api)
+    assert result is True
 
 
-@pytest.mark.parametrize(
-    "repo_name, created_at, updated_at, size, exist_local, exist_remote",
-    [
-        (
-            "repo1",
-            "2021-03-01 10:43:19",
-            "2021-03-01 10:48:19",
-            4096,
-            True,
-            False,
-        ),
-        (
-            "repo2",
-            "2021-03-01 10:43:19",
-            "2021-03-01 10:48:19",
-            1024,
-            True,
-            False,
-        ),
-        (
-            "repo3",
-            "2021-03-01 10:43:19",
-            "2021-03-01 10:48:19",
-            2048,
-            True,
-            False,
-        ),
-    ],
-)
-def test_info_on_local_only_repo(
-    mocker: MockerFixture,
-    repo_name,
-    created_at,
-    updated_at,
-    size,
-    exist_remote,
-    exist_local,
-):
-    """
-    If a repo exists locally only, we should instead get some info from Path.stat.
-    This one is quite complicated because you can't mock out datetime
-    so instead we:
-
-    - patch out everything related to whether or not the repo exists
-    - Create a fake dataclass `FakeStat`
-    - This FakeStat houses the unix timestamps that datetime.strftime can operate on
-    - In the parametrize we have the strftime outputs for those timestamps
-    """
-
-    # Convince it the repo exists remotely and locally
-    mocker.patch(
-        "pytoil.repo.Repo.exists_remote", autospec=True, return_value=exist_remote
-    )
-    mocker.patch(
-        "pytoil.repo.Repo.exists_local", autospec=True, return_value=exist_local
-    )
-
-    # Have the get_repo_info method just return our made up dict
-    mocker.patch(
-        "pytoil.api.API.get_repo_info",
-        autospec=True,
-        return_value={
-            "name": repo_name,
-            "created_at": created_at,
-            "updated_at": updated_at,
-            "size": size,
-            "local": exist_local,
-            "remote": exist_remote,
-        },
-    )
-
-    class FakeStat(NamedTuple):
-        st_ctime = 1614595399
-        st_mtime = 1614595699
-        st_size = size
-
-    mocker.patch("pytoil.repo.repo.Path.stat", autospec=True, return_value=FakeStat())
-
-    api = API(username="me", token="sometoken")
-    repo = Repo(name=repo_name, owner="me", local_path=Path(repo_name))
-
-    assert repo.info(api=api) == {
-        "name": repo_name,
-        "created_at": created_at,
-        "updated_at": updated_at,
-        "size": size,
-        "local": exist_local,
-        "remote": exist_remote,
-    }
-
-
-def test_repo_info_raises_if_doesnt_exist_locally_or_remotely(mocker: MockerFixture):
-
-    # Convince it the repo does not exist remotely or locally
-    mocker.patch("pytoil.repo.Repo.exists_remote", autospec=True, return_value=False)
-    mocker.patch("pytoil.repo.Repo.exists_local", autospec=True, return_value=False)
-
-    api = API(username="me", token="sometoken")
-
-    with pytest.raises(RepoNotFoundError):
-        repo = Repo(name="blah", owner="me", local_path=Path("who/cares"))
-        repo.info(api=api)
-
-
+@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "file, exists",
     [
@@ -303,19 +85,19 @@ def test_repo_info_raises_if_doesnt_exist_locally_or_remotely(mocker: MockerFixt
         ("what_file.ini", False),
     ],
 )
-def test_does_file_exist(
-    repo_folder_with_random_existing_files,
-    file,
-    exists,
+async def test_does_file_exist(
+    repo_folder_with_random_existing_files: Path,
+    file: str,
+    exists: bool,
 ):
+    repo = Repo(
+        owner="me", name="test", local_path=repo_folder_with_random_existing_files
+    )
 
-    folder: Path = repo_folder_with_random_existing_files
-    repo = Repo(owner="me", name="test", local_path=folder)
-
-    # Test the file exists method
-    assert repo.file_exists(file) is exists
+    assert await repo._file_exists(file) is exists
 
 
+@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "file, expect",
     [
@@ -327,17 +109,21 @@ def test_does_file_exist(
         ("environment.yml", False),
     ],
 )
-def test_is_setuptools(repo_folder_with_random_existing_files, file, expect):
+async def test_is_setuptools(
+    repo_folder_with_random_existing_files: Path, file: str, expect: bool
+):
 
-    folder: Path = repo_folder_with_random_existing_files
-    repo = Repo(owner="me", name="test", local_path=folder)
+    repo = Repo(
+        owner="me", name="test", local_path=repo_folder_with_random_existing_files
+    )
 
     # Add in the required file to trigger
-    folder.joinpath(file).touch()
+    repo_folder_with_random_existing_files.joinpath(file).touch()
 
-    assert repo.is_setuptools() is expect
+    assert await repo.is_setuptools() is expect
 
 
+@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "file, expect",
     [
@@ -349,121 +135,136 @@ def test_is_setuptools(repo_folder_with_random_existing_files, file, expect):
         ("environment.yml", True),
     ],
 )
-def test_is_conda(repo_folder_with_random_existing_files, file, expect):
-
-    folder: Path = repo_folder_with_random_existing_files
-    repo = Repo(owner="me", name="test", local_path=folder)
-
+async def test_is_conda(
+    repo_folder_with_random_existing_files: Path, file: str, expect: bool
+):
+    repo = Repo(
+        owner="me", name="test", local_path=repo_folder_with_random_existing_files
+    )
     # Add in the required file to trigger
-    folder.joinpath(file).touch()
+    repo_folder_with_random_existing_files.joinpath(file).touch()
 
-    assert repo.is_conda() is expect
-
-
-def test_is_poetry_true_on_valid_poetry_project(fake_poetry_project):
-
-    repo = Repo(owner="blah", name="test", local_path=fake_poetry_project)
-
-    assert repo.is_poetry() is True
+    assert await repo.is_conda() is expect
 
 
-def test_is_poetry_false_on_non_poetry_project(fake_flit_project):
-
-    repo = Repo(owner="blah", name="test", local_path=fake_flit_project)
-
-    assert repo.is_poetry() is False
-
-
-def test_is_poetry_false_if_no_pyproject_toml():
-
-    repo = Repo(owner="blah", name="test", local_path=Path("nowhere"))
-
-    assert repo.is_poetry() is False
-
-
-def test_is_poetry_false_if_no_build_system(project_with_no_build_system):
-
-    repo = Repo(owner="blah", name="test", local_path=project_with_no_build_system)
-
-    assert repo.is_poetry() is False
-
-
-def test_is_poetry_false_if_no_build_backend(project_with_no_build_backend):
-
-    repo = Repo(owner="blah", name="test", local_path=project_with_no_build_backend)
-
-    assert repo.is_poetry() is False
-
-
-def test_is_flit_true_on_valid_flit_project(fake_flit_project):
-
-    repo = Repo(owner="blah", name="test", local_path=fake_flit_project)
-
-    assert repo.is_flit() is True
-
-
-def test_is_flit_false_on_non_flit_project(fake_poetry_project):
+@pytest.mark.asyncio
+async def test_is_poetry_true_on_valid_poetry_project(fake_poetry_project: Path):
 
     repo = Repo(owner="blah", name="test", local_path=fake_poetry_project)
 
-    assert repo.is_flit() is False
+    assert await repo.is_poetry() is True
 
 
-def test_is_flit_false_if_no_pyproject_toml():
+@pytest.mark.asyncio
+async def test_is_poetry_false_on_non_poetry_project(fake_flit_project: Path):
+
+    repo = Repo(owner="blah", name="test", local_path=fake_flit_project)
+
+    assert await repo.is_poetry() is False
+
+
+@pytest.mark.asyncio
+async def test_is_poetry_false_if_no_pyproject_toml():
 
     repo = Repo(owner="blah", name="test", local_path=Path("nowhere"))
 
-    assert repo.is_flit() is False
+    assert await repo.is_poetry() is False
 
 
-def test_is_flit_false_if_no_build_system(project_with_no_build_system):
+@pytest.mark.asyncio
+async def test_is_poetry_false_if_no_build_system(project_with_no_build_system: Path):
 
     repo = Repo(owner="blah", name="test", local_path=project_with_no_build_system)
 
-    assert repo.is_flit() is False
+    assert await repo.is_poetry() is False
 
 
-def test_is_flit_false_if_no_build_backend(project_with_no_build_backend):
+@pytest.mark.asyncio
+async def test_is_poetry_false_if_no_build_backend(project_with_no_build_backend: Path):
 
     repo = Repo(owner="blah", name="test", local_path=project_with_no_build_backend)
 
-    assert repo.is_flit() is False
+    assert await repo.is_poetry() is False
 
 
-def test_dispatch_env_correctly_identifies_conda(mocker: MockerFixture):
+@pytest.mark.asyncio
+async def test_is_flit_true_on_valid_flit_project(fake_flit_project: Path):
+
+    repo = Repo(owner="blah", name="test", local_path=fake_flit_project)
+
+    assert await repo.is_flit() is True
+
+
+@pytest.mark.asyncio
+async def test_is_flit_false_on_non_flit_project(fake_poetry_project: Path):
+
+    repo = Repo(owner="blah", name="test", local_path=fake_poetry_project)
+
+    assert await repo.is_flit() is False
+
+
+@pytest.mark.asyncio
+async def test_is_flit_false_if_no_pyproject_toml():
+
+    repo = Repo(owner="blah", name="test", local_path=Path("nowhere"))
+
+    assert await repo.is_flit() is False
+
+
+@pytest.mark.asyncio
+async def test_is_flit_false_if_no_build_system(project_with_no_build_system: Path):
+
+    repo = Repo(owner="blah", name="test", local_path=project_with_no_build_system)
+
+    assert await repo.is_flit() is False
+
+
+@pytest.mark.asyncio
+async def test_is_flit_false_if_no_build_backend(project_with_no_build_backend: Path):
+
+    repo = Repo(owner="blah", name="test", local_path=project_with_no_build_backend)
+
+    assert await repo.is_flit() is False
+
+
+@pytest.mark.asyncio
+async def test_dispatch_env_correctly_identifies_conda(mocker: MockerFixture):
 
     mocker.patch("pytoil.repo.Repo.is_conda", autospec=True, return_value=True)
 
     repo = Repo(name="test", owner="me", local_path=Path("somewhere"))
 
-    env = repo.dispatch_env()
+    env = await repo.dispatch_env()
 
     assert isinstance(env, Conda)
 
 
-def test_dispatch_env_correctly_identifies_requirements_txt(
-    mocker: MockerFixture, requirements_project
+@pytest.mark.asyncio
+async def test_dispatch_env_correctly_identifies_requirements_txt(
+    requirements_project: Path,
 ):
 
     repo = Repo(name="test", owner="me", local_path=requirements_project)
 
-    env = repo.dispatch_env()
+    env = await repo.dispatch_env()
 
-    assert isinstance(env, ReqTxtEnv)
+    assert isinstance(env, Requirements)
 
 
-def test_dispatch_env_correctly_identifies_requirements_dev_txt(
-    mocker: MockerFixture, requirements_dev_project
+@pytest.mark.asyncio
+async def test_dispatch_env_correctly_identifies_requirements_dev_txt(
+    requirements_dev_project: Path,
 ):
 
     repo = Repo(name="test", owner="me", local_path=requirements_dev_project)
 
-    env = repo.dispatch_env()
+    env = await repo.dispatch_env()
 
-    assert isinstance(env, ReqTxtEnv)
+    assert isinstance(env, Requirements)
 
 
-def test_dispatch_env_correctly_identifies_setuptools(mocker: MockerFixture):
+@pytest.mark.asyncio
+async def test_dispatch_env_correctly_identifies_setuptools(mocker: MockerFixture):
 
     mocker.patch("pytoil.repo.Repo.is_conda", autospec=True, return_value=False)
 
@@ -471,34 +272,32 @@ def test_dispatch_env_correctly_identifies_setuptools(mocker: MockerFixture):
 
     repo = Repo(name="test", owner="me", local_path=Path("somewhere"))
 
-    env = repo.dispatch_env()
+    env = await repo.dispatch_env()
 
     assert isinstance(env, Venv)
 
 
-def test_dispatch_env_correctly_identifies_poetry(
-    mocker: MockerFixture, fake_poetry_project
-):
-
+@pytest.mark.asyncio
+async def test_dispatch_env_correctly_identifies_poetry(fake_poetry_project: Path):
     repo = Repo(name="test", owner="me", local_path=fake_poetry_project)
 
-    env = repo.dispatch_env()
+    env = await repo.dispatch_env()
 
-    assert isinstance(env, PoetryEnv)
+    assert isinstance(env, Poetry)
 
 
-def test_dispatch_env_correctly_identifies_flit(
-    mocker: MockerFixture, fake_flit_project
-):
+@pytest.mark.asyncio
+async def test_dispatch_env_correctly_identifies_flit(fake_flit_project: Path):
 
     repo = Repo(name="test", owner="me", local_path=fake_flit_project)
 
-    env = repo.dispatch_env()
+    env = await repo.dispatch_env()
 
-    assert isinstance(env, FlitEnv)
+    assert isinstance(env, Flit)
 
 
-def test_dispatch_env_returns_none_if_it_cant_detect(mocker: MockerFixture):
+@pytest.mark.asyncio
+async def test_dispatch_env_returns_none_if_it_cant_detect(mocker: MockerFixture):
 
     mocker.patch("pytoil.repo.Repo.is_conda", autospec=True, return_value=False)
 
@@ -506,6 +305,6 @@ def test_dispatch_env_returns_none_if_it_cant_detect(mocker: MockerFixture):
 
     repo = Repo(name="test", owner="me", local_path=Path("somewhere"))
 
-    env = repo.dispatch_env()
+    env = await repo.dispatch_env()
 
     assert env is None

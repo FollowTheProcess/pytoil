@@ -1,95 +1,70 @@
 """
-The go starter template.
+The Go starter template.
+
 
 Author: Tom Fleet
-Created: 24/06/2021
+Created: 29/12/2021
 """
 
-
+import asyncio
 import shutil
-import subprocess
+import sys
+from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional
 
+import aiofiles
+import aiofiles.os
+
 from pytoil.exceptions import GoNotInstalledError
-from pytoil.starters.base import BaseStarter
 
 
-class GoStarter(BaseStarter):
-    """
-    The go starter template class.
-    """
+@dataclass
+class GoStarter:
+    path: Path
+    name: str
+    go: Optional[str] = shutil.which("go")
 
-    def __init__(self, path: Path, name: str) -> None:
+    def __post_init__(self) -> None:
+        self.root = self.path.joinpath(self.name).resolve()
+        self.files: List[Path] = [
+            self.root.joinpath(filename) for filename in ["README.md", "main.go"]
+        ]
+
+    async def generate(self, username: Optional[str] = None) -> None:
         """
-        The pytoil go starter template.
-
-        Args:
-            path (Path): Root path under which to generate the
-                project from this template.
-            name (str): The name of the project to be created.
+        Generate a new Go starter template.
         """
-        self._path = path
-        self._name = name
-        self._files = ["README.md", "main.go"]
+        if not self.go:
+            raise GoNotInstalledError
 
-    def __repr__(self) -> str:
-        return self.__class__.__qualname__ + f"(path={self.path!r}, name={self.name!r})"
+        await aiofiles.os.mkdir(self.root)
 
-    @property
-    def path(self) -> Path:
-        return self._path
+        # Call go mod init
+        proc = await asyncio.create_subprocess_exec(
+            self.go,
+            "mod",
+            "init",
+            f"github.com/{username}/{self.name}",
+            cwd=self.root,
+            stdout=sys.stdout,
+            stderr=sys.stderr,
+        )
 
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @property
-    def root(self) -> Path:
-        return self._path.joinpath(self._name)
-
-    @property
-    def files(self) -> List[Path]:
-        return [self.root.joinpath(filename) for filename in self._files]
-
-    def raise_for_go(self) -> None:
-        """
-        Raises an error if the user doesn't have go installed.
-        """
-        if not bool(shutil.which("go")):
-            raise GoNotInstalledError("Go not found on $PATH.")
-
-    def generate(self, username: Optional[str] = None) -> None:
-        """
-        Generate a new go starter template.
-
-        This is a mix of creating files in python, and invoking
-        `go mod init` in a subprocess to initialise the go
-        modules file.
-        """
-        # Must have go installed to run go mod init
-        self.raise_for_go()
-
-        # Make the parent directory
-        self.root.mkdir(parents=True)
+        await proc.wait()
 
         for file in self.files:
             file.touch()
 
-        # Put the header in the readme
+        # Put the header in the README
         readme = self.root.joinpath("README.md")
-        readme.write_text(f"# {self.name}\n", encoding="utf-8")
+        async with aiofiles.open(readme, mode="w", encoding="utf-8") as f:
+            await f.write(f"# {self.name}\n")
 
-        # Populate the main.go file
-        go_file = self.root.joinpath("main.go")
-        go_text = 'package main\n\nimport "fmt"\n\nfunc main() {\n\tfmt.Println("Hello World")\n}\n'  # noqa: E501
-
-        go_file.write_text(go_text, encoding="utf-8")
-
-        # Invoke go mod init
-        _ = subprocess.run(
-            ["go", "mod", "init", f"github.com/{username}/{self.name}"],
-            check=True,
-            cwd=self.root,
-            capture_output=True,
-        )
+        # Populate the go file
+        main_go = self.root.joinpath("main.go")
+        async with aiofiles.open(main_go, mode="w", encoding="utf-8") as f:
+            await f.write(
+                'package main\n\nimport "fmt"\n\nfunc main() {\n\tfmt.Println("Hello'
+                ' World")\n}\n'
+            )

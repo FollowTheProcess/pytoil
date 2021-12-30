@@ -1,21 +1,22 @@
 """
 The pytoil new command.
 
+
 Author: Tom Fleet
-Created: 25/06/2021
+Created: 21/12/2021
 """
 
-from typing import List
+import asyncio
+from typing import Optional, Tuple
 
-import httpx
-import typer
+import aiofiles.os
+import asyncclick as click
 from cookiecutter.main import cookiecutter
 from wasabi import msg
 
 from pytoil.api import API
-from pytoil.cli import utils
 from pytoil.config import Config
-from pytoil.environments import Conda, Environment, Venv, VirtualEnv
+from pytoil.environments import Conda, Venv
 from pytoil.exceptions import (
     CargoNotInstalledError,
     EnvironmentAlreadyExistsError,
@@ -23,47 +24,45 @@ from pytoil.exceptions import (
 )
 from pytoil.git import Git
 from pytoil.repo import Repo
-from pytoil.starters import GoStarter, PythonStarter, RustStarter, Starter
+from pytoil.starters import GoStarter, PythonStarter, RustStarter
 from pytoil.vscode import VSCode
 
-app = typer.Typer()
 
-
-@app.command(context_settings={"allow_extra_args": True})
-def new(
-    ctx: typer.Context,
-    project: str = typer.Argument(
-        ...,
-        help="Name of the project to create.",
-    ),
-    cookie: str = typer.Option(
-        None,
-        "--cookie",
-        "-c",
-        help="URL to a cookiecutter template repo from which to build the project.",
-    ),
-    starter: Starter = typer.Option(
-        Starter.none,
-        "--starter",
-        "-s",
-        help="Use a language-specific starter template",
-        case_sensitive=False,
-        show_default=True,
-    ),
-    venv: VirtualEnv = typer.Option(
-        VirtualEnv.none,
-        "--venv",
-        "-v",
-        help="Which type of virtual environment to create for the project.",
-        case_sensitive=False,
-        show_default=True,
-    ),
-    no_git: bool = typer.Option(
-        False,
-        "--no-git",
-        "-n",
-        help="Don't initialise an empty git repo in the root of the project.",
-    ),
+@click.command()
+@click.argument("project", nargs=1, type=str)
+@click.argument("packages", nargs=-1)
+@click.option(
+    "-c",
+    "--cookie",
+    type=str,
+    help="URL to a cookiecutter template from which to build the project.",
+)
+@click.option(
+    "-s",
+    "--starter",
+    type=click.Choice(choices=["python", "go", "rust"], case_sensitive=True),
+    help="Use a language-specific starter template.",
+)
+@click.option(
+    "-v",
+    "--venv",
+    type=click.Choice(choices=["venv", "conda"], case_sensitive=True),
+    help="Which type of virtual environment to create.",
+)
+@click.option(
+    "-n",
+    "--no-git",
+    is_flag=True,
+    default=False,
+    help="Don't initialise a new git repo.",
+)
+async def new(  # noqa: C901
+    project: str,
+    packages: Tuple[str, ...],
+    cookie: Optional[str],
+    starter: Optional[str],
+    venv: Optional[str],
+    no_git: bool = False,
 ) -> None:
     """
     Create a new development project.
@@ -114,206 +113,125 @@ def new(
 
     $ pytoil new my_project --starter python
     """
-    # Get config and ensure user can access API
-    config = Config.from_file()
-    utils.warn_if_no_api_creds(config)
+    config = await Config.from_file()
+    if not config.can_use_api():
+        msg.warn(
+            "You must set your GitHub username and personal access token to use API"
+            " features.",
+            exits=1,
+        )
 
-    # Setup the objects required
     api = API(username=config.username, token=config.token)
     repo = Repo(
         owner=config.username,
         name=project,
         local_path=config.projects_dir.joinpath(project),
     )
-    code = VSCode(root=repo.local_path)
+    code = VSCode(root=repo.local_path, code=config.code_bin)
     git = Git()
 
-    if ctx.args:
-        packages: List[str] = config.common_packages + ctx.args
-    else:
-        packages = config.common_packages
+    # Can't use --cookie and --starter
+    if cookie and starter:
+        msg.warn("--cookie and --starter are mutually exclusive", exits=1)
+
+    # Can't use --venv with non-python starters
+    if (
+        starter is not None  # User specified --starter
+        and starter != "python"  # Requested starter is not python
+        and venv is not None  # And the user wants a virtual environment
+    ):
+        msg.warn(f"Can't create a venv for a {starter} project", exits=1)
 
     # Resolve config vs flag for no-git
     # flag takes priority over config
     use_git: bool = config.init_on_new and not no_git
 
-    # Check is project already exists and warn/exit if so
-    pre_new_checks(repo=repo, api=api)
+    # Does this project already exist?
+    # Mightaswell check concurrently
+    local, remote = await asyncio.gather(repo.exists_local(), repo.exists_remote(api))
 
-    # Cant use --venv with non-python starters
-    if (
-        starter.value != starter.none  # User specified starter
-        and starter.value != starter.python  # The starter is not python
-        and venv.value != venv.none  # And the user wants a virtual environment
-    ):
+    if local:
         msg.warn(
-            f"Can't create a venv for {starter.value} project!",
-            spaced=True,
+            title=f"{repo.name} already exists locally.",
+            text=f"To checkout this project, use 'pytoil checkout {repo.name}'.",
             exits=1,
         )
 
-    # If we get here, all is well and we can create stuff!
-    make_new_project(
-        repo=repo,
-        git=git,
-        cookie=cookie,
-        starter=starter,
-        use_git=use_git,
-        config=config,
-    )
-
-    if venv.value == venv.venv:
-        env = create_virtualenv(repo=repo, packages=packages)
-
-        if config.vscode:
-            msg.info(f"Opening {repo.name!r} in VSCode.", spaced=True)
-            code.set_workspace_python(env.executable)
-            code.open()
-
-    elif venv.value == venv.conda:
-        env = create_condaenv(repo=repo, packages=packages)
-
-        if config.vscode:
-            msg.info(f"Opening {repo.name!r} in VSCode.", spaced=True)
-            code.set_workspace_python(env.executable)
-            code.open()
-
-    else:
-        # Only other allowed condition is none
-        typer.secho(
-            "Virtual environment not requested. Skipping environment creation.",
-            fg=typer.colors.YELLOW,
-        )
-
-        if config.vscode:
-            msg.info(f"Opening {repo.name!r} in VSCode.", spaced=True)
-            code.open()
-
-
-def make_new_project(
-    repo: Repo, git: Git, cookie: str, starter: Starter, use_git: bool, config: Config
-) -> None:
-    """
-    Create a new development project either from a cookiecutter
-    template or from scratch.
-    """
-    # Can't use starter and cookiecutter at the same time
-    if starter.value != Starter.none and cookie:
+    if remote:
         msg.warn(
-            "'--cookie' and '--starter' are mutually exclusive.",
+            title=f"{repo.name} already exists on GitHub.",
+            text=f"To checkout this project, use 'pytoil checkout {repo.name}'.",
             exits=1,
         )
 
+    # If we get here, we're good to create a new project
     if cookie:
-        # We don't initialise a git repo for cookiecutters
-        # some templates have hooks which do this, mine do!
         msg.info(f"Creating {repo.name!r} from cookiecutter: {cookie!r}.")
-        cookiecutter(template=cookie, output_dir=config.projects_dir)
+        cookiecutter(template=cookie, output_dir=repo.name)
 
-    elif starter == Starter.go:
-        msg.info(f"Creating {repo.name!r} from starter: {starter.value!r}.")
-        go_st = GoStarter(path=config.projects_dir, name=repo.name)
+    elif starter == "go":
+        msg.info(f"Creating {repo.name!r} from starter: {starter!r}.")
+        go_starter = GoStarter(path=config.projects_dir, name=repo.name)
 
         try:
-            go_st.generate(username=config.username)
+            await go_starter.generate(username=config.username)
         except GoNotInstalledError:
-            msg.fail("Error: Go not installed.", spaced=True, exits=1)
+            msg.fail("Error: Go not installed.", exits=1)
+        else:
+            if use_git:
+                await git.init(cwd=repo.local_path, silent=False)
 
+    elif starter == "python":
+        msg.info(f"Creating {repo.name!r} from starter: {starter!r}.")
+        python_starter = PythonStarter(path=config.projects_dir, name=repo.name)
+        await python_starter.generate()
         if use_git:
-            git.init(path=repo.local_path, check=True)
+            await git.init(cwd=repo.local_path, silent=False)
 
-    elif starter == Starter.python:
-        msg.info(f"Creating {repo.name!r} from starter: {starter.value!r}.")
-        py_st = PythonStarter(path=config.projects_dir, name=repo.name)
-        py_st.generate()
+    elif starter == "rust":
+        msg.info(f"Creating {repo.name!r} from starter: {starter!r}.")
+        rust_starter = RustStarter(path=config.projects_dir, name=repo.name)
 
-        if use_git:
-            git.init(path=repo.local_path, check=True)
-
-    elif starter == Starter.rust:
-        msg.info(f"Creating {repo.name!r} from starter: {starter.value!r}.")
-        rs_st = RustStarter(path=config.projects_dir, name=repo.name)
+        # Cargo inits a git repo by default
 
         try:
-            rs_st.generate()
+            await rust_starter.generate()
         except CargoNotInstalledError:
-            msg.fail("Error: Cargo not installed.", spaced=True, exits=1)
+            msg.fail("Error: Cargo not installed.", exits=1)
 
     else:
+        # Just a blank new project
         msg.info(f"Creating {repo.name!r} at {repo.local_path}.")
-        # Make an empty dir and git repo
-        repo.local_path.mkdir(parents=True)
-
+        await aiofiles.os.mkdir(repo.local_path)
         if use_git:
-            git.init(path=repo.local_path, check=True)
+            await git.init(cwd=repo.local_path, silent=False)
 
-
-def pre_new_checks(repo: Repo, api: API) -> None:
-    """
-    Checks whether the repo already exists either locally
-    or remotely, prints helpful warning messages and exits
-    the program if True.
-    """
-
-    is_local = repo.exists_local()
-
-    try:
-        is_remote = repo.exists_remote(api=api)
-    except httpx.HTTPStatusError as err:
-        utils.handle_http_status_errors(error=err)
-    else:
-
-        if is_local:
-            msg.warn(
-                title=f"{repo.name} already exists locally!",
-                text=f"To checkout this project, use 'pytoil checkout {repo.name}'.",
-                spaced=True,
-                exits=1,
-            )
-        elif is_remote:
-            msg.warn(
-                title=f"{repo.name!r} already exists on GitHub!",
-                text=f"To checkout this project, use 'pytoil checkout {repo.name}'.",
-                spaced=True,
-                exits=1,
-            )
-
-
-def create_virtualenv(repo: Repo, packages: List[str]) -> Environment:
-    """
-    Creates and returns new virtual environment with packages and reports
-    to user.
-    """
-
-    msg.info(
-        f"Creating virtual environment for {repo.name!r}",
-        text=f"Including packages: {', '.join(packages)}",
-        spaced=True,
-    )
-    env = Venv(project_path=repo.local_path)
-    with msg.loading("Working..."):
-        env.create(packages=packages)
-
-    return env
-
-
-def create_condaenv(repo: Repo, packages: List[str]) -> Environment:
-    """
-    Creates and returns new conda environment with packages and reports
-    to user.
-    """
-    msg.info(
-        f"Creating conda environment for {repo.name!r}",
-        text=f"Including packages: {', '.join(packages)}",
-        spaced=True,
-    )
-    env = Conda(name=repo.name, project_path=repo.local_path)
-    try:
-        with msg.loading("Working..."):
-            env.create(packages=packages)
-    except EnvironmentAlreadyExistsError:
-        msg.warn(
-            f"Conda environment {env.name!r} already exists!", spaced=True, exits=1
+    # Now we need to handle any requested virtual environments
+    if venv == "venv":
+        msg.info(
+            title=f"Creating virtual environment for {repo.name!r}",
+            text=f"Including packages: {', '.join(packages)}" if packages else "",
         )
+        env = Venv(root=repo.local_path)
+        with msg.loading("Working..."):
+            await env.create(packages=packages, silent=True)
 
-    return env
+    elif venv == "conda":
+        msg.info(
+            title=f"Creating conda environment for {repo.name!r}",
+            text=f"Including packages: {', '.join(packages)}" if packages else "",
+        )
+        conda_env = Conda(root=repo.local_path, environment_name=repo.name)
+        try:
+            with msg.loading("Working..."):
+                await conda_env.create(packages=packages)
+        except EnvironmentAlreadyExistsError:
+            msg.fail(
+                f"Conda environment: {conda_env.environment_name!r} already exists",
+                exits=1,
+            )
+
+    # Now handle opening in VSCode
+    if config.vscode:
+        msg.info(f"Opening {repo.name!r} in VSCode.")
+        await code.open()

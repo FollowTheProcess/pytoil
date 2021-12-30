@@ -110,6 +110,11 @@ Done!
 
 </div>
 
+!!! note
+
+    Because pytoil is written from the ground up to be asynchronous, all the removing happens concurrently in the asyncio event loop so it should
+    be nice and snappy even for lots of very large projects! 🚀
+
 ## Force Deletion
 
 If you're really sure what you're doing, you can get around the confirmation prompt by using the `--force/-f` flag.

@@ -1,164 +1,184 @@
-"""
-Tests for the poetry env management class.
-
-Author: Tom Fleet
-Created: 14/07/2021
-"""
-
+import asyncio
+import shutil
+import sys
 from pathlib import Path
 
 import pytest
 from pytest_mock import MockerFixture
 
-from pytoil.environments import PoetryEnv
+from pytoil.environments import Poetry
 from pytoil.exceptions import PoetryNotInstalledError
 
 
-def test_poetryenv_init():
+def test_poetry_instanciation_default():
+    poetry = Poetry(root=Path("somewhere"))
 
-    root = Path("/Users/me/fakeproject")
-    venv = PoetryEnv(project_path=root)
-
-    assert venv.project_path == root
-    assert venv.executable == root.joinpath(".venv/bin/python")
-
-
-def test_poetryenv_repr():
-
-    root = Path("/Users/me/fakeproject")
-    venv = PoetryEnv(project_path=root)
-
-    assert repr(venv) == f"PoetryEnv(project_path={root!r})"
+    assert poetry.project_path == Path("somewhere").resolve()
+    assert poetry.poetry == shutil.which("poetry")
+    assert poetry.name == "poetry"
+    assert poetry.executable == Path("somewhere").resolve().joinpath(".venv/bin/python")
 
 
-def test_poetryenv_info_name():
+def test_poetry_instanciation_passed():
+    poetry = Poetry(root=Path("somewhere"), poetry="notpoetry")
 
-    root = Path("/Users/me/fakeproject")
-    venv = PoetryEnv(project_path=root)
-
-    assert venv.info_name == "poetry"
-
-
-def test_executable_points_to_correct_path():
-
-    root = Path("/Users/me/fakeproject")
-    venv = PoetryEnv(project_path=root)
-
-    assert venv.executable == root.joinpath(".venv/bin/python")
+    assert poetry.project_path == Path("somewhere").resolve()
+    assert poetry.poetry == "notpoetry"
+    assert poetry.name == "poetry"
+    assert poetry.executable == Path("somewhere").resolve().joinpath(".venv/bin/python")
 
 
+@pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "pathlib_exists, pytoil_exists",
+    "exists_return, exists",
     [
         (True, True),
         (False, False),
     ],
 )
-def test_exists_returns_correct_value(
-    mocker: MockerFixture, pathlib_exists, pytoil_exists
+async def test_exists_returns_correct_value(
+    mocker: MockerFixture, exists_return, exists: bool
 ):
 
-    root = Path("/Users/me/fakeproject")
-    venv = PoetryEnv(project_path=root)
-
+    # Ensure aiofiles.os.path.exists returns what we want it to
     mocker.patch(
-        "pytoil.environments.poetry.Path.exists",
+        "pytoil.environments.poetry.aiofiles.os.path.exists",
         autospec=True,
-        return_value=pathlib_exists,
+        return_value=exists_return,
     )
 
-    assert venv.exists() is pytoil_exists
+    poetry = Poetry(root=Path("somewhere"), poetry="notpoetry")
+    assert await poetry.exists() is exists
 
 
-def test_create_raises_not_implemented_error():
-    """
-    Create does nothing for poetry environments as
-    you can't really create an environment by itself using
-    poetry's model.
-    """
-
-    root = Path("/Users/me/fakeproject")
-    venv = PoetryEnv(project_path=root)
+@pytest.mark.asyncio
+async def test_create_raises_not_implemented_error():
+    poetry = Poetry(root=Path("somewhere"), poetry="notpoetry")
 
     with pytest.raises(NotImplementedError):
-        venv.create()
+        await poetry.create()
 
 
-def test_raise_for_poetry_raises_if_required(mocker: MockerFixture):
-
-    root = Path("/Users/me/fakeproject")
-    venv = PoetryEnv(project_path=root)
-
-    mocker.patch(
-        "pytoil.environments.poetry.shutil.which", autospec=True, return_value=None
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "silent, stdout, stderr",
+    [
+        (True, asyncio.subprocess.DEVNULL, asyncio.subprocess.DEVNULL),
+        (False, sys.stdout, sys.stderr),
+    ],
+)
+async def test_enforce_local_config_correctly_calls_poetry(
+    mocker: MockerFixture, silent: bool, stdout, stderr
+):
+    mock = mocker.patch(
+        "pytoil.environments.poetry.asyncio.create_subprocess_exec", autospec=True
     )
+
+    poetry = Poetry(root=Path("somewhere"), poetry="notpoetry")
+
+    await poetry.enforce_local_config(silent=silent)
+
+    mock.assert_called_once_with(
+        "notpoetry",
+        "config",
+        "virtualenvs.in-project",
+        "true",
+        "--local",
+        cwd=poetry.project_path,
+        stdout=stdout,
+        stderr=stderr,
+    )
+
+
+@pytest.mark.asyncio
+async def test_enforce_local_config_raises_if_poetry_not_installed():
+    poetry = Poetry(root=Path("somewhere"), poetry=None)
 
     with pytest.raises(PoetryNotInstalledError):
-        venv.raise_for_poetry()
+        await poetry.enforce_local_config()
 
 
-def test_enforce_local_config_correctly_calls_poetry(mocker: MockerFixture):
-
-    root = Path("/Users/me/fakeproject")
-    venv = PoetryEnv(project_path=root)
-
-    mock_subprocess = mocker.patch(
-        "pytoil.environments.poetry.subprocess.run", autospec=True
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "silent, stdout, stderr",
+    [
+        (True, asyncio.subprocess.DEVNULL, asyncio.subprocess.DEVNULL),
+        (False, sys.stdout, sys.stderr),
+    ],
+)
+async def test_install_correctly_calls_poetry(
+    mocker: MockerFixture, silent: bool, stdout, stderr
+):
+    mock = mocker.patch(
+        "pytoil.environments.poetry.asyncio.create_subprocess_exec", autospec=True
     )
 
+    poetry = Poetry(root=Path("somewhere"), poetry="notpoetry")
+
+    # Mock out enforce local config as `install` runs this first
     mocker.patch(
-        "pytoil.environments.poetry.shutil.which", autospec=True, return_value="poetry"
+        "pytoil.environments.poetry.Poetry.enforce_local_config", autospec=True
     )
 
-    venv.enforce_local_config()
+    await poetry.install(packages=["black", "isort", "flake8", "mypy"], silent=silent)
 
-    mock_subprocess.assert_called_once_with(
-        ["poetry", "config", "virtualenvs.in-project", "true", "--local"],
-        check=True,
-        cwd=venv.project_path,
+    mock.assert_called_once_with(
+        "notpoetry",
+        "add",
+        "black",
+        "isort",
+        "flake8",
+        "mypy",
+        cwd=poetry.project_path,
+        stdout=stdout,
+        stderr=stderr,
     )
 
 
-def test_install_correctly_calls_poetry(mocker: MockerFixture):
+@pytest.mark.asyncio
+async def test_install_raises_if_poetry_not_installed():
+    poetry = Poetry(root=Path("somewhere"), poetry=None)
 
-    root = Path("/Users/me/fakeproject")
-    venv = PoetryEnv(project_path=root)
+    with pytest.raises(PoetryNotInstalledError):
+        await poetry.install(packages=["something", "doesnt", "matter"])
 
-    mock_subprocess = mocker.patch(
-        "pytoil.environments.poetry.subprocess.run", autospec=True
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "silent, stdout, stderr",
+    [
+        (True, asyncio.subprocess.DEVNULL, asyncio.subprocess.DEVNULL),
+        (False, sys.stdout, sys.stderr),
+    ],
+)
+async def test_install_self_correctly_calls_poetry(
+    mocker: MockerFixture, silent: bool, stdout, stderr
+):
+    mock = mocker.patch(
+        "pytoil.environments.poetry.asyncio.create_subprocess_exec", autospec=True
     )
 
+    poetry = Poetry(root=Path("somewhere"), poetry="notpoetry")
+
+    # Mock out enforce local config as `install` runs this first
     mocker.patch(
-        "pytoil.environments.poetry.PoetryEnv.enforce_local_config", autospec=True
+        "pytoil.environments.poetry.Poetry.enforce_local_config", autospec=True
     )
 
-    venv.install(packages=["test", "packages", "here"])
+    await poetry.install_self(silent=silent)
 
-    mock_subprocess.assert_called_once_with(
-        ["poetry", "add", "test", "packages", "here", "--quiet"],
-        check=True,
-        cwd=venv.project_path,
+    mock.assert_called_once_with(
+        "notpoetry",
+        "install",
+        cwd=poetry.project_path,
+        stdout=stdout,
+        stderr=stderr,
     )
 
 
-def test_install_self_correctly_calls_poetry(mocker: MockerFixture):
+@pytest.mark.asyncio
+async def test_install_selfraises_if_poetry_not_installed():
+    poetry = Poetry(root=Path("somewhere"), poetry=None)
 
-    root = Path("/Users/me/fakeproject")
-    venv = PoetryEnv(project_path=root)
-
-    mock_subprocess = mocker.patch(
-        "pytoil.environments.poetry.subprocess.run", autospec=True
-    )
-
-    mocker.patch(
-        "pytoil.environments.poetry.PoetryEnv.enforce_local_config", autospec=True
-    )
-
-    venv.install_self()
-
-    mock_subprocess.assert_called_once_with(
-        ["poetry", "install", "--quiet"],
-        check=True,
-        cwd=venv.project_path,
-        capture_output=True,
-    )
+    with pytest.raises(PoetryNotInstalledError):
+        await poetry.install_self()

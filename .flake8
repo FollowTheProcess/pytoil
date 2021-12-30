@@ -1,5 +1,5 @@
 [flake8]
-exclude =
+exclude = 
     .git,
     __pycache__,
     .pytest_cache,
@@ -12,10 +12,9 @@ exclude =
     *.egg,
     *.egg-info,
     build,
-    dist,
-    pytoil/config/defaults.py
+    dist
 max-complexity = 15
-max-line-length = 88
+max-line-length = 120
 extend-ignore =
     E203, # Black compatability: whitespace before :
     W503, # Black compatability: line break before binary operator

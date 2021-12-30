@@ -1,233 +1,138 @@
-"""
-Tests for the API module.
-
-Author: Tom Fleet
-Created: 19/06/2021
-"""
-
-import httpx
 import pytest
 from pytest_httpx import HTTPXMock
 
+from pytoil import __version__
 from pytoil.api import API
-from pytoil.api.models import Repository, RepoSummaryInfo
 
 
-def test_api_init():
+def test_headers():
+    api = API(username="me", token="notatoken")
 
-    api = API(username="me", token="sometoken")
-
-    assert api.username == "me"
-    assert api.token == "sometoken"
-    assert api.baseurl == "https://api.github.com/"
     assert api.headers == {
-        "Accept": "application/vnd.github.v3+json",
-        "Authorization": f"token {api.token}",
+        "Authorization": "token notatoken",
+        "User-Agent": f"pytoil/{__version__}",
+        "Accept": "application/vnd.github.v4+json",
     }
 
 
-def test_api_repr():
-
-    api = API(username="me", token="sometoken")
-
-    assert repr(api) == "API(username='me', token='sometoken')"
-
-
-@pytest.mark.parametrize("bad_status_code", [400, 401, 403, 404, 500, 504, 505])
-def test_get_raises_on_bad_status(httpx_mock: HTTPXMock, bad_status_code):
+@pytest.mark.asyncio
+async def test_get_repo_names(httpx_mock: HTTPXMock, fake_get_repo_names_response):
+    api = API(username="me", token="definitelynotatoken")
 
     httpx_mock.add_response(
-        url="https://api.github.com/user/repos", status_code=bad_status_code
+        url=api.url, json=fake_get_repo_names_response, status_code=200
     )
 
-    api = API(token="definitelynotatoken", username="me")
+    names = await api.get_repo_names()
 
-    with pytest.raises(httpx.HTTPStatusError):
-        api.get("user/repos")
+    assert names == {
+        "dingle",
+        "dangle",
+        "dongle",
+        "a_cool_project",
+        "another",
+        "yetanother",
+        "hello",
+    }
 
 
-def test_get_returns_correct_response(httpx_mock: HTTPXMock, fake_repos_response):
+@pytest.mark.asyncio
+async def test_get_fork_names(httpx_mock: HTTPXMock, fake_get_fork_names_response):
+    api = API(username="me", token="definitelynotatoken")
 
     httpx_mock.add_response(
-        url="https://api.github.com/user/repos",
-        json=fake_repos_response,
-        status_code=200,
+        url=api.url, json=fake_get_fork_names_response, status_code=200
     )
 
-    api = API(token="definitelynotatoken", username="me")
+    names = await api.get_fork_names()
 
-    r = api.get("user/repos")
-
-    assert r == fake_repos_response
-
-
-@pytest.mark.parametrize("bad_status_code", [400, 401, 403, 404, 500, 504, 505])
-def test_post_raises_on_bad_status(httpx_mock: HTTPXMock, bad_status_code):
-
-    httpx_mock.add_response(
-        url="https://api.github.com/user/repos", status_code=bad_status_code
-    )
-
-    api = API(token="definitelynotatoken", username="me")
-
-    with pytest.raises(httpx.HTTPStatusError):
-        api.post("user/repos")
+    assert names == {
+        "afork",
+        "aspoon",
+        "anotherfork",
+    }
 
 
-def test_post_returns_correct_response(httpx_mock: HTTPXMock, fake_repos_response):
-
-    httpx_mock.add_response(
-        url="https://api.github.com/user/repos",
-        json=fake_repos_response,
-        status_code=200,
-    )
-
-    api = API(token="definitelynotatoken", username="me")
-
-    r = api.post("user/repos")
-
-    assert r == fake_repos_response
-
-
-def test_get_repo_returns_correct_response(httpx_mock: HTTPXMock, fake_repo_response):
-
-    httpx_mock.add_response(
-        url="https://api.github.com/repos/me/pytoil",
-        json=fake_repo_response,
-        status_code=200,
-    )
-
-    api = API(token="definitelynotatoken", username="me")
-
-    assert api.get_repo(repo="pytoil") == Repository(**fake_repo_response)
-
-
-def test_get_repos_returns_correct_response(httpx_mock: HTTPXMock, fake_repos_response):
-
-    httpx_mock.add_response(
-        url="https://api.github.com/user/repos?type=owner",
-        json=fake_repos_response,
-        status_code=200,
-    )
-
-    api = API(token="definitelynotatoken", username="me")
-
-    assert api.get_repos() == [Repository(**repo) for repo in fake_repos_response]
-
-
-def test_get_repo_names_returns_correct_names(
-    httpx_mock: HTTPXMock, fake_repos_response
+@pytest.mark.asyncio
+async def test_check_repo_exists_returns_false_if_not_exists(
+    httpx_mock: HTTPXMock, fake_repo_exists_false_response
 ):
+    api = API(username="me", token="definitelynotatoken")
 
     httpx_mock.add_response(
-        url="https://api.github.com/user/repos?type=owner",
-        json=fake_repos_response,
-        status_code=200,
+        url=api.url, json=fake_repo_exists_false_response, status_code=200
     )
 
-    api = API(token="definitelynotatoken", username="me")
+    exists = await api.check_repo_exists("dave")
 
-    # These are the names in the fake_repos_response fixture
-    wanted_names = {
-        "aircraft_crashes",
-        "cookie_pypackage",
-        "eu_energy_analysis",
-        "FollowTheProcess",
-        "followtheprocess.github.io",
-        "goignore",
-        "gotoil",
-        "go_cookie",
-        "lightweight_ds_cookie",
-        "msc_project",
-        "nox",
-        "poetry_pypackage",
-        "pymechtest",
-        "pytoil",
-        "testygo",
-    }
-
-    assert api.get_repo_names() == wanted_names
+    assert exists is False
 
 
-def test_get_repo_info_returns_correct_info(httpx_mock: HTTPXMock, fake_repo_response):
+@pytest.mark.asyncio
+async def test_check_repo_exists_returns_true_if_exists(
+    httpx_mock: HTTPXMock, fake_repo_exists_true_response
+):
+    api = API(username="me", token="definitelynotatoken")
 
     httpx_mock.add_response(
-        url="https://api.github.com/repos/me/pytoil",
-        json=fake_repo_response,
-        status_code=200,
+        url=api.url, json=fake_repo_exists_true_response, status_code=200
     )
 
-    api = API(token="definitelynotatoken", username="me")
+    exists = await api.check_repo_exists("pytoil")
 
-    # What we want out
-    # This comes from an actual gh response for pytoil
-    want = {
+    assert exists is True
+
+
+@pytest.mark.asyncio
+async def test_get_repo_info_good_response(
+    httpx_mock: HTTPXMock, fake_repo_info_response
+):
+    api = API(username="me", token="definitelynotatoken")
+
+    httpx_mock.add_response(url=api.url, json=fake_repo_info_response, status_code=200)
+
+    info = await api.get_repo_info(name="pytoil")
+
+    assert info == {
         "name": "pytoil",
         "description": "CLI to automate the development workflow :robot:",
-        "created_at": "2021-02-04T15:05:23Z",
-        "updated_at": "2021-09-01T15:29:56Z",
-        "size": 4443,
+        "created_at": "2021-02-04 15:05:23",
+        "updated_at": "2021-12-27 13:31:53",
+        "size": 3153,
         "license": "Apache License 2.0",
+        "remote": True,
     }
 
-    assert api.get_repo_info("pytoil") == RepoSummaryInfo(**want)
 
-
-def test_get_repo_info_correctly_handles_missing_license(
-    httpx_mock: HTTPXMock, fake_repo_response_no_license
+@pytest.mark.asyncio
+async def test_get_repo_info_no_license(
+    httpx_mock: HTTPXMock, fake_repo_info_response_no_license
 ):
-
-    httpx_mock.add_response(
-        url="https://api.github.com/repos/me/repo",
-        json=fake_repo_response_no_license,
-        status_code=200,
-    )
-
-    api = API(token="definitelynotatoken", username="me")
-
-    assert api.get_repo_info(repo="repo").license is None
-
-
-def test_create_fork(httpx_mock: HTTPXMock, fake_repo_response):
-
-    httpx_mock.add_response(
-        url="https://api.github.com/repos/someone/project/forks",
-        json=fake_repo_response,
-        status_code=202,
-    )
-
-    api = API(token="definitelynotatoken", username="me")
-
-    assert api.create_fork(owner="someone", repo="project") == Repository(
-        **fake_repo_response
-    )
-
-
-def test_get_forks(httpx_mock: HTTPXMock, fake_repos_response):
-
-    httpx_mock.add_response(
-        url="https://api.github.com/user/repos?type=owner",
-        json=fake_repos_response,
-        status_code=200,
-    )
-
     api = API(username="me", token="definitelynotatoken")
 
-    # Should only return the ones where fork is True
-    assert api.get_forks() == [
-        Repository(**repo) for repo in fake_repos_response if repo["fork"]
-    ]
-
-
-def test_get_fork_names(httpx_mock: HTTPXMock, fake_repos_response):
-
     httpx_mock.add_response(
-        url="https://api.github.com/user/repos?type=owner",
-        json=fake_repos_response,
-        status_code=200,
+        url=api.url, json=fake_repo_info_response_no_license, status_code=200
     )
 
+    info = await api.get_repo_info(name="pytoil")
+
+    assert info == {
+        "name": "pytoil",
+        "description": "CLI to automate the development workflow :robot:",
+        "created_at": "2021-02-04 15:05:23",
+        "updated_at": "2021-12-27 13:31:53",
+        "size": 3153,
+        "license": None,
+        "remote": True,
+    }
+
+
+@pytest.mark.asyncio
+async def test_create_fork(httpx_mock: HTTPXMock):
     api = API(username="me", token="definitelynotatoken")
 
-    # Should only return the ones where fork is True
-    assert api.get_fork_names() == ["nox"]
+    httpx_mock.add_response(
+        url="https://api.github.com/repos/someoneelse/project/forks", status_code=201
+    )
+
+    await api.create_fork(owner="someoneelse", repo="project")
