@@ -1,7 +1,14 @@
-__version__ = "0.1.0"
+__version__ = "0.15.1"
 
 __doc__ = """
 
-Experimental async version of pytoil.
+Helpful CLI to automate the development workflow.
 
+- Create and manage your local and remote projects
+
+- Build projects from cookiecutter templates.
+
+- Easily create/manage virtual environments.
+
+- Minimal configuration required.
 """
