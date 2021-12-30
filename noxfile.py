@@ -1,5 +1,5 @@
 """
-Nox automation tasks for pytoil.
+Nox configuration file for the project.
 """
 
 import argparse
@@ -67,8 +67,9 @@ SEEDS: List[str] = [
 SESSION_REQUIREMENTS: Dict[str, List[str]] = {
     "test": [
         "pytest",
-        "pytest-cov",
+        "pytest-asyncio",
         "pytest-httpx",
+        "pytest-cov",
         "pytest-mock",
         "coverage[toml]",
     ],
@@ -78,8 +79,9 @@ SESSION_REQUIREMENTS: Dict[str, List[str]] = {
         "black",
         "mypy",
         "pydantic",
+        "types-click",
+        "types-aiofiles",
         "types-PyYAML",
-        "types-toml",
     ],
     "docs": [
         "mkdocs",
@@ -92,7 +94,8 @@ SESSION_REQUIREMENTS: Dict[str, List[str]] = {
 }
 
 # "dev" should only be run if no virtual environment found and we're not on CI
-# i.e. someone is using nox to set up their local dev environment to work on pytoil
+# i.e. someone is using nox to set up their local dev environment
+# to work on pytoil
 if not VENV_DIR.exists() and not ON_CI:
     nox.options.sessions = ["dev"]
 else:
@@ -120,6 +123,7 @@ def poetry_install(session: nox.Session, *args: str, **kwargs: Any) -> None:
 
         kwargs: Keyword arguments passed to session.install.
     """
+
     with tempfile.NamedTemporaryFile() as requirements:
         session.run(
             "poetry",
@@ -146,6 +150,7 @@ def set_up_vscode(session: nox.Session) -> None:
     Args:
         session (nox.Session): The enclosing nox session.
     """
+
     if not VSCODE_DIR.exists():
         session.log("Setting up VSCode Workspace.")
         VSCODE_DIR.mkdir(parents=True)
@@ -169,6 +174,7 @@ def update_seeds(session: nox.Session) -> None:
     Args:
         session (nox.Session): The enclosing nox session.
     """
+
     session.install("--upgrade", *SEEDS)
 
 
@@ -191,6 +197,7 @@ def session_requires(session: nox.Session, tool: str) -> None:
 
         tool (str): Name of the external tool to check for.
     """
+
     if not bool(shutil.which(tool)):
         session.error(
             f"{tool!r} not installed. Session: {session.name!r} requires {tool!r}."
@@ -211,6 +218,7 @@ def get_session_requirements(session: nox.Session) -> List[str]:
     Returns:
         List[str]: List of requirements for the session.
     """
+
     requirements = SESSION_REQUIREMENTS.get(f"{session.name}", [])
     if not requirements:
         session.error(
@@ -277,16 +285,6 @@ def enforce_branch_no_changes(session: nox.Session) -> None:
         )
 
 
-@nox.session(python=False, name="update")
-def update_poetry(session: nox.Session) -> None:
-    """
-    Updates the dependencies in the poetry.lock file.
-    """
-    # Error out if user does not have poetry installed
-    session_requires(session, "poetry")
-    session.run("poetry", "update")
-
-
 @nox.session(python=False)
 def dev(session: nox.Session) -> None:
     """
@@ -320,6 +318,7 @@ def update(session: nox.Session) -> None:
     """
     Updates the dependencies in the poetry.lock file.
     """
+
     # Error out if user does not have poetry installed
     session_requires(session, "poetry")
     session.run("poetry", "update")
@@ -330,6 +329,7 @@ def test(session: nox.Session) -> None:
     """
     Runs the test suite against all supported python versions.
     """
+
     # Error out if user does not have poetry installed
     session_requires(session, "poetry")
 
@@ -356,6 +356,7 @@ def coverage(session: nox.Session) -> None:
     """
     Test coverage analysis.
     """
+
     # Error out if user does not have poetry installed
     session_requires(session, "poetry")
 
@@ -377,6 +378,7 @@ def lint(session: nox.Session) -> None:
     """
     Formats project with black and isort, then runs flake8 and mypy linting.
     """
+
     # Error out if user does not have poetry installed
     session_requires(session, "poetry")
 
@@ -403,6 +405,7 @@ def docs(session: nox.Session) -> None:
     """
     Builds the project documentation. Use '-- serve' to see changes live.
     """
+
     # Error out if user does not have poetry installed
     session_requires(session, "poetry")
 
@@ -454,6 +457,7 @@ def build(session: nox.Session) -> None:
     """
     Builds the package sdist and wheel.
     """
+
     # Error out if user does not have poetry installed
     session_requires(session, "poetry")
 
@@ -476,7 +480,7 @@ def release(session: nox.Session) -> None:
     """
     enforce_branch_no_changes(session)
 
-    parser = argparse.ArgumentParser(description="Release a semver version.")
+    parser = argparse.ArgumentParser(description="Release a new semantic version.")
     parser.add_argument(
         "version",
         type=str,

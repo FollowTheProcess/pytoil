@@ -1,20 +1,22 @@
 """
-Module responsible for creating and managing conda environments.
+Module responsible for handling conda environments.
+
 
 Author: Tom Fleet
-Created: 20/06/2021
+Created: 26/12/2021
 """
 
-from __future__ import annotations
-
+import asyncio
 import shutil
-import subprocess
+import sys
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Sequence, Union
 
+import aiofiles
+import aiofiles.os
 import yaml
 
-from pytoil.environments import Environment
 from pytoil.exceptions import (
     BadEnvironmentFileError,
     CondaNotInstalledError,
@@ -27,284 +29,39 @@ from pytoil.exceptions import (
 EnvironmentYml = Dict[str, Union[List[str], str]]
 
 
-class Conda(Environment):
+@dataclass
+class Conda:
     """
-    Conda EnvManager class.
+    Representation of a Conda managed virtual environment.
+
+    Conda environments are simpler in a lot of ways because
+    it's all managed under the hood by the `conda` command.
+
+    We don't need to worry about interpreters or paths etc.
+    Just the environment name is enough to identify it.
+
+    Args:
+        root (Path): The root directory of the project.
+        environment_name (str): The name of the conda environment
+        conda (Optional[str]): The conda binary. Defaults to shutil.which("conda")
     """
 
-    def __init__(
-        self,
-        name: str,
-        project_path: Path,
-        conda: Optional[str] = shutil.which("conda"),
-    ) -> None:
-        """
-        Representation of a conda virtual environment.
-
-        Conda environments are simpler in a lot of ways because
-        it's all managed under the hood by the `conda` command.
-
-        We don't need to worry about interpreters or paths etc.
-        Just the environment name is enough to identify it.
-
-        Args:
-            name (str): The name of the conda environment.
-
-            project_path (pathlib.Path): Path to the root dir
-                of the associated project.
-
-            conda (str, optional): The path to the conda executable.
-                defaults to whatever `conda` is on $PATH.
-        """
-        self.name = name
-        self._project_path = project_path
-        self.conda = conda
-
-    def __repr__(self) -> str:
-        return (
-            self.__class__.__qualname__
-            + f"(name={self.name!r}, "
-            + f"project_path={self.project_path!r}, "
-            + f"conda={self.conda!r})"
-        )
+    root: Path
+    environment_name: str
+    conda: Optional[str] = shutil.which("conda")
 
     @property
     def project_path(self) -> Path:
-        return self._project_path
+        return self.root.resolve()
 
     @property
     def executable(self) -> Path:
         envs_dir = self.get_envs_dir()
-        return envs_dir.joinpath(f"{self.name}/bin/python")
+        return envs_dir.joinpath(f"{self.environment_name}/bin/python")
 
     @property
-    def info_name(self) -> str:
+    def name(self) -> str:
         return "conda"
-
-    def raise_for_conda(self) -> None:
-        """
-        Helper method which either raises if no `conda` found.
-        Or does nothing if it is found.
-
-        Because we end up relying on `conda` for most of the logic
-        it makes sense to abstract this step.
-
-        Raises:
-            CondaNotInstalledError: If `conda` not found on $PATH
-        """
-        if not self.conda:
-            raise CondaNotInstalledError(
-                """`conda` executable not installed or not found on $PATH.
-            Check your installation."""
-            )
-
-    def exists(self) -> bool:
-        """
-        Determines whether a conda environment called `name`
-        exists on the current system by checking if a valid
-        interpreter exists inside the environments directory
-        under that name.
-
-        Returns:
-            bool: True if the environment exists on system, else False.
-
-        Raises:
-            CondaNotInstalledError: If `conda` not found on $PATH.
-        """
-        self.raise_for_conda()
-
-        return self.executable.exists()
-
-    def create(self, packages: Optional[List[str]] = None) -> None:
-        """
-        Creates the conda environment described by the instance.
-
-        Only default package is `python=3` which will cause conda to choose
-        it's default python3.
-
-        If packages are specified, these will be inserted into the conda create
-        command.
-
-        Raises:
-            CondaNotInstalledError: If `conda` not found on $PATH.
-
-            EnvironmentAlreadyExistsError: If the conda environment already exists.
-        """
-        self.raise_for_conda()
-
-        if self.exists():
-            raise EnvironmentAlreadyExistsError(
-                f"Conda env: {self.name!r} already exists."
-            )
-
-        cmd: List[str] = [
-            f"{self.conda}",
-            "create",
-            "-y",
-            "--name",
-            f"{self.name}",
-            "python=3",
-        ]
-
-        if packages:
-            cmd.extend(packages)
-
-        subprocess.run(cmd, check=True, capture_output=True)
-
-    @staticmethod
-    def create_from_yml(project_path: Path) -> Conda:
-        """
-        Creates a conda environment from the `environment.yml`
-        contained in the root `project_path`
-
-        Args:
-            fp (pathlib.Path): Filepath of the project root.
-
-        Raises:
-            CondaNotInstalledError: If `conda` not found on $PATH.
-
-            FileNotFoundError: If the `environment.yml` file does not exist.
-
-            BadEnvironmentFileError: If the `environment.yml` file is
-                formatted incorrectly.
-
-            EnvironmentAlreadyExistsError: If the conda environment described
-                by the `environment.yml` file already exists on system.
-
-        Returns:
-            Conda: The returned Conda environment object for later use.
-        """
-        # Ensure we have a resolved project root filepath
-        resolved_project_path = project_path.resolve()
-        yml_file = resolved_project_path.joinpath("environment.yml")
-
-        try:
-            with open(yml_file) as f:
-                env_dict: EnvironmentYml = yaml.full_load(f)
-        except FileNotFoundError:
-            raise
-
-        env_name = env_dict.get("name")
-
-        if not isinstance(env_name, str):
-            raise BadEnvironmentFileError(
-                """The environment yml file has an invalid format.
-                Cannot determine the value for key: `name`."""
-            )
-        env = Conda(name=env_name, project_path=resolved_project_path)
-        env.raise_for_conda()
-
-        if env.exists():
-            raise EnvironmentAlreadyExistsError(
-                f"Conda env: {env.name!r} already exists."
-            )
-        try:
-            # Can't use self.conda here as classmethod
-            # so just rely on $PATH
-            _ = subprocess.run(
-                [
-                    "conda",
-                    "env",
-                    "create",
-                    "--file",
-                    f"{yml_file}",
-                ],
-                check=True,
-                capture_output=True,
-            )
-        except subprocess.CalledProcessError:
-            raise
-
-        return env
-
-    def export_yml(self) -> None:
-        """
-        Exports an environment.yml file for the conda environment
-        described by the instance.
-
-        Raises:
-            EnvironmentDoesNotExistError: If the conda env does not exist,
-                an environment file cannot be created.
-        """
-        self.raise_for_conda()
-
-        if not self.exists():
-            raise EnvironmentDoesNotExistError(
-                f"""Conda env: {self.name!r} does not exist.
-        Create it first before exporting the environment file."""
-            )
-
-        cmd: List[str] = [
-            f"{self.conda}",
-            "env",
-            "export",
-            "--from-history",
-            "--name",
-            self.name,
-        ]
-
-        try:
-            # Capture the output and redirect to the yml file
-            # basically the python version of the shell's '>'
-            yml_out = subprocess.run(
-                cmd, check=True, capture_output=True, encoding="utf-8"
-            )
-        except subprocess.CalledProcessError:
-            raise
-        else:
-            yml_file = self.project_path.joinpath("environment.yml")
-            with open(yml_file, mode="w", encoding="utf-8") as f:
-                f.write(yml_out.stdout)
-
-    def install(
-        self,
-        packages: List[str],
-    ) -> None:
-        """
-        Installs `packages` into the conda environment
-        described by `name`.
-
-        Packages are passed straight through to conda so any versioning
-        syntax will work as expected.
-
-        Args:
-            packages (List[str]): List of packages to install.
-                If only one package, still must be a list
-                e.g. ["numpy"],
-        Raises:
-            EnvironmentDoesNotExistError: If the conda environment does not exist.
-        """
-        self.raise_for_conda()
-
-        if not self.exists():
-            raise EnvironmentDoesNotExistError(
-                f"""Conda env: {self.name} does not exist.
-        Create it first before installing packages."""
-            )
-
-        # Install into specified env
-        cmd: List[str] = [
-            f"{self.conda}",
-            "install",
-            "-y",
-            "--name",
-            f"{self.name}",
-        ]
-
-        # Add specified packages
-        cmd.extend(packages)
-
-        try:
-            _ = subprocess.run(cmd, check=True, capture_output=True)
-        except subprocess.CalledProcessError:
-            raise
-
-    def install_self(self) -> None:
-        """
-        Creates a conda environment from an environment.yml,
-        this is conda's closest concept to `installing self`.
-        """
-        self.create_from_yml(project_path=self.project_path)
 
     @staticmethod
     def get_envs_dir() -> Path:
@@ -339,3 +96,218 @@ class Conda(Environment):
             f"""Could not detect the type of conda
         installation present. Checked for: {names}"""
         )
+
+    async def exists(self) -> bool:
+        """
+        Checks whether the environment exists by a proxy
+        check if the `executable` exists.
+
+        If this executable exists then the environment musty
+        exist.
+        """
+        # types-aiofiles hasn't caught up yet
+        return await aiofiles.os.path.exists(self.executable)  # type: ignore
+
+    async def create(
+        self, packages: Optional[Sequence[str]] = None, silent: bool = False
+    ) -> None:
+        """
+        Creates the conda environment described by the instance.
+
+        Only default package is `python=3` which will cause conda to choose
+        it's default python3.
+
+        If packages are specified, these will be inserted into the conda create
+        command.
+
+        Args:
+            packages (Optional[List[str]]): List of packages to install on creation.
+                Defaults to None.
+
+            silent (bool, optional): Whether to discard or display output.
+                Defaults to False.
+
+        Raises:
+            CondaNotInstalledError: If `conda` not found on $PATH.
+            EnvironmentAlreadyExistsError: If the conda environment already exists.
+        """
+        if not self.conda:
+            raise CondaNotInstalledError
+
+        if await self.exists():
+            raise EnvironmentAlreadyExistsError(
+                f"Conda env: {self.environment_name!r} already exists"
+            )
+
+        if packages:
+            proc = await asyncio.create_subprocess_exec(
+                self.conda,
+                "create",
+                "-y",
+                "--name",
+                self.environment_name,
+                "python=3",
+                *packages,
+                cwd=self.project_path,
+                stdout=asyncio.subprocess.DEVNULL if silent else sys.stdout,
+                stderr=asyncio.subprocess.DEVNULL if silent else sys.stderr,
+            )
+        else:
+            proc = await asyncio.create_subprocess_exec(
+                self.conda,
+                "create",
+                "-y",
+                "--name",
+                self.environment_name,
+                "python=3",
+                cwd=self.project_path,
+                stdout=asyncio.subprocess.DEVNULL if silent else sys.stdout,
+                stderr=asyncio.subprocess.DEVNULL if silent else sys.stderr,
+            )
+
+        await proc.wait()
+
+    @staticmethod
+    async def create_from_yml(project_path: Path, silent: bool = False) -> None:
+        """
+        Creates a conda environment from the `environment.yml` contained
+        in the root `project_path`
+
+        Args:
+            project_path (Path): Filepath to the project root.
+            silent (bool, optional): Whether to discard or display output.
+                Defaults to False.
+
+        Raises:
+            BadEnvironmentFileError: If `environment.yml` is malformed.
+            EnvironmentAlreadyExistsError: If a conda environment of the same name
+                exists on the system.
+        """
+
+        if not shutil.which("conda"):
+            raise CondaNotInstalledError
+
+        # Ensure we have a fully resolved project path
+        project_path = project_path.resolve()
+        yml_file = project_path.joinpath("environment.yml")
+
+        async with aiofiles.open(yml_file) as file:
+            content = await file.read()
+            env_dict: EnvironmentYml = yaml.full_load(content)
+
+        env_name = env_dict.get("name")
+        if not isinstance(env_name, str):
+            raise BadEnvironmentFileError(
+                "The environment yml file has an invalid format. Cannot determine value"
+                " for key: `name`."
+            )
+
+        env = Conda(root=project_path, environment_name=env_name)
+
+        if await env.exists():
+            raise EnvironmentAlreadyExistsError(
+                f"Conda env: {env_name!r} already exists."
+            )
+
+        # Can't use self.conda here as static method so just rely on $PATH
+        proc = await asyncio.create_subprocess_exec(
+            "conda",
+            "env",
+            "create",
+            "--file",
+            f"{yml_file}",
+            cwd=project_path,
+            stdout=asyncio.subprocess.DEVNULL if silent else sys.stdout,
+            stderr=asyncio.subprocess.DEVNULL if silent else sys.stderr,
+        )
+
+        await proc.wait()
+
+    async def export_yml(self) -> None:
+        """
+        Exports an environment.yml file for the conda environment
+        described by the instance.
+
+        Raises:
+            CondaNotInstalledError: If conda not installed.
+            EnvironmentDoesNotExistError: If the environment does not exist.
+        """
+        if not self.conda:
+            raise CondaNotInstalledError
+
+        if not await self.exists():
+            raise EnvironmentDoesNotExistError(
+                f"Conda env: {self.environment_name!r} does not exist. Create it first"
+                " before exporting the environment file."
+            )
+
+        proc = await asyncio.create_subprocess_exec(
+            self.conda,
+            "env",
+            "export",
+            "--from-history",
+            "--name",
+            self.environment_name,
+            cwd=self.project_path,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+
+        out, _ = await proc.communicate()
+
+        yml_file = self.project_path.joinpath("environment.yml")
+
+        async with aiofiles.open(yml_file, mode="w", encoding="utf-8") as file:
+            await file.write(out.decode("utf-8"))
+
+    async def install(self, packages: Sequence[str], silent: bool = False) -> None:
+        """
+        Installs `packages` into the conda environment described by
+        the instance.
+
+        Packages are passed straight through to conda so any versioning
+        syntax will work as expected.
+
+        Args:
+            packages (List[str]): List of packages to install.
+            silent (bool, optional): Whether to discard or display output.
+                Defaults to False.
+
+        Raises:
+            CondaNotInstalledError: If user does not have conda installed.
+            EnvironmentDoesNotExistError: If the conda environment does not exist.
+        """
+        if not self.conda:
+            raise CondaNotInstalledError
+
+        if not await self.exists():
+            raise EnvironmentDoesNotExistError(
+                f"Conda env: {self.environment_name!r} does not exist. Create it first"
+                " before installing packages."
+            )
+
+        proc = await asyncio.create_subprocess_exec(
+            self.conda,
+            "install",
+            "-y",
+            "--name",
+            self.environment_name,
+            *packages,
+            cwd=self.project_path,
+            stdout=asyncio.subprocess.DEVNULL if silent else sys.stdout,
+            stderr=asyncio.subprocess.DEVNULL if silent else sys.stderr,
+        )
+
+        await proc.wait()
+
+    async def install_self(self, silent: bool = False) -> None:
+        """
+        Creates a conda environment from an environment.yml.
+
+        This is conda's closest concept to `installing self`.
+
+        Args:
+            silent (bool, optional): Whether to discard or display output.
+                Defaults to False.
+        """
+        await self.create_from_yml(project_path=self.project_path, silent=silent)

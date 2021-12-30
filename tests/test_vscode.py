@@ -1,13 +1,5 @@
-"""
-Tests for the vscode module.
-
-Author: Tom Fleet
-Created: 19/06/2021
-"""
-
 import json
-import shutil
-import subprocess
+import sys
 from pathlib import Path
 from typing import Any, Dict
 
@@ -15,66 +7,37 @@ import pytest
 from pytest_mock import MockerFixture
 
 from pytoil.exceptions import CodeNotInstalledError
-from pytoil.vscode import WORKSPACE_PYTHON_SETTING, VSCode
+from pytoil.vscode import VSCode
+from pytoil.vscode.vscode import WORKSPACE_PYTHON_SETTING
 
 
-def test_vscode_init():
-
-    code = VSCode(root=Path("somewhere"))
-
-    assert code.root == Path("somewhere")
-    assert code.code == shutil.which("code")
-
-
-def test_vscode_init_passed():
-
-    code = VSCode(root=Path("somewhere"), code="somecodebinary")
-
-    assert code.root == Path("somewhere")
-    assert code.code == "somecodebinary"
-
-
-def test_vscode_repr():
-
-    code = VSCode(root=Path("somewhere"), code="somecodebinary")
-
-    assert repr(code) == f"VSCode(root={code.root!r}, code='somecodebinary')"
-
-
-def test_raise_for_code_raises_if_code_is_none():
-
+@pytest.mark.asyncio
+async def test_open_raises_if_code_is_not_installed():
     code = VSCode(root=Path("somewhere"), code=None)
 
     with pytest.raises(CodeNotInstalledError):
-        code.raise_for_code()
+        await code.open()
 
 
-def test_open_raises_on_subprocess_error(mocker: MockerFixture):
-
-    mocker.patch(
-        "pytoil.vscode.vscode.subprocess.run",
-        autospec=True,
-        side_effect=[subprocess.CalledProcessError(-1, "cmd")],
+@pytest.mark.asyncio
+async def test_open_passes_correct_args_to_subprocess(mocker: MockerFixture):
+    mock = mocker.patch(
+        "pytoil.vscode.vscode.asyncio.create_subprocess_exec", autospec=True
     )
 
-    code = VSCode(root=Path("somewhere"), code="code")
+    code = VSCode(Path("somewhere"), "notcode")
 
-    with pytest.raises(subprocess.CalledProcessError):
-        code.open()
+    await code.open()
 
-
-def test_open_correctly_calls_code_executable(mocker: MockerFixture):
-
-    mock_subprocess = mocker.patch("pytoil.vscode.vscode.subprocess.run", autospec=True)
-
-    code = VSCode(root=Path("somewhere"), code="/path/to/code")
-
-    code.open()
-
-    mock_subprocess.assert_called_once_with(["/path/to/code", "somewhere"], check=True)
+    mock.assert_called_once_with(
+        "notcode", ".", cwd=Path("somewhere"), stdout=sys.stdout, stderr=sys.stderr
+    )
 
 
-def test_vscode_set_workspace_python_works_on_non_existent_settings(fake_projects_dir):
+@pytest.mark.asyncio
+async def test_vscode_set_workspace_python_works_on_non_existent_settings(
+    fake_projects_dir,
+):
 
     fake_project: Path = fake_projects_dir.joinpath("myproject")
     settings = fake_project.joinpath(".vscode/settings.json")
@@ -87,7 +50,7 @@ def test_vscode_set_workspace_python_works_on_non_existent_settings(fake_project
     assert not settings.exists()
 
     # Set the python path
-    code.set_workspace_python(ppath)
+    await code.set_workspace_python(ppath)
 
     # Now it should exist
     assert settings.exists()
@@ -101,36 +64,10 @@ def test_vscode_set_workspace_python_works_on_non_existent_settings(fake_project
     assert written_settings_dict == expected
 
 
-def test_vscode_set_workspace_python_works_on_empty_file(fake_projects_dir):
-
-    fake_project: Path = fake_projects_dir.joinpath("myproject")
-    settings = fake_project.joinpath(".vscode/settings.json")
-    settings.parent.mkdir()
-    settings.touch()
-
-    code = VSCode(root=fake_project)
-
-    ppath = fake_project.joinpath("/usr/bin/sillypython")
-
-    assert settings.exists()
-
-    # Assert it's empty
-    assert len(settings.read_text()) == 0
-
-    code.set_workspace_python(python_path=ppath)
-
-    assert len(settings.read_text()) != 0
-
-    # Get new contents
-    with open(settings, mode="r", encoding="utf-8") as f:
-        written_settings_dict: Dict[str, Any] = json.load(f)
-
-    expected: Dict[str, Any] = {WORKSPACE_PYTHON_SETTING: f"{ppath.resolve()}"}
-
-    assert written_settings_dict == expected
-
-
-def test_vscode_set_workspace_python_works_on_existing_settings(fake_projects_dir):
+@pytest.mark.asyncio
+async def test_vscode_set_workspace_python_works_on_existing_settings(
+    fake_projects_dir,
+):
 
     fake_project: Path = fake_projects_dir.joinpath("myproject")
     settings = fake_project.joinpath(".vscode/settings.json")
@@ -169,7 +106,7 @@ def test_vscode_set_workspace_python_works_on_existing_settings(fake_projects_di
         "python.testing.pytestEnabled": False,
     }
 
-    code.set_workspace_python(python_path=ppath)
+    await code.set_workspace_python(python_path=ppath)
 
     # Get new contents
     with open(settings, mode="r", encoding="utf-8") as f:

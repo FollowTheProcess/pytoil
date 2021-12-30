@@ -3,7 +3,7 @@ Module responsible for handling pytoil's programmatic
 interaction with its config file.
 
 Author: Tom Fleet
-Created: 18/06/2021
+Created: 21/12/2021
 """
 
 from __future__ import annotations
@@ -12,6 +12,7 @@ from dataclasses import field
 from pathlib import Path
 from typing import List, TypedDict
 
+import aiofiles
 import yaml
 from pydantic.dataclasses import dataclass
 
@@ -31,6 +32,7 @@ class ConfigDict(TypedDict):
     token: str
     username: str
     vscode: bool
+    code_bin: str
     common_packages: List[str]
     init_on_new: bool
 
@@ -51,6 +53,8 @@ class Config:
         vscode (bool): Whether or not the user wants pytoil to use VSCode
             to auto-open projects.
 
+        code_bin (str): The name of the VSCode binary ("code" | "code-insiders")
+
         common_packages (List[str]): List of common packages the user wants to
             inject into every python environment pytoil creates. Typically
             used for linters, formatters etc.
@@ -63,11 +67,12 @@ class Config:
     token: str = defaults.TOKEN
     username: str = defaults.USERNAME
     vscode: bool = defaults.VSCODE
+    code_bin: str = defaults.CODE_BIN
     common_packages: List[str] = field(default_factory=list)
     init_on_new: bool = defaults.INIT_ON_NEW
 
     @classmethod
-    def from_file(cls, path: Path = defaults.CONFIG_FILE) -> Config:
+    async def from_file(cls, path: Path = defaults.CONFIG_FILE) -> Config:
         """
         Reads in the .pytoil.yml config file and returns
         a populated `Config` object.
@@ -83,8 +88,9 @@ class Config:
             FileNotFoundError: If config file not found.
         """
         try:
-            with open(path, mode="r", encoding="utf-8") as f:
-                config_dict: ConfigDict = yaml.full_load(f)
+            async with aiofiles.open(path, mode="r", encoding="utf-8") as f:
+                content = await f.read()
+                config_dict: ConfigDict = yaml.full_load(content)
         except FileNotFoundError:
             raise
         else:
@@ -137,11 +143,12 @@ class Config:
             "token": self.token,
             "username": self.username,
             "vscode": self.vscode,
+            "code_bin": self.code_bin,
             "common_packages": self.common_packages,
             "init_on_new": self.init_on_new,
         }
 
-    def write(self, path: Path = defaults.CONFIG_FILE) -> None:
+    async def write(self, path: Path = defaults.CONFIG_FILE) -> None:
         """
         Overwrites the config file at `path` with the attributes from
         the calling instance.
@@ -150,8 +157,9 @@ class Config:
             path (Path, optional): Config file to overwrite.
                 Defaults to defaults.CONFIG_FILE.
         """
-        with open(path, mode="w", encoding="utf-8") as f:
-            yaml.dump(self.to_dict(), f)
+        async with aiofiles.open(path, mode="w", encoding="utf-8") as f:
+            content = yaml.dump(self.to_dict())
+            await f.write(content)
 
     def can_use_api(self) -> bool:
         """

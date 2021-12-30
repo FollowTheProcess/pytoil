@@ -1,75 +1,64 @@
 """
-Module responsible for creating and managing virtual environments
-for flit.
+Module responsible for handling Flit python environments.
 
-This is done in a very similar way to `virtualenv.py` as flit
-does not create it's own environments.
 
 Author: Tom Fleet
-Created: 13/07/2021
+Created: 26/12/2021
 """
 
+import asyncio
 import shutil
-import subprocess
+import sys
+from dataclasses import dataclass
 from pathlib import Path
-from typing import List
+from typing import Optional
 
 from pytoil.environments.virtualenv import Venv
 from pytoil.exceptions import FlitNotInstalledError
 
 
-class FlitEnv(Venv):
+@dataclass
+class Flit(Venv):
     """
-    Flit EnvManager class.
+    Representation of a Flit python environment.
+
+    Subclasses `Venv` as a lot of shared functionality.
     """
 
-    def __init__(self, project_path: Path) -> None:
-        """
-        Representation of a flit virtualenv.
-
-        Actually not overtly different from the `Venv` class
-        in `virtualenv.py` as flit uses standard python
-        virtual environments.
-
-        The main difference is found in install commands. Hence why
-        we subclass from the standard `Venv` class here and other
-        classes subclass from the `Environment` ABC.
-
-        Args:
-            project_path (Path): The root path of the current project.
-        """
-        super().__init__(project_path=project_path)
+    root: Path
+    flit: Optional[str] = shutil.which("flit")
 
     @property
-    def info_name(self) -> str:
+    def name(self) -> str:
         return "flit"
 
-    def install_self(self) -> None:
+    async def install_self(self, silent: bool = False) -> None:
         """
-        Installs the current package.
+        Installs a flit based project.
 
-        Raises:
-            FlitNotInstalledError: If `flit` not installed.
+        Args:
+            silent (bool, optional): Whether to discard or display output.
+                Defaults to False.
         """
-        if not bool(shutil.which("flit")):
-            raise FlitNotInstalledError(
-                "Flit not installed, cannot install flit based project."
-            )
+        if not self.flit:
+            raise FlitNotInstalledError
 
         # Unlike poetry, conda etc. flit does not make it's own virtual environment
         # we must make one here before installing the project
-        if not self.exists():
-            self.create()
+        if not await self.exists():
+            await self.create()
 
-        cmd: List[str] = [
-            "flit",
+        proc = await asyncio.create_subprocess_exec(
+            self.flit,
             "install",
             "--deps",
             "develop",
             "--symlink",
             "--python",
             f"{self.executable}",
-        ]
+            cwd=self.project_path,
+            stdout=asyncio.subprocess.DEVNULL if silent else sys.stdout,
+            stderr=asyncio.subprocess.DEVNULL if silent else sys.stderr,
+        )
 
-        # Here we must specify the cwd as flit will search for it's pyproject.toml
-        subprocess.run(cmd, check=True, cwd=self.project_path, capture_output=True)
+        await proc.wait()

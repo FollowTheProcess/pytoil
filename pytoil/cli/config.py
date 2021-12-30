@@ -1,23 +1,21 @@
 """
-The `pytoil config` subcommand group.
+The async-pytoil config command group.
+
 
 Author: Tom Fleet
-Created: 18/06/2021
+Created: 21/12/2021
 """
 
 import time
-from typing import Optional
+from typing import Tuple
 
-import typer
-from rich import box
+import asyncclick as click
 from rich.console import Console
 from rich.markdown import Markdown
-from rich.table import Table
+from rich.table import Table, box
 from wasabi import msg
 
 from pytoil.config import Config, defaults
-
-app = typer.Typer(name="config")
 
 # If the file doesn't exist, let's make a default one nicely
 # This will check if the config file exists
@@ -34,9 +32,8 @@ if not defaults.CONFIG_FILE.exists():
     msg.text("Try running pytoil again!", spaced=True, exits=0)
 
 
-# Callback for documentation only
-@app.callback()
-def config() -> None:
+@click.group()
+async def config() -> None:
     """
     Interact with pytoil's configuration.
 
@@ -45,15 +42,11 @@ def config() -> None:
 
     Setting a key value pair using the 'config set' subcommand will cause the config
     file to be updated and overwritten. You will be prompted to confirm this however.
-
-    Currently the only config key you cannot set on the command line is
-    'common_packages'. If you want to change this, you'll have to do so in the
-    config file itself.
     """
 
 
-@app.command()
-def show() -> None:
+@config.command()
+async def show() -> None:
     """
     Show pytoil's config.
 
@@ -66,9 +59,9 @@ def show() -> None:
 
     $ pytoil config show
     """
-    config = Config.from_file()
+    config = await Config.from_file()
 
-    typer.secho("\nPytoil Config:\n", fg=typer.colors.CYAN, bold=True)
+    click.secho("\nPytoil Config:\n", fg="cyan", bold=True)
 
     table = Table(box=box.SIMPLE)
     table.add_column("Key", style="cyan", justify="right")
@@ -81,14 +74,13 @@ def show() -> None:
     console.print(table)
 
 
-@app.command()
-def get(
-    key: str = typer.Argument(..., help="Config key to fetch the value for.")
-) -> None:
+@config.command()
+@click.argument("key", nargs=1)
+async def get(key: str) -> None:
     """
     Get the currently set value for a config key.
 
-    The get command only allows valid pytoil config keys.
+    The get command will only allow valid pytoil config keys.
 
     Examples:
 
@@ -97,25 +89,21 @@ def get(
     if key not in defaults.CONFIG_KEYS:
         msg.warn(f"{key!r} is not a valid pytoil config key.", exits=1)
 
-    config = Config.from_file().to_dict()
+    config = await Config.from_file()
+    config_dict = config.to_dict()
     # Make the key a nice colour
-    config_start = typer.style(f"\n{key}: ", fg=typer.colors.CYAN)
-    config_msg = config_start + f"{config.get(key)!r}\n"
-    typer.secho(config_msg)
+    config_start = click.style(f"{key}: ", fg="cyan")
+    config_msg = config_start + f"{config_dict.get(key)!r}"
+    click.secho(config_msg)
 
 
-@app.command(context_settings={"allow_extra_args": True})
-def set(
-    ctx: typer.Context,
-    key: str = typer.Argument(..., help="Config key to set the value for."),
-    force: bool = typer.Option(
-        False,
-        "--force",
-        "-f",
-        help="Force config overwrite without confirmation.",
-        show_default=False,
-    ),
-) -> None:
+@config.command()
+@click.argument("key", nargs=1)
+@click.argument("val", nargs=-1, required=True)
+@click.option(
+    "--force", "-f", is_flag=True, help="Force overwrite without confirmation."
+)
+async def set(key: str, val: Tuple[str, ...], force: bool) -> None:
     """
     Set a config key, value pair.
 
@@ -124,7 +112,7 @@ def set(
     On confirmation, the config file ($HOME/.pytoil.yml) will be
     overwritten with the new data.
 
-    The '--force/-f' flag can be used to force overwrite without confirmation.
+    The "--force/-f" flag can be used to force overwrite without confirmation.
 
     Examples:
 
@@ -135,67 +123,48 @@ def set(
     if key not in defaults.CONFIG_KEYS:
         msg.warn(f"{key!r} is not a valid pytoil config key.", exits=1)
 
-    # This is how we handle setting common_packages which could be
-    # any length list
-    # Set max allowed args to 1 by default, but could also be None
-    max_allowed_args: Optional[int] = 1
-
-    # If user wants to set common packages, we unlock the limit for max
-    # allowed args, allowing them to pass whatever they like
-    if key == "common_packages":
-        max_allowed_args = None
-
-    config = Config.from_file().to_dict()
-
-    # If the max allowed args limit is in force (not None) and the
-    # length of the list of args is greater than the limit, we fail
-    # This means that every other config key will behave as before
-    if max_allowed_args and len(ctx.args) > max_allowed_args:
+    if key != "common_packages" and len(val) > 1:
         msg.fail(
-            f"Error: Expected {max_allowed_args} argument, got {ctx.args}",
-            spaced=True,
+            "Error: All config keys except 'common_packages' take a maximum of 1 value",
             exits=1,
         )
 
-    # Now we're good to go, we check if max_allowed_args limit is in force
-    # and pop it off the ctx.args list if so because we know there will only
-    # ever be 1
-    if isinstance(max_allowed_args, int):
-        arg = ctx.args.pop()
-    else:
-        # Here we know the max_allowed_args limit has been dropped so
-        # we simply return the list of arguments, which is exactly
-        # how we want common_packages to be encoded, happy days :)
-        arg = ctx.args
+    conf = await Config.from_file()
+    config = conf.to_dict()
 
-    new_setting = {key: arg}
+    if key == "common_packages":
+        new_val = val
+    else:
+        new_val = val[0]  # type: ignore
+
+    new_setting = {key: new_val}
 
     config.update(new_setting)  # type: ignore
 
     new_config = Config.from_dict(config)
 
     if not force:
-        typer.confirm(f"This will set {key!r} to {arg}. Are you sure?", abort=True)
+        click.confirm(
+            f"This will set {key!r} to {new_val!r}. Are you sure?", abort=True
+        )
 
     try:
-        new_config.write()
+        await new_config.write()
     except Exception:
         # This should only happen if something really weird happens
-        # like corrupted config file etc.
+        # like corrupted file etc.
         msg.fail(
-            "Uh oh! Something went wrong! Check your config file for errors.",
-            spaced=True,
-            exits=1,
+            "Uh oh! Something went wrong, check your config file for errors.", exits=1
         )
     else:
         msg.good("Config successfully updated", spaced=True)
         msg.text(f"{key!r} is now {config[key]}")  # type: ignore
 
 
-@app.command()
-def explain() -> None:
+@config.command()
+async def explain() -> None:
     """
-    Print a list and description of pytoil config keys.
+    Print a list and description of pytoil config values.
 
     Examples:
 

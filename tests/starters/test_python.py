@@ -1,79 +1,54 @@
-"""
-Tests for the python starter template generation.
-
-Author: Tom Fleet
-Created: 24/06/2021
-"""
-
-import shutil
 from pathlib import Path
+
+import aiofiles
+import aiofiles.os
+import pytest
 
 from pytoil.starters import PythonStarter
 
-TESTDATA = Path(__file__).parent.parent.joinpath("testdata").resolve()
-
 
 def test_python_starter_init():
+    starter = PythonStarter(path=Path("somewhere"), name="testypython")
 
-    starter = PythonStarter(path=Path("somewhere/else"), name="testpython")
-
-    assert starter.path == Path("somewhere/else")
-    assert starter.name == "testpython"
-    assert starter.root == Path("somewhere/else").joinpath("testpython")
+    assert starter.path == Path("somewhere")
+    assert starter.name == "testypython"
+    assert starter.root == Path("somewhere").joinpath("testypython").resolve()
     assert starter.files == [
-        starter.root.joinpath(filename) for filename in starter._files
+        Path("somewhere").joinpath("testypython").resolve().joinpath("README.md"),
+        Path("somewhere")
+        .joinpath("testypython")
+        .resolve()
+        .joinpath("requirements.txt"),
+        Path("somewhere").joinpath("testypython").resolve().joinpath("testypython.py"),
     ]
 
 
-def test_python_starter_repr():
+@pytest.mark.asyncio
+async def test_python_starter_generate():
+    async with aiofiles.tempfile.TemporaryDirectory() as tmpdir:
+        starter = PythonStarter(path=Path(tmpdir), name="temptest")
 
-    starter = PythonStarter(path=Path("somewhere/else"), name="testpython")
+        await starter.generate()
 
-    assert (
-        repr(starter) == f"PythonStarter(path={starter.path!r}, name={starter.name!r})"
-    )
+        for file in starter.files:
+            assert await aiofiles.os.path.exists(file)
 
+        async with aiofiles.open(starter.root.joinpath("README.md")) as readme:
+            readme_content = await readme.read()
 
-class TestPythonGenerate:
+        async with aiofiles.open(
+            starter.root.joinpath("requirements.txt")
+        ) as requirements:
+            requirements_content = await requirements.read()
 
-    path = TESTDATA
+        async with aiofiles.open(starter.root.joinpath("temptest.py")) as python:
+            python_content = await python.read()
 
-    def setup_method(self):
-        self.starter = PythonStarter(path=self.path, name="py_starter")
-        # Make the starter
-        self.starter.generate()
-
-    def test_generate_created_correct_files(self):
-
-        for file in self.starter.files:
-            assert file.exists()
-
-    def test_readme_has_correct_text(self):
-        readme = self.starter.root.joinpath("README.md")
-        readme_text = readme.read_text(encoding="utf-8")
-
-        assert readme_text == f"# {self.starter.name}\n"
-
-    def test_python_file_has_correct_text(self):
-        py_file = self.starter.root.joinpath(f"{self.starter.name}.py")
-        py_text = py_file.read_text(encoding="utf-8")
-
+        assert readme_content == "# temptest\n"
         assert (
-            py_text
+            requirements_content == "# Put your requirements here e.g. flask>=1.0.0\n"
+        )
+        assert (
+            python_content
             == 'def hello(name: str = "world") -> None:\n    print(f"hello {name}")\n'
         )
-
-    def test_requirements_txt_has_correct_text(self):
-        req_file = self.starter.root.joinpath("requirements.txt")
-        req_text = req_file.read_text(encoding="utf-8")
-
-        assert req_text == "# Put your requirements here e.g. flask>=1.0.0\n"
-
-    def teardown_method(self):
-        # Clean the created stuff
-        shutil.rmtree(self.starter.root)
-
-        # Error if the files have not been cleaned up for
-        # whatever reason
-        for file in self.starter.files:
-            assert not file.exists()

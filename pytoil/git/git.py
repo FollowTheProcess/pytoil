@@ -1,164 +1,109 @@
 """
-Module responsible for interacting with git via
-subprocesses.
+Module responsible for interacting with git via subprocesses.
+
 
 Author: Tom Fleet
-Created: 19/06/2021
+Created: 22/12/2021
 """
 
+import asyncio
 import shutil
-import subprocess
+import sys
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
-from pytoil.config import defaults
 from pytoil.exceptions import GitNotInstalledError
 
 
+@dataclass
 class Git:
     """
     Wrapper around the user installed `git`.
     """
 
-    def __init__(self, git: Optional[str] = shutil.which("git")) -> None:
+    git: Optional[str] = shutil.which("git")
+
+    async def clone(self, url: str, cwd: Path, silent: bool = True) -> None:
         """
-        A handy wrapper around the user installed `git`.
+        Clone a repo.
 
         Args:
-            git (Optional[str], optional): The path to the `git` binary
-                primarily used for separation of concerns during testing.
-                Defaults to shutil.which("git").
-        """
-        self.git = git
-
-    def __repr__(self) -> str:
-        return self.__class__.__qualname__ + f"(git={self.git!r})"
-
-    def raise_for_git(self) -> None:
-        """
-        Raises an exception if the user does not have
-        git installed.
+            url (str): The clone url of the repo
+            cwd (Path): The cwd under which to clone
+            silent (bool, optional): Whether to hook the output
+                up to stdout and stderr (False) or to discard and keep silent (True).
+                Defaults to True.
         """
         if not self.git:
-            raise GitNotInstalledError(
-                "'git' executable not found on $PATH. Is git installed?"
-            )
+            raise GitNotInstalledError
 
-    def run(
-        self,
-        *args: str,
-        check: bool = True,
-        cwd: Path = defaults.PROJECTS_DIR,
-        silent: bool = False,
-    ) -> None:
+        proc = await asyncio.create_subprocess_exec(
+            self.git,
+            "clone",
+            url,
+            cwd=cwd,
+            stdout=asyncio.subprocess.DEVNULL if silent else sys.stdout,
+            stderr=asyncio.subprocess.DEVNULL if silent else sys.stderr,
+        )
+
+        await proc.wait()
+
+    async def init(self, cwd: Path, silent: bool = True) -> None:
         """
-        Generic method to run `git` in a subprocess.
-
-        Pass any args to git via *args.
-
-        e.g. 'run("clone", "https://github.com/me/repo.git")'
+        Initialise a new git repo.
 
         Args:
-            check (bool, optional): Will raise a CalledProcessError if
-                something goes wrong. Defaults to True.
-
-            cwd (Path, optional): Working directory of the subprocess.
-                Defaults to defaults.PROJECTS_DIR.
-
-            silent (bool): Whether to suppress showing the clone output.
-                Defaults to False.
-
-        Raises:
-            subprocess.CalledProcessError: If the subprocess command fails.
-        """
-        self.raise_for_git()
-
-        try:
-            subprocess.run(
-                [f"{self.git}", *args], check=check, cwd=cwd, capture_output=silent
-            )
-        except subprocess.CalledProcessError:
-            raise
-
-    def clone(
-        self,
-        url: str,
-        check: bool = True,
-        cwd: Path = defaults.PROJECTS_DIR,
-        silent: bool = True,
-    ) -> None:
-        """
-        Convenience wrapper around `self.run` to clone a repo.
-
-        Args:
-            url (str): The clone url of the repo.
-
-            check (bool, optional): Raise CalledProcessError on failure.
+            cwd (Path): The cwd to initialise the repo in.
+            silent (bool, optional): Whether to hook the output
+                up to stdout and stderr (False) or to discard and keep silent (True).
                 Defaults to True.
-
-            cwd (Path, optional): Working directory of the subprocess.
-                Defaults to defaults.PROJECTS_DIR.
-
-            silent (bool): Whether to suppress showing the clone output.
-                Defaults to True.
-
-        Raises:
-            subprocess.CalledProcessError: If the subprocess command fails.
         """
-        self.run("clone", url, check=check, cwd=cwd, silent=silent)
+        if not self.git:
+            raise GitNotInstalledError
 
-    def init(self, path: Path, check: bool = True, silent: bool = False) -> None:
-        """
-        Convenience wrapper around `self.run` to initialise a repo.
+        proc = await asyncio.create_subprocess_exec(
+            self.git,
+            "init",
+            cwd=cwd,
+            stdout=asyncio.subprocess.DEVNULL if silent else sys.stdout,
+            stderr=asyncio.subprocess.DEVNULL if silent else sys.stderr,
+        )
 
-        Args:
-            path (Path): Root of the project to initialise
-                the repo in.
+        await proc.wait()
 
-            check (bool, optional): Raise CalledProcessError on failure.
-                Defaults to True.
-
-            silent (bool): Whether to suppress showing the clone output.
-                Defaults to False.
-
-        Raises:
-            subprocess.CalledProcessError: If the subprocess command fails.
-        """
-        self.run("init", check=check, cwd=path, silent=silent)
-
-    def set_upstream(
-        self,
-        owner: str,
-        repo: str,
-        path: Path,
-        check: bool = True,
-        silent: bool = False,
+    async def set_upstream(
+        self, owner: str, repo: str, cwd: Path, silent: bool = True
     ) -> None:
         """
         Sets the upstream repo for a local repo, e.g. on a cloned fork.
 
         Note difference between origin and upstream, origin of a cloned fork
-        would be user/forked_repo where as upstream would be
-        original_user/forked_repo.
+        would be user/forked_repo where as upstream would be original_user/forked_repo.
 
         Args:
             owner (str): Owner of the upstream repo.
-            repo (str): Name of the upstream repo.
-            path (Path): Root of the project where the local git
-                repo is.
-            check (bool, optional): Raise CalledProcessError on failure.
+            repo (str): Name of the upstream repo (typically the same as the fork)
+            cwd (Path): Root of the project where the local git repo is.
+            silent (bool, optional): Whether to hook the output
+                up to stdout and stderr (False) or to discard and keep silent (True).
                 Defaults to True.
-            silent (bool): Whether to suppress showing the clone output.
-            Defaults to True.
         """
+        if not self.git:
+            raise GitNotInstalledError
+
         base_url = "https://github.com"
         constructed_upstream = f"{base_url}/{owner}/{repo}.git"
-        self.run(
+
+        proc = await asyncio.create_subprocess_exec(
+            self.git,
             "remote",
             "add",
             "upstream",
             constructed_upstream,
-            check=check,
-            cwd=path,
-            silent=silent,
+            cwd=cwd,
+            stdout=asyncio.subprocess.DEVNULL if silent else sys.stdout,
+            stderr=asyncio.subprocess.DEVNULL if silent else sys.stderr,
         )
+
+        await proc.wait()

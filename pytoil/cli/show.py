@@ -1,25 +1,24 @@
 """
-The `pytoil show` subcommand group.
+The pytoil show command group.
+
 
 Author: Tom Fleet
-Created: 18/06/2021
+Created: 21/12/2021
 """
 
+from typing import Set
 
+import asyncclick as click
 import httpx
-import typer
 from wasabi import msg
 
 from pytoil.api import API
 from pytoil.cli import utils
 from pytoil.config import Config
 
-app = typer.Typer(name="show")
 
-
-# Callback for documentation only
-@app.callback()
-def show() -> None:
+@click.group()
+async def show() -> None:
     """
     View your local/remote projects.
 
@@ -36,16 +35,9 @@ def show() -> None:
     """
 
 
-@app.command()
-def local(
-    count: bool = typer.Option(
-        False,
-        "--count",
-        "-c",
-        help="Display a count of local projects.",
-        show_default=False,
-    )
-) -> None:
+@show.command()
+@click.option("-c", "--count", is_flag=True, help="Display a count of local projects.")
+async def local(count: bool) -> None:
     """
     Show your local projects.
 
@@ -61,31 +53,28 @@ def local(
 
     $ pytoil show local --count
     """
-    config = Config.from_file()
-    local_projects = utils.get_local_projects(path=config.projects_dir)
+    config = await Config.from_file()
+    local_projects: Set[str] = {
+        f.name
+        for f in config.projects_dir.iterdir()
+        if f.is_dir() and not f.name.startswith(".")
+    }
 
     if not local_projects:
-        msg.warn("You don't have any local projects yet!", exits=0)
+        msg.warn("You don't have any local projects yet!", exits=1)
 
-    typer.secho("\nLocal Projects:\n", fg=typer.colors.CYAN, bold=True)
+    click.secho("\nLocal Projects:\n", fg="cyan", bold=True)
 
     if count:
-        typer.echo(f"You have {len(local_projects)} local projects")
+        click.echo(f"You have {len(local_projects)} local projects")
     else:
         for project in sorted(local_projects, key=str.casefold):
-            typer.echo(f"- {project}")
+            click.echo(f"- {project}")
 
 
-@app.command()
-def remote(
-    count: bool = typer.Option(
-        False,
-        "--count",
-        "-c",
-        help="Display a count of remote projects.",
-        show_default=False,
-    )
-) -> None:
+@show.command()
+@click.option("-c", "--count", is_flag=True, help="Display a count of remote projects.")
+async def remote(count: bool) -> None:
     """
     Show your remote projects.
 
@@ -102,41 +91,36 @@ def remote(
 
     $ pytoil show remote --count
     """
-    config = Config.from_file()
-    utils.warn_if_no_api_creds(config)
+    config = await Config.from_file()
+    if not config.can_use_api():
+        msg.warn(
+            "You must set your GitHub username and personal access token to use API"
+            " features.",
+            exits=1,
+        )
 
     api = API(username=config.username, token=config.token)
 
     try:
-        with msg.loading("Getting your remote projects...."):
-            remote_projects = api.get_repo_names()
+        remotes_projects = await api.get_repo_names()
     except httpx.HTTPStatusError as err:
-        utils.handle_http_status_errors(error=err)
+        utils.handle_http_status_error(err)
     else:
+        if not remotes_projects:
+            msg.warn("You don't have any projects on GitHub yet.", exits=1)
 
-        if not remote_projects:
-            msg.warn("You dont have any projects on GitHub yet!", exits=0)
-
-        typer.secho("\nRemote Projects:\n", fg=typer.colors.CYAN, bold=True)
+        click.secho("\nRemote Projects:\n", fg="cyan", bold=True)
 
         if count:
-            typer.echo(f"You have {len(remote_projects)} remote projects.")
+            click.echo(f"You have {len(remotes_projects)} remote projects.")
         else:
-            for project in sorted(remote_projects, key=str.casefold):
-                typer.echo(f"- {project}")
+            for project in sorted(remotes_projects, key=str.casefold):
+                click.echo(f"- {project}")
 
 
-# Can't call it 'all', python keyword
-@app.command(name="all")
-def all_(
-    count: bool = typer.Option(
-        False,
-        "--count",
-        "-c",
-        help="Display a count of all projects.",
-        show_default=False,
-    )
-) -> None:
+@show.command(name="all")
+@click.option("-c", "--count", is_flag=True, help="Display a count of all projects.")
+async def all_(count: bool) -> None:
     """
     Show all your projects, grouped by local and remote.
 
@@ -148,60 +132,51 @@ def all_(
 
     $ pytoil show all --count
     """
-    config = Config.from_file()
-    utils.warn_if_no_api_creds(config)
+    config = await Config.from_file()
+    if not config.can_use_api():
+        msg.warn(
+            "You must set your GitHub username and personal access token to use API"
+            " features.",
+            exits=1,
+        )
 
     api = API(username=config.username, token=config.token)
 
+    local_projects: Set[str] = {
+        f.name
+        for f in config.projects_dir.iterdir()
+        if f.is_dir() and not f.name.startswith(".")
+    }
+
     try:
-        with msg.loading("Fetching your projects..."):
-            local_projects = utils.get_local_projects(path=config.projects_dir)
-            remote_projects = api.get_repo_names()
-            n_locals = len(local_projects)
-            n_remotes = len(remote_projects)
-            total = n_locals + n_remotes
-            local_pct = n_locals / total * 100
-            remote_pct = n_remotes / total * 100
-
+        remote_projects = await api.get_repo_names()
     except httpx.HTTPStatusError as err:
-        utils.handle_http_status_errors(error=err)
+        utils.handle_http_status_error(err)
     else:
-
-        typer.secho("\nLocal Projects:\n", fg=typer.colors.CYAN, bold=True)
+        click.secho("\nLocal Projects:\n", fg="cyan", bold=True)
 
         if not local_projects:
-            msg.warn("You don't have any local projects yet!", exits=0)
+            msg.warn("You don't have any local projects yet.", exits=1)
         elif count:
-            typer.echo(
-                f"You have {n_locals} local projects. {local_pct:.2f}% of total."
-            )
+            click.echo(f"You have {len(local_projects)} local projects.")
         else:
             for project in sorted(local_projects, key=str.casefold):
-                typer.echo(f"- {project}")
+                click.echo(f"- {project}")
 
-        typer.secho("\nRemote Projects:\n", fg=typer.colors.CYAN, bold=True)
+        click.secho("\nRemote Projects:\n", fg="cyan", bold=True)
 
         if not remote_projects:
-            msg.warn("You don't have any projects on GitHub yet!", exits=0)
+            msg.warn("You don't have any projects on GitHub yet.", exits=1)
         elif count:
-            typer.echo(
-                f"You have {n_remotes} remote projects. {remote_pct:.2f}% of total."
-            )
+            click.echo(f"You have {len(remote_projects)}.")
         else:
             for project in sorted(remote_projects, key=str.casefold):
-                typer.echo(f"- {project}")
+                click.echo(f"- {project}")
 
 
-@app.command()
-def diff(
-    count: bool = typer.Option(
-        False,
-        "--count",
-        "-c",
-        help="Display a count of the diff.",
-        show_default=False,
-    )
-) -> None:
+@show.command()
+@click.option("-c", "--count", is_flag=True, help="Display a count of the diff.")
+async def diff(count: bool) -> None:
     """
     Show the difference in local/remote projects.
 
@@ -216,72 +191,38 @@ def diff(
 
     $ pytoil show diff --count
     """
-    config = Config.from_file()
-    utils.warn_if_no_api_creds(config)
+    config = await Config.from_file()
+    if not config.can_use_api():
+        msg.warn(
+            "You must set your GitHub username and personal access token to use API"
+            " features.",
+            exits=1,
+        )
 
     api = API(username=config.username, token=config.token)
 
+    local_projects: Set[str] = {
+        f.name
+        for f in config.projects_dir.iterdir()
+        if f.is_dir() and not f.name.startswith(".")
+    }
+
     try:
-        with msg.loading("Calculating difference..."):
-            local_projects = utils.get_local_projects(path=config.projects_dir)
-            remote_projects = api.get_repo_names()
-
-            diff = remote_projects.difference(local_projects)
+        remote_projects = await api.get_repo_names()
     except httpx.HTTPStatusError as err:
-        utils.handle_http_status_errors(error=err)
+        utils.handle_http_status_error(err)
     else:
-
+        diff = remote_projects.difference(local_projects)
         if not diff:
-            msg.info("Your local and remote projects are in sync!")
-            msg.good("Nothing to show!", exits=0)
-
-        typer.secho("\nDiff: Remote - Local\n", fg=typer.colors.CYAN, bold=True)
-
-        if count:
-            typer.echo(
-                f"You have {len(diff)} projects on GitHub that aren't available"
-                " locally."
-            )
+            msg.good("Your local and remote projects are in sync!")
         else:
-            for project in sorted(diff, key=str.casefold):
-                typer.echo(f"- {project}")
+            click.secho("\nDiff: Remote - Local\n", fg="cyan", bold=True)
 
-
-@app.command()
-def forks(
-    count: bool = typer.Option(
-        False,
-        "--count",
-        "-c",
-        help="Display a count of the diff.",
-        show_default=False,
-    )
-) -> None:
-    """
-    Show your forked projects.
-
-    Show all the repos you own that are forks of other repos.
-
-    The "--count/-c" flag will show a count of forks.
-    """
-    config = Config.from_file()
-    utils.warn_if_no_api_creds(config)
-
-    api = API(username=config.username, token=config.token)
-
-    try:
-        with msg.loading("Getting your forks..."):
-            forks = api.get_fork_names()
-    except httpx.HTTPStatusError as err:
-        utils.handle_http_status_errors(error=err)
-    else:
-        typer.secho("\nForked Projects:\n", fg=typer.colors.CYAN, bold=True)
-
-        if not forks:
-            msg.warn("You don't have any forks yet!", exits=0)
-
-        if count:
-            typer.echo(f"You have {len(forks)} forked repos.")
-        else:
-            for fork in forks:
-                typer.echo(f"- {fork}")
+            if count:
+                click.echo(
+                    f"You have {len(diff)} projects on GitHub that aren't available"
+                    " locally."
+                )
+            else:
+                for project in sorted(diff, key=str.casefold):
+                    click.echo(f"- {project}")

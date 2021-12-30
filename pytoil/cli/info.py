@@ -1,30 +1,25 @@
 """
 The pytoil info command.
 
+
 Author: Tom Fleet
-Created: 25/06/2021
+Created: 21/12/2021
 """
 
-import httpx
-import typer
-from rich import box
+import asyncclick as click
 from rich.console import Console
-from rich.table import Table
+from rich.table import Table, box
 from wasabi import msg
 
 from pytoil.api import API
-from pytoil.cli import utils
 from pytoil.config import Config
 from pytoil.exceptions import RepoNotFoundError
 from pytoil.repo import Repo
 
-app = typer.Typer()
 
-
-@app.command()
-def info(
-    project: str = typer.Argument(..., help="Name of the project to fetch info for.")
-) -> None:
+@click.command()
+@click.argument("project", nargs=1)
+async def info(project: str) -> None:
     """
     Get useful info for a project.
 
@@ -41,11 +36,15 @@ def info(
 
     $ pytoil info my_project
     """
-    config = Config.from_file()
-    utils.warn_if_no_api_creds(config)
+    config = await Config.from_file()
+    if not config.can_use_api():
+        msg.warn(
+            "You must set your GitHub username and personal access token to use API"
+            " features.",
+            exits=1,
+        )
 
     api = API(username=config.username, token=config.token)
-
     repo = Repo(
         owner=config.username,
         name=project,
@@ -53,29 +52,17 @@ def info(
     )
 
     try:
-        _ = repo.exists_remote(api=api)
-    except httpx.HTTPStatusError as err:
-        utils.handle_http_status_errors(error=err)
-
-    try:
-        with msg.loading(f"Fetching info for {project!r}..."):
-            info_dict = repo.info(api=api)
-
+        info = await repo.info(api)
     except RepoNotFoundError:
-        msg.warn(
-            f"{project!r} not found locally or on GitHub. Was it a typo?",
-            spaced=True,
-            exits=1,
-        )
+        msg.warn(f"{project!r} not found locally or on GitHub. Was it a typo?", exits=1)
     else:
-        typer.secho(f"\nInfo for {project!r}:\n", fg=typer.colors.CYAN, bold=True)
+        click.secho(f"\nInfo for {project!r}:\n", fg="cyan", bold=True)
 
         table = Table(box=box.SIMPLE)
         table.add_column("Key", style="cyan", justify="right")
         table.add_column("Value", justify="left")
 
-        for key, val in info_dict.items():
-            # Make the key a nice colour
+        for key, val in info.items():
             table.add_row(f"{key}:", str(val))
 
         console = Console()

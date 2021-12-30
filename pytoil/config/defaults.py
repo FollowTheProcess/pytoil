@@ -2,7 +2,7 @@
 Global defaults for pytoil.
 
 Author: Tom Fleet
-Created: 18/06/2021
+Created: 21/12/2021
 """
 
 import os
@@ -30,6 +30,7 @@ PROJECTS_DIR: Path = Path.home().joinpath("Development").resolve()
 TOKEN: str = os.getenv("GITHUB_TOKEN", "")
 USERNAME: str = ""
 VSCODE: bool = False
+CODE_BIN: str = "code"
 COMMON_PACKAGES: List[str] = []
 INIT_ON_NEW: bool = True
 
@@ -59,6 +60,11 @@ Your GitHub username. Pytoil needs this so it can construct urls to your project
 ## vscode *(bool)*
 
 Whether you want pytoil to open projects up using VSCode. This will happen on 'new' and 'checkout'.
+
+## code_bin *(str)*
+
+The name of the VSCode binary. Will differ depending on version installed. Either "code" (default)
+or "code-insiders"
 
 ## common_packages *(List[str])*
 

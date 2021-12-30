@@ -1,20 +1,19 @@
 """
 The pytoil docs command.
 
+
 Author: Tom Fleet
-Created: 25/06/2021
+Created: 21/12/2021
 """
 
-import typer
+import asyncclick as click
 from wasabi import msg
 
 from pytoil.config import defaults
 
-app = typer.Typer()
 
-
-@app.command()
-def docs() -> None:  # pragma: no cover
+@click.command()
+async def docs() -> None:
     """
     Open pytoil's documentation in your browser.
 
@@ -22,5 +21,5 @@ def docs() -> None:  # pragma: no cover
 
     $ pytoil docs
     """
-    msg.info("Opening pytoil's docs in your browser...", spaced=True)
-    typer.launch(url=defaults.PYTOIL_DOCS_URL)
+    msg.info("Opening pytoil's docs in your browser...")
+    click.launch(url=defaults.PYTOIL_DOCS_URL)

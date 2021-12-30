@@ -1,12 +1,6 @@
-"""
-Tests for the git module.
-
-Author: Tom Fleet
-Created: 19/06/2021
-"""
-
+import asyncio
 import shutil
-import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -46,117 +40,111 @@ def test_git_repr():
     assert repr(git) == "Git(git='hellogit')"
 
 
-def test_raise_for_git_raises_if_git_is_none():
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "silent, stdout, stderr",
+    [
+        (True, asyncio.subprocess.DEVNULL, asyncio.subprocess.DEVNULL),
+        (False, sys.stdout, sys.stderr),
+    ],
+)
+async def test_git_init(mocker: MockerFixture, silent: bool, stdout, stderr):
+    mock = mocker.patch("pytoil.git.git.asyncio.create_subprocess_exec", autospec=True)
+
+    git = Git(git="notgit")
+
+    await git.init(Path("somewhere"), silent=silent)
+
+    mock.assert_called_once_with(
+        "notgit",
+        "init",
+        cwd=Path("somewhere"),
+        stdout=stdout,
+        stderr=stderr,
+    )
+
+
+@pytest.mark.asyncio
+async def test_git_init_raises_if_git_not_installed(mocker: MockerFixture):
+    mocker.patch("pytoil.git.git.asyncio.create_subprocess_exec", autospec=True)
 
     git = Git(git=None)
 
     with pytest.raises(GitNotInstalledError):
-        git.raise_for_git()
+        await git.init(Path("somewhere"))
 
 
-def test_run_passes_correct_command_to_subprocess(mocker: MockerFixture):
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "silent, stdout, stderr",
+    [
+        (True, asyncio.subprocess.DEVNULL, asyncio.subprocess.DEVNULL),
+        (False, sys.stdout, sys.stderr),
+    ],
+)
+async def test_git_clone(mocker: MockerFixture, silent: bool, stdout, stderr):
+    mock = mocker.patch("pytoil.git.git.asyncio.create_subprocess_exec", autospec=True)
 
-    # Make sure it doesn't actually try and run anything
-    # give it a fake executable
-    git = Git(git="testgit")
+    git = Git(git="notgit")
 
-    # Mock the subprocess of calling git
-    mock_subprocess = mocker.patch("pytoil.git.git.subprocess.run", autospec=True)
+    await git.clone(
+        url="https://nothub.com/some/project.git", cwd=Path("somewhere"), silent=silent
+    )
 
-    git.run("some", "random", "git", "args", "--flag", check=True, cwd=Path("some/dir"))
-
-    mock_subprocess.assert_called_once_with(
-        [
-            "testgit",
-            "some",
-            "random",
-            "git",
-            "args",
-            "--flag",
-        ],
-        cwd=Path("some/dir"),
-        check=True,
-        capture_output=False,
+    mock.assert_called_once_with(
+        "notgit",
+        "clone",
+        "https://nothub.com/some/project.git",
+        cwd=Path("somewhere"),
+        stdout=stdout,
+        stderr=stderr,
     )
 
 
-def test_run_raises_on_subprocess_error(mocker: MockerFixture):
+@pytest.mark.asyncio
+async def test_git_clone_raises_if_git_not_installed(mocker: MockerFixture):
+    mocker.patch("pytoil.git.git.asyncio.create_subprocess_exec", autospec=True)
 
-    git = Git(git="testgit")
+    git = Git(git=None)
 
-    # Mock the subprocess of calling git, but have it raise an error
-    mocker.patch(
-        "pytoil.git.git.subprocess.run",
-        autospec=True,
-        side_effect=[subprocess.CalledProcessError(-1, "cmd")],
+    with pytest.raises(GitNotInstalledError):
+        await git.clone(url="https://nothub.com/me/project.git", cwd=Path("somewhere"))
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "silent, stdout, stderr",
+    [
+        (True, asyncio.subprocess.DEVNULL, asyncio.subprocess.DEVNULL),
+        (False, sys.stdout, sys.stderr),
+    ],
+)
+async def test_git_set_upstream(mocker: MockerFixture, silent: bool, stdout, stderr):
+    mock = mocker.patch("pytoil.git.git.asyncio.create_subprocess_exec", autospec=True)
+
+    git = Git(git="notgit")
+
+    await git.set_upstream(
+        owner="me", repo="project", cwd=Path("somewhere"), silent=silent
     )
 
-    with pytest.raises(subprocess.CalledProcessError):
-        git.run("some", "silly", "git", "args", check=True, cwd=Path("somewhere/else"))
-
-
-def test_clone_passes_correct_command_to_subprocess(mocker: MockerFixture):
-
-    # Make sure it doesn't actually try and run anything
-    # give it a fake executable
-    git = Git(git="testgit")
-
-    # Mock the subprocess of calling git
-    mock_subprocess = mocker.patch("pytoil.git.git.subprocess.run", autospec=True)
-
-    git.clone(
-        url="https://testhub.com/fake/repo.git",
-        check=True,
-        cwd=Path("some/dir"),
-        silent=True,
-    )
-
-    mock_subprocess.assert_called_once_with(
-        ["testgit", "clone", "https://testhub.com/fake/repo.git"],
-        cwd=Path("some/dir"),
-        check=True,
-        capture_output=True,
-    )
-
-
-def test_init_passes_correct_command_to_subprocess(mocker: MockerFixture):
-
-    # Make sure it doesn't actually try and run anything
-    # give it a fake executable
-    git = Git(git="testgit")
-
-    # Mock the subprocess of calling git
-    mock_subprocess = mocker.patch("pytoil.git.git.subprocess.run", autospec=True)
-
-    git.init(path=Path("some/dir/project"), check=True)
-
-    mock_subprocess.assert_called_once_with(
-        ["testgit", "init"],
-        cwd=Path("some/dir/project"),
-        check=True,
-        capture_output=False,
+    mock.assert_called_once_with(
+        "notgit",
+        "remote",
+        "add",
+        "upstream",
+        "https://github.com/me/project.git",
+        cwd=Path("somewhere"),
+        stdout=stdout,
+        stderr=stderr,
     )
 
 
-def test_set_upstream_passes_correct_command_to_subprocess(mocker: MockerFixture):
+@pytest.mark.asyncio
+async def test_git_set_upstream_raises_if_git_not_installed(mocker: MockerFixture):
+    mocker.patch("pytoil.git.git.asyncio.create_subprocess_exec", autospec=True)
 
-    git = Git(git="testgit")
+    git = Git(git=None)
 
-    mock_subprocess = mocker.patch("pytoil.git.git.subprocess.run", autospec=True)
-
-    git.set_upstream(
-        owner="someone", repo="project", path=Path("some/dir/project"), check=True
-    )
-
-    mock_subprocess.assert_called_once_with(
-        [
-            "testgit",
-            "remote",
-            "add",
-            "upstream",
-            "https://github.com/someone/project.git",
-        ],
-        check=True,
-        cwd=Path("some/dir/project"),
-        capture_output=False,
-    )
+    with pytest.raises(GitNotInstalledError):
+        await git.set_upstream(owner="me", repo="project", cwd=Path("here"))
