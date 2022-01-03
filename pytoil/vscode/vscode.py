@@ -90,7 +90,7 @@ class VSCode:
         if not await aiofiles.os.path.exists(self.workspace_settings):  # type: ignore
             # Create and write new ones
             # The entire .vscode folder might not exist
-            await aiofiles.os.makedirs(self.workspace_settings.parent, exist_ok=True)  # type: ignore
+            await aiofiles.os.makedirs(self.workspace_settings.parent, exist_ok=True)
             async with aiofiles.open(
                 self.workspace_settings, mode="w", encoding="utf-8"
             ) as file:
