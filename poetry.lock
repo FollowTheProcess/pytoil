@@ -921,7 +921,7 @@ python-versions = ">=3.6,<4.0"
 
 [[package]]
 name = "types-aiofiles"
-version = "0.7.3"
+version = "0.8.0"
 description = "Typing stubs for aiofiles"
 category = "dev"
 optional = false
@@ -1016,7 +1016,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "35298eab64ba01ab51691a54a85a712ceae7a636e9b5cd6a581333e06b86d06d"
+content-hash = "45cf930dbe05a517f0b2ab6c0ed8c64661180134274c946d358cf7953eadf910"
 
 [metadata.files]
 aiofiles = [
@@ -1527,8 +1527,8 @@ tomlkit = [
     {file = "tomlkit-0.8.0.tar.gz", hash = "sha256:29e84a855712dfe0e88a48f6d05c21118dbafb283bb2eed614d46f80deb8e9a1"},
 ]
 types-aiofiles = [
-    {file = "types-aiofiles-0.7.3.tar.gz", hash = "sha256:5c54783745252302f5ba3e14d8f7e8547d100f72c74c9a5478ce2f7f01aa0cda"},
-    {file = "types_aiofiles-0.7.3-py3-none-any.whl", hash = "sha256:fd7f410a94e0362c7a3cf7a98e62f972f1dab245130dfdf6f48914f462994262"},
+    {file = "types-aiofiles-0.8.0.tar.gz", hash = "sha256:2a11ae2b5b7330706994ddb864fc084ba067d0cde9af7e1ed663fccf2eeece92"},
+    {file = "types_aiofiles-0.8.0-py3-none-any.whl", hash = "sha256:844382334052b47d26f228e03687fd440c9d078adddafa0e8a80d89bed61d00d"},
 ]
 types-click = [
     {file = "types-click-7.1.8.tar.gz", hash = "sha256:b6604968be6401dc516311ca50708a0a28baa7a0cb840efd7412f0dbbff4e092"},
