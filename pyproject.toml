@@ -43,7 +43,7 @@ Documentation = "https://FollowTheProcess.github.io/pytoil/"
 python = "^3.8"
 asyncclick = "8.0.3.1"
 anyio = "3.4.0"
-httpx = { extras = ["http2"], version = "0.21.1" }
+httpx = { extras = ["http2"], version = "0.21.2" }
 pydantic = "1.9.0"
 aiofiles = "0.8.0"
 PyYAML = "6.0"
