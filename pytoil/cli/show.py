@@ -80,7 +80,7 @@ async def remote(count: bool) -> None:
 
     Show the projects that you own on GitHub.
 
-    These mayinclude some you already have locally.
+    These may include some you already have locally.
     Use 'show diff' to see the difference between local and remote.
 
     The "--count/-c" flag can be used to show a count of remote projects.
@@ -116,6 +116,50 @@ async def remote(count: bool) -> None:
         else:
             for project in sorted(remotes_projects, key=str.casefold):
                 click.echo(f"- {project}")
+
+
+@show.command()
+@click.option("-c", "--count", is_flag=True, help="Display a count of forked projects.")
+async def forks(count: bool) -> None:
+    """
+    Show your forked projects.
+
+    Show the projects you own on GitHub that are forks
+    of other projects.
+
+    The "--count/-c" flag can be used to show a count of forks.
+
+    Examples:
+
+    $ pytoil show forks
+
+    $ pytoil show forks --count
+    """
+    config = await Config.from_file()
+    if not config.can_use_api():
+        msg.warn(
+            "You must set your GitHub username and personal access token to use API"
+            " features.",
+            exits=1,
+        )
+
+    api = API(username=config.username, token=config.token)
+
+    try:
+        forks = await api.get_fork_names()
+    except httpx.HTTPStatusError as err:
+        utils.handle_http_status_error(err)
+    else:
+        if not forks:
+            msg.warn("You don't have any forks yet.", exits=1)
+
+        click.secho("\nForks:\n", fg="cyan", bold=True)
+
+        if count:
+            click.echo(f"You have {len(forks)} forks.")
+        else:
+            for fork in sorted(forks, key=str.casefold):
+                click.echo(f"- {fork}")
 
 
 @show.command(name="all")
