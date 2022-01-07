@@ -70,7 +70,7 @@ types-click = "7.1.8"
 pytest-asyncio = "0.16.0"
 pytest-httpx = "0.17.3"
 types-aiofiles = "0.8.0"
-types-PyYAML = "6.0.1"
+types-PyYAML = "6.0.2"
 pytest-mock = "3.6.1"
 
 [tool.isort]
