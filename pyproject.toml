@@ -74,9 +74,10 @@ types-aiofiles = "0.8.1"
 types-PyYAML = "6.0.2"
 pytest-mock = "3.6.1"
 flake8-bugbear = "21.11.29"
+pre-commit = "^2.16.0"
 
 [tool.isort]
-# Added for compatability with black
+# Added for compatibility with black
 profile = "black"
 multi_line_output = 3
 

@@ -12,13 +12,13 @@ PROJECT_ROOT = Path(__file__).parent.parent.resolve()
 
 
 def test_clone_url():
-    repo = Repo(owner="me", name="project", local_path=Path("doesnt/matter"))
+    repo = Repo(owner="me", name="project", local_path=Path("doesn't/matter"))
 
     assert repo.clone_url == "https://github.com/me/project.git"
 
 
 def test_html_url():
-    repo = Repo(owner="me", name="project", local_path=Path("doesnt/matter"))
+    repo = Repo(owner="me", name="project", local_path=Path("doesn't/matter"))
 
     assert repo.html_url == "https://github.com/me/project"
 

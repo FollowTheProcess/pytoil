@@ -8,8 +8,6 @@ Created: 21/12/2021
 
 from __future__ import annotations
 
-from typing import List, Set, Tuple
-
 import asyncclick as click
 from rich.console import Console
 from rich.table import Table, box
@@ -61,7 +59,7 @@ async def find(project: str, results: int) -> None:
 
     api = API(username=config.username, token=config.token)
 
-    local_projects: Set[str] = {
+    local_projects: set[str] = {
         f.name
         for f in config.projects_dir.iterdir()
         if f.is_dir() and not f.name.startswith(".")
@@ -70,7 +68,7 @@ async def find(project: str, results: int) -> None:
 
     all_projects = local_projects.union(remote_projects)
 
-    matches: List[Tuple[str, int]] = process.extractBests(
+    matches: list[tuple[str, int]] = process.extractBests(
         project, all_projects, limit=results, score_cutoff=FUZZY_SCORE_CUTOFF
     )
 

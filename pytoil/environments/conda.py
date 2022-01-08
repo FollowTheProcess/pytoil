@@ -13,7 +13,7 @@ import shutil
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence, Union
+from typing import Dict, List, Sequence, Union
 
 import aiofiles
 import aiofiles.os
@@ -50,7 +50,7 @@ class Conda:
 
     root: Path
     environment_name: str
-    conda: Optional[str] = shutil.which("conda")
+    conda: str | None = shutil.which("conda")
 
     @property
     def project_path(self) -> Path:
@@ -81,7 +81,7 @@ class Conda:
                 environment storage directory.
         """
         # Map of all supported conda installations to their root directories
-        supported: Dict[str, Path] = {
+        supported: dict[str, Path] = {
             "anaconda": Path.home().joinpath("anaconda3"),
             "miniconda": Path.home().joinpath("miniconda3"),
             "miniforge": Path.home().joinpath("miniforge3"),
@@ -107,11 +107,10 @@ class Conda:
         If this executable exists then the environment musty
         exist.
         """
-        # types-aiofiles hasn't caught up yet
         return await aiofiles.os.path.exists(self.executable)  # type: ignore
 
     async def create(
-        self, packages: Optional[Sequence[str]] = None, silent: bool = False
+        self, packages: Sequence[str] | None = None, silent: bool = False
     ) -> None:
         """
         Creates the conda environment described by the instance.

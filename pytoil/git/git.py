@@ -13,7 +13,6 @@ import shutil
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
 from pytoil.exceptions import GitNotInstalledError
 
@@ -24,7 +23,7 @@ class Git:
     Wrapper around the user installed `git`.
     """
 
-    git: Optional[str] = shutil.which("git")
+    git: str | None = shutil.which("git")
 
     async def clone(self, url: str, cwd: Path, silent: bool = True) -> None:
         """

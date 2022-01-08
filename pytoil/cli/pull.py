@@ -9,7 +9,6 @@ Created: 21/12/2021
 from __future__ import annotations
 
 import asyncio
-from typing import Set, Tuple
 
 import asyncclick as click
 import httpx
@@ -26,7 +25,7 @@ from pytoil.repo import Repo
 @click.argument("projects", nargs=-1)
 @click.option("-f", "--force", is_flag=True, help="Force pull without confirmation.")
 @click.option("-a", "--all", "all_", is_flag=True, help="Pull down all your projects.")
-async def pull(projects: Tuple[str, ...], force: bool, all_: bool) -> None:
+async def pull(projects: tuple[str, ...], force: bool, all_: bool) -> None:
     """
     Pull down your remote projects.
 
@@ -77,7 +76,7 @@ async def pull(projects: Tuple[str, ...], force: bool, all_: bool) -> None:
 
     api = API(username=config.username, token=config.token)
 
-    local_projects: Set[str] = {
+    local_projects: set[str] = {
         f.name
         for f in config.projects_dir.iterdir()
         if f.is_dir() and not f.name.startswith(".")

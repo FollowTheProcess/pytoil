@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from dataclasses import field
 from pathlib import Path
-from typing import List, TypedDict
+from typing import TypedDict
 
 import aiofiles
 import yaml
@@ -33,7 +33,7 @@ class ConfigDict(TypedDict):
     username: str
     vscode: bool
     code_bin: str
-    common_packages: List[str]
+    common_packages: list[str]
     init_on_new: bool
 
 
@@ -68,7 +68,7 @@ class Config:
     username: str = defaults.USERNAME
     vscode: bool = defaults.VSCODE
     code_bin: str = defaults.CODE_BIN
-    common_packages: List[str] = field(default_factory=list)
+    common_packages: list[str] = field(default_factory=list)
     init_on_new: bool = defaults.INIT_ON_NEW
 
     @classmethod

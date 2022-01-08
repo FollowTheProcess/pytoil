@@ -13,7 +13,6 @@ import shutil
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional
 
 import aiofiles
 import aiofiles.os
@@ -25,15 +24,15 @@ from pytoil.exceptions import GoNotInstalledError
 class GoStarter:
     path: Path
     name: str
-    go: Optional[str] = shutil.which("go")
+    go: str | None = shutil.which("go")
 
     def __post_init__(self) -> None:
         self.root = self.path.joinpath(self.name).resolve()
-        self.files: List[Path] = [
+        self.files: list[Path] = [
             self.root.joinpath(filename) for filename in ["README.md", "main.go"]
         ]
 
-    async def generate(self, username: Optional[str] = None) -> None:
+    async def generate(self, username: str | None = None) -> None:
         """
         Generate a new Go starter template.
         """

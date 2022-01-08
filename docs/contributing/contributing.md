@@ -168,7 +168,7 @@ git push origin <your-branch-name>
 
 Now go to the original pytoil [repo] and create a Pull Request. Make sure to choose upstream repo "main" as the destination branch and your forked repo "your-branch-name" as the source.
 
-Thats it! Your code will be tested automatically by pytoil's CI suite and if everything passes and your PR is approved and merged then it will become part of pytoil!
+That's it! Your code will be tested automatically by pytoil's CI suite and if everything passes and your PR is approved and merged then it will become part of pytoil!
 
 !!! note
 

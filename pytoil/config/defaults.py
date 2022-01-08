@@ -9,13 +9,12 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import List, Set
 
 # Default path for pytoil's config file
 CONFIG_FILE: Path = Path.home().joinpath(".pytoil.yml").resolve()
 
 # Valid pytoil config keys
-CONFIG_KEYS: Set[str] = {
+CONFIG_KEYS: set[str] = {
     "projects_dir",
     "token",
     "username",
@@ -33,7 +32,7 @@ TOKEN: str = os.getenv("GITHUB_TOKEN", "")
 USERNAME: str = ""
 VSCODE: bool = False
 CODE_BIN: str = "code"
-COMMON_PACKAGES: List[str] = []
+COMMON_PACKAGES: list[str] = []
 INIT_ON_NEW: bool = True
 
 # Config Schema
