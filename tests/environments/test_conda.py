@@ -2,7 +2,7 @@ import asyncio
 import shutil
 import sys
 from pathlib import Path
-from typing import Coroutine, List, NamedTuple, Tuple
+from typing import Coroutine, NamedTuple
 
 import pytest
 from pytest_mock import MockerFixture
@@ -122,7 +122,7 @@ async def test_create_raises_if_environment_already_exists(mocker: MockerFixture
     ],
 )
 async def test_create_correctly_adds_packages_if_specified(
-    mocker: MockerFixture, packages: List[str], silent: bool, stdout, stderr
+    mocker: MockerFixture, packages: list[str], silent: bool, stdout, stderr
 ):
     conda = Conda(root=Path("somewhere"), environment_name="test", conda="notconda")
 
@@ -407,7 +407,7 @@ def test_get_envs_dir_raises_if_none_found(
     ],
 )
 async def test_install_passes_correct_command(
-    mocker: MockerFixture, name: str, packages: List[str], silent: bool, stdout, stderr
+    mocker: MockerFixture, name: str, packages: list[str], silent: bool, stdout, stderr
 ):
 
     fake_project = Path("/Users/me/projects/fakeproject")
@@ -526,7 +526,7 @@ async def test_export_yml(mocker: MockerFixture, temp_environment_yml: Path):
         - pandas
         """
 
-        async def communicate(self) -> Coroutine[None, None, Tuple[bytes, bytes]]:
+        async def communicate(self) -> Coroutine[None, None, tuple[bytes, bytes]]:
             """
             Fake our stdout and stderr streams
             """

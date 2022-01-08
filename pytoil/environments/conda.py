@@ -13,7 +13,7 @@ import shutil
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Sequence, Union
+from typing import Sequence, Union
 
 import aiofiles
 import aiofiles.os
@@ -28,7 +28,7 @@ from pytoil.exceptions import (
 )
 
 # Type alias
-EnvironmentYml = Dict[str, Union[List[str], str]]
+EnvironmentYml = dict[str, Union[list[str], str]]
 
 
 @dataclass

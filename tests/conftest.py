@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Dict, List, Union
+from typing import Union
 
 import aiofiles
 import pytest
@@ -132,7 +132,7 @@ def fake_projects_dir(tmp_path_factory):
     with subdirectories mocking development projects.
     """
 
-    project_names: List[str] = [
+    project_names: list[str] = [
         "project1",
         "myproject",
         "dingleproject",
@@ -157,7 +157,7 @@ async def temp_environment_yml(tmp_path_factory):
 
     env_file: Path = tmp_path_factory.mktemp("temp").joinpath("environment.yml")
 
-    fake_env_info: Dict[str, Union[str, List[str]]] = {
+    fake_env_info: dict[str, Union[str, list[str]]] = {
         "name": "testy",
         "channels": ["defaults", "conda-forge"],
         "dependencies": [
@@ -304,7 +304,7 @@ def repo_folder_with_random_existing_files(tmp_path_factory):
 
     folder: Path = tmp_path_factory.mktemp("myrepo")
 
-    files: List[str] = ["here.txt", "i_exist.yml", "hello.py", "me_too.json"]
+    files: list[str] = ["here.txt", "i_exist.yml", "hello.py", "me_too.json"]
 
     for file in files:
         # Create each file under the myrepo folder

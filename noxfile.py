@@ -49,7 +49,6 @@ DEFAULT_PYTHON: str = "3.10"
 
 # All supported python versions for pytoil
 PYTHON_VERSIONS: list[str] = [
-    "3.8",
     "3.9",
     "3.10",
 ]
