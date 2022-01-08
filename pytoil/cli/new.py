@@ -7,7 +7,7 @@ Created: 21/12/2021
 """
 
 import asyncio
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 import aiofiles.os
 import asyncclick as click
@@ -130,6 +130,9 @@ async def new(  # noqa: C901
     code = VSCode(root=repo.local_path, code=config.code_bin)
     git = Git()
 
+    # Additional packages to include
+    to_install: List[str] = [*packages] + config.common_packages
+
     # Can't use --cookie and --starter
     if cookie and starter:
         msg.warn("--cookie and --starter are mutually exclusive", exits=1)
@@ -210,21 +213,21 @@ async def new(  # noqa: C901
     if venv == "venv":
         msg.info(
             title=f"Creating virtual environment for {repo.name!r}",
-            text=f"Including packages: {', '.join(packages)}" if packages else "",
+            text=f"Including packages: {', '.join(to_install)}" if to_install else "",
         )
         env = Venv(root=repo.local_path)
         with msg.loading("Working..."):
-            await env.create(packages=packages, silent=True)
+            await env.create(packages=to_install, silent=True)
 
     elif venv == "conda":
         msg.info(
             title=f"Creating conda environment for {repo.name!r}",
-            text=f"Including packages: {', '.join(packages)}" if packages else "",
+            text=f"Including packages: {', '.join(to_install)}" if to_install else "",
         )
         conda_env = Conda(root=repo.local_path, environment_name=repo.name)
         try:
             with msg.loading("Working..."):
-                await conda_env.create(packages=packages)
+                await conda_env.create(packages=to_install)
         except EnvironmentAlreadyExistsError:
             msg.fail(
                 f"Conda environment: {conda_env.environment_name!r} already exists",
