@@ -6,6 +6,8 @@ Author: Tom Fleet
 Created: 21/12/2021
 """
 
+from __future__ import annotations
+
 GET_REPO_NAMES = """
 query ($username: String!, $limit: Int!) {
   user(login: $username) {

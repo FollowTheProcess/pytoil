@@ -5,6 +5,8 @@ Author: Tom Fleet
 Created: 21/12/2021
 """
 
+from __future__ import annotations
+
 import os
 from pathlib import Path
 from typing import List, Set

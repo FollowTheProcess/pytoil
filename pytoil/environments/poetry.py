@@ -10,6 +10,8 @@ Author: Tom Fleet
 Created: 24/12/2021
 """
 
+from __future__ import annotations
+
 import asyncio
 import shutil
 import sys

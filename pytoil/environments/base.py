@@ -7,6 +7,8 @@ Author: Tom Fleet
 Created: 24/12/2021
 """
 
+from __future__ import annotations
+
 from pathlib import Path
 from typing import Optional, Protocol, Sequence
 
