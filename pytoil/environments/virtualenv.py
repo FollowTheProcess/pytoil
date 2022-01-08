@@ -10,12 +10,12 @@ Created: 24/12/2021
 import asyncio
 import functools
 import sys
-import venv
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Sequence
 
 import aiofiles.os
+import virtualenv
 
 from pytoil.exceptions import MissingInterpreterError
 
@@ -62,14 +62,6 @@ class Venv:
             silent (bool, optional): Whether to discard or display output.
                 Defaults to False.
         """
-        # `clear` will ensure any existing venv is destroyed first rather
-        # than causing an error
-        # TODO: `create()` has an `upgrade_deps` arg to do what `update_seeds` does but
-        # it's only in python 3.9
-        # Add this in later
-
-        # venv create is blocking and does not take kwargs
-        # it is also silent by default
         # TODO: I'm actually not sure how to mock this out?
         # maybe we just create a tempdir and create a real venv, check the contents
         # then delete it? Would slow down the tests though
@@ -77,15 +69,10 @@ class Venv:
         await loop.run_in_executor(
             executor=None,
             func=functools.partial(
-                venv.create,
-                env_dir=self.project_path.joinpath(".venv"),
-                clear=True,
-                with_pip=True,
+                virtualenv.cli_run,
+                args=[str(self.project_path.joinpath(".venv")), "--quiet"],
             ),
         )
-
-        # Update core deps
-        await self.update_seeds(silent=silent)
 
         # Install any specified packages
         if packages:
