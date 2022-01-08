@@ -75,6 +75,7 @@ SESSION_REQUIREMENTS: Dict[str, List[str]] = {
     ],
     "lint": [
         "flake8",
+        "flake8-bugbear",
         "isort",
         "black",
         "mypy",
