@@ -380,7 +380,6 @@ def lint(session: nox.Session) -> None:
     update_seeds(session)
     poetry_install(session, *requirements)
 
-    session.run("pre-commit", "autoupdate")
     session.run("pre-commit", "run", "--all-files")
 
 
