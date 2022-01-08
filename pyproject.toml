@@ -73,6 +73,7 @@ pytest-httpx = "0.17.3"
 types-aiofiles = "0.8.1"
 types-PyYAML = "6.0.2"
 pytest-mock = "3.6.1"
+flake8-bugbear = "21.11.29"
 
 [tool.isort]
 # Added for compatability with black
