@@ -9,7 +9,6 @@ Created: 21/12/2021
 from __future__ import annotations
 
 import asyncio
-from typing import List, Optional, Tuple
 
 import aiofiles.os
 import asyncclick as click
@@ -60,10 +59,10 @@ from pytoil.vscode import VSCode
 )
 async def new(  # noqa: C901
     project: str,
-    packages: Tuple[str, ...],
-    cookie: Optional[str],
-    starter: Optional[str],
-    venv: Optional[str],
+    packages: tuple[str, ...],
+    cookie: str | None,
+    starter: str | None,
+    venv: str | None,
     no_git: bool = False,
 ) -> None:
     """
@@ -133,7 +132,7 @@ async def new(  # noqa: C901
     git = Git()
 
     # Additional packages to include
-    to_install: List[str] = [*packages] + config.common_packages
+    to_install: list[str] = [*packages] + config.common_packages
 
     # Can't use --cookie and --starter
     if cookie and starter:

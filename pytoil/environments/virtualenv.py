@@ -14,7 +14,7 @@ import functools
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, Sequence
+from typing import Sequence
 
 import aiofiles.os
 import virtualenv
@@ -46,11 +46,10 @@ class Venv:
         If this executable exists then both the project and virtual environment
         must also exist and therefore must be valid.
         """
-        # types-aiofiles hasn't caught up yet
         return await aiofiles.os.path.exists(self.executable)  # type: ignore
 
     async def create(
-        self, packages: Optional[Sequence[str]] = None, silent: bool = False
+        self, packages: Sequence[str] | None = None, silent: bool = False
     ) -> None:
         """
         Create the virtual environment in the project.

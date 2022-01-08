@@ -16,11 +16,11 @@ Created: 29/12/2021
 
 from __future__ import annotations
 
-from typing import Optional, Protocol
+from typing import Protocol
 
 
 class Starter(Protocol):
-    async def generate(self, username: Optional[str] = None) -> None:
+    async def generate(self, username: str | None = None) -> None:
         """
         Implements the generation of the project starter template.
         """

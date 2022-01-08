@@ -8,8 +8,6 @@ Created: 21/12/2021
 
 from __future__ import annotations
 
-from typing import Set
-
 import asyncclick as click
 import httpx
 from wasabi import msg
@@ -56,7 +54,7 @@ async def local(count: bool) -> None:
     $ pytoil show local --count
     """
     config = await Config.from_file()
-    local_projects: Set[str] = {
+    local_projects: set[str] = {
         f.name
         for f in config.projects_dir.iterdir()
         if f.is_dir() and not f.name.startswith(".")
@@ -188,7 +186,7 @@ async def all_(count: bool) -> None:
 
     api = API(username=config.username, token=config.token)
 
-    local_projects: Set[str] = {
+    local_projects: set[str] = {
         f.name
         for f in config.projects_dir.iterdir()
         if f.is_dir() and not f.name.startswith(".")
@@ -247,7 +245,7 @@ async def diff(count: bool) -> None:
 
     api = API(username=config.username, token=config.token)
 
-    local_projects: Set[str] = {
+    local_projects: set[str] = {
         f.name
         for f in config.projects_dir.iterdir()
         if f.is_dir() and not f.name.startswith(".")

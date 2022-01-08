@@ -1,7 +1,7 @@
 import json
 import sys
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import pytest
 from pytest_mock import MockerFixture
@@ -56,10 +56,10 @@ async def test_vscode_set_workspace_python_works_on_non_existent_settings(
     assert settings.exists()
 
     # Get contents
-    with open(settings, mode="r", encoding="utf-8") as f:
-        written_settings_dict: Dict[str, Any] = json.load(f)
+    with open(settings, encoding="utf-8") as f:
+        written_settings_dict: dict[str, Any] = json.load(f)
 
-    expected: Dict[str, Any] = {WORKSPACE_PYTHON_SETTING: f"{ppath.resolve()}"}
+    expected: dict[str, Any] = {WORKSPACE_PYTHON_SETTING: f"{ppath.resolve()}"}
 
     assert written_settings_dict == expected
 
@@ -78,7 +78,7 @@ async def test_vscode_set_workspace_python_works_on_existing_settings(
 
     ppath = fake_project.joinpath("/usr/bin/sillypython")
 
-    settings_dict: Dict[str, Any] = {
+    settings_dict: dict[str, Any] = {
         "editor.suggestSelection": True,
         "code-runner.runInTerminal": False,
         "python.linting.mypyEnabled": True,
@@ -95,7 +95,7 @@ async def test_vscode_set_workspace_python_works_on_existing_settings(
 
     assert settings.exists()
 
-    expected: Dict[str, Any] = {
+    expected: dict[str, Any] = {
         "editor.suggestSelection": True,
         "code-runner.runInTerminal": False,
         "python.linting.mypyEnabled": True,
@@ -109,7 +109,7 @@ async def test_vscode_set_workspace_python_works_on_existing_settings(
     await code.set_workspace_python(python_path=ppath)
 
     # Get new contents
-    with open(settings, mode="r", encoding="utf-8") as f:
-        written_settings_dict: Dict[str, Any] = json.load(f)
+    with open(settings, encoding="utf-8") as f:
+        written_settings_dict: dict[str, Any] = json.load(f)
 
     assert written_settings_dict == expected

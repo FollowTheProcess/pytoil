@@ -237,7 +237,7 @@ Commands:
 
     pytoil's CLI is designed such that if you don't specify any arguments, it won't do anything! just show you the `--help`. This is called being a 'well behaved' unix command line tool.
 
-    This is true for any subcommand of pytoil so you won't accidently break anything if you don't specify arguments :tada:.
+    This is true for any subcommand of pytoil so you won't accidentally break anything if you don't specify arguments :tada:.
 
 And if you get truly stuck, you can quickly open pytoil's documentation with:
 

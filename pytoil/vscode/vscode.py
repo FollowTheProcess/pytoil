@@ -14,7 +14,6 @@ import shutil
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Optional
 
 import aiofiles
 import aiofiles.os
@@ -41,7 +40,7 @@ class VSCode:
     """
 
     root: Path
-    code: Optional[str] = shutil.which("code")
+    code: str | None = shutil.which("code")
 
     @property
     def workspace_settings(self) -> Path:
@@ -82,13 +81,12 @@ class VSCode:
         # back to the system python. As such, `python_path` should be the executable
         # from a `VirtualEnv` or a `CondaEnv` class to ensure this is safely done
 
-        new_settings_dict: Dict[str, str] = {WORKSPACE_PYTHON_SETTING: str(python_path)}
+        new_settings_dict: dict[str, str] = {WORKSPACE_PYTHON_SETTING: str(python_path)}
 
         # 2 cases to worry about here:
         # 1) File doesn't exist -> easy, just write new ones
         # 2) File exists -> read in what is already there, add new settings, write back overwriting
 
-        # types-aiofiles hasn't caught up with this yet
         if not await aiofiles.os.path.exists(self.workspace_settings):  # type: ignore
             # Create and write new ones
             # The entire .vscode folder might not exist
@@ -105,7 +103,7 @@ class VSCode:
                 self.workspace_settings, mode="r", encoding="utf-8"
             ) as file:
                 content = await file.read()
-                settings: Dict[str, str] = json.loads(content)
+                settings: dict[str, str] = json.loads(content)
 
             settings.update(new_settings_dict)
 

@@ -9,7 +9,6 @@ Created: 21/12/2021
 from __future__ import annotations
 
 import time
-from typing import Tuple
 
 import asyncclick as click
 from rich.console import Console
@@ -105,7 +104,7 @@ async def get(key: str) -> None:
 @click.option(
     "--force", "-f", is_flag=True, help="Force overwrite without confirmation."
 )
-async def set(key: str, val: Tuple[str, ...], force: bool) -> None:
+async def set(key: str, val: tuple[str, ...], force: bool) -> None:
     """
     Set a config key, value pair.
 

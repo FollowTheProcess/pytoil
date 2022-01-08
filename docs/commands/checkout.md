@@ -94,7 +94,7 @@ If pytoil can't find your project locally, but it is on your GitHub `checkout` w
 <div class="termy">
 
 ```console
-// Some project thats on GitHub
+// Some project that's on GitHub
 $ pytoil checkout my_github_project
 
 Project: 'my_github_project' found on GitHub! Cloning...
@@ -162,7 +162,7 @@ If you pass the `--venv` option, `checkout` will also:
 <div class="termy">
 
 ```console
-// Some project thats on GitHub
+// Some project that's on GitHub
 $ pytoil checkout my_github_project --venv
 
 Project: 'my_github_project' found on GitHub! Cloning...
@@ -214,7 +214,7 @@ Python package managed with [poetry], here we basically delegate everything to p
 
 Python package managed with [flit], here we create a virtual environment the normal python way, then delegate to flit to install dependencies.
 
-Something like `flit install` called from the directory of the project. (We actually do a bit more than this to make sure it only targets your local environment for that project, but thats the gist of it!)
+Something like `flit install` called from the directory of the project. (We actually do a bit more than this to make sure it only targets your local environment for that project, but that's the gist of it!)
 
 ### Else
 
@@ -225,7 +225,7 @@ If we get here, `pytoil` gives up and will tell you something along the lines of
     Although we've tried to make the implementation of this as robust as possible, it's quite complex and there's bound to be edge cases lurking here somewhere. If you hit any, please file an issue and maybe even try and fix it yourself and throw us a PR :tada:
 
     Remember if you need more custom behaviour than this, you can just plain `pytoil checkout` without the `--venv` and `pytoil` won't try and be clever, it will just straight up clone the project for you to do whatever you want with!
-  
+
 [config]: ../config.md
 [poetry]: https://python-poetry.org
 [flit]: https://flit.readthedocs.io/en/latest/

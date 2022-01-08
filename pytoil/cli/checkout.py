@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import asyncio
 import re
-from typing import Optional
 
 import asyncclick as click
 import httpx
@@ -216,7 +215,7 @@ async def checkout_fork(
 
 
 async def handle_venv_creation(
-    env: Optional[Environment], config: Config, code: VSCode
+    env: Environment | None, config: Config, code: VSCode
 ) -> None:
     """
     Handles automatic detection and creation of python virtual

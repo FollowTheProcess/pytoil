@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, Set
+from typing import Any
 
 import httpx
 
@@ -43,14 +43,14 @@ class API:
     url: str = URL
 
     @property
-    def headers(self) -> Dict[str, str]:
+    def headers(self) -> dict[str, str]:
         return {
             "Authorization": f"token {self.token}",
             "User-Agent": f"pytoil/{__version__}",
             "Accept": "application/vnd.github.v4+json",
         }
 
-    async def get_repo_names(self, limit: int = 50) -> Set[str]:
+    async def get_repo_names(self, limit: int = 50) -> set[str]:
         """
         Gets the names of all repos owned by the authenticated user.
 
@@ -75,7 +75,7 @@ class API:
             )
             r.raise_for_status()
 
-        raw: Dict[str, Any] = r.json()
+        raw: dict[str, Any] = r.json()
 
         # TODO: I don't like the indexing here, must be a more type safe way of doing this
         # What happens when there are no nodes? e.g. user has no forks
@@ -85,7 +85,7 @@ class API:
         else:
             raise ValueError(f"Bad GraphQL: {raw}")
 
-    async def get_fork_names(self, limit: int = 50) -> Set[str]:
+    async def get_fork_names(self, limit: int = 50) -> set[str]:
         """
         Gets the names of all repos owned by the authenticated user,
         that are forks of other repos.
@@ -111,7 +111,7 @@ class API:
             )
             r.raise_for_status()
 
-        raw: Dict[str, Any] = r.json()
+        raw: dict[str, Any] = r.json()
 
         if data := raw.get("data"):
             return {node["name"] for node in data["user"]["repositories"]["nodes"]}
@@ -139,7 +139,7 @@ class API:
             )
             r.raise_for_status()
 
-        raw: Dict[str, Any] = r.json()
+        raw: dict[str, Any] = r.json()
 
         if data := raw.get("data"):
             if data["repository"] is None:
@@ -174,7 +174,7 @@ class API:
         """
         return datetime.strptime(dt, GITHUB_TIME_FORMAT).strftime(STR_TIME_FORMAT)
 
-    async def get_repo_info(self, name: str) -> Dict[str, Any]:
+    async def get_repo_info(self, name: str) -> dict[str, Any]:
         """
         Gets some descriptive info for the repo given by
         `name` under the current user.
@@ -195,7 +195,7 @@ class API:
             )
             r.raise_for_status()
 
-        raw: Dict[str, Any] = r.json()
+        raw: dict[str, Any] = r.json()
 
         if data := raw.get("data"):
             if repo := data.get("repository"):

@@ -8,13 +8,12 @@ Created: 21/12/2021
 
 from __future__ import annotations
 
-from dataclasses import field
 from pathlib import Path
-from typing import List, TypedDict
+from typing import TypedDict
 
 import aiofiles
 import yaml
-from pydantic.dataclasses import dataclass
+from pydantic import BaseModel
 
 from pytoil.config import defaults
 
@@ -33,12 +32,11 @@ class ConfigDict(TypedDict):
     username: str
     vscode: bool
     code_bin: str
-    common_packages: List[str]
+    common_packages: list[str]
     init_on_new: bool
 
 
-@dataclass
-class Config:
+class Config(BaseModel):
     """
     Pydantic dataclass representing pytoil's config.
 
@@ -68,7 +66,7 @@ class Config:
     username: str = defaults.USERNAME
     vscode: bool = defaults.VSCODE
     code_bin: str = defaults.CODE_BIN
-    common_packages: List[str] = field(default_factory=list)
+    common_packages: list[str] = defaults.COMMON_PACKAGES
     init_on_new: bool = defaults.INIT_ON_NEW
 
     @classmethod
@@ -110,7 +108,7 @@ class Config:
         """
         # We can do this here because pydantic will handle
         # all the conversion between types under the hood
-        return Config(**config_dict)  # type: ignore
+        return Config(**config_dict)
 
     @classmethod
     def helper(cls) -> Config:

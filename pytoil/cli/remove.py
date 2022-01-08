@@ -11,7 +11,6 @@ from __future__ import annotations
 import asyncio
 import functools
 import shutil
-from typing import Set, Tuple
 
 import asyncclick as click
 from wasabi import msg
@@ -25,7 +24,7 @@ from pytoil.config import Config
 @click.option(
     "-a", "--all", "all_", is_flag=True, help="Delete all of your local projects."
 )
-async def remove(projects: Tuple[str, ...], force: bool, all_: bool) -> None:
+async def remove(projects: tuple[str, ...], force: bool, all_: bool) -> None:
     """
     Remove projects from your local filesystem.
 
@@ -54,7 +53,7 @@ async def remove(projects: Tuple[str, ...], force: bool, all_: bool) -> None:
     """
     config = await Config.from_file()
 
-    local_projects: Set[str] = {
+    local_projects: set[str] = {
         f.name
         for f in config.projects_dir.iterdir()
         if f.is_dir() and not f.name.startswith(".")

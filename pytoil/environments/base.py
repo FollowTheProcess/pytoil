@@ -10,7 +10,7 @@ Created: 24/12/2021
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional, Protocol, Sequence
+from typing import Protocol, Sequence
 
 
 class Environment(Protocol):
@@ -50,7 +50,7 @@ class Environment(Protocol):
         ...
 
     async def create(
-        self, packages: Optional[Sequence[str]] = None, silent: bool = False
+        self, packages: Sequence[str] | None = None, silent: bool = False
     ) -> None:
         """
         Method to create the virtual environment. If packages are specified,

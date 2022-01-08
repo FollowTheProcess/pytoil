@@ -17,7 +17,7 @@ import shutil
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, Sequence
+from typing import Sequence
 
 import aiofiles.os
 
@@ -27,7 +27,7 @@ from pytoil.exceptions import PoetryNotInstalledError
 @dataclass
 class Poetry:
     root: Path
-    poetry: Optional[str] = shutil.which("poetry")
+    poetry: str | None = shutil.which("poetry")
 
     @property
     def project_path(self) -> Path:
@@ -71,11 +71,10 @@ class Poetry:
         If this executable exists then both the project and the virtual environment
         must also exist and must therefore be valid.
         """
-        # types-aiofiles has not caught up yet
         return await aiofiles.os.path.exists(self.executable)  # type: ignore
 
     async def create(
-        self, packages: Optional[Sequence[str]] = None, silent: bool = False
+        self, packages: Sequence[str] | None = None, silent: bool = False
     ) -> None:
         """
         This method is not implemented for poetry environments.

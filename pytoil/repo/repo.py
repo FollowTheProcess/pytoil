@@ -12,7 +12,7 @@ import asyncio
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 import aiofiles
 import aiofiles.os
@@ -64,7 +64,6 @@ class Repo:
         Returns:
             bool: True if exists locally, else False.
         """
-        # types-aiofiles haven't caught up with the latest version yet
         return await aiofiles.os.path.exists(self.local_path)  # type: ignore
 
     async def exists_remote(self, api: API) -> bool:
@@ -80,7 +79,7 @@ class Repo:
         """
         return await api.check_repo_exists(self.name)
 
-    async def _local_info(self) -> Dict[str, Any]:
+    async def _local_info(self) -> dict[str, Any]:
         """
         Return local path information for the repo.
         """
@@ -96,13 +95,13 @@ class Repo:
             "local": True,
         }
 
-    async def _remote_info(self, api: API) -> Dict[str, Any]:
+    async def _remote_info(self, api: API) -> dict[str, Any]:
         """
         Return remote API information for the repo.
         """
         return await api.get_repo_info(self.name)
 
-    async def info(self, api: API) -> Dict[str, Any]:
+    async def info(self, api: API) -> dict[str, Any]:
         """
         Return summary info about the repo in question.
 
@@ -120,7 +119,7 @@ class Repo:
         Returns:
             Dict[str, Any]: Repository information.
         """
-        info: Dict[str, Any] = {}
+        info: dict[str, Any] = {}
 
         if await self.exists_remote(api=api):
             info.update(await self._remote_info(api=api))
@@ -148,7 +147,6 @@ class Repo:
         Returns:
             bool: True if exists, else False.
         """
-        # types-aiofiles again
         return await aiofiles.os.path.exists(self.local_path.joinpath(file))  # type: ignore
 
     async def is_setuptools(self) -> bool:
@@ -245,7 +243,7 @@ class Repo:
         """
         return await self._specifies_build_tool("flit")
 
-    async def dispatch_env(self) -> Optional[Environment]:
+    async def dispatch_env(self) -> Environment | None:
         """
         Returns the correct environment object for the calling `Repo`,
         or `None` if it cannot detect the environment.

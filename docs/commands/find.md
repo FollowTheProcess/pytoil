@@ -51,9 +51,9 @@ Options:
 // I swear it was called python... something
 $ pytoil find python
 
-      Project       Similarity   Where   
- ─────────────────────────────────────── 
-  python-launcher       90       Remote  
+      Project       Similarity   Where
+ ───────────────────────────────────────
+  python-launcher       90       Remote
         py              90       Local
 ```
 
@@ -65,7 +65,7 @@ all of them, wittles down the best matches and shows them to you (along with whe
 Isn't that useful! 🎉
 
 !!! info
-    
+
     Under the hood, pytoil uses the excellent [thefuzz] library to do this, which implements the [Levenshtein distance]
     algorithm to find the best matches 🚀
 

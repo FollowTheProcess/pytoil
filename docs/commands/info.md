@@ -29,7 +29,7 @@ pytoil will always prefer this way of doing it as we can get things like license
 <div class="termy">
 
 ```console
-// Some project thats not on GitHub yet
+// Some project that's not on GitHub yet
 $ pytoil info my_local_project
 
 Info for: my_local_project

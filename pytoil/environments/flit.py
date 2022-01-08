@@ -13,7 +13,6 @@ import shutil
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
 from pytoil.environments.virtualenv import Venv
 from pytoil.exceptions import FlitNotInstalledError
@@ -28,7 +27,7 @@ class Flit(Venv):
     """
 
     root: Path
-    flit: Optional[str] = shutil.which("flit")
+    flit: str | None = shutil.which("flit")
 
     @property
     def name(self) -> str:
