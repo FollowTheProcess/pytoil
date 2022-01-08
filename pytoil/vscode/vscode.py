@@ -6,6 +6,8 @@ Author: Tom Fleet
 Created: 23/12/2021
 """
 
+from __future__ import annotations
+
 import asyncio
 import json
 import shutil

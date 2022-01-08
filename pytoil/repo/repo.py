@@ -6,6 +6,8 @@ Author: Tom Fleet
 Created: 22/12/2021
 """
 
+from __future__ import annotations
+
 import asyncio
 from dataclasses import dataclass
 from datetime import datetime

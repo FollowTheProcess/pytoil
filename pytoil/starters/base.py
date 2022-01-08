@@ -14,6 +14,8 @@ Author: Tom Fleet
 Created: 29/12/2021
 """
 
+from __future__ import annotations
+
 from typing import Optional, Protocol
 
 

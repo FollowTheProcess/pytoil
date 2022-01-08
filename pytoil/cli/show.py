@@ -6,6 +6,8 @@ Author: Tom Fleet
 Created: 21/12/2021
 """
 
+from __future__ import annotations
+
 from typing import Set
 
 import asyncclick as click

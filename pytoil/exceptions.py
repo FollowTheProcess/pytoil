@@ -3,6 +3,9 @@ Exceptions implemented in pytoil.
 """
 
 
+from __future__ import annotations
+
+
 class PytoilException(Exception):
     """
     Base pytoil exception from which all subclasses

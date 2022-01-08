@@ -6,6 +6,8 @@ Author: Tom Fleet
 Created: 21/12/2021
 """
 
+from __future__ import annotations
+
 import asyncclick as click
 from rich.console import Console
 from rich.table import Table, box

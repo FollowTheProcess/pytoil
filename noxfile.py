@@ -2,6 +2,8 @@
 Nox configuration file for the project.
 """
 
+from __future__ import annotations
+
 import argparse
 import json
 import os
@@ -25,6 +27,8 @@ ON_CI = bool(os.getenv("CI"))
 PROJECT_ROOT = Path(__file__).parent.resolve()
 PROJECT_SRC = PROJECT_ROOT / "pytoil"
 PROJECT_TESTS = PROJECT_ROOT / "tests"
+PROJECT_ENTRY_POINT = PROJECT_SRC / "__main__.py"
+PROJECT_PROFILE = PROJECT_ROOT / "profile.html"
 
 # Git info
 DEFAULT_BRANCH = "main"
@@ -420,6 +424,25 @@ def docs(session: nox.Session) -> None:
         session.run("mkdocs", "serve")
     else:
         session.run("mkdocs", "build", "--clean")
+
+
+@nox.session(python=DEFAULT_PYTHON)
+def profile(session: nox.Session) -> None:
+    """
+    Profile the profile passing session posargs to the CLI.
+
+    E.g. `nox -s profile -- config show`
+    """
+    session.install(".")
+    session.install("scalene")
+    session.run(
+        "scalene",
+        "--html",
+        "--outfile",
+        str(PROJECT_PROFILE),
+        str(PROJECT_ENTRY_POINT),
+        *session.posargs,
+    )
 
 
 @nox.session
