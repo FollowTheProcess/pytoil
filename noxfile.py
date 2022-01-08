@@ -439,6 +439,8 @@ def profile(session: nox.Session) -> None:
         "scalene",
         "--html",
         "--outfile",
+        "--use-virtual-time",
+        "--cpu-sampling-rate 0.001",
         str(PROJECT_PROFILE),
         str(PROJECT_ENTRY_POINT),
         *session.posargs,
