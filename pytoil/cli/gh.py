@@ -20,7 +20,8 @@ from pytoil.repo import Repo
 
 @click.command()
 @click.argument("project", nargs=1)
-async def gh(project: str) -> None:
+@click.pass_obj
+async def gh(config: Config, project: str) -> None:
     """
     Open one of your projects on GitHub.
 
@@ -31,7 +32,6 @@ async def gh(project: str) -> None:
 
     $ pytoil gh my_project
     """
-    config = await Config.load()
     if not config.can_use_api():
         msg.warn(
             "You must set your GitHub username and personal access token to use API"

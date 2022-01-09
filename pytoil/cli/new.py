@@ -57,7 +57,9 @@ from pytoil.vscode import VSCode
     default=False,
     help="Don't initialise a new git repo.",
 )
+@click.pass_obj
 async def new(  # noqa: C901
+    config: Config,
     project: str,
     packages: tuple[str, ...],
     cookie: str | None,
@@ -114,7 +116,6 @@ async def new(  # noqa: C901
 
     $ pytoil new my_project --starter python
     """
-    config = await Config.load()
     if not config.can_use_api():
         msg.warn(
             "You must set your GitHub username and personal access token to use API"

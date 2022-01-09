@@ -25,7 +25,8 @@ FUZZY_SCORE_CUTOFF = 75
 @click.option(
     "-r", "--results", type=int, default=3, help="Limit results to maximum number."
 )
-async def find(project: str, results: int) -> None:
+@click.pass_obj
+async def find(config: Config, project: str, results: int) -> None:
     """
     Quickly locate a project.
 
@@ -49,7 +50,6 @@ async def find(project: str, results: int) -> None:
 
     $ pytoil find proj --results 5
     """
-    config = await Config.load()
     if not config.can_use_api():
         msg.warn(
             "You must set your GitHub username and personal access token to use API"

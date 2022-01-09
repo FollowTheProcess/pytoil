@@ -37,7 +37,8 @@ async def show() -> None:
 
 @show.command()
 @click.option("-c", "--count", is_flag=True, help="Display a count of local projects.")
-async def local(count: bool) -> None:
+@click.pass_obj
+async def local(config: Config, count: bool) -> None:
     """
     Show your local projects.
 
@@ -53,7 +54,6 @@ async def local(count: bool) -> None:
 
     $ pytoil show local --count
     """
-    config = await Config.load()
     local_projects: set[str] = {
         f.name
         for f in config.projects_dir.iterdir()
@@ -74,7 +74,8 @@ async def local(count: bool) -> None:
 
 @show.command()
 @click.option("-c", "--count", is_flag=True, help="Display a count of remote projects.")
-async def remote(count: bool) -> None:
+@click.pass_obj
+async def remote(config: Config, count: bool) -> None:
     """
     Show your remote projects.
 
@@ -91,7 +92,6 @@ async def remote(count: bool) -> None:
 
     $ pytoil show remote --count
     """
-    config = await Config.load()
     if not config.can_use_api():
         msg.warn(
             "You must set your GitHub username and personal access token to use API"
@@ -120,7 +120,8 @@ async def remote(count: bool) -> None:
 
 @show.command()
 @click.option("-c", "--count", is_flag=True, help="Display a count of forked projects.")
-async def forks(count: bool) -> None:
+@click.pass_obj
+async def forks(config: Config, count: bool) -> None:
     """
     Show your forked projects.
 
@@ -135,7 +136,6 @@ async def forks(count: bool) -> None:
 
     $ pytoil show forks --count
     """
-    config = await Config.load()
     if not config.can_use_api():
         msg.warn(
             "You must set your GitHub username and personal access token to use API"
@@ -164,7 +164,8 @@ async def forks(count: bool) -> None:
 
 @show.command(name="all")
 @click.option("-c", "--count", is_flag=True, help="Display a count of all projects.")
-async def all_(count: bool) -> None:
+@click.pass_obj
+async def all_(config: Config, count: bool) -> None:
     """
     Show all your projects, grouped by local and remote.
 
@@ -176,7 +177,6 @@ async def all_(count: bool) -> None:
 
     $ pytoil show all --count
     """
-    config = await Config.load()
     if not config.can_use_api():
         msg.warn(
             "You must set your GitHub username and personal access token to use API"
@@ -220,7 +220,8 @@ async def all_(count: bool) -> None:
 
 @show.command()
 @click.option("-c", "--count", is_flag=True, help="Display a count of the diff.")
-async def diff(count: bool) -> None:
+@click.pass_obj
+async def diff(config: Config, count: bool) -> None:
     """
     Show the difference in local/remote projects.
 
@@ -235,7 +236,6 @@ async def diff(count: bool) -> None:
 
     $ pytoil show diff --count
     """
-    config = await Config.load()
     if not config.can_use_api():
         msg.warn(
             "You must set your GitHub username and personal access token to use API"
