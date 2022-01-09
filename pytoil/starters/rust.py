@@ -11,7 +11,6 @@ from __future__ import annotations
 import asyncio
 import shutil
 import sys
-from dataclasses import dataclass
 from pathlib import Path
 
 import aiofiles
@@ -19,18 +18,24 @@ import aiofiles.os
 
 from pytoil.exceptions import CargoNotInstalledError
 
+CARGO = shutil.which("cargo")
 
-@dataclass
+
 class RustStarter:
-    path: Path
-    name: str
-    cargo: str | None = shutil.which("cargo")
-
-    def __post_init__(self) -> None:
+    def __init__(self, path: Path, name: str, cargo: str | None = CARGO) -> None:
+        self.path = path
+        self.name = name
+        self.cargo = cargo
         self.root = self.path.joinpath(self.name).resolve()
-        self.files: list[Path] = [
-            self.root.joinpath(filename) for filename in ["README.md"]
-        ]
+        self.files = [self.root.joinpath(filename) for filename in ["README.md"]]
+
+    def __repr__(self) -> str:
+        return (
+            self.__class__.__qualname__
+            + f"(path={self.path!r}, name={self.name!r}, cargo={self.cargo!r})"
+        )
+
+    __slots__ = ("path", "name", "cargo", "root", "files")
 
     async def generate(self, username: str | None = None) -> None:
         """

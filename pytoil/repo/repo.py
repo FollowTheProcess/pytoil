@@ -9,7 +9,6 @@ Created: 22/12/2021
 from __future__ import annotations
 
 import asyncio
-from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -25,21 +24,28 @@ from pytoil.exceptions import RepoNotFoundError
 STR_TIME_FORMAT = r"%Y-%m-%d %H:%M:%S"
 
 
-@dataclass
 class Repo:
-    """
-    Representation of a local/remote project.
+    def __init__(self, owner: str, name: str, local_path: Path) -> None:
+        """
+        Representation of a local/remote project.
 
-    Args:
-        owner (str): The owner (i.e. GitHub username)
-        name (str): Project name.
-        local_path (Path): The path this repo would have on the
-            local filesystem, whether it currently exists or not.
-    """
+        Args:
+            owner (str): The owner (i.e. GitHub username)
+            name (str): Project name.
+            local_path (Path): The path this repo would have on the
+                local filesystem, whether it currently exists or not.
+        """
+        self.owner = owner
+        self.name = name
+        self.local_path = local_path
 
-    owner: str
-    name: str
-    local_path: Path
+    def __repr__(self) -> str:
+        return (
+            self.__class__.__qualname__ + f"(owner={self.owner!r}, name={self.name!r},"
+            f" local_path={self.local_path!r})"
+        )
+
+    __slots__ = ("owner", "name", "local_path")
 
     @property
     def clone_url(self) -> str:

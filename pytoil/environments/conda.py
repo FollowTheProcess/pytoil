@@ -11,7 +11,6 @@ from __future__ import annotations
 import asyncio
 import shutil
 import sys
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Sequence, Union
 
@@ -30,27 +29,42 @@ from pytoil.exceptions import (
 # Type alias
 EnvironmentYml = dict[str, Union[list[str], str]]
 
+CONDA = shutil.which("conda")
 
-@dataclass
+
 class Conda:
-    """
-    Representation of a Conda managed virtual environment.
+    def __init__(
+        self,
+        root: Path,
+        environment_name: str,
+        conda: str | None = CONDA,
+    ) -> None:
+        """
+        Representation of a Conda managed virtual environment.
 
-    Conda environments are simpler in a lot of ways because
-    it's all managed under the hood by the `conda` command.
+        Conda environments are simpler in a lot of ways because
+        it's all managed under the hood by the `conda` command.
 
-    We don't need to worry about interpreters or paths etc.
-    Just the environment name is enough to identify it.
+        We don't need to worry about interpreters or paths etc.
+        Just the environment name is enough to identify it.
 
-    Args:
-        root (Path): The root directory of the project.
-        environment_name (str): The name of the conda environment
-        conda (Optional[str]): The conda binary. Defaults to shutil.which("conda")
-    """
+        Args:
+            root (Path): The root directory of the project.
+            environment_name (str): The name of the conda environment
+            conda (Optional[str]): The conda binary. Defaults to shutil.which("conda")
+        """
+        self.root = root
+        self.environment_name = environment_name
+        self.conda = conda
 
-    root: Path
-    environment_name: str
-    conda: str | None = shutil.which("conda")
+    def __repr__(self) -> str:
+        return (
+            self.__class__.__qualname__
+            + f"(root={self.root!r}, environment_name={self.environment_name!r},"
+            f" conda={self.conda!r})"
+        )
+
+    __slots__ = ("root", "environment_name", "conda")
 
     @property
     def project_path(self) -> Path:

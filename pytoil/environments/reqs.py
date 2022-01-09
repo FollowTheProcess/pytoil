@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import asyncio
 import sys
-from dataclasses import dataclass
 from pathlib import Path
 
 import aiofiles.os
@@ -19,15 +18,15 @@ import aiofiles.os
 from pytoil.environments.virtualenv import Venv
 
 
-@dataclass
 class Requirements(Venv):
-    """
-    Representation of a python environment from a requirements file.
+    def __init__(self, root: Path) -> None:
+        self.root = root
+        super().__init__(root)
 
-    Subclasses `Venv` as a lot of the operations are identical.
-    """
+    def __repr__(self) -> str:
+        return self.__class__.__qualname__ + f"(root={self.root!r})"
 
-    root: Path
+    __slots__ = ("root",)
 
     @property
     def name(self) -> str:

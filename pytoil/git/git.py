@@ -11,19 +11,21 @@ from __future__ import annotations
 import asyncio
 import shutil
 import sys
-from dataclasses import dataclass
 from pathlib import Path
 
 from pytoil.exceptions import GitNotInstalledError
 
+GIT = shutil.which("git")
 
-@dataclass
+
 class Git:
-    """
-    Wrapper around the user installed `git`.
-    """
+    def __init__(self, git: str | None = GIT) -> None:
+        self.git = git
 
-    git: str | None = shutil.which("git")
+    def __repr__(self) -> str:
+        return self.__class__.__qualname__ + f"(git={self.git!r})"
+
+    __slots__ = ("git",)
 
     async def clone(self, url: str, cwd: Path, silent: bool = True) -> None:
         """
