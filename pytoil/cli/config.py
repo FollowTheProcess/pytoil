@@ -22,11 +22,7 @@ async def config() -> None:
     """
     Interact with pytoil's configuration.
 
-    The config command group allows you to get, set, and show pytoil's configuration.
-    Getting and showing obviously do not edit the config file ($HOME/.pytoil.yml).
-
-    Setting a key value pair using the 'config set' subcommand will cause the config
-    file to be updated and overwritten. You will be prompted to confirm this however.
+    The config command group allows you to get, show and explain pytoil's configuration.
     """
 
 
@@ -79,70 +75,6 @@ async def get(config: Config, key: str) -> None:
     config_start = click.style(f"{key}: ", fg="cyan")
     config_msg = config_start + f"{config_dict.get(key)!r}"
     click.secho(config_msg)
-
-
-@config.command()
-@click.argument("key", nargs=1)
-@click.argument("val", nargs=-1, required=True)
-@click.option(
-    "--force", "-f", is_flag=True, help="Force overwrite without confirmation."
-)
-@click.pass_obj
-async def set(config: Config, key: str, val: tuple[str, ...], force: bool) -> None:
-    """
-    Set a config key, value pair.
-
-    The set command allows you to set a config value.
-
-    On confirmation, the config file ($HOME/.pytoil.yml) will be
-    overwritten with the new data.
-
-    The "--force/-f" flag can be used to force overwrite without confirmation.
-
-    Examples:
-
-    $ pytoil config set projects_dir "/Users/me/projects"
-
-    $ pytoil config set vscode False --force
-    """
-    if key not in defaults.CONFIG_KEYS:
-        msg.warn(f"{key!r} is not a valid pytoil config key.", exits=1)
-
-    if key != "common_packages" and len(val) > 1:
-        msg.fail(
-            "Error: All config keys except 'common_packages' take a maximum of 1 value",
-            exits=1,
-        )
-
-    conf = config.to_dict()
-
-    if key == "common_packages":
-        new_val = val
-    else:
-        new_val = val[0]  # type: ignore
-
-    new_setting = {key: new_val}
-
-    conf.update(new_setting)  # type: ignore
-
-    new_config = Config.from_dict(conf)
-
-    if not force:
-        click.confirm(
-            f"This will set {key!r} to {new_val!r}. Are you sure?", abort=True
-        )
-
-    try:
-        await new_config.write()
-    except Exception:
-        # This should only happen if something really weird happens
-        # like corrupted file etc.
-        msg.fail(
-            "Uh oh! Something went wrong, check your config file for errors.", exits=1
-        )
-    else:
-        msg.good("Config successfully updated", spaced=True)
-        msg.text(f"{key!r} is now {config[key]}")  # type: ignore
 
 
 @config.command()

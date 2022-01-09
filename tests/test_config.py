@@ -83,33 +83,6 @@ def test_from_dict():
     assert config.init_on_new is False
 
 
-def test_from_dict_wrong_types():
-    """
-    Tests that even if everything is brought in as a string
-    the types of the config all get handled under the hood.
-
-    Thanks pydantic!
-    """
-
-    config_dict = {
-        "projects_dir": "some/dir",
-        "token": "sometoken",
-        "username": "me",
-        "vscode": "True",
-        "common_packages": ["black", "mypy", "flake8"],
-        "init_on_new": "False",
-    }
-
-    config = Config.from_dict(config_dict)
-
-    assert config.projects_dir == Path("some/dir")
-    assert config.token == "sometoken"
-    assert config.username == "me"
-    assert config.vscode is True
-    assert config.common_packages == ["black", "mypy", "flake8"]
-    assert config.init_on_new is False
-
-
 def test_from_dict_some_missing():
     """
     Tests that even if we pass a partial dict, the default values
