@@ -24,7 +24,10 @@ from pytoil.config import Config
 @click.option(
     "-a", "--all", "all_", is_flag=True, help="Delete all of your local projects."
 )
-async def remove(projects: tuple[str, ...], force: bool, all_: bool) -> None:
+@click.pass_obj
+async def remove(
+    config: Config, projects: tuple[str, ...], force: bool, all_: bool
+) -> None:
     """
     Remove projects from your local filesystem.
 
@@ -51,8 +54,6 @@ async def remove(projects: tuple[str, ...], force: bool, all_: bool) -> None:
 
     $ pytoil remove --all --force
     """
-    config = await Config.load()
-
     local_projects: set[str] = {
         f.name
         for f in config.projects_dir.iterdir()

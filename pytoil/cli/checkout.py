@@ -39,7 +39,8 @@ PROJECT_REGEX = re.compile(r"^([A-Za-z0-9_.-])+$")
 @click.option(
     "-v", "--venv", is_flag=True, help="Attempt to auto-create a virtual environment."
 )
-async def checkout(project: str, venv: bool) -> None:
+@click.pass_obj
+async def checkout(config: Config, project: str, venv: bool) -> None:
     """
     Checkout an existing development project.
 
@@ -86,7 +87,6 @@ async def checkout(project: str, venv: bool) -> None:
 
     $ pytoil checkout someoneelse/project
     """
-    config = await Config.load()
     if not config.can_use_api():
         msg.warn(
             "You must set your GitHub username and personal access token to use API"

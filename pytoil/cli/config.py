@@ -8,8 +8,6 @@ Created: 21/12/2021
 
 from __future__ import annotations
 
-import time
-
 import asyncclick as click
 from rich.console import Console
 from rich.markdown import Markdown
@@ -17,20 +15,6 @@ from rich.table import Table, box
 from wasabi import msg
 
 from pytoil.config import Config, defaults
-
-# If the file doesn't exist, let's make a default one nicely
-# This will check if the config file exists
-# every time the `pytoil` command is run so should
-# eliminate those nasty FileNotFoundErrors
-if not defaults.CONFIG_FILE.exists():
-    msg.warn("No pytoil config file detected!")
-
-    with msg.loading("Making you a starter file..."):
-        Config.helper().write()
-        time.sleep(1)
-
-    msg.good(f"Your file is now available at {defaults.CONFIG_FILE}", spaced=True)
-    msg.text("Try running pytoil again!", spaced=True, exits=0)
 
 
 @click.group()
@@ -47,7 +31,8 @@ async def config() -> None:
 
 
 @config.command()
-async def show() -> None:
+@click.pass_obj
+async def show(config: Config) -> None:
     """
     Show pytoil's config.
 
@@ -60,8 +45,6 @@ async def show() -> None:
 
     $ pytoil config show
     """
-    config = await Config.load()
-
     click.secho("\nPytoil Config:\n", fg="cyan", bold=True)
 
     table = Table(box=box.SIMPLE)
@@ -77,7 +60,8 @@ async def show() -> None:
 
 @config.command()
 @click.argument("key", nargs=1)
-async def get(key: str) -> None:
+@click.pass_obj
+async def get(config: Config, key: str) -> None:
     """
     Get the currently set value for a config key.
 
@@ -90,7 +74,6 @@ async def get(key: str) -> None:
     if key not in defaults.CONFIG_KEYS:
         msg.warn(f"{key!r} is not a valid pytoil config key.", exits=1)
 
-    config = await Config.load()
     config_dict = config.to_dict()
     # Make the key a nice colour
     config_start = click.style(f"{key}: ", fg="cyan")
@@ -104,7 +87,8 @@ async def get(key: str) -> None:
 @click.option(
     "--force", "-f", is_flag=True, help="Force overwrite without confirmation."
 )
-async def set(key: str, val: tuple[str, ...], force: bool) -> None:
+@click.pass_obj
+async def set(config: Config, key: str, val: tuple[str, ...], force: bool) -> None:
     """
     Set a config key, value pair.
 
@@ -130,8 +114,7 @@ async def set(key: str, val: tuple[str, ...], force: bool) -> None:
             exits=1,
         )
 
-    conf = await Config.load()
-    config = conf.to_dict()
+    conf = config.to_dict()
 
     if key == "common_packages":
         new_val = val
@@ -140,9 +123,9 @@ async def set(key: str, val: tuple[str, ...], force: bool) -> None:
 
     new_setting = {key: new_val}
 
-    config.update(new_setting)  # type: ignore
+    conf.update(new_setting)  # type: ignore
 
-    new_config = Config.from_dict(config)
+    new_config = Config.from_dict(conf)
 
     if not force:
         click.confirm(

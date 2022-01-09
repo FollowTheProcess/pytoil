@@ -21,7 +21,8 @@ from pytoil.repo import Repo
 
 @click.command()
 @click.argument("project", nargs=1)
-async def info(project: str) -> None:
+@click.pass_obj
+async def info(config: Config, project: str) -> None:
     """
     Get useful info for a project.
 
@@ -38,7 +39,6 @@ async def info(project: str) -> None:
 
     $ pytoil info my_project
     """
-    config = await Config.load()
     if not config.can_use_api():
         msg.warn(
             "You must set your GitHub username and personal access token to use API"

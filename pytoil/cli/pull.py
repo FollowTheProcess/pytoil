@@ -25,7 +25,10 @@ from pytoil.repo import Repo
 @click.argument("projects", nargs=-1)
 @click.option("-f", "--force", is_flag=True, help="Force pull without confirmation.")
 @click.option("-a", "--all", "all_", is_flag=True, help="Pull down all your projects.")
-async def pull(projects: tuple[str, ...], force: bool, all_: bool) -> None:
+@click.pass_obj
+async def pull(
+    config: Config, projects: tuple[str, ...], force: bool, all_: bool
+) -> None:
     """
     Pull down your remote projects.
 
@@ -61,7 +64,6 @@ async def pull(projects: tuple[str, ...], force: bool, all_: bool) -> None:
 
     $ pytoil pull --all --force
     """
-    config = await Config.load()
     if not config.can_use_api():
         msg.warn(
             "You must set your GitHub username and personal access token to use API"
