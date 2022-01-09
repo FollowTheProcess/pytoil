@@ -70,7 +70,7 @@ class Config(BaseModel):
     init_on_new: bool = defaults.INIT_ON_NEW
 
     @classmethod
-    async def from_file(cls, path: Path = defaults.CONFIG_FILE) -> Config:
+    async def load(cls, path: Path = defaults.CONFIG_FILE) -> Config:
         """
         Reads in the .pytoil.yml config file and returns
         a populated `Config` object.

@@ -38,7 +38,7 @@ async def info(project: str) -> None:
 
     $ pytoil info my_project
     """
-    config = await Config.from_file()
+    config = await Config.load()
     if not config.can_use_api():
         msg.warn(
             "You must set your GitHub username and personal access token to use API"

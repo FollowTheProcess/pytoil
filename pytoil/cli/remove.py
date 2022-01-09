@@ -51,7 +51,7 @@ async def remove(projects: tuple[str, ...], force: bool, all_: bool) -> None:
 
     $ pytoil remove --all --force
     """
-    config = await Config.from_file()
+    config = await Config.load()
 
     local_projects: set[str] = {
         f.name

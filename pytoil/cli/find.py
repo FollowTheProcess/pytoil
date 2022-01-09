@@ -49,7 +49,7 @@ async def find(project: str, results: int) -> None:
 
     $ pytoil find proj --results 5
     """
-    config = await Config.from_file()
+    config = await Config.load()
     if not config.can_use_api():
         msg.warn(
             "You must set your GitHub username and personal access token to use API"

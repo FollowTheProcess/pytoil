@@ -53,7 +53,7 @@ async def local(count: bool) -> None:
 
     $ pytoil show local --count
     """
-    config = await Config.from_file()
+    config = await Config.load()
     local_projects: set[str] = {
         f.name
         for f in config.projects_dir.iterdir()
@@ -91,7 +91,7 @@ async def remote(count: bool) -> None:
 
     $ pytoil show remote --count
     """
-    config = await Config.from_file()
+    config = await Config.load()
     if not config.can_use_api():
         msg.warn(
             "You must set your GitHub username and personal access token to use API"
@@ -135,7 +135,7 @@ async def forks(count: bool) -> None:
 
     $ pytoil show forks --count
     """
-    config = await Config.from_file()
+    config = await Config.load()
     if not config.can_use_api():
         msg.warn(
             "You must set your GitHub username and personal access token to use API"
@@ -176,7 +176,7 @@ async def all_(count: bool) -> None:
 
     $ pytoil show all --count
     """
-    config = await Config.from_file()
+    config = await Config.load()
     if not config.can_use_api():
         msg.warn(
             "You must set your GitHub username and personal access token to use API"
@@ -235,7 +235,7 @@ async def diff(count: bool) -> None:
 
     $ pytoil show diff --count
     """
-    config = await Config.from_file()
+    config = await Config.load()
     if not config.can_use_api():
         msg.warn(
             "You must set your GitHub username and personal access token to use API"

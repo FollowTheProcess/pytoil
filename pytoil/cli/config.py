@@ -60,7 +60,7 @@ async def show() -> None:
 
     $ pytoil config show
     """
-    config = await Config.from_file()
+    config = await Config.load()
 
     click.secho("\nPytoil Config:\n", fg="cyan", bold=True)
 
@@ -90,7 +90,7 @@ async def get(key: str) -> None:
     if key not in defaults.CONFIG_KEYS:
         msg.warn(f"{key!r} is not a valid pytoil config key.", exits=1)
 
-    config = await Config.from_file()
+    config = await Config.load()
     config_dict = config.to_dict()
     # Make the key a nice colour
     config_start = click.style(f"{key}: ", fg="cyan")
@@ -130,7 +130,7 @@ async def set(key: str, val: tuple[str, ...], force: bool) -> None:
             exits=1,
         )
 
-    conf = await Config.from_file()
+    conf = await Config.load()
     config = conf.to_dict()
 
     if key == "common_packages":
