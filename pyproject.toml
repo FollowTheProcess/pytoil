@@ -43,7 +43,6 @@ python = "^3.9"
 asyncclick = "8.0.3.1"
 anyio = "3.4.0"
 httpx = { extras = ["http2"], version = "0.21.3" }
-pydantic = "1.9.0"
 aiofiles = "0.8.0"
 PyYAML = "6.0"
 wasabi = "0.9.0"
@@ -97,7 +96,6 @@ ignore_missing_imports = true
 strict = true
 pretty = true
 disallow_untyped_decorators = false
-plugins = "pydantic.mypy"
 
 [[tool.mypy.overrides]]
 module = "tests.*"

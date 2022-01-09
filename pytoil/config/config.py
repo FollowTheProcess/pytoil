@@ -13,7 +13,6 @@ from typing import TypedDict
 
 import aiofiles
 import yaml
-from pydantic import BaseModel
 
 from pytoil.config import defaults
 
@@ -36,38 +35,88 @@ class ConfigDict(TypedDict):
     init_on_new: bool
 
 
-class Config(BaseModel):
-    """
-    Pydantic dataclass representing pytoil's config.
+class Config:
+    def __init__(
+        self,
+        projects_dir: Path = defaults.PROJECTS_DIR,
+        token: str = defaults.TOKEN,
+        username: str = defaults.USERNAME,
+        vscode: bool = defaults.VSCODE,
+        code_bin: str = defaults.CODE_BIN,
+        common_packages: list[str] = defaults.COMMON_PACKAGES,
+        init_on_new: bool = defaults.INIT_ON_NEW,
+    ) -> None:
+        """
+        Object representing pytoil's config.
 
-    Args:
-        projects_dir (Path): Where the user keeps their development
-            projects.
+        Args:
+            projects_dir (Path): Where the user keeps their development
+                projects.
 
-        token (str): The user's GitHub OAUTH personal access token.
+            token (str): The user's GitHub OAUTH personal access token.
 
-        username (str): User's GitHub username.
+            username (str): User's GitHub username.
 
-        vscode (bool): Whether or not the user wants pytoil to use VSCode
-            to auto-open projects.
+            vscode (bool): Whether or not the user wants pytoil to use VSCode
+                to auto-open projects.
 
-        code_bin (str): The name of the VSCode binary ("code" | "code-insiders")
+            code_bin (str): The name of the VSCode binary ("code" | "code-insiders")
 
-        common_packages (List[str]): List of common packages the user wants to
-            inject into every python environment pytoil creates. Typically
-            used for linters, formatters etc.
+            common_packages (List[str]): List of common packages the user wants to
+                inject into every python environment pytoil creates. Typically
+                used for linters, formatters etc.
 
-        init_on_new (bool): Whether or not the user wants pytoil to
-            initialise a new git repo when creating a new local project.
-    """
+            init_on_new (bool): Whether or not the user wants pytoil to
+                initialise a new git repo when creating a new local project.
+        """
+        self.projects_dir = projects_dir
+        self.token = token
+        self.username = username
+        self.vscode = vscode
+        self.code_bin = code_bin
+        self.common_packages = common_packages
+        self.init_on_new = init_on_new
 
-    projects_dir: Path = defaults.PROJECTS_DIR
-    token: str = defaults.TOKEN
-    username: str = defaults.USERNAME
-    vscode: bool = defaults.VSCODE
-    code_bin: str = defaults.CODE_BIN
-    common_packages: list[str] = defaults.COMMON_PACKAGES
-    init_on_new: bool = defaults.INIT_ON_NEW
+    def __repr__(self) -> str:
+        return (
+            self.__class__.__qualname__
+            + f"(projects_dir={self.projects_dir!r}, token={self.token!r},"
+            f" username={self.username!r}, vscode={self.vscode!r},"
+            f" code_bin={self.code_bin!r}, common_packages={self.common_packages!r},"
+            f" init_on_new={self.init_on_new!r})"
+        )
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+
+        return (
+            self.projects_dir,
+            self.token,
+            self.username,
+            self.vscode,
+            self.code_bin,
+            self.common_packages,
+            self.init_on_new,
+        ) == (
+            other.projects_dir,
+            other.token,
+            other.username,
+            other.vscode,
+            other.code_bin,
+            other.common_packages,
+            other.init_on_new,
+        )
+
+    __slots__ = (
+        "projects_dir",
+        "token",
+        "username",
+        "vscode",
+        "code_bin",
+        "common_packages",
+        "init_on_new",
+    )
 
     @classmethod
     async def load(cls, path: Path = defaults.CONFIG_FILE) -> Config:
@@ -106,9 +155,19 @@ class Config(BaseModel):
         Returns:
             Config: Returned `Config`.
         """
-        # We can do this here because pydantic will handle
-        # all the conversion between types under the hood
-        return Config(**config_dict)
+        data = {
+            "projects_dir": Path(
+                config_dict.get("projects_dir", defaults.PROJECTS_DIR)
+            ),
+            "token": config_dict.get("token", defaults.TOKEN),
+            "username": config_dict.get("username", defaults.USERNAME),
+            "vscode": config_dict.get("vscode", defaults.VSCODE),
+            "code_bin": config_dict.get("code_bin", defaults.CODE_BIN),
+            "common_packages": config_dict.get("common_packages", defaults.CODE_BIN),
+            "init_on_new": config_dict.get("init_on_new", defaults.INIT_ON_NEW),
+        }
+
+        return Config(**data)  # type: ignore
 
     @classmethod
     def helper(cls) -> Config:
