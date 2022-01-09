@@ -41,7 +41,8 @@ class Repo:
 
     def __repr__(self) -> str:
         return (
-            self.__class__.__qualname__ + f"(owner={self.owner!r}, name={self.name!r},"
+            self.__class__.__qualname__
+            + f"(owner={self.owner!r}, name={self.name!r},"
             f" local_path={self.local_path!r})"
         )
 
