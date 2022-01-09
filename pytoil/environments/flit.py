@@ -11,23 +11,24 @@ from __future__ import annotations
 import asyncio
 import shutil
 import sys
-from dataclasses import dataclass
 from pathlib import Path
 
 from pytoil.environments.virtualenv import Venv
 from pytoil.exceptions import FlitNotInstalledError
 
+FLIT = shutil.which("flit")
 
-@dataclass
+
 class Flit(Venv):
-    """
-    Representation of a Flit python environment.
+    def __init__(self, root: Path, flit: str | None = FLIT) -> None:
+        self.root = root
+        self.flit = flit
+        super().__init__(root)
 
-    Subclasses `Venv` as a lot of shared functionality.
-    """
+    def __repr__(self) -> str:
+        return self.__class__.__qualname__ + f"(root={self.root!r}, flit={self.flit!r})"
 
-    root: Path
-    flit: str | None = shutil.which("flit")
+    __slots__ = ("root", "flit")
 
     @property
     def name(self) -> str:

@@ -12,7 +12,6 @@ import asyncio
 import json
 import shutil
 import sys
-from dataclasses import dataclass
 from pathlib import Path
 
 import aiofiles
@@ -26,21 +25,18 @@ from pytoil.exceptions import CodeNotInstalledError
 # a straight swap
 WORKSPACE_PYTHON_SETTING = "python.defaultInterpreterPath"
 
+CODE = shutil.which("code")
 
-@dataclass
+
 class VSCode:
-    """
-    VSCode manager class.
+    def __init__(self, root: Path, code: str | None = CODE) -> None:
+        self.root = root
+        self.code = code
 
-    Args:
-        root (Path): Root dir of the linked project.
-        code (Optional[str], optional): Path to the VSCode binary
-            primarily used for testing.
-            Defaults to shutil.which(defaults.CODE_BIN)
-    """
+    def __repr__(self) -> str:
+        return self.__class__.__qualname__ + f"(root={self.root!r}, code={self.code!r})"
 
-    root: Path
-    code: str | None = shutil.which("code")
+    __slots__ = ("root", "code")
 
     @property
     def workspace_settings(self) -> Path:

@@ -10,7 +10,6 @@ Created: 21/12/2021
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
@@ -25,22 +24,29 @@ STR_TIME_FORMAT = r"%Y-%m-%d %H:%M:%S"
 GITHUB_TIME_FORMAT = r"%Y-%m-%dT%H:%M:%SZ"
 
 
-@dataclass
 class API:
-    """
-    Container for methods and data for hitting the GitHub v4
-    GraphQL API
+    def __init__(self, username: str, token: str, url: str = URL) -> None:
+        """
+        Container for methods and data for hitting the GitHub v4
+        GraphQL API
 
-    Args:
-        username (str): User's GitHub username.
-        token (str): User's personal access token.
-        url (str, optional): GraphQL URL
-            defaults to https://api.github.com/graphql
-    """
+        Args:
+            username (str): User's GitHub username.
+            token (str): User's personal access token.
+            url (str, optional): GraphQL URL
+                defaults to https://api.github.com/graphql
+        """
+        self.username = username
+        self.token = token
+        self.url = url
 
-    username: str
-    token: str
-    url: str = URL
+    def __repr__(self) -> str:
+        return (
+            self.__class__.__qualname__
+            + f"(username={self.username}, token={self.token}, url={self.url})"
+        )
+
+    __slots__ = ("username", "token", "url")
 
     @property
     def headers(self) -> dict[str, str]:

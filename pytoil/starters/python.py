@@ -9,24 +9,26 @@ Created: 29/12/2021
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from pathlib import Path
 
 import aiofiles
 import aiofiles.os
 
 
-@dataclass
 class PythonStarter:
-    path: Path
-    name: str
-
-    def __post_init__(self) -> None:
+    def __init__(self, path: Path, name: str) -> None:
+        self.path = path
+        self.name = name
         self.root = self.path.joinpath(self.name).resolve()
-        self.files: list[Path] = [
+        self.files = [
             self.root.joinpath(filename)
             for filename in ["README.md", "requirements.txt", f"{self.name}.py"]
         ]
+
+    def __repr__(self) -> str:
+        return self.__class__.__qualname__ + f"(path={self.path!r}, name={self.name!r})"
+
+    __slots__ = ("path", "name", "root", "files")
 
     async def generate(self, username: str | None = None) -> None:
         """

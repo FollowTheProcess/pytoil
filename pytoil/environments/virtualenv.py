@@ -12,7 +12,6 @@ from __future__ import annotations
 import asyncio
 import functools
 import sys
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Sequence
 
@@ -22,9 +21,16 @@ import virtualenv
 from pytoil.exceptions import MissingInterpreterError
 
 
-@dataclass
 class Venv:
     root: Path
+
+    def __init__(self, root: Path) -> None:
+        self.root = root
+
+    def __repr__(self) -> str:
+        return self.__class__.__qualname__ + f"(root={self.root!r})"
+
+    __slots__ = ("root",)
 
     @property
     def project_path(self) -> Path:

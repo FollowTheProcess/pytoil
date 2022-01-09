@@ -11,7 +11,6 @@ from __future__ import annotations
 import asyncio
 import shutil
 import sys
-from dataclasses import dataclass
 from pathlib import Path
 
 import aiofiles
@@ -19,18 +18,26 @@ import aiofiles.os
 
 from pytoil.exceptions import GoNotInstalledError
 
+GO = shutil.which("go")
 
-@dataclass
+
 class GoStarter:
-    path: Path
-    name: str
-    go: str | None = shutil.which("go")
-
-    def __post_init__(self) -> None:
+    def __init__(self, path: Path, name: str, go: str | None = GO) -> None:
+        self.path = path
+        self.name = name
+        self.go = go
         self.root = self.path.joinpath(self.name).resolve()
-        self.files: list[Path] = [
+        self.files = [
             self.root.joinpath(filename) for filename in ["README.md", "main.go"]
         ]
+
+    def __repr__(self) -> str:
+        return (
+            self.__class__.__qualname__
+            + f"(path={self.path!r}, name={self.name!r}, go={self.go!r})"
+        )
+
+    __slots__ = ("path", "name", "go", "root", "files")
 
     async def generate(self, username: str | None = None) -> None:
         """

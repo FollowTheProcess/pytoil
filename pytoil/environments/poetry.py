@@ -15,7 +15,6 @@ from __future__ import annotations
 import asyncio
 import shutil
 import sys
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Sequence
 
@@ -23,11 +22,21 @@ import aiofiles.os
 
 from pytoil.exceptions import PoetryNotInstalledError
 
+POETRY = shutil.which("poetry")
 
-@dataclass
+
 class Poetry:
-    root: Path
-    poetry: str | None = shutil.which("poetry")
+    def __init__(self, root: Path, poetry: str | None = POETRY) -> None:
+        self.root = root
+        self.poetry = poetry
+
+    def __repr__(self) -> str:
+        return (
+            self.__class__.__qualname__
+            + f"(root={self.root!r}, poetry={self.poetry!r})"
+        )
+
+    __slots__ = ("root", "poetry")
 
     @property
     def project_path(self) -> Path:
