@@ -57,7 +57,7 @@ def test_config_helper():
 async def test_from_file_raises_on_missing_file():
 
     with pytest.raises(FileNotFoundError):
-        await Config.from_file(path=Path("not/here.yml"))
+        await Config.load(path=Path("not/here.yml"))
 
 
 def test_from_dict():
@@ -171,6 +171,6 @@ async def test_file_write():
         # Write the config
         await config.write(path=file.name)
 
-        file_config = await Config.from_file(file.name)
+        file_config = await Config.load(file.name)
 
         assert file_config == config
