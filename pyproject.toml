@@ -62,7 +62,7 @@ black = "21.12b0"
 pytest-cov = "3.0.0"
 coverage-badge = "1.1.0"
 coverage = { extras = ["toml"], version = "6.2.0" }
-mypy = "0.930"
+mypy = "0.931"
 mkdocs = "1.2.3"
 mkdocs-material = "8.1.4"
 types-click = "7.1.8"
