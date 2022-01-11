@@ -13,7 +13,7 @@
 
 * **Documentation**: [https://FollowTheProcess.github.io/pytoil/](https://FollowTheProcess.github.io/pytoil/)
 
-:warning: pytoil is still in Alpha and as such, the API may change without deprecation notices.
+⚠️ pytoil is still in Alpha and as such, the API may change without deprecation notices.
 
 ## What is it?
 
@@ -21,13 +21,13 @@
 
 pytoil is:
 
-* Easy to use :white_check_mark:
-* Easy to configure :white_check_mark:
-* Safe (it won't edit your repos at all) :white_check_mark:
+* Easy to use ✅
+* Easy to configure ✅
+* Safe (it won't edit your repos at all) ✅
 * Snappy (it's asynchronous from the ground up and as much as possible is done concurrently, clone all your repos in seconds!) 💨
-* Useful! (I hope :smiley:)
+* Useful! (I hope 😃)
 
-Say goodbye to janky bash scripts :wave:
+Say goodbye to janky bash scripts 👋🏻
 
 ## Installation
 
@@ -58,7 +58,7 @@ Making you a default one...
 
 This will create a default config file which can be found at `~/.pytoil.yml`. See the [docs] for what information you need to put in here.
 
-Don't worry though, there's only a few options to configure! :sleeping:
+Don't worry though, there's only a few options to configure! 😴
 
 After that you're good to go! You can do things like:
 
@@ -97,7 +97,7 @@ Check out the [docs] for more :boom:
 
 ## Contributing
 
-`pytoil` is an open source project and, as such, welcomes contributions of all kinds :smiley:
+`pytoil` is an open source project and, as such, welcomes contributions of all kinds 😃
 
 Your best bet is to check out the [contributing guide] in the docs!
 
