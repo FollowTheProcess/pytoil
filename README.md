@@ -93,7 +93,7 @@ pytoil new my_project --venv venv
 pytoil new my_project --venv venv --cookie https://github.com/some/cookie.git
 ```
 
-Check out the [docs] for more :boom:
+Check out the [docs] for more 💥
 
 ## Contributing
 
