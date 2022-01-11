@@ -41,7 +41,7 @@ Documentation = "https://FollowTheProcess.github.io/pytoil/"
 [tool.poetry.dependencies]
 python = "^3.9"
 asyncclick = "8.0.3.1"
-anyio = "3.4.0"
+anyio = "3.5.0"
 httpx = { extras = ["http2"], version = "0.21.3" }
 aiofiles = "0.8.0"
 PyYAML = "6.0"
