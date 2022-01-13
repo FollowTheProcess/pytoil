@@ -19,13 +19,13 @@
 
 pytoil is:
 
-* Easy to use :white_check_mark:
-* Easy to configure :white_check_mark:
-* Safe (it won't edit your repos at all) :white_check_mark:
+* Easy to use ✅
+* Easy to configure ✅
+* Safe (it won't edit your repos at all) ✅
 * Snappy (it's asynchronous from the ground up and as much as possible is done concurrently, clone all your repos in seconds!) 💨
-* Useful! (I hope :smiley:)
+* Useful! (I hope 😃)
 
-Say goodbye to janky bash scripts :wave:
+Say goodbye to janky bash scripts 👋🏻
 
 ## Background
 
@@ -189,7 +189,7 @@ And loads more!
 
 ### Help
 
-Like all good CLI programs, pytoil (aswell as all it's subcommands, and all *their* subcommands!) has a `--help` option to show you what to do.
+Like all good CLI programs, pytoil (as well as all it's subcommands, and all *their* subcommands!) has a `--help` option to show you what to do.
 
 <div class="termy">
 
@@ -209,24 +209,20 @@ Usage: pytoil [OPTIONS] COMMAND [ARGS]...
   - Minimal configuration required.
 
 Options:
-  -V, --version         Display pytoil version.
-  --install-completion  Install completion for the current shell.
-  --show-completion     Show completion for the current shell, to copy it or
-                        customize the installation.
-
-  --help                Show this message and exit.
+  --version  Show the version and exit.
+  --help     Show this message and exit.
 
 Commands:
   checkout  Checkout an existing development project.
   config    Interact with pytoil's configuration.
   docs      Open pytoil's documentation in your browser.
+  find      Quickly locate a project.
   gh        Open one of your projects on GitHub.
   info      Get useful info for a project.
   new       Create a new development project.
   pull      Pull down your remote projects.
   remove    Remove projects from your local filesystem.
   show      View your local/remote projects.
-
 ```
 
 </div>

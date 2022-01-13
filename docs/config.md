@@ -68,6 +68,7 @@ When you open the default config state you just wrote, it will look like this:
 projects_dir: /Users/you/Development
 token: This is your GitHub personal access token
 username: This is your GitHub username
+code_bin: code
 vscode: false
 init_on_new: true
 ```
@@ -87,6 +88,7 @@ projects_dir: /Users/me/Projects
 token: jbs822qbs982whbd97g # I've made this up
 username: FollowTheProcess
 vscode: true
+code_bin: code
 common_packages:
   - black
   - flake8

@@ -105,18 +105,16 @@ This package was created with [cookiecutter] and the [FollowTheProcess/poetry_py
 
 `pytoil` has been built on top of these fantastic projects:
 
-* [Typer]
+* [async-click]
 * [cookiecutter]
 * [wasabi]
 * [httpx]
-* [pydantic]
 
 [pipx]: https://pipxproject.github.io/pipx/
 [cookiecutter]: https://cookiecutter.readthedocs.io/en/1.7.2/
 [docs]: https://FollowTheProcess.github.io/pytoil/
 [FollowTheProcess/poetry_pypackage]: https://github.com/FollowTheProcess/poetry_pypackage
-[Typer]: https://typer.tiangolo.com
 [wasabi]: https://github.com/ines/wasabi
 [httpx]: https://www.python-httpx.org
-[pydantic]: https://pydantic-docs.helpmanual.io
+[async-click]: https://github.com/python-trio/asyncclick
 [contributing guide]: https://followtheprocess.github.io/pytoil/contributing/contributing.html

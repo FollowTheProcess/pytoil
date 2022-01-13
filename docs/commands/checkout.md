@@ -29,18 +29,18 @@ Usage: pytoil checkout [OPTIONS] PROJECT
 
   If you pass the shorthand to someone elses repo e.g. 'someoneelse/repo'
   pytoil will detect this and automatically create a fork of this repo for
-  you. Forking happens asynchronously so we give it a few seconds, then
-  check whether or not your fork exists yet. If it does, all is well and we
-  can clone it for you automatically. If not, (which is totally normal),
-  we'll let you know. In which case just give it a few seconds then a
-  'pytoil checkout repo' will bring it down as normal.
+  you. Forking happens asynchronously so we give it a few seconds, then check
+  whether or not your fork exists yet. If it does, all is well and we can
+  clone it for you automatically. If not, (which is totally normal), we'll let
+  you know. In which case just give it a few seconds then a 'pytoil checkout
+  repo' will bring it down as normal.
 
   You can also ask pytoil to automatically create a virtual environment on
   checkout with the '--venv/-v' flag. This only happens for projects pulled
   down from GitHub to avoid accidentally screwing up local projects.
 
-  If the '--venv/-v' flag is used, pytoil will look at your project to try
-  and detect which type of environment to create e.g. conda, flit, poetry,
+  If the '--venv/-v' flag is used, pytoil will look at your project to try and
+  detect which type of environment to create e.g. conda, flit, poetry,
   standard python etc.
 
   The '--venv/-v' flag will also attempt to detect if the project you're
@@ -57,9 +57,6 @@ Usage: pytoil checkout [OPTIONS] PROJECT
 
   $ pytoil checkout someoneelse/project
 
-Arguments:
-  PROJECT  Name of the project to checkout.  [required]
-
 Options:
   -v, --venv  Attempt to auto-create a virtual environment.
   --help      Show this message and exit.
@@ -74,7 +71,7 @@ If the project is available locally, `checkout` will simply open it for you
 <div class="termy">
 
 ```console
-// Some project thats already local
+// Some project that's already local
 $ pytoil checkout my_local_project
 
 Project: 'my_local_project' found locally!
@@ -179,8 +176,6 @@ Opening 'my_github_project' in VSCode...
 !!! note
 
     pytoil looks for certain files in your project (like `setup.py`, `setup.cfg`, `pyproject.toml`, `environment.yml` etc.) and that's how it decides which environment to create. If it isn't totally sure what environment to create, it will just skip this step and let you know!
-
-    I've personally tested this on every type of environment pytoil supports and it works really well!
 
 ### How pytoil Knows What to Install
 

@@ -44,7 +44,7 @@ async def test_exists_remote_returns_false_when_remote_doesnt_exist(
 
     api = API(username="me", token="something")
 
-    repo = Repo(owner="me", name="test", local_path=Path("doesnt/matter"))
+    repo = Repo(owner="me", name="test", local_path=Path("doesn't/matter"))
 
     httpx_mock.add_response(
         url=api.url, json=fake_repo_exists_false_response, status_code=200
@@ -61,7 +61,7 @@ async def test_exists_remote_returns_true_when_remote_exists(
 
     api = API(username="me", token="something")
 
-    repo = Repo(owner="me", name="test", local_path=Path("doesnt/matter"))
+    repo = Repo(owner="me", name="test", local_path=Path("doesn't/matter"))
 
     httpx_mock.add_response(
         url=api.url, json=fake_repo_exists_true_response, status_code=200
