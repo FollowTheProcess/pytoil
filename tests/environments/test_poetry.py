@@ -140,7 +140,7 @@ async def test_install_raises_if_poetry_not_installed():
     poetry = Poetry(root=Path("somewhere"), poetry=None)
 
     with pytest.raises(PoetryNotInstalledError):
-        await poetry.install(packages=["something", "doesnt", "matter"])
+        await poetry.install(packages=["something", "doesn't", "matter"])
 
 
 @pytest.mark.asyncio

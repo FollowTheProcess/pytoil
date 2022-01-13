@@ -31,8 +31,8 @@ Usage: pytoil remove [OPTIONS] [PROJECTS]...
   and not sent to trash. As such, pytoil will prompt you for confirmation
   before doing anything.
 
-  The "--force/-f" flag can be used to force deletion without the
-  confirmation prompt. Use with caution!
+  The "--force/-f" flag can be used to force deletion without the confirmation
+  prompt. Use with caution!
 
   Examples:
 
@@ -44,14 +44,10 @@ Usage: pytoil remove [OPTIONS] [PROJECTS]...
 
   $ pytoil remove --all --force
 
-Arguments:
-  [PROJECTS]...  Name of the project(s) to delete.
-
 Options:
   -f, --force  Force delete without confirmation.
   -a, --all    Delete all of your local projects.
   --help       Show this message and exit.
-
 ```
 
 </div>

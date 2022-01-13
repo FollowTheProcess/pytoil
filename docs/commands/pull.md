@@ -18,8 +18,8 @@ Usage: pytoil pull [OPTIONS] [PROJECTS]...
   The pull command provides easy methods for pulling down remote projects.
 
   It is effectively a nice wrapper around git clone but you don't have to
-  worry about urls or what your cwd is, pull will grab your remote projects
-  by name and clone them to your configured projects directory.
+  worry about urls or what your cwd is, pull will grab your remote projects by
+  name and clone them to your configured projects directory.
 
   You can also use pull to batch clone multiple repos, even all of them ("--
   all/-a") if you're into that sorta thing.
@@ -28,8 +28,8 @@ Usage: pytoil pull [OPTIONS] [PROJECTS]...
   the repos concurrently, speeding up the process.
 
   Any remote project that already exists locally will be skipped and none of
-  your local projects are changed in any way. pytoil will only pull down
-  those projects that don't already exist locally.
+  your local projects are changed in any way. pytoil will only pull down those
+  projects that don't already exist locally.
 
   It's very possible to accidentally clone a lot of repos when using pull so
   you will be prompted for confirmation before pytoil does anything.
@@ -47,14 +47,10 @@ Usage: pytoil pull [OPTIONS] [PROJECTS]...
 
   $ pytoil pull --all --force
 
-Arguments:
-  [PROJECTS]...  Name of the project(s) to pull down.
-
 Options:
   -f, --force  Force pull without confirmation.
-  -a, --all    Pull down all of your projects.
+  -a, --all    Pull down all your projects.
   --help       Show this message and exit.
-
 ```
 
 </div>

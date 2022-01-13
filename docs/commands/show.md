@@ -26,8 +26,8 @@ Usage: pytoil show [OPTIONS] COMMAND [ARGS]...
   View your local/remote projects.
 
   The show command provides an easy way of listing of the projects you have
-  locally in your configured development directory and/or of those you have
-  on GitHub (known in pytoil-land as 'remote' projects).
+  locally in your configured development directory and/or of those you have on
+  GitHub (known in pytoil-land as 'remote' projects).
 
   Local projects will be the names of subdirectories in your configured
   projects directory.
@@ -45,7 +45,6 @@ Commands:
   forks   Show your forked projects.
   local   Show your local projects.
   remote  Show your remote projects.
-
 ```
 
 </div>

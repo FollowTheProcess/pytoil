@@ -9,7 +9,7 @@ The `find` command lets you easily search for one of your projects (even if you 
 ```console
 $ pytoil find --help
 
-Usage: pytoil find [OPTIONS] [PROJECT]
+Usage: pytoil find [OPTIONS] PROJECT
 
   Quickly locate a project.
 
@@ -32,9 +32,6 @@ Usage: pytoil find [OPTIONS] [PROJECT]
   $ pytoil find my
 
   $ pytoil find proj --results 5
-
-Arguments:
-  [PROJECT]  Name of the project to find.
 
 Options:
   -r, --results INTEGER  Limit results to maximum number.  [default: 3]

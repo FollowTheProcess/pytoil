@@ -13,26 +13,16 @@ Usage: pytoil config [OPTIONS] COMMAND [ARGS]...
 
   Interact with pytoil's configuration.
 
-  The config command group allows you to get, set, and show pytoil's
-  configuration. Getting and showing obviously do not edit the config file
-  ($HOME/.pytoil.yml).
-
-  Setting a key value pair using the 'config set' subcommand will cause the
-  config file to be updated and overwritten. You will be prompted to confirm
-  this however.
-
-  Currently the only config key you cannot set on the command line is
-  'common_packages'. If you want to change this, you'll have to do so in the
-  config file itself.
+  The config command group allows you to get, show and explain pytoil's
+  configuration.
 
 Options:
   --help  Show this message and exit.
 
 Commands:
-  get   Get the currently set value for a config key.
-  help  Print a list and description of pytoil config keys.
-  show  Show pytoil's config.
-
+  explain  Print a list and description of pytoil config values.
+  get      Get the currently set value for a config key.
+  show     Show pytoil's config.
 ```
 
 </div>
@@ -83,7 +73,7 @@ The command `pytoil config explain` outputs a (hopefully) helpful description of
 ```console
 $ pytoil config explain
 
-======================= The '.pytoil.yml' config file =======================
+======================= The '.pytoil.yml' config file =======================
 
 
 - projects_dir (bool)
@@ -109,6 +99,10 @@ $ pytoil config explain
 
     Whether you want pytoil to open projects up using VSCode. This will happen on 'new' and 'checkout'.
 
+- code_bin (str)
+
+    The name of the VSCode binary ('code' or 'code-insiders')
+
 - common_packages (List[str])
 
     A list of python package names to inject into every virtual environment pytoil creates
@@ -118,7 +112,6 @@ $ pytoil config explain
 
     Whether or not you want pytoil to create an empty git repo when you make a new project with
     'pytoil new'. This can also be disabled on a per use basis using the '--no-git' flag.
-
 ```
 
 </div>

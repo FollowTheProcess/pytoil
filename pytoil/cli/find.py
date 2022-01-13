@@ -23,7 +23,12 @@ FUZZY_SCORE_CUTOFF = 75
 @click.command()
 @click.argument("project", nargs=1)
 @click.option(
-    "-r", "--results", type=int, default=3, help="Limit results to maximum number."
+    "-r",
+    "--results",
+    type=int,
+    default=3,
+    help="Limit results to maximum number.",
+    show_default=True,
 )
 @click.pass_obj
 async def find(config: Config, project: str, results: int) -> None:
