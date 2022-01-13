@@ -278,5 +278,5 @@ async def checkout_remote(
         await handle_venv_creation(env=env, config=config, code=code)
 
     if config.vscode:
-        msg.info(f"\nOpening {repo.name!r} in VSCode.")
+        msg.info(f"Opening {repo.name!r} in VSCode.", spaced=True)
         await code.open()
