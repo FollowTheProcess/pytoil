@@ -13,8 +13,6 @@
 
 * **Documentation**: [https://FollowTheProcess.github.io/pytoil/](https://FollowTheProcess.github.io/pytoil/)
 
-⚠️ pytoil is still in Alpha and as such, the API may change without deprecation notices.
-
 ## What is it?
 
 `pytoil` is a handy tool that helps you stay on top of all your projects, remote or local. It's primarily aimed at python developers but you could easily use it to manage any project!
