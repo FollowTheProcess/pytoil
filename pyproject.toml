@@ -100,3 +100,6 @@ disallow_untyped_decorators = false
 [[tool.mypy.overrides]]
 module = "tests.*"
 ignore_errors = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "strict"
