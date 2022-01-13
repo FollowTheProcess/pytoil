@@ -83,7 +83,7 @@ class VSCode:
         # 1) File doesn't exist -> easy, just write new ones
         # 2) File exists -> read in what is already there, add new settings, write back overwriting
 
-        if not await aiofiles.os.path.exists(self.workspace_settings):  # type: ignore
+        if not await aiofiles.os.path.exists(self.workspace_settings):
             # Create and write new ones
             # The entire .vscode folder might not exist
             await aiofiles.os.makedirs(self.workspace_settings.parent, exist_ok=True)

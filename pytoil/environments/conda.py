@@ -121,7 +121,7 @@ class Conda:
         If this executable exists then the environment musty
         exist.
         """
-        return await aiofiles.os.path.exists(self.executable)  # type: ignore
+        return await aiofiles.os.path.exists(self.executable)
 
     async def create(
         self, packages: Sequence[str] | None = None, silent: bool = False

@@ -42,7 +42,9 @@ class Requirements(Venv):
 
         requirements_file = "requirements.txt"
 
-        if await aiofiles.os.path.exists(self.project_path.joinpath("requirements_dev.txt")):  # type: ignore
+        if await aiofiles.os.path.exists(
+            self.project_path.joinpath("requirements_dev.txt")
+        ):
             requirements_file = "requirements_dev.txt"
 
         proc = await asyncio.create_subprocess_exec(

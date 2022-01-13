@@ -71,7 +71,7 @@ class Repo:
         Returns:
             bool: True if exists locally, else False.
         """
-        return await aiofiles.os.path.exists(self.local_path)  # type: ignore
+        return await aiofiles.os.path.exists(self.local_path)
 
     async def exists_remote(self, api: API) -> bool:
         """
@@ -154,7 +154,7 @@ class Repo:
         Returns:
             bool: True if exists, else False.
         """
-        return await aiofiles.os.path.exists(self.local_path.joinpath(file))  # type: ignore
+        return await aiofiles.os.path.exists(self.local_path.joinpath(file))
 
     async def is_setuptools(self) -> bool:
         """

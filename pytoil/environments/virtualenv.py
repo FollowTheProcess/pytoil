@@ -52,7 +52,7 @@ class Venv:
         If this executable exists then both the project and virtual environment
         must also exist and therefore must be valid.
         """
-        return await aiofiles.os.path.exists(self.executable)  # type: ignore
+        return await aiofiles.os.path.exists(self.executable)
 
     async def create(
         self, packages: Sequence[str] | None = None, silent: bool = False
