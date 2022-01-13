@@ -482,10 +482,11 @@ def clean(session: nox.Session) -> None:
     Clean up artifacts from other nox sessions.
     """
     for artifact in ARTIFACTS:
-        if artifact.is_dir():
-            shutil.rmtree(artifact)
-        else:
-            os.remove(artifact)
+        if artifact.exists():
+            if artifact.is_dir():
+                shutil.rmtree(artifact, ignore_errors=True)
+            else:
+                os.remove(artifact)
 
 
 @nox.session(python=DEFAULT_PYTHON)
