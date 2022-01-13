@@ -30,6 +30,14 @@ PROJECT_TESTS = PROJECT_ROOT / "tests"
 PROJECT_ENTRY_POINT = PROJECT_SRC / "__main__.py"
 PROJECT_PROFILE = PROJECT_ROOT / "profile.html"
 
+# Artifacts
+ARTIFACTS = [
+    PROJECT_PROFILE,
+    PROJECT_ROOT.joinpath(".coverage"),
+    PROJECT_ROOT.joinpath("dist"),
+    PROJECT_ROOT.joinpath("site"),
+]
+
 # Git info
 DEFAULT_BRANCH = "main"
 
@@ -466,6 +474,18 @@ def build(session: nox.Session) -> None:
     session.run("poetry", "install", "--no-dev", external=True, silent=True)
 
     session.run("poetry", "build", external=True)
+
+
+@nox.session(python=False)
+def clean(session: nox.Session) -> None:
+    """
+    Clean up artifacts from other nox sessions.
+    """
+    for artifact in ARTIFACTS:
+        if artifact.is_dir():
+            shutil.rmtree(artifact)
+        else:
+            os.remove(artifact)
 
 
 @nox.session(python=DEFAULT_PYTHON)
