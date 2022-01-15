@@ -105,3 +105,9 @@ ignore_errors = true
 
 [tool.pytest.ini_options]
 asyncio_mode = "strict"
+
+[tool.pycln]
+path = "/pytoil"
+expand_stars = true
+all = true
+no_gitignore = false
