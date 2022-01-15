@@ -51,6 +51,7 @@ tomlkit = "0.8.0"
 thefuzz = { extras = ["speedup"], version = "0.19.0" }
 cookiecutter = "1.7.3"
 virtualenv = "20.13.0"
+pydantic = "1.9.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "6.2.5"
@@ -96,6 +97,7 @@ ignore_missing_imports = true
 strict = true
 pretty = true
 disallow_untyped_decorators = false
+plugins = "pydantic.mypy"
 
 [[tool.mypy.overrides]]
 module = "tests.*"

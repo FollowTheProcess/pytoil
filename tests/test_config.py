@@ -60,51 +60,6 @@ async def test_from_file_raises_on_missing_file():
         await Config.load(path=Path("not/here.yml"))
 
 
-def test_from_dict():
-
-    config_dict = {
-        "projects_dir": "some/dir",
-        "token": "sometoken",
-        "username": "me",
-        "vscode": True,
-        "code_bin": "code",
-        "common_packages": ["black", "mypy", "flake8"],
-        "init_on_new": False,
-    }
-
-    config = Config.from_dict(config_dict)
-
-    assert config.projects_dir == Path("some/dir")
-    assert config.token == "sometoken"
-    assert config.username == "me"
-    assert config.vscode is True
-    assert config.code_bin == "code"
-    assert config.common_packages == ["black", "mypy", "flake8"]
-    assert config.init_on_new is False
-
-
-def test_from_dict_some_missing():
-    """
-    Tests that even if we pass a partial dict, the default values
-    will be used for the missing bits.
-    """
-
-    config_dict = {
-        "token": "sometoken",
-        "username": "me",
-        "common_packages": ["black", "mypy", "flake8"],
-    }
-
-    config = Config.from_dict(config_dict)
-
-    assert config.projects_dir == defaults.PROJECTS_DIR
-    assert config.token == "sometoken"
-    assert config.username == "me"
-    assert config.vscode is defaults.VSCODE
-    assert config.common_packages == ["black", "mypy", "flake8"]
-    assert config.init_on_new is defaults.INIT_ON_NEW
-
-
 @pytest.mark.parametrize(
     "username, token, expected",
     [
