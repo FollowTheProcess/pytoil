@@ -148,3 +148,69 @@ async def test_git_set_upstream_raises_if_git_not_installed(mocker: MockerFixtur
 
     with pytest.raises(GitNotInstalledError):
         await git.set_upstream(owner="me", repo="project", cwd=Path("here"))
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "silent, stdout, stderr",
+    [
+        (True, asyncio.subprocess.DEVNULL, asyncio.subprocess.DEVNULL),
+        (False, sys.stdout, sys.stderr),
+    ],
+)
+async def test_git_add_all(mocker: MockerFixture, silent: bool, stdout, stderr):
+    mock = mocker.patch("pytoil.git.git.asyncio.create_subprocess_exec", autospec=True)
+
+    git = Git(git="notgit")
+
+    await git.add(cwd=Path("somewhere"), silent=silent)
+
+    mock.assert_called_once_with(
+        "notgit", "add", "-A", cwd=Path("somewhere"), stdout=stdout, stderr=stderr
+    )
+
+
+@pytest.mark.asyncio
+async def test_git_add_raises_if_git_not_installed(mocker: MockerFixture):
+    mocker.patch("pytoil.git.git.asyncio.create_subprocess_exec", autospec=True)
+
+    git = Git(git=None)
+
+    with pytest.raises(GitNotInstalledError):
+        await git.add(cwd=Path("somewhere"))
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "silent, stdout, stderr",
+    [
+        (True, asyncio.subprocess.DEVNULL, asyncio.subprocess.DEVNULL),
+        (False, sys.stdout, sys.stderr),
+    ],
+)
+async def test_git_commit(mocker: MockerFixture, silent: bool, stdout, stderr):
+    mock = mocker.patch("pytoil.git.git.asyncio.create_subprocess_exec", autospec=True)
+
+    git = Git(git="notgit")
+
+    await git.commit(message="Commit message", cwd=Path("somewhere"), silent=silent)
+
+    mock.assert_called_once_with(
+        "notgit",
+        "commit",
+        "-m",
+        "Commit message",
+        cwd=Path("somewhere"),
+        stdout=stdout,
+        stderr=stderr,
+    )
+
+
+@pytest.mark.asyncio
+async def test_git_commit_raises_if_git_not_installed(mocker: MockerFixture):
+    mocker.patch("pytoil.git.git.asyncio.create_subprocess_exec", autospec=True)
+
+    git = Git(git=None)
+
+    with pytest.raises(GitNotInstalledError):
+        await git.commit(cwd=Path("somewhere"))
