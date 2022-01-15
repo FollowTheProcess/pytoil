@@ -201,12 +201,15 @@ async def new(  # noqa: C901
         msg.info(f"Creating {repo.name!r} from starter: {starter!r}.")
         rust_starter = RustStarter(path=config.projects_dir, name=repo.name)
 
-        # Cargo inits a git repo by default
-
         try:
             await rust_starter.generate()
         except CargoNotInstalledError:
             msg.fail("Error: Cargo not installed.", exits=1)
+        else:
+            if use_git:
+                await git.init(cwd=repo.local_path, silent=False)
+                await git.add(cwd=repo.local_path, silent=False)
+                await git.commit(cwd=repo.local_path, silent=False)
 
     else:
         # Just a blank new project

@@ -50,6 +50,8 @@ class RustStarter:
         proc = await asyncio.create_subprocess_exec(
             self.cargo,
             "init",
+            "--vcs",
+            "none",
             cwd=self.root,
             stdout=sys.stdout,
             stderr=sys.stderr,

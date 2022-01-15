@@ -43,6 +43,8 @@ async def test_rust_starter_generate(mocker: MockerFixture):
         mock_cargo_init.assert_called_once_with(
             "notcargo",
             "init",
+            "--vcs",
+            "none",
             cwd=starter.root,
             stdout=sys.stdout,
             stderr=sys.stderr,
