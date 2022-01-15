@@ -185,6 +185,8 @@ async def new(  # noqa: C901
         else:
             if use_git:
                 await git.init(cwd=repo.local_path, silent=False)
+                await git.add(cwd=repo.local_path, silent=False)
+                await git.commit(cwd=repo.local_path, silent=False)
 
     elif starter == "python":
         msg.info(f"Creating {repo.name!r} from starter: {starter!r}.")
@@ -192,6 +194,8 @@ async def new(  # noqa: C901
         await python_starter.generate()
         if use_git:
             await git.init(cwd=repo.local_path, silent=False)
+            await git.add(cwd=repo.local_path, silent=False)
+            await git.commit(cwd=repo.local_path, silent=False)
 
     elif starter == "rust":
         msg.info(f"Creating {repo.name!r} from starter: {starter!r}.")

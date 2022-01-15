@@ -75,6 +75,62 @@ class Git:
 
         await proc.wait()
 
+    async def add(self, cwd: Path, silent: bool = True) -> None:
+        """
+        Stages all files in cwd.
+
+        Args:
+            cwd (Path): The cwd to stage all child files in.
+            silent (bool, optional): Whether to hook the output up
+                to stdout and stderr (False) or to discard and keep silent (True).
+                Defaults to True.
+        """
+        if not self.git:
+            raise GitNotInstalledError
+
+        proc = await asyncio.create_subprocess_exec(
+            self.git,
+            "add",
+            "-A",
+            cwd=cwd,
+            stdout=asyncio.subprocess.DEVNULL if silent else sys.stdout,
+            stderr=asyncio.subprocess.DEVNULL if silent else sys.stderr,
+        )
+
+        await proc.wait()
+
+    async def commit(
+        self,
+        cwd: Path,
+        message: str = "Initial Commit (Automated at Project Creation)",
+        silent: bool = True,
+    ) -> None:
+        """
+        Commits the current state.
+
+        Args:
+            cwd (Path): cwd of the repo to commit.
+            message (str, optional): Optional commit message.
+                Defaults to "Initial Commit (Automated at Project Creation)"
+            silent (bool, optional): Whether to hook the output up
+                to stdout and stderr (False) or to discard and keep silent (True).
+                Defaults to True.
+        """
+        if not self.git:
+            raise GitNotInstalledError
+
+        proc = await asyncio.create_subprocess_exec(
+            self.git,
+            "commit",
+            "-m",
+            message,
+            cwd=cwd,
+            stdout=asyncio.subprocess.DEVNULL if silent else sys.stdout,
+            stderr=asyncio.subprocess.DEVNULL if silent else sys.stderr,
+        )
+
+        await proc.wait()
+
     async def set_upstream(
         self, owner: str, repo: str, cwd: Path, silent: bool = True
     ) -> None:
