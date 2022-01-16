@@ -8,11 +8,14 @@ Created: 21/12/2021
 
 from __future__ import annotations
 
+import asyncio
 from datetime import datetime
 from pathlib import Path
 
+import aiofiles.os
 import asyncclick as click
 import httpx
+import humanize
 from rich.console import Console
 from rich.table import Table, box
 from wasabi import msg
@@ -20,8 +23,6 @@ from wasabi import msg
 from pytoil.api import API
 from pytoil.cli import utils
 from pytoil.config import Config
-
-STR_TIME_FORMAT = r"%Y-%m-%d %H:%M:%S"
 
 
 @click.group()
@@ -48,7 +49,7 @@ async def show() -> None:
     "-l",
     "--limit",
     type=int,
-    default=20,
+    default=30,
     help="Maximum number of projects to list.",
     show_default=True,
 )
@@ -86,23 +87,25 @@ async def local(config: Config, count: bool, limit: int) -> None:
     click.secho("\nLocal Projects:", fg="cyan", bold=True)
     table = Table(box=box.SIMPLE)
     table.add_column("Name", style="bold white")
-    table.add_column("Size")
     table.add_column("Created")
     table.add_column("Modified")
 
     if count:
         click.echo(f"You have {len(local_projects)} local projects")
     else:
-        for project in sorted(local_projects, key=lambda x: str.casefold(x.name)):
+        stats = await asyncio.gather(
+            *[aiofiles.os.stat(project) for project in local_projects]
+        )
+
+        results = {project: stat for project, stat in zip(local_projects, stats)}
+
+        for path, result in sorted(
+            results.items(), key=lambda x: str.casefold(str(x[0]))
+        )[:limit]:
             table.add_row(
-                project.name,
-                f"{project.stat().st_size / 1000:.2f} MB",
-                datetime.utcfromtimestamp(project.stat().st_ctime).strftime(
-                    STR_TIME_FORMAT
-                ),
-                datetime.utcfromtimestamp(project.stat().st_mtime).strftime(
-                    STR_TIME_FORMAT
-                ),
+                path.name,
+                humanize.naturaltime(datetime.utcfromtimestamp(result.st_birthtime)),
+                humanize.naturaltime(datetime.utcfromtimestamp(result.st_mtime)),
             )
 
         console = Console()
