@@ -24,6 +24,8 @@ from pytoil.api import API
 from pytoil.cli import utils
 from pytoil.config import Config
 
+GITHUB_TIME_FORMAT = r"%Y-%m-%dT%H:%M:%SZ"
+
 
 @click.group()
 async def show() -> None:
@@ -89,9 +91,9 @@ async def local(config: Config, limit: int) -> None:
 
     results = {project: stat for project, stat in zip(local_projects, stats)}
 
-    click.secho("\nLocal Projects", fg="cyan", bold=True)
+    click.secho("Local Projects", fg="cyan", bold=True)
     click.secho(
-        f"Showing {min(limit, len(results))} out of {len(local_projects)} local"
+        f"\nShowing {min(limit, len(results))} out of {len(local_projects)} local"
         " projects",
         fg="bright_black",
         italic=True,
@@ -110,9 +112,16 @@ async def local(config: Config, limit: int) -> None:
 
 
 @show.command()
-@click.option("-c", "--count", is_flag=True, help="Display a count of remote projects.")
+@click.option(
+    "-l",
+    "--limit",
+    type=int,
+    default=30,
+    help="Maximum number of projects to list.",
+    show_default=True,
+)
 @click.pass_obj
-async def remote(config: Config, count: bool) -> None:
+async def remote(config: Config, limit: int) -> None:
     """
     Show your remote projects.
 
@@ -121,15 +130,15 @@ async def remote(config: Config, count: bool) -> None:
     These may include some you already have locally.
     Use 'show diff' to see the difference between local and remote.
 
-    The "--count/-c" flag can be used to show a count of remote projects.
+    The "-l/--limit" flag can be used to limit the number of repos
+    returned.
 
     Examples:
 
     $ pytoil show remote
 
-    $ pytoil show remote --count
+    $ pytoil show remote --limit 10
     """
-    # TODO: Make show remote look as nice as the new show local
     if not config.can_use_api():
         msg.warn(
             "You must set your GitHub username and personal access token to use API"
@@ -140,20 +149,41 @@ async def remote(config: Config, count: bool) -> None:
     api = API(username=config.username, token=config.token)
 
     try:
-        remotes_projects = await api.get_repo_names()
+        repos = await api.get_repos()
     except httpx.HTTPStatusError as err:
         utils.handle_http_status_error(err)
     else:
-        if not remotes_projects:
+        if not repos:
             msg.warn("You don't have any projects on GitHub yet.", exits=1)
+            return
 
-        click.secho("\nRemote Projects:\n", fg="cyan", bold=True)
+        table = Table(box=box.SIMPLE)
+        table.add_column("Name", style="bold white")
+        table.add_column("Size")
+        table.add_column("Created")
+        table.add_column("Modified")
 
-        if count:
-            click.echo(f"You have {len(remotes_projects)} remote projects.")
-        else:
-            for project in sorted(remotes_projects, key=str.casefold):
-                click.echo(f"- {project}")
+        click.secho("Remote Projects", fg="cyan", bold=True)
+        click.secho(
+            f"\nShowing {min(limit, len(repos))} out of {len(repos)} remote projects",
+            fg="bright_black",
+            italic=True,
+        )
+
+        for repo in repos[:limit]:
+            table.add_row(
+                repo["name"],
+                humanize.naturalsize(int(repo["diskUsage"]) * 1024),
+                humanize.naturaltime(
+                    datetime.strptime(repo["createdAt"], GITHUB_TIME_FORMAT)
+                ),
+                humanize.naturaltime(
+                    datetime.strptime(repo["updatedAt"], GITHUB_TIME_FORMAT)
+                ),
+            )
+
+        console = Console()
+        console.print(table)
 
 
 @show.command()

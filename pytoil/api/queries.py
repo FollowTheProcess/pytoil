@@ -55,3 +55,19 @@ query ($username: String!, $name: String!) {
   }
 }
 """
+
+GET_REPOS = """
+query ($username: String!, $limit: Int!) {
+  user(login: $username) {
+    repositories(first: $limit, ownerAffiliations: OWNER, orderBy: {field: NAME, direction: ASC}) {
+      nodes {
+        name,
+        description,
+        createdAt,
+        updatedAt,
+        diskUsage
+      }
+    }
+  }
+}
+"""

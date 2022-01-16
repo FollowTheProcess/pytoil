@@ -57,6 +57,34 @@ class API:
             "Accept": "application/vnd.github.v4+json",
         }
 
+    async def get_repos(self, limit: int = 50) -> list[dict[str, Any]] | None:
+        """
+        Gets some summary info for all the users repos.
+
+        Args:
+            limit (int, optional): Maximum number of repos to return.
+                Defaults to 50.
+
+        Returns:
+            list[dict[str, Any]]: The repos info.
+        """
+        async with httpx.AsyncClient(http2=True, headers=self.headers) as client:
+            r = await client.post(
+                self.url,
+                json={
+                    "query": queries.GET_REPOS,
+                    "variables": {"username": self.username, "limit": limit},
+                },
+            )
+            r.raise_for_status()
+
+        raw: dict[str, Any] = r.json()
+
+        if data := raw.get("data"):
+            return [node for node in data["user"]["repositories"]["nodes"]]
+
+        return None
+
     async def get_repo_names(self, limit: int = 50) -> set[str]:
         """
         Gets the names of all repos owned by the authenticated user.
