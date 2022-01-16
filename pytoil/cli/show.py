@@ -8,13 +8,20 @@ Created: 21/12/2021
 
 from __future__ import annotations
 
+from datetime import datetime
+from pathlib import Path
+
 import asyncclick as click
 import httpx
+from rich.console import Console
+from rich.table import Table, box
 from wasabi import msg
 
 from pytoil.api import API
 from pytoil.cli import utils
 from pytoil.config import Config
+
+STR_TIME_FORMAT = r"%Y-%m-%d %H:%M:%S"
 
 
 @click.group()
@@ -37,8 +44,16 @@ async def show() -> None:
 
 @show.command()
 @click.option("-c", "--count", is_flag=True, help="Display a count of local projects.")
+@click.option(
+    "-l",
+    "--limit",
+    type=int,
+    default=20,
+    help="Maximum number of projects to list.",
+    show_default=True,
+)
 @click.pass_obj
-async def local(config: Config, count: bool) -> None:
+async def local(config: Config, count: bool, limit: int) -> None:
     """
     Show your local projects.
 
@@ -48,14 +63,19 @@ async def local(config: Config, count: bool) -> None:
     If the "--count/-c" flag is used, you will simply be
     shown the count of local projects.
 
+    You can limit the number of projects shown with the
+    "--limit/-l" flag.
+
     Examples:
 
     $ pytoil show local
 
     $ pytoil show local --count
+
+    $ pytoil show local --limit 5
     """
-    local_projects: set[str] = {
-        f.name
+    local_projects: set[Path] = {
+        f
         for f in config.projects_dir.iterdir()
         if f.is_dir() and not f.name.startswith(".")
     }
@@ -63,13 +83,30 @@ async def local(config: Config, count: bool) -> None:
     if not local_projects:
         msg.warn("You don't have any local projects yet!", exits=1)
 
-    click.secho("\nLocal Projects:\n", fg="cyan", bold=True)
+    click.secho("\nLocal Projects:", fg="cyan", bold=True)
+    table = Table(box=box.SIMPLE)
+    table.add_column("Name", style="bold white")
+    table.add_column("Size")
+    table.add_column("Created")
+    table.add_column("Modified")
 
     if count:
         click.echo(f"You have {len(local_projects)} local projects")
     else:
-        for project in sorted(local_projects, key=str.casefold):
-            click.echo(f"- {project}")
+        for project in sorted(local_projects, key=lambda x: str.casefold(x.name)):
+            table.add_row(
+                project.name,
+                f"{project.stat().st_size / 1000:.2f} MB",
+                datetime.utcfromtimestamp(project.stat().st_ctime).strftime(
+                    STR_TIME_FORMAT
+                ),
+                datetime.utcfromtimestamp(project.stat().st_mtime).strftime(
+                    STR_TIME_FORMAT
+                ),
+            )
+
+        console = Console()
+        console.print(table)
 
 
 @show.command()
