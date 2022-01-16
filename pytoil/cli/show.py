@@ -90,7 +90,12 @@ async def local(config: Config, limit: int) -> None:
     results = {project: stat for project, stat in zip(local_projects, stats)}
 
     click.secho("\nLocal Projects", fg="cyan", bold=True)
-    click.secho(f"Total: {len(local_projects)}", fg="bright_black", italic=True)
+    click.secho(
+        f"Showing {min(limit, len(results))} out of {len(local_projects)} local"
+        " projects",
+        fg="bright_black",
+        italic=True,
+    )
     for path, result in sorted(results.items(), key=lambda x: str.casefold(str(x[0])))[
         :limit
     ]:
