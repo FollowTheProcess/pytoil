@@ -14,13 +14,14 @@ from datetime import datetime
 from typing import Any
 
 import httpx
+import humanize
 
 from pytoil import __version__
 from pytoil.api import queries
 
 URL = "https://api.github.com/graphql"
 
-STR_TIME_FORMAT = r"%Y-%m-%d %H:%M:%S"
+
 GITHUB_TIME_FORMAT = r"%Y-%m-%dT%H:%M:%SZ"
 
 
@@ -173,14 +174,15 @@ class API:
             r.raise_for_status()
 
     @staticmethod
-    def _normalize_datetime(dt: str) -> str:
+    def _humanize_datetime(dt: str) -> str:
         """
         Takes a string datetime of GITHUB_TIME_FORMAT
         and converts it to our STR_TIME_FORMAT.
         """
-        return datetime.strptime(dt, GITHUB_TIME_FORMAT).strftime(STR_TIME_FORMAT)
+        s: str = humanize.naturaltime(datetime.strptime(dt, GITHUB_TIME_FORMAT))
+        return s
 
-    async def get_repo_info(self, name: str) -> dict[str, Any]:
+    async def get_repo_info(self, name: str) -> dict[str, Any] | None:
         """
         Gets some descriptive info for the repo given by
         `name` under the current user.
@@ -206,17 +208,17 @@ class API:
         if data := raw.get("data"):
             if repo := data.get("repository"):
                 return {
-                    "name": repo["name"],
-                    "description": repo["description"],
-                    "created_at": self._normalize_datetime(repo["createdAt"]),
-                    "updated_at": self._normalize_datetime(repo["updatedAt"]),
-                    "size": repo["diskUsage"],
-                    "license": repo["licenseInfo"]["name"]
+                    "Name": repo["name"],
+                    "Description": repo["description"],
+                    "Created": self._humanize_datetime(repo["createdAt"]),
+                    "Updated": self._humanize_datetime(repo["updatedAt"]),
+                    "Size": humanize.naturalsize(
+                        int(repo["diskUsage"]) * 1024
+                    ),  # diskUsage is in kB
+                    "License": repo["licenseInfo"]["name"]
                     if repo.get("licenseInfo")
                     else None,
-                    "remote": True,
+                    "Remote": True,
                 }
-            else:
-                raise ValueError(f"Bad GraphQL: {raw}")
-        else:
-            raise ValueError(f"Bad GraphQL: {raw}")
+            return None
+        return None

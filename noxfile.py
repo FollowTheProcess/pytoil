@@ -82,6 +82,7 @@ SESSION_REQUIREMENTS: dict[str, list[str]] = {
         "pytest-httpx",
         "pytest-cov",
         "pytest-mock",
+        "freezegun",
         "coverage[toml]",
     ],
     "lint": [
