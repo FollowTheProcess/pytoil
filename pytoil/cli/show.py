@@ -91,7 +91,7 @@ async def local(config: Config, limit: int) -> None:
 
     click.secho("\nLocal Projects", fg="cyan", bold=True)
     click.secho(
-        f"Showing {min(limit, len(results))} out of {len(local_projects)} local"
+        f"\nShowing {min(limit, len(results))} out of {len(local_projects)} local"
         " projects",
         fg="bright_black",
         italic=True,
