@@ -44,7 +44,6 @@ async def show() -> None:
 
 
 @show.command()
-@click.option("-c", "--count", is_flag=True, help="Display a count of local projects.")
 @click.option(
     "-l",
     "--limit",
@@ -54,15 +53,12 @@ async def show() -> None:
     show_default=True,
 )
 @click.pass_obj
-async def local(config: Config, count: bool, limit: int) -> None:
+async def local(config: Config, limit: int) -> None:
     """
     Show your local projects.
 
     Show the projects you have locally in your configured
     projects directory.
-
-    If the "--count/-c" flag is used, you will simply be
-    shown the count of local projects.
 
     You can limit the number of projects shown with the
     "--limit/-l" flag.
@@ -70,8 +66,6 @@ async def local(config: Config, count: bool, limit: int) -> None:
     Examples:
 
     $ pytoil show local
-
-    $ pytoil show local --count
 
     $ pytoil show local --limit 5
     """
@@ -84,32 +78,30 @@ async def local(config: Config, count: bool, limit: int) -> None:
     if not local_projects:
         msg.warn("You don't have any local projects yet!", exits=1)
 
-    click.secho("\nLocal Projects:", fg="cyan", bold=True)
     table = Table(box=box.SIMPLE)
     table.add_column("Name", style="bold white")
     table.add_column("Created")
     table.add_column("Modified")
 
-    if count:
-        click.echo(f"You have {len(local_projects)} local projects")
-    else:
-        stats = await asyncio.gather(
-            *[aiofiles.os.stat(project) for project in local_projects]
+    stats = await asyncio.gather(
+        *[aiofiles.os.stat(project) for project in local_projects]
+    )
+
+    results = {project: stat for project, stat in zip(local_projects, stats)}
+
+    click.secho("\nLocal Projects", fg="cyan", bold=True)
+    click.secho(f"Total: {len(local_projects)}", fg="bright_black", italic=True)
+    for path, result in sorted(results.items(), key=lambda x: str.casefold(str(x[0])))[
+        :limit
+    ]:
+        table.add_row(
+            path.name,
+            humanize.naturaltime(datetime.utcfromtimestamp(result.st_birthtime)),
+            humanize.naturaltime(datetime.utcfromtimestamp(result.st_mtime)),
         )
 
-        results = {project: stat for project, stat in zip(local_projects, stats)}
-
-        for path, result in sorted(
-            results.items(), key=lambda x: str.casefold(str(x[0]))
-        )[:limit]:
-            table.add_row(
-                path.name,
-                humanize.naturaltime(datetime.utcfromtimestamp(result.st_birthtime)),
-                humanize.naturaltime(datetime.utcfromtimestamp(result.st_mtime)),
-            )
-
-        console = Console()
-        console.print(table)
+    console = Console()
+    console.print(table)
 
 
 @show.command()
@@ -132,6 +124,7 @@ async def remote(config: Config, count: bool) -> None:
 
     $ pytoil show remote --count
     """
+    # TODO: Make show remote look as nice as the new show local
     if not config.can_use_api():
         msg.warn(
             "You must set your GitHub username and personal access token to use API"
@@ -176,6 +169,7 @@ async def forks(config: Config, count: bool) -> None:
 
     $ pytoil show forks --count
     """
+    # TODO: Make show forks look as nice as new show local
     if not config.can_use_api():
         msg.warn(
             "You must set your GitHub username and personal access token to use API"
@@ -217,6 +211,7 @@ async def all_(config: Config, count: bool) -> None:
 
     $ pytoil show all --count
     """
+    # TODO: Make show all look as nice as new show local
     if not config.can_use_api():
         msg.warn(
             "You must set your GitHub username and personal access token to use API"
@@ -276,6 +271,7 @@ async def diff(config: Config, count: bool) -> None:
 
     $ pytoil show diff --count
     """
+    # TODO: Make show diff look as nice as new show
     if not config.can_use_api():
         msg.warn(
             "You must set your GitHub username and personal access token to use API"

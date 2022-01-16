@@ -41,13 +41,13 @@ from pytoil.vscode import VSCode
 @click.option(
     "-s",
     "--starter",
-    type=click.Choice(choices=["python", "go", "rust"], case_sensitive=True),
+    type=click.Choice(choices={"python", "go", "rust"}, case_sensitive=True),
     help="Use a language-specific starter template.",
 )
 @click.option(
     "-v",
     "--venv",
-    type=click.Choice(choices=["venv", "conda"], case_sensitive=True),
+    type=click.Choice(choices={"venv", "conda"}, case_sensitive=True),
     help="Which type of virtual environment to create.",
 )
 @click.option(
