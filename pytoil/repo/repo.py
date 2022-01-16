@@ -15,6 +15,7 @@ from typing import Any
 
 import aiofiles
 import aiofiles.os
+import humanize
 import tomlkit
 
 from pytoil.api import API
@@ -91,18 +92,17 @@ class Repo:
         Return local path information for the repo.
         """
         return {
-            "name": self.local_path.name,
-            "created_at": datetime.utcfromtimestamp(
-                self.local_path.stat().st_ctime
-            ).strftime(STR_TIME_FORMAT),
-            "updated_at": datetime.utcfromtimestamp(
-                self.local_path.stat().st_ctime
-            ).strftime(STR_TIME_FORMAT),
-            "size": self.local_path.stat().st_size,
-            "local": True,
+            "Name": self.local_path.name,
+            "Created": humanize.naturaltime(
+                datetime.utcfromtimestamp(self.local_path.stat().st_birthtime)
+            ),
+            "Updated": humanize.naturaltime(
+                datetime.utcfromtimestamp(self.local_path.stat().st_mtime)
+            ),
+            "Local": True,
         }
 
-    async def _remote_info(self, api: API) -> dict[str, Any]:
+    async def _remote_info(self, api: API) -> dict[str, Any] | None:
         """
         Return remote API information for the repo.
         """
@@ -127,15 +127,22 @@ class Repo:
             Dict[str, Any]: Repository information.
         """
         info: dict[str, Any] = {}
+        exists_remote, remote_info, exists_local, local_info = await asyncio.gather(
+            self.exists_remote(api=api),
+            self._remote_info(api=api),
+            self.exists_local(),
+            self._local_info(),
+        )
 
-        if await self.exists_remote(api=api):
-            info.update(await self._remote_info(api=api))
+        if exists_remote:
+            if remote_info:
+                info.update(remote_info)
             # Might also exist locally
-            info.update({"local": await self.exists_local()})
-        elif await self.exists_local():
-            info.update(await self._local_info())
+            info.update({"Local": exists_local})
+        elif exists_local:
+            info.update(local_info)
             # We know it doesn't exist on GitHub if we got here
-            info.update({"remote": False})
+            info.update({"Remote": False})
         else:
             raise RepoNotFoundError(
                 f"Repo: {self.name!r} does not exist locally or on GitHub."

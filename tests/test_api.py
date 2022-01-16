@@ -1,4 +1,5 @@
 import pytest
+from freezegun import freeze_time
 from pytest_httpx import HTTPXMock
 
 from pytoil import __version__
@@ -83,6 +84,7 @@ async def test_check_repo_exists_returns_true_if_exists(
     assert exists is True
 
 
+@freeze_time("2022-01-16")
 @pytest.mark.asyncio
 async def test_get_repo_info_good_response(
     httpx_mock: HTTPXMock, fake_repo_info_response
@@ -94,16 +96,17 @@ async def test_get_repo_info_good_response(
     info = await api.get_repo_info(name="pytoil")
 
     assert info == {
-        "name": "pytoil",
-        "description": "CLI to automate the development workflow :robot:",
-        "created_at": "2021-02-04 15:05:23",
-        "updated_at": "2021-12-27 13:31:53",
-        "size": 3153,
-        "license": "Apache License 2.0",
-        "remote": True,
+        "Name": "pytoil",
+        "Description": "CLI to automate the development workflow :robot:",
+        "Created": "11 months ago",
+        "Updated": "19 days ago",
+        "Size": "3.2 MB",
+        "License": "Apache License 2.0",
+        "Remote": True,
     }
 
 
+@freeze_time("2022-01-16")
 @pytest.mark.asyncio
 async def test_get_repo_info_no_license(
     httpx_mock: HTTPXMock, fake_repo_info_response_no_license
@@ -117,13 +120,13 @@ async def test_get_repo_info_no_license(
     info = await api.get_repo_info(name="pytoil")
 
     assert info == {
-        "name": "pytoil",
-        "description": "CLI to automate the development workflow :robot:",
-        "created_at": "2021-02-04 15:05:23",
-        "updated_at": "2021-12-27 13:31:53",
-        "size": 3153,
-        "license": None,
-        "remote": True,
+        "Name": "pytoil",
+        "Description": "CLI to automate the development workflow :robot:",
+        "Created": "11 months ago",
+        "Updated": "19 days ago",
+        "Size": "3.2 MB",
+        "License": None,
+        "Remote": True,
     }
 
 
