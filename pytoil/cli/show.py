@@ -239,7 +239,7 @@ async def forks(config: Config, limit: int) -> None:
 
         click.secho("Forked Projects", fg="cyan", bold=True)
         click.secho(
-            f"\nShowing {min(limit, len(forks))} out of {len(forks)} remote projects",
+            f"\nShowing {min(limit, len(forks))} out of {len(forks)} forked projects",
             fg="bright_black",
             italic=True,
         )
