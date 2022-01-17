@@ -78,6 +78,19 @@ async def get(config: Config, key: str) -> None:
 
 
 @config.command()
+@click.pass_obj
+async def edit(config: Config) -> None:
+    """
+    Open pytoil's config file in $EDITOR.
+
+    Examples:
+
+    $ pytoil config edit
+    """
+    click.edit(filename=defaults.CONFIG_FILE)
+
+
+@config.command()
 async def explain() -> None:
     """
     Print a list and description of pytoil config values.
