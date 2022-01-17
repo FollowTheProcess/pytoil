@@ -71,3 +71,21 @@ query ($username: String!, $limit: Int!) {
   }
 }
 """
+
+GET_FORKS = """
+query ($username: String!, $limit: Int!) {
+  user(login: $username) {
+    repositories(first: $limit, ownerAffiliations: OWNER, isFork: true, orderBy: {field: NAME, direction: ASC}) {
+      nodes {
+        name
+        diskUsage
+        createdAt
+        updatedAt
+        parent {
+          nameWithOwner
+        }
+      }
+    }
+  }
+}
+"""
