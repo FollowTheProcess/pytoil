@@ -187,24 +187,31 @@ async def remote(config: Config, limit: int) -> None:
 
 
 @show.command()
-@click.option("-c", "--count", is_flag=True, help="Display a count of forked projects.")
+@click.option(
+    "-l",
+    "--limit",
+    type=int,
+    default=30,
+    help="Maximum number of projects to list.",
+    show_default=True,
+)
 @click.pass_obj
-async def forks(config: Config, count: bool) -> None:
+async def forks(config: Config, limit: int) -> None:
     """
     Show your forked projects.
 
     Show the projects you own on GitHub that are forks
     of other projects.
 
-    The "--count/-c" flag can be used to show a count of forks.
+    The "-l/--limit" flag can be used to limit the number of
+    repos returned.
 
     Examples:
 
     $ pytoil show forks
 
-    $ pytoil show forks --count
+    $ pytoil show forks --limit 10
     """
-    # TODO: Make show forks look as nice as new show local
     if not config.can_use_api():
         msg.warn(
             "You must set your GitHub username and personal access token to use API"
@@ -215,20 +222,43 @@ async def forks(config: Config, count: bool) -> None:
     api = API(username=config.username, token=config.token)
 
     try:
-        forks = await api.get_fork_names()
+        forks = await api.get_forks()
     except httpx.HTTPStatusError as err:
         utils.handle_http_status_error(err)
     else:
         if not forks:
             msg.warn("You don't have any forks yet.", exits=1)
+            return
 
-        click.secho("\nForks:\n", fg="cyan", bold=True)
+        table = Table(box=box.SIMPLE)
+        table.add_column("Name", style="bold white")
+        table.add_column("Size")
+        table.add_column("Forked")
+        table.add_column("Modified")
+        table.add_column("Parent")
 
-        if count:
-            click.echo(f"You have {len(forks)} forks.")
-        else:
-            for fork in sorted(forks, key=str.casefold):
-                click.echo(f"- {fork}")
+        click.secho("Forked Projects", fg="cyan", bold=True)
+        click.secho(
+            f"\nShowing {min(limit, len(forks))} out of {len(forks)} remote projects",
+            fg="bright_black",
+            italic=True,
+        )
+
+        for repo in forks[:limit]:
+            table.add_row(
+                repo["name"],
+                humanize.naturalsize(int(repo["diskUsage"]) * 1024),
+                humanize.naturaltime(
+                    datetime.strptime(repo["createdAt"], GITHUB_TIME_FORMAT)
+                ),
+                humanize.naturaltime(
+                    datetime.strptime(repo["updatedAt"], GITHUB_TIME_FORMAT)
+                ),
+                repo["parent"]["nameWithOwner"],
+            )
+
+        console = Console()
+        console.print(table)
 
 
 @show.command(name="all")

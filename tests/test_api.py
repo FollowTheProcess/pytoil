@@ -207,3 +207,29 @@ async def test_get_repos(httpx_mock: HTTPXMock, fake_get_repos_response):
             "diskUsage": 10753,
         },
     ]
+
+
+@pytest.mark.asyncio
+async def test_get_forks(httpx_mock: HTTPXMock, fake_get_forks_response):
+    api = API(username="me", token="definitelynotatoken")
+
+    httpx_mock.add_response(url=api.url, json=fake_get_forks_response, status_code=200)
+
+    data = await api.get_forks()
+
+    assert data == [
+        {
+            "name": "nox",
+            "diskUsage": 5125,
+            "createdAt": "2021-07-01T11:43:36Z",
+            "updatedAt": "2022-01-08T11:00:44Z",
+            "parent": {"nameWithOwner": "theacodes/nox"},
+        },
+        {
+            "name": "python-launcher",
+            "diskUsage": 824,
+            "createdAt": "2021-10-25T18:33:11Z",
+            "updatedAt": "2021-11-09T07:47:23Z",
+            "parent": {"nameWithOwner": "brettcannon/python-launcher"},
+        },
+    ]

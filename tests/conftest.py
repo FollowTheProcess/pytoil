@@ -110,6 +110,38 @@ def fake_get_repos_response():
 
 
 @pytest_asyncio.fixture
+def fake_get_forks_response():
+    """
+    Response snippet for the get_forks GraphQL
+    query.
+    """
+    return {
+        "data": {
+            "user": {
+                "repositories": {
+                    "nodes": [
+                        {
+                            "name": "nox",
+                            "diskUsage": 5125,
+                            "createdAt": "2021-07-01T11:43:36Z",
+                            "updatedAt": "2022-01-08T11:00:44Z",
+                            "parent": {"nameWithOwner": "theacodes/nox"},
+                        },
+                        {
+                            "name": "python-launcher",
+                            "diskUsage": 824,
+                            "createdAt": "2021-10-25T18:33:11Z",
+                            "updatedAt": "2021-11-09T07:47:23Z",
+                            "parent": {"nameWithOwner": "brettcannon/python-launcher"},
+                        },
+                    ]
+                }
+            }
+        }
+    }
+
+
+@pytest_asyncio.fixture
 def fake_get_fork_names_response():
     """
     Response snippet for the get_fork_names
