@@ -87,20 +87,23 @@ class Repo:
         """
         return await api.check_repo_exists(self.name)
 
-    async def _local_info(self) -> dict[str, Any]:
+    async def _local_info(self) -> dict[str, Any] | None:
         """
         Return local path information for the repo.
         """
-        return {
-            "Name": self.local_path.name,
-            "Created": humanize.naturaltime(
-                datetime.utcfromtimestamp(self.local_path.stat().st_birthtime)
-            ),
-            "Updated": humanize.naturaltime(
-                datetime.utcfromtimestamp(self.local_path.stat().st_mtime)
-            ),
-            "Local": True,
-        }
+        try:
+            return {
+                "Name": self.local_path.name,
+                "Created": humanize.naturaltime(
+                    datetime.utcfromtimestamp(self.local_path.stat().st_birthtime)
+                ),
+                "Updated": humanize.naturaltime(
+                    datetime.utcfromtimestamp(self.local_path.stat().st_mtime)
+                ),
+                "Local": True,
+            }
+        except FileNotFoundError:
+            return None
 
     async def _remote_info(self, api: API) -> dict[str, Any] | None:
         """
@@ -140,7 +143,8 @@ class Repo:
             # Might also exist locally
             info.update({"Local": exists_local})
         elif exists_local:
-            info.update(local_info)
+            if local_info:
+                info.update(local_info)
             # We know it doesn't exist on GitHub if we got here
             info.update({"Remote": False})
         else:
