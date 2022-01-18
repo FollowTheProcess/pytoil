@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "pytoil"
-version = "0.19.0"
+version = "0.20.0"
 description = "CLI to automate the development workflow."
 authors = ["Tom Fleet <tomfleet2018@gmail.com>"]
 maintainers = ["Tom Fleet <tomfleet2018@gmail.com>"]
@@ -48,7 +48,7 @@ PyYAML = "6.0"
 wasabi = "0.9.0"
 rich = "11.0.0"
 tomlkit = "0.8.0"
-thefuzz = { extras = ["speedup"], version = "0.19.0" }
+thefuzz = { extras = ["speedup"], version = "0.20.0" }
 cookiecutter = "1.7.3"
 virtualenv = "20.13.0"
 pydantic = "1.9.0"
