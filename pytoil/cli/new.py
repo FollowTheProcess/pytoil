@@ -235,13 +235,15 @@ async def new(  # noqa: C901
         )
         conda_env = Conda(root=repo.local_path, environment_name=repo.name)
         try:
-            with msg.loading("Working..."):
-                await conda_env.create(packages=to_install)
+            await conda_env.create(packages=to_install)
         except EnvironmentAlreadyExistsError:
             msg.fail(
                 f"Conda environment: {conda_env.environment_name!r} already exists",
                 exits=1,
             )
+        else:
+            # Export the environment.yml
+            await conda_env.export_yml()
 
     # Now handle opening in VSCode
     if config.vscode:

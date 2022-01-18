@@ -6,7 +6,6 @@ import pytest
 from pytest_mock import MockerFixture
 
 from pytoil.environments import Venv
-from pytoil.exceptions import MissingInterpreterError
 
 
 def test_virtualenv():
@@ -160,74 +159,3 @@ async def test_install_self_creates_venv_if_not_one_already(
         stdout=stdout,
         stderr=stderr,
     )
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "silent, stdout, stderr",
-    [
-        (True, asyncio.subprocess.DEVNULL, asyncio.subprocess.DEVNULL),
-        (False, sys.stdout, sys.stderr),
-    ],
-)
-async def test_update_seeds_calls_pip_correctly(
-    mocker: MockerFixture, silent: bool, stdout, stderr
-):
-    mock = mocker.patch(
-        "pytoil.environments.virtualenv.asyncio.create_subprocess_exec",
-        autospec=True,
-    )
-
-    # Make it think there is a venv
-    mocker.patch(
-        "pytoil.environments.virtualenv.Venv.exists",
-        autospec=True,
-        return_value=True,
-    )
-
-    venv = Venv(root=Path("somewhere"))
-
-    await venv.update_seeds(silent=silent)
-
-    mock.assert_called_once_with(
-        f"{venv.executable}",
-        "-m",
-        "pip",
-        "install",
-        "--upgrade",
-        "pip",
-        "setuptools",
-        "wheel",
-        cwd=venv.project_path,
-        stdout=stdout,
-        stderr=stderr,
-    )
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "silent, stdout, stderr",
-    [
-        (True, asyncio.subprocess.DEVNULL, asyncio.subprocess.DEVNULL),
-        (False, sys.stdout, sys.stderr),
-    ],
-)
-async def test_update_seeds_raises_missing_interpreter_error(
-    mocker: MockerFixture, silent: bool, stdout, stderr
-):
-    mocker.patch(
-        "pytoil.environments.virtualenv.asyncio.create_subprocess_exec",
-        autospec=True,
-    )
-
-    # Make it think there isn't a venv
-    mocker.patch(
-        "pytoil.environments.virtualenv.Venv.exists",
-        autospec=True,
-        return_value=False,
-    )
-
-    venv = Venv(root=Path("somewhere"))
-
-    with pytest.raises(MissingInterpreterError):
-        await venv.update_seeds(silent=silent)
