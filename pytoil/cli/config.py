@@ -41,7 +41,7 @@ async def show(config: Config) -> None:
 
     $ pytoil config show
     """
-    click.secho("\nPytoil Config:\n", fg="cyan", bold=True)
+    click.secho("Config:", fg="cyan", bold=True)
 
     table = Table(box=box.SIMPLE)
     table.add_column("Key", style="cyan", justify="right")

@@ -120,38 +120,6 @@ class API:
         else:
             raise ValueError(f"Bad GraphQL: {raw}")
 
-    async def get_fork_names(self, limit: int = 50) -> set[str]:
-        """
-        Gets the names of all repos owned by the authenticated user,
-        that are forks of other repos.
-
-        Args:
-            limit (int, optional): Maximum number of repos to return.
-                Defaults to 50.
-
-        Raises:
-            ValueError: If the GraphQL query is malformed.
-
-        Returns:
-            Set[str]: The names of the user's forked repos.
-        """
-        async with httpx.AsyncClient(http2=True, headers=self.headers) as client:
-            r = await client.post(
-                self.url,
-                json={
-                    "query": queries.GET_FORK_NAMES,
-                    "variables": {"username": self.username, "limit": limit},
-                },
-            )
-            r.raise_for_status()
-
-        raw: dict[str, Any] = r.json()
-
-        if data := raw.get("data"):
-            return {node["name"] for node in data["user"]["repositories"]["nodes"]}
-        else:
-            raise ValueError(f"Bad GraphQL: {raw}")
-
     async def get_forks(self, limit: int = 50) -> list[dict[str, Any]] | None:
         """
         Gets info for all users forks.

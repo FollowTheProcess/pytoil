@@ -11,6 +11,7 @@ from __future__ import annotations
 import asyncclick as click
 from rich.console import Console
 from rich.table import Table, box
+from rich.text import Text
 from thefuzz import process
 from wasabi import msg
 
@@ -23,15 +24,15 @@ FUZZY_SCORE_CUTOFF = 75
 @click.command()
 @click.argument("project", nargs=1)
 @click.option(
-    "-r",
-    "--results",
+    "-l",
+    "--limit",
     type=int,
     default=3,
     help="Limit results to maximum number.",
     show_default=True,
 )
 @click.pass_obj
-async def find(config: Config, project: str, results: int) -> None:
+async def find(config: Config, project: str, limit: int) -> None:
     """
     Quickly locate a project.
 
@@ -44,7 +45,7 @@ async def find(config: Config, project: str, results: int) -> None:
     Useful if you have a lot of projects and you can't quite remember
     what the one you want is called!
 
-    The "-r/--results" flag can be used to alter the number of returned
+    The "-l/--limit" flag can be used to alter the number of returned
     search results, but bare in mind that matches with sufficient match score
     are returned anyway so the results flag only limits the maximum number
     of results shown.
@@ -53,7 +54,7 @@ async def find(config: Config, project: str, results: int) -> None:
 
     $ pytoil find my
 
-    $ pytoil find proj --results 5
+    $ pytoil find proj --limit 5
     """
     if not config.can_use_api():
         msg.warn(
@@ -74,13 +75,13 @@ async def find(config: Config, project: str, results: int) -> None:
     all_projects = local_projects.union(remote_projects)
 
     matches: list[tuple[str, int]] = process.extractBests(
-        project, all_projects, limit=results, score_cutoff=FUZZY_SCORE_CUTOFF
+        project, all_projects, limit=limit, score_cutoff=FUZZY_SCORE_CUTOFF
     )
 
     table = Table(box=box.SIMPLE)
-    table.add_column("Project", style="cyan", justify="center")
-    table.add_column("Similarity", style="white", justify="center")
-    table.add_column("Where", justify="center")
+    table.add_column("Project", style="bold white")
+    table.add_column("Similarity")
+    table.add_column("Where")
 
     if len(matches) == 0:
         msg.warn("No matches found!", exits=1)
@@ -90,8 +91,9 @@ async def find(config: Config, project: str, results: int) -> None:
         table.add_row(
             match[0],
             str(match[1]),
-            "Local" if is_local else "Remote",
-            style="green" if is_local else "dark_orange",
+            Text("Local", style="green")
+            if is_local
+            else Text("Remote", style="dark_orange"),
         )
 
     console = Console()

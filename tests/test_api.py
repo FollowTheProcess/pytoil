@@ -38,23 +38,6 @@ async def test_get_repo_names(httpx_mock: HTTPXMock, fake_get_repo_names_respons
 
 
 @pytest.mark.asyncio
-async def test_get_fork_names(httpx_mock: HTTPXMock, fake_get_fork_names_response):
-    api = API(username="me", token="definitelynotatoken")
-
-    httpx_mock.add_response(
-        url=api.url, json=fake_get_fork_names_response, status_code=200
-    )
-
-    names = await api.get_fork_names()
-
-    assert names == {
-        "afork",
-        "aspoon",
-        "anotherfork",
-    }
-
-
-@pytest.mark.asyncio
 async def test_check_repo_exists_returns_false_if_not_exists(
     httpx_mock: HTTPXMock, fake_repo_exists_false_response
 ):

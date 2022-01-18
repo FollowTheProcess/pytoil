@@ -58,7 +58,7 @@ async def info(config: Config, project: str) -> None:
     except RepoNotFoundError:
         msg.warn(f"{project!r} not found locally or on GitHub. Was it a typo?", exits=1)
     else:
-        click.secho(f"\nInfo for {project}:", fg="cyan", bold=True)
+        click.secho(f"Info for {project}:", fg="cyan", bold=True)
 
         table = Table(box=box.SIMPLE)
         table.add_column("Key", style="cyan", justify="right")

@@ -142,27 +142,6 @@ def fake_get_forks_response():
 
 
 @pytest_asyncio.fixture
-def fake_get_fork_names_response():
-    """
-    Response snippet for the get_fork_names
-    graphQL query.
-    """
-    return {
-        "data": {
-            "user": {
-                "repositories": {
-                    "nodes": [
-                        {"name": "afork"},
-                        {"name": "aspoon"},
-                        {"name": "anotherfork"},
-                    ]
-                }
-            }
-        }
-    }
-
-
-@pytest_asyncio.fixture
 def fake_repo_exists_false_response():
     """
     Response snippet for the check_repo_exists GraphQL
