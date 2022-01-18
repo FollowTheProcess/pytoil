@@ -51,6 +51,7 @@ Options:
   -f, --force  Force pull without confirmation.
   -a, --all    Pull down all your projects.
   --help       Show this message and exit.
+
 ```
 
 </div>
@@ -86,9 +87,9 @@ etc...
 ```console
 $ pytoil pull --all
 
-// This person has a LOT of repos
-
 # This will clone 1375 repos. Are you sure you wish to proceed? [y/N]:$ n
+
+// Lol... nope!
 
 Aborted!
 ```

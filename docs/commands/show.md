@@ -34,13 +34,13 @@ Usage: pytoil show [OPTIONS] COMMAND [ARGS]...
 
   The remote projects listed here will be those owned by you on GitHub.
 
-  The "--count/-c" flag can be used if you just want to see a count.
+  The "--limit/-l" flag can be used if you only want to see a certain number
+  of results.
 
 Options:
   --help  Show this message and exit.
 
 Commands:
-  all     Show all your projects, grouped by local and remote.
   diff    Show the difference in local/remote projects.
   forks   Show your forked projects.
   local   Show your local projects.
@@ -53,36 +53,6 @@ Commands:
 
     Remember, each subcommand has its own help you can check out too. e.g. `pytoil show local --help` :thumbsup:
 
-## All
-
-`all` will show you... well *all* of your projects, separated by whether they are local (already available on your computer) or remote (on your GitHub, may or may not also be local).
-
-<div class="termy">
-
-```console
-$ pytoil show all
-
-Local Projects:
-
-- Local1
-- Local2
-- Local3
-- Cloned1
-- Cloned2
-
-Remote Projects:
-
-- Cloned1
-- Cloned2
-- Remote1
-```
-
-</div>
-
-!!! note
-
-    In this snippet, the user has already cloned `Cloned1` and `Cloned2` so they show up in both sections. If you want to only show remote projects that you don't have locally, you need the `diff` command. Keep scrolling :point_down:
-
 ## Local
 
 `local` shows all the projects you already have in your configured projects directory (see [config] for how to set this!). If you don't have any local projects yet, pytoil will let you know.
@@ -91,14 +61,15 @@ Remote Projects:
 
 ```console
 $ pytoil show local
+Local Projects
 
-Local Projects:
+Showing 3 out of 3 local projects
 
-- Local1
-- Local2
-- Local3
-- Cloned1
-- Cloned2
+  Name              Created          Modified
+ ───────────────────────────────────────────────────
+  project 1         13 days ago      9 days ago
+  project 2         a day ago        a minute ago
+  project 3         a month ago      a month ago
 ```
 
 </div>
@@ -111,12 +82,18 @@ Local Projects:
 
 ```console
 $ pytoil show remote
+Remote Projects
 
-Remote Projects:
+Showing 5 out of 31 remote projects
 
-- Cloned1
-- Cloned2
-- Remote1
+  Name                  Size       Created                Modified
+ ───────────────────────────────────────────────────────────────────────
+  advent_of_code_2020   46.1 kB    12 days ago            9 days ago
+  advent_of_code_2021   154.6 kB   a month ago            29 days ago
+  aircraft_crashes      2.1 MB     1 year, 15 days ago    11 months ago
+  cookie_pypackage      753.7 kB   1 year, 6 months ago   a month ago
+  cv                    148.5 kB   2 months ago           7 days ago
+
 ```
 
 </div>
@@ -131,11 +108,18 @@ Remote Projects:
 
 ```console
 $ pytoil show diff
-
 Diff: Remote - Local
 
-- Remote1
-- etc...
+Showing 5 out of 26 projects
+
+  Name                  Size       Created                Modified
+ ─────────────────────────────────────────────────────────────────────────────
+  advent_of_code_2021   154.6 kB   a month ago            29 days ago
+  aircraft_crashes      2.1 MB     1 year, 15 days ago    11 months ago
+  cookie_pypackage      753.7 kB   1 year, 6 months ago   a month ago
+  cv                    148.5 kB   2 months ago           7 days ago
+  eu_energy_analysis    1.9 MB     1 year, 1 month ago    1 year, 25 days ago
+
 ```
 
 </div>
@@ -148,33 +132,14 @@ You can also see all your forked repos and whether or not they are available loc
 
 ```console
 $ pytoil show forks
+Forked Projects
 
-Forked Projects:
+Showing 2 out of 2 forked projects
 
-cool_project: Forked from 'someoneelse/cool_project' Local
-other: Forked from 'other/other' Local
-```
-
-</div>
-
-## Count
-
-Every `show` subcommand has a `--count/-c` flag which, if used, will simply show you a count of the projects in that category.
-
-For example:
-
-<div class="termy">
-
-```console
-$ pytoil show all --count
-
-Local Projects:
-
-You have 6 local projects. 27.27% of total.
-
-Remote Projects:
-
-You have 16 remote projects. 72.73% of total.
+  Name              Size       Forked         Modified       Parent
+ ────────────────────────────────────────────────────────────────────────────────────────
+  nox               5.2 MB     6 months ago   10 days ago    theacodes/nox
+  python-launcher   843.8 kB   2 months ago   2 months ago   brettcannon/python-launcher
 
 ```
 

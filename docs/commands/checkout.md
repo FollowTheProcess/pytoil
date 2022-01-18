@@ -124,7 +124,8 @@ Basically all the chores you would have to do to work on a open source project! 
 // Someone else's project
 $ pytoil checkout someone/their_github_project
 
-Project: 'someone/their_github_project' belongs to 'someone'
+'someone/their_github_project' belongs to 'someone'
+This will fork 'someone/their_github_project' to your GitHub. Are you sure? [y/N]: y
 
 Forking...
 
