@@ -39,7 +39,7 @@ Until one day I saw that the file I kept these functions in was over 1000 lines 
 
 And because I'd basically hacked it all together, it was **very** fragile. If a part of a function failed, it would just carry on and wreak havoc! I'd have to do `rm -rf all_my_projects`... I mean careful forensic investigation to fix it.
 
-So I decided to make a robust CLI with the proper error handling and testability of python, and here it is! :tada:
+So I decided to make a robust CLI with the proper error handling and testability of python, and here it is! 🎉
 
 ## Installation
 
@@ -80,6 +80,8 @@ pytoil will install everything it needs *in python* to work. However, it's full 
 * [git]
 * [conda] (if you work with conda environments)
 * [VSCode] (if you want to use pytoil to automatically open your projects for you)
+* [poetry] (if you want to create poetry environments)
+* [flit] (if you want to create flit environments)
 
 ## Quickstart
 
@@ -109,19 +111,16 @@ After you've set your config, you're good to go! You can do things like:
 <div class="termy">
 
 ```console
-$ pytoil show all
+$ pytoil show local
+Local Projects
 
-Local Projects:
+Showing 3 out of 3 local projects
 
-- Project1
-- Project2
-- Project3
-
-Remote Projects:
-
-- Remote1
-- Remote2
-- etc..
+  Name              Created          Modified
+ ───────────────────────────────────────────────────
+  project 1         13 days ago      9 days ago
+  project 2         a day ago        a minute ago
+  project 3         a month ago      a month ago
 ```
 
 </div>
@@ -132,11 +131,15 @@ Remote Projects:
 
 ```console
 $ pytoil show diff
+Diff: Remote - Local
 
-Diff: Remote - Local:
+Showing 3 out of 3 projects
 
-- Projectyoudonthave1
-- Projectyoudonthave2
+  Name             Size       Created                Modified
+ ─────────────────────────────────────────────────────────────────────────
+  remote 1         154.6 kB   a month ago            29 days ago
+  remote 2         2.1 MB     1 year, 15 days ago    11 months ago
+  remote 3         753.7 kB   1 year, 6 months ago   a month ago
 ```
 
 </div>
@@ -147,8 +150,6 @@ Diff: Remote - Local:
 
 ```console
 $ pytoil checkout myproject
-
-Resuming 'myproject'...
 
 // Will now either open that project if local
 // or clone it, then open it if not
@@ -252,4 +253,6 @@ Opening pytoil's documentation in your browser...
 [VSCode]: https://code.visualstudio.com
 [config]: config.md
 [pipx]: https://pipxproject.github.io/pipx/
-[cookiecutter]: https://cookiecutter.readthedocs.io/en/1.7.2/
+[cookiecutter]: https://github.com/cookiecutter/cookiecutter
+[poetry]: https://python-poetry.org
+[flit]: https://flit.readthedocs.io

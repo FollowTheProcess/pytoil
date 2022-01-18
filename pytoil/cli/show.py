@@ -42,7 +42,8 @@ async def show() -> None:
 
     The remote projects listed here will be those owned by you on GitHub.
 
-    The "--count/-c" flag can be used if you just want to see a count.
+    The "--limit/-l" flag can be used if you only want to see a certain number
+    of results.
     """
 
 

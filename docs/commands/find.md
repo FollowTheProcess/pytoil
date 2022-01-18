@@ -22,7 +22,7 @@ Usage: pytoil find [OPTIONS] PROJECT
   Useful if you have a lot of projects and you can't quite remember what the
   one you want is called!
 
-  The "-r/--results" flag can be used to alter the number of returned search
+  The "-l/--limit" flag can be used to alter the number of returned search
   results, but bare in mind that matches with sufficient match score are
   returned anyway so the results flag only limits the maximum number of
   results shown.
@@ -31,11 +31,11 @@ Usage: pytoil find [OPTIONS] PROJECT
 
   $ pytoil find my
 
-  $ pytoil find proj --results 5
+  $ pytoil find proj --limit 5
 
 Options:
-  -r, --results INTEGER  Limit results to maximum number.  [default: 3]
-  --help                 Show this message and exit.
+  -l, --limit INTEGER  Limit results to maximum number.  [default: 3]
+  --help               Show this message and exit.
 ```
 
 </div>
@@ -48,10 +48,12 @@ Options:
 // I swear it was called python... something
 $ pytoil find python
 
-      Project       Similarity   Where
+
+  Project           Similarity   Where
  ───────────────────────────────────────
-  python-launcher       90       Remote
-        py              90       Local
+  py                90           Remote
+  python-launcher   90           Remote
+
 ```
 
 </div>
