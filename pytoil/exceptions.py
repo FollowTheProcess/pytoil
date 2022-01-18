@@ -153,13 +153,3 @@ class PoetryNotInstalledError(ExternalToolNotInstalledException):
     def __init__(self) -> None:
         self.message = "Poetry not found on $PATH. Is it installed?"
         super().__init__(self.message)
-
-
-class MissingInterpreterError(PytoilException):
-    """
-    A virtualenvs python is not present.
-    """
-
-    def __init__(self, message: str) -> None:
-        self.message = message
-        super().__init__(self.message)

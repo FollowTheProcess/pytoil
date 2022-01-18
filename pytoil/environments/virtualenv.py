@@ -18,8 +18,6 @@ from typing import Sequence
 import aiofiles.os
 import virtualenv
 
-from pytoil.exceptions import MissingInterpreterError
-
 
 class Venv:
     root: Path
@@ -84,37 +82,6 @@ class Venv:
         # Install any specified packages
         if packages:
             await self.install(packages=packages, silent=silent)
-
-    async def update_seeds(self, silent: bool = False) -> None:
-        """
-        Venv will install so-called "seed" packages to a new environment:
-        `pip`, `setuptools` and `wheel`.
-
-        It is good practice to keep these packages up to date, which this
-        method does by invoking `pip` from the virtualenvs executable.
-
-        This is equivalent to running:
-        `python -m pip install --upgrade pip setuptools wheel`
-        from the command line with the virtualenv activated.
-        """
-        if not await self.exists():
-            raise MissingInterpreterError(f"Interpreter: {self.executable} not found.")
-
-        proc = await asyncio.create_subprocess_exec(
-            f"{self.executable}",
-            "-m",
-            "pip",
-            "install",
-            "--upgrade",
-            "pip",
-            "setuptools",
-            "wheel",
-            cwd=self.project_path,
-            stdout=asyncio.subprocess.DEVNULL if silent else sys.stdout,
-            stderr=asyncio.subprocess.DEVNULL if silent else sys.stderr,
-        )
-
-        await proc.wait()
 
     async def install(self, packages: Sequence[str], silent: bool = False) -> None:
         """
