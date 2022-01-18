@@ -13,6 +13,7 @@ import re
 
 import asyncclick as click
 import httpx
+import questionary
 from wasabi import msg
 
 from pytoil.api import API
@@ -156,9 +157,14 @@ async def checkout_fork(
     the user along the way.
     """
     msg.info(f"'{owner}/{name}' belongs to {owner!r}")
-    click.confirm(
-        f"This will fork '{owner}/{name}' to your GitHub. Are you sure?", abort=True
-    )
+    confirmed: bool = await questionary.confirm(
+        f"This will fork '{owner}/{name}' to your GitHub. Are you sure?",
+        default=False,
+        auto_enter=False,
+    ).ask_async()
+
+    if not confirmed:
+        raise click.Abort()
 
     # Check if we've already forked it, in which case the repo will already
     # exist under the user's namespace

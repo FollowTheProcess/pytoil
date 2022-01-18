@@ -53,6 +53,7 @@ cookiecutter = "1.7.3"
 virtualenv = "20.13.0"
 pydantic = "1.9.0"
 humanize = "3.13.1"
+questionary = "1.10.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "6.2.5"
