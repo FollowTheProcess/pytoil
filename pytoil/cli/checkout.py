@@ -234,7 +234,7 @@ async def handle_venv_creation(
         msg.warn("Unable to auto-detect required environment. Skipping.")
 
     else:
-        msg.info(f"Auto creating virtual environment using: {env.name!r}")
+        msg.info(f"Auto creating virtual environment using: {env.name}")
         if env.name == "conda":
             msg.text("Note: Conda environments can take a few minutes to create.")
 
