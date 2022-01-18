@@ -1,6 +1,6 @@
 # New
 
-`new` will make you a new project locally. You have the option to create a new virtual environment with it and to create the project from a [cookiecutter] template :cookie:
+`new` will make you a new project locally. You have the option to create a new virtual environment with it and to create the project from a [cookiecutter] template 🍪
 
 ## Help
 
@@ -22,9 +22,9 @@ Usage: pytoil new [OPTIONS] PROJECT [PACKAGES]...
   If you just want a very simple, language-specific starting template, use the
   '--starter/-s' option.
 
-  By default, pytoil will initialise an empty git repo in the folder,
-  following the style of modern language build tools such as rust's cargo. You
-  can disable this behaviour by setting 'init_on_new' to false in pytoil's
+  By default, pytoil will initialise a local git repo in the folder and commit
+  it, following the style of modern language build tools such as rust's cargo.
+  You can disable this behaviour by setting 'init_on_new' to false in pytoil's
   config file or by passing the '--no-git/-n' flag here.
 
   If you want pytoil to create a new virtual environment for your project, you
@@ -54,8 +54,7 @@ Usage: pytoil new [OPTIONS] PROJECT [PACKAGES]...
 
   $ pytoil new my_project --venv conda
 
-  $ pytoil new my_project -c https://github.com/some/cookie.git -v conda --no-
-  git
+  $ pytoil new my_project -c https://github.com/some/cookie.git -v conda --no-git
 
   $ pytoil new my_project -v venv requests "flask>=1.0.0"
 
@@ -66,8 +65,9 @@ Options:
                                   build the project.
   -s, --starter [python|go|rust]  Use a language-specific starter template.
   -v, --venv [venv|conda]         Which type of virtual environment to create.
-  -n, --no-git                    Don't initialise a new git repo.
+  -n, --no-git                    Don't do any git stuff.
   --help                          Show this message and exit.
+
 ```
 
 </div>
@@ -91,7 +91,7 @@ Creating new project: 'my_new_project'
 
 ### New Git Repo
 
-By default, pytoil will also create an empty git repository in this folder for you. You can disable this behaviour by changing the value for `init_on_new` in your config file, or on a per use basis by using the `--no-git` flag.
+By default, pytoil will also create a local git repository in this folder for you. You can disable this behaviour by changing the value for `init_on_new` in your config file, or on a per use basis by using the `--no-git` flag.
 
 You will need `git` installed to be able to use this feature.
 

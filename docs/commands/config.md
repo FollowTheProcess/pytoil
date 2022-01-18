@@ -20,6 +20,7 @@ Options:
   --help  Show this message and exit.
 
 Commands:
+  edit     Open pytoil's config file in $EDITOR.
   explain  Print a list and description of pytoil config values.
   get      Get the currently set value for a config key.
   show     Show pytoil's config.
@@ -37,7 +38,6 @@ Commands:
 $ pytoil config get vscode
 
 vscode: True
-
 ```
 
 </div>
@@ -51,15 +51,29 @@ vscode: True
 ```console
 $ pytoil config show
 
-Pytoil Config:
+               Key   Value
+ ─────────────────────────────────────────────────────────────
+     projects_dir:   /Users/tomfleet/Development
+            token:   jsbsljas72j2kx0ub
+         username:   FollowTheProcess
+           vscode:   True
+         code_bin:   code
+  common_packages:   ['black', 'mypy', 'isort', 'flake8']
+      init_on_new:   True
+```
 
-projects_dir: '/Users/you/Development'
-token: 'ljnbasbasbisyvo8'
-username: 'FollowTheProcess'
-vscode: True
-common_packages: ['black', 'mypy', 'isort', 'flake8']
-init_on_new: True
+</div>
 
+## Edit
+
+`edit` simply opens up the pytoil config file in your $EDITOR so you can make any changes you like!
+
+<div class="termy">
+
+```console
+$pytoil config edit
+
+Opening ~/.pytoil.yml in your $EDITOR
 ```
 
 </div>

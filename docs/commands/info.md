@@ -8,16 +8,19 @@ Another easy one! `info` simply shows you some summary information about whateve
 // Let's get some info about pytoil
 $ pytoil info pytoil
 
-Info for: pytoil
+Info for pytoil:
 
-name: pytoil
-description: CLI to automate the development workflow.
-created_at: 2021-02-04T15:05:23Z
-updated_at: 2021-03-02T11:09:08Z
-size: 219
-license: Apache License 2.0
-remote: True
-local: True
+           Key   Value
+ ────────────────────────────────────────────────────────────
+         Name:   pytoil
+  Description:   CLI to automate the development workflow 🤖
+      Created:   11 months ago
+      Updated:   7 days ago
+         Size:   6.4 MB
+      License:   Apache License 2.0
+       Remote:   True
+        Local:   True
+
 ```
 
 </div>
@@ -32,14 +35,16 @@ pytoil will always prefer this way of doing it as we can get things like license
 // Some project that's not on GitHub yet
 $ pytoil info my_local_project
 
-Info for: my_local_project
+Info for testy:
 
-name: my_local_project
-created_at: 2021-02-27 12:37:18
-updated_at: 2021-02-27 12:48:18
-size: 256
-local: True
-remote: False
+       Key   Value
+ ───────────────────────────
+     Name:   testy
+  Created:   23 seconds ago
+  Updated:   23 seconds ago
+    Local:   True
+   Remote:   False
+
 ```
 
 </div>

@@ -63,11 +63,9 @@ $ pytoil remove my_project my_other_project this_one_too
 
 # This will remove my_project, my_other_project, this_one_too from your local filesystem. Are you sure? [y/N]:$ y
 
-Removing project: 'my_project'.
-Removing project: 'my_other_project'.
-Removing project: 'this_one_too'
-
-Done!
+Removed: 'my_project'.
+Removed: 'my_other_project'.
+Removed: 'this_one_too'
 ```
 
 </div>
@@ -97,11 +95,9 @@ $ pytoil remove --all
 
 # This will remove ALL your projects. Are you okay? [y/N]:$ y
 
-Removing project: 'remove1'.
-Removing project: 'remove2'.
-Removing project: 'remove3'.
-
-Done!
+Removed: 'remove1'.
+Removed: 'remove2'.
+Removed: 'remove3'.
 ```
 
 </div>
@@ -120,11 +116,9 @@ If you're really sure what you're doing, you can get around the confirmation pro
 ```console
 $ pytoil remove project1 project2 --force
 
-Removing project: 'remove1'.
-Removing project: 'remove2'.
-Removing project: 'remove3'.
-
-Done!
+Removed: 'remove1'.
+Removed: 'remove2'.
+Removed: 'remove3'.
 ```
 
 </div>
