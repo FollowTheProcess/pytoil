@@ -13,6 +13,7 @@ import functools
 import shutil
 
 import asyncclick as click
+import questionary
 from wasabi import msg
 
 from pytoil.config import Config
@@ -85,23 +86,32 @@ async def remove(
 
     if not force:
         if all_:
-            click.confirm(
-                "This will delete ALL of your projects. Are you sure?", abort=True
+            question = questionary.confirm(
+                "This will delete ALL of your projects. Are you sure?",
+                default=False,
+                auto_enter=False,
             )
         elif len(projects) <= 3:
             # Nice number to show the names
-            click.confirm(
+            question = questionary.confirm(
                 f"This will delete {', '.join(projects)} from your local filesystem."
                 " Are you sure?",
-                abort=True,
+                default=False,
+                auto_enter=False,
             )
         else:
             # Too many to print the names nicely
-            click.confirm(
+            question = questionary.confirm(
                 f"This will delete {len(projects)} projects from your local filesystem."
                 " Are you sure?",
-                abort=True,
+                default=False,
+                auto_enter=False,
             )
+
+        confirmed: bool = await question.ask_async()
+
+        if not confirmed:
+            raise click.Abort()
 
     # If we get here, user has used --force or said yes when prompted
     # Go async!

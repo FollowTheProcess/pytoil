@@ -12,6 +12,7 @@ import asyncio
 
 import asyncclick as click
 import httpx
+import questionary
 from wasabi import msg
 
 from pytoil.api import API
@@ -114,15 +115,17 @@ async def pull(
 
         if not force:
             if len(diff) <= 3:
-                click.confirm(
-                    f"This will pull down {', '.join(diff)}. Are you sure?", abort=True
-                )
+                message = f"This will pull down {', '.join(diff)}. Are you sure?"
             else:
                 # Too many to show nicely
-                click.confirm(
-                    f"This will pull down {len(diff)} projects. Are you sure?",
-                    abort=True,
-                )
+                message = f"This will pull down {len(diff)} projects. Are you sure?"
+
+            confirmed: bool = await questionary.confirm(
+                message, default=False, auto_enter=False
+            ).ask_async()
+
+            if not confirmed:
+                raise click.Abort()
 
         # Now we're good to go
         to_clone = [
