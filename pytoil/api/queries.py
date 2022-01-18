@@ -20,18 +20,6 @@ query ($username: String!, $limit: Int!) {
 }
 """
 
-GET_FORK_NAMES = """
-query ($username: String!, $limit: Int!) {
-  user(login: $username) {
-    repositories(first: $limit, ownerAffiliations: OWNER, isFork: true, orderBy: {field: NAME, direction: ASC}) {
-      nodes {
-        name
-      }
-    }
-  }
-}
-"""
-
 CHECK_REPO_EXISTS = """
 query ($username: String!, $name: String!) {
   repository(owner: $username, name: $name) {

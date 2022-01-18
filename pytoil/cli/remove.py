@@ -22,7 +22,11 @@ from pytoil.config import Config
 @click.argument("projects", nargs=-1)
 @click.option("-f", "--force", is_flag=True, help="Force delete without confirmation.")
 @click.option(
-    "-a", "--all", "all_", is_flag=True, help="Delete all of your local projects."
+    "-a",
+    "--all",
+    "all_",
+    is_flag=True,
+    help="Delete all of your local projects.",
 )
 @click.pass_obj
 async def remove(
@@ -102,11 +106,9 @@ async def remove(
     # If we get here, user has used --force or said yes when prompted
     # Go async!
     await asyncio.gather(*[remove_and_report(config, project) for project in to_delete])
-    msg.good("Done!")
 
 
 async def remove_and_report(config: Config, project: str) -> None:
-    click.secho(f"Removing project: {project!r}.", fg="yellow")
     loop = asyncio.get_event_loop()
     await loop.run_in_executor(
         executor=None,
@@ -116,3 +118,4 @@ async def remove_and_report(config: Config, project: str) -> None:
             ignore_errors=True,
         ),
     )
+    msg.good(f"Deleted {project}")

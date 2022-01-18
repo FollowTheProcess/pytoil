@@ -37,7 +37,10 @@ PROJECT_REGEX = re.compile(r"^([A-Za-z0-9_.-])+$")
 @click.command()
 @click.argument("project", nargs=1)
 @click.option(
-    "-v", "--venv", is_flag=True, help="Attempt to auto-create a virtual environment."
+    "-v",
+    "--venv",
+    is_flag=True,
+    help="Attempt to auto-create a virtual environment.",
 )
 @click.pass_obj
 async def checkout(config: Config, project: str, venv: bool) -> None:

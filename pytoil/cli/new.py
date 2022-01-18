@@ -55,7 +55,7 @@ from pytoil.vscode import VSCode
     "--no-git",
     is_flag=True,
     default=False,
-    help="Don't initialise a new git repo.",
+    help="Don't do any git stuff.",
 )
 @click.pass_obj
 async def new(  # noqa: C901
@@ -79,8 +79,8 @@ async def new(  # noqa: C901
     If you just want a very simple, language-specific starting template, use the
     '--starter/-s' option.
 
-    By default, pytoil will initialise an empty git repo in the folder, following
-    the style of modern language build tools such as rust's cargo. You can disable
+    By default, pytoil will initialise a local git repo in the folder and commit it,
+    following the style of modern language build tools such as rust's cargo. You can disable
     this behaviour by setting 'init_on_new' to false in pytoil's config file
     or by passing the '--no-git/-n' flag here.
 

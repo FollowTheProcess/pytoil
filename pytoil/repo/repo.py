@@ -22,8 +22,6 @@ from pytoil.api import API
 from pytoil.environments import Conda, Environment, Flit, Poetry, Requirements, Venv
 from pytoil.exceptions import RepoNotFoundError
 
-STR_TIME_FORMAT = r"%Y-%m-%d %H:%M:%S"
-
 
 class Repo:
     def __init__(self, owner: str, name: str, local_path: Path) -> None:
