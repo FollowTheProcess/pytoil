@@ -11,7 +11,7 @@ import os
 from pathlib import Path
 
 # Default path for pytoil's config file
-CONFIG_FILE: Path = Path.home().joinpath(".pytoil.yml").resolve()
+CONFIG_FILE: Path = Path.home().joinpath(".pytoil.toml").resolve()
 
 # Valid pytoil config keys
 CONFIG_KEYS: set[str] = {
@@ -38,7 +38,7 @@ GIT: bool = True
 # Config Schema
 CONFIG_SCHEMA = """
 
-# The .pytoil.yml config file
+# The .pytoil.toml config file
 
 ## projects_dir *(str)*
 

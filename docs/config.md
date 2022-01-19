@@ -54,7 +54,7 @@ Making you a default one...
 
 </div>
 
-pytoil will then will write a default config state to a file: `~/.pytoil.yml`.
+pytoil will then will write a default config state to a file: `~/.pytoil.toml`.
 
 !!! note
 
@@ -62,15 +62,17 @@ pytoil will then will write a default config state to a file: `~/.pytoil.yml`.
 
 When you open the default config state you just wrote, it will look like this:
 
-```yaml
-# ~/.pytoil.yml
+```toml
+# ~/.pytoil.toml
 
-projects_dir: /Users/you/Development
-token: This is your GitHub personal access token
-username: This is your GitHub username
-code_bin: code
-vscode: false
-git: true
+[pytoil]
+code_bin = "code"
+common_packages = []
+git = true
+projects_dir = "/Users/you/Development"
+token = "Your GitHub personal access token"
+username = "Your GitHub username"
+vscode = false
 ```
 
 !!! warning
@@ -81,20 +83,18 @@ You should now edit the config file to your liking. Your username and token are 
 
 So as an example, your filled out config file might look like this:
 
-```yaml
-# ~/.pytoil.yml
+```toml
+# ~/.pytoil.toml
 
-projects_dir: /Users/me/Projects
-token: jbs822qbs982whbd97g # I've made this up
-username: FollowTheProcess
-vscode: true
-code_bin: code
-common_packages:
-  - black
-  - flake8
-  - mypy>=0.790
-  - isort
-git: true
+[pytoil]
+code_bin = "code"
+common_packages = ["black", "mypy", "isort", "flake8"]
+git = true
+projects_dir = "/Users/you/Development"
+token = "asljas98ghefiub29e8b" # I've made this up
+username = "FollowTheProcess"
+vscode = true
+
 ```
 
 !!! tip

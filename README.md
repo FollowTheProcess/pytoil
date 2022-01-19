@@ -80,7 +80,7 @@ No config file yet!
 Making you a default one...
 ```
 
-This will create a default config file which can be found at `~/.pytoil.yml`.
+This will create a default config file which can be found at `~/.pytoil.toml`.
 
 Don't worry though, there's only a few options to configure! :sleeping:
 

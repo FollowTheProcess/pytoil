@@ -57,7 +57,7 @@ def test_config_helper():
 async def test_from_file_raises_on_missing_file():
 
     with pytest.raises(FileNotFoundError):
-        await Config.load(path=Path("not/here.yml"))
+        await Config.load(path=Path("not/here.toml"))
 
 
 @pytest.mark.parametrize(

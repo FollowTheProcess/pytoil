@@ -100,7 +100,7 @@ Making you a default one...
 
 </div>
 
-This will create a default config file which can be found at `~/.pytoil.yml`. See [config] for what information you need to put in here.
+This will create a default config file which can be found at `~/.pytoil.toml`. See [config] for what information you need to put in here.
 
 Don't worry though, there's only a few options to configure! :sleeping:
 

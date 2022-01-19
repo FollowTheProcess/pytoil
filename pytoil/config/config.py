@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import TypedDict
 
 import aiofiles
-import yaml
+import tomlkit
 from pydantic import BaseModel
 
 from pytoil.config import defaults
@@ -24,7 +24,7 @@ class ConfigDict(TypedDict):
 
     Exactly the same as the dataclass except projects_dir
     is a str here because that's how it will be brought in
-    when deserialising the yaml file.
+    when deserialising the toml file.
     """
 
     projects_dir: str
@@ -48,7 +48,7 @@ class Config(BaseModel):
     @classmethod
     async def load(cls, path: Path = defaults.CONFIG_FILE) -> Config:
         """
-        Reads in the .pytoil.yml config file and returns
+        Reads in the ~/.pytoil.toml config file and returns
         a populated `Config` object.
 
         Args:
@@ -64,7 +64,7 @@ class Config(BaseModel):
         try:
             async with aiofiles.open(path, mode="r", encoding="utf-8") as f:
                 content = await f.read()
-                config_dict: ConfigDict = yaml.full_load(content)
+                config_dict: ConfigDict = tomlkit.parse(content).get("pytoil")
         except FileNotFoundError:
             raise
         else:
@@ -116,7 +116,7 @@ class Config(BaseModel):
                 Defaults to defaults.CONFIG_FILE.
         """
         async with aiofiles.open(path, mode="w", encoding="utf-8") as f:
-            content = yaml.dump(self.to_dict())
+            content = tomlkit.dumps({"pytoil": self.to_dict()}, sort_keys=True)
             await f.write(content)
 
     def can_use_api(self) -> bool:
