@@ -81,7 +81,7 @@ async def new(  # noqa: C901
 
     By default, pytoil will initialise a local git repo in the folder and commit it,
     following the style of modern language build tools such as rust's cargo. You can disable
-    this behaviour by setting 'init_on_new' to false in pytoil's config file
+    this behaviour by setting 'git' to false in pytoil's config file
     or by passing the '--no-git/-n' flag here.
 
     If you want pytoil to create a new virtual environment for your project, you
@@ -149,7 +149,7 @@ async def new(  # noqa: C901
 
     # Resolve config vs flag for no-git
     # flag takes priority over config
-    use_git: bool = config.init_on_new and not no_git
+    use_git: bool = config.git and not no_git
 
     # Does this project already exist?
     # Mightaswell check concurrently

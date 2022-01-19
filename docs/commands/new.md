@@ -24,7 +24,7 @@ Usage: pytoil new [OPTIONS] PROJECT [PACKAGES]...
 
   By default, pytoil will initialise a local git repo in the folder and commit
   it, following the style of modern language build tools such as rust's cargo.
-  You can disable this behaviour by setting 'init_on_new' to false in pytoil's
+  You can disable this behaviour by setting 'git' to false in pytoil's
   config file or by passing the '--no-git/-n' flag here.
 
   If you want pytoil to create a new virtual environment for your project, you
@@ -91,7 +91,7 @@ Creating new project: 'my_new_project'
 
 ### New Git Repo
 
-By default, pytoil will also create a local git repository in this folder for you. You can disable this behaviour by changing the value for `init_on_new` in your config file, or on a per use basis by using the `--no-git` flag.
+By default, pytoil will also create a local git repository in this folder for you. You can disable this behaviour by changing the value for `git` in your config file, or on a per use basis by using the `--no-git` flag.
 
 You will need `git` installed to be able to use this feature.
 

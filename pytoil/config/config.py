@@ -33,7 +33,7 @@ class ConfigDict(TypedDict):
     vscode: bool
     code_bin: str
     common_packages: list[str]
-    init_on_new: bool
+    git: bool
 
 
 class Config(BaseModel):
@@ -43,7 +43,7 @@ class Config(BaseModel):
     vscode: bool = defaults.VSCODE
     code_bin: str = defaults.CODE_BIN
     common_packages: list[str] = defaults.COMMON_PACKAGES
-    init_on_new: bool = defaults.INIT_ON_NEW
+    git: bool = defaults.GIT
 
     @classmethod
     async def load(cls, path: Path = defaults.CONFIG_FILE) -> Config:
@@ -103,7 +103,7 @@ class Config(BaseModel):
             "vscode": self.vscode,
             "code_bin": self.code_bin,
             "common_packages": self.common_packages,
-            "init_on_new": self.init_on_new,
+            "git": self.git,
         }
 
     async def write(self, path: Path = defaults.CONFIG_FILE) -> None:
