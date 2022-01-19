@@ -8,7 +8,10 @@ Created: 21/12/2021
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import asyncclick as click
+import questionary
 from wasabi import msg
 
 from pytoil import __version__
@@ -17,7 +20,7 @@ from pytoil.config import Config, defaults
 
 
 @click.group(
-    commands=[
+    commands=(
         checkout.checkout,
         config.config,
         docs.docs,
@@ -28,9 +31,9 @@ from pytoil.config import Config, defaults
         pull.pull,
         remove.remove,
         show.show,
-    ]
+    )
 )
-@click.version_option(version=__version__)
+@click.version_option(version=__version__, package_name="pytoil", prog_name="pytoil")
 @click.pass_context
 async def main(ctx: click.Context) -> None:
     """
@@ -50,11 +53,76 @@ async def main(ctx: click.Context) -> None:
         config = await Config.load()
     except FileNotFoundError:
         msg.warn("No pytoil config file detected!")
-        await Config.helper().write()
-        msg.good(
-            f"I made one for you, its here: {defaults.CONFIG_FILE}",
-            spaced=True,
-            exits=0,
+        interactive: bool = await questionary.confirm(
+            "Interactively configure pytoil?", default=False, auto_enter=False
+        ).ask_async()
+
+        if not interactive:
+            # User doesn't want to interactively walk through a config file
+            # so just make a default and exit cleanly
+            await Config.helper().write()
+            msg.good(
+                title="I made a default file for you",
+                text=f"It's here: {defaults.CONFIG_FILE}",
+                spaced=True,
+            )
+            msg.text("Tip: You can edit it with `pytoil config edit`.", exits=0)
+            return
+
+        # If we get here, the user wants to interactively make the config
+        projects_dir: str = await questionary.path(
+            "Where do you keep your projects?",
+            default=str(defaults.PROJECTS_DIR),
+            only_directories=True,
+        ).ask_async()
+
+        token: str = await questionary.text("GitHub personal access token?").ask_async()
+
+        username: str = await questionary.text(
+            "What's your GitHub username?"
+        ).ask_async()
+
+        vscode: bool = await questionary.confirm(
+            "Do you use VSCode?",
+            default=False,
+            auto_enter=False,
+        ).ask_async()
+
+        code_bin = defaults.CODE_BIN
+
+        if vscode:
+
+            which_vscode: str = await questionary.select(
+                "Which version of VSCode do you use?",
+                choices=["stable", "insiders"],
+                default="stable",
+            ).ask_async()
+
+            code_bin = (
+                "code-insiders" if which_vscode == "insiders" else defaults.CODE_BIN
+            )
+
+        git_on_new: bool = await questionary.confirm(
+            "Make git repos when creating new projects?", default=True, auto_enter=False
+        ).ask_async()
+
+        config = Config(
+            projects_dir=Path(projects_dir),
+            token=token,
+            username=username,
+            vscode=vscode,
+            code_bin=code_bin,
+            init_on_new=git_on_new,
         )
+
+        await config.write()
+
+        msg.good(
+            "Config created", text=f"It's available at {defaults.CONFIG_FILE}.", exits=0
+        )
+        return
+
     else:
+        # We have a valid config file at the right place so load it into click's
+        # context and pass it down to all subcommands
         ctx.obj = config
