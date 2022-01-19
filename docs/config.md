@@ -19,7 +19,7 @@ There are also some *optional* configurations you can tweak:
 |     `vscode`      |                           Whether you want pytoil to open things in VSCode                            |        False        |
 |     `code_bin`    |                           The name of the VSCode binary (code or code-insiders)                       |        `code`       |
 | `common_packages` | List of packages you want pytoil to inject in every environment it creates (linters, formatters etc.) |       `None`        |
-|   `init_on_new`   |        Whether you want pytoil to initialise an empty git repo when it makes a fresh project          |        True         |
+|   `git`           |        Whether you want pytoil to initialise and commit a git repo when it makes a fresh project      |        True         |
 
 These optional settings don't have to be set if you're happy using the default settings!
 
@@ -70,7 +70,7 @@ token: This is your GitHub personal access token
 username: This is your GitHub username
 code_bin: code
 vscode: false
-init_on_new: true
+git: true
 ```
 
 !!! warning
@@ -94,7 +94,7 @@ common_packages:
   - flake8
   - mypy>=0.790
   - isort
-init_on_new: true
+git: true
 ```
 
 !!! tip

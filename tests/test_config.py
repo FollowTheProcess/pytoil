@@ -16,7 +16,7 @@ def test_config_init_defaults():
     assert config.vscode == defaults.VSCODE
     assert config.code_bin == defaults.CODE_BIN
     assert config.common_packages == defaults.COMMON_PACKAGES
-    assert config.init_on_new == defaults.INIT_ON_NEW
+    assert config.git == defaults.GIT
 
 
 def test_config_init_passed():
@@ -28,7 +28,7 @@ def test_config_init_passed():
         vscode=True,
         code_bin="code-insiders",
         common_packages=["black", "mypy", "flake8"],
-        init_on_new=False,
+        git=False,
     )
 
     assert config.projects_dir == Path("some/dir")
@@ -37,7 +37,7 @@ def test_config_init_passed():
     assert config.vscode is True
     assert config.code_bin == "code-insiders"
     assert config.common_packages == ["black", "mypy", "flake8"]
-    assert config.init_on_new is False
+    assert config.git is False
 
 
 def test_config_helper():
@@ -50,7 +50,7 @@ def test_config_helper():
     assert config.vscode == defaults.VSCODE
     assert config.code_bin == defaults.CODE_BIN
     assert config.common_packages == defaults.COMMON_PACKAGES
-    assert config.init_on_new == defaults.INIT_ON_NEW
+    assert config.git == defaults.GIT
 
 
 @pytest.mark.asyncio
@@ -93,7 +93,7 @@ async def test_file_write():
             username="me",
             vscode=True,
             common_packages=["black", "mypy", "flake8"],
-            init_on_new=False,
+            git=False,
         )
 
         # Write the config

@@ -59,7 +59,7 @@ $ pytoil config show
            vscode:   True
          code_bin:   code
   common_packages:   ['black', 'mypy', 'isort', 'flake8']
-      init_on_new:   True
+              git:   True
 ```
 
 </div>
@@ -122,7 +122,7 @@ $ pytoil config explain
     A list of python package names to inject into every virtual environment pytoil creates
     (e.g. linters, formatters and other dev dependencies).
 
-- init_on_new (bool)
+- git (bool)
 
     Whether or not you want pytoil to create an empty git repo when you make a new project with
     'pytoil new'. This can also be disabled on a per use basis using the '--no-git' flag.

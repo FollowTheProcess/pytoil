@@ -102,7 +102,7 @@ async def main(ctx: click.Context) -> None:
                 "code-insiders" if which_vscode == "insiders" else defaults.CODE_BIN
             )
 
-        git_on_new: bool = await questionary.confirm(
+        git: bool = await questionary.confirm(
             "Make git repos when creating new projects?", default=True, auto_enter=False
         ).ask_async()
 
@@ -112,7 +112,7 @@ async def main(ctx: click.Context) -> None:
             username=username,
             vscode=vscode,
             code_bin=code_bin,
-            init_on_new=git_on_new,
+            git=git,
         )
 
         await config.write()
