@@ -73,7 +73,7 @@ $ pytoil config show
 ```console
 $pytoil config edit
 
-Opening ~/.pytoil.yml in your $EDITOR
+Opening ~/.pytoil.toml in your $EDITOR
 ```
 
 </div>
