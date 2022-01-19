@@ -20,7 +20,7 @@ CONFIG_KEYS: set[str] = {
     "username",
     "vscode",
     "common_packages",
-    "init_on_new",
+    "git",
 }
 
 # Pytoil docs URL
@@ -33,7 +33,7 @@ USERNAME: str = ""
 VSCODE: bool = False
 CODE_BIN: str = "code"
 COMMON_PACKAGES: list[str] = []
-INIT_ON_NEW: bool = True
+GIT: bool = True
 
 # Config Schema
 CONFIG_SCHEMA = """
@@ -75,7 +75,7 @@ A list of python packages to inject into every virtual environment pytoil create
 Any versioning syntax (e.g. mypy>=0.902) will work as expected here as these packages
 are passed straight through to installation tools like pip and conda.
 
-## init_on_new *(bool)*
+## git *(bool)*
 
 Whether or not you want pytoil to create an empty git repo when you make a new project with
 'pytoil new'. This can also be disabled on a per use basis using the '--no-git' flag.
