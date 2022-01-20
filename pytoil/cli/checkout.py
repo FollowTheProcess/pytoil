@@ -126,29 +126,25 @@ async def checkout(config: Config, project: str, venv: bool) -> None:
         msg.good("Done!")
 
     elif bool(PROJECT_REGEX.match(project)):
-        # TODO: We should check for local first so local checkouts
-        # don't incur an API hit
-        # User has passed a single project
-        local, remote = await asyncio.gather(
-            repo.exists_local(), repo.exists_remote(api)
-        )
 
-        if local:
+        if await repo.exists_local():
             await checkout_local(repo=repo, code=code, config=config, venv=venv)
-        elif remote:
+        elif await repo.exists_remote(api):
             await checkout_remote(
                 repo=repo, code=code, config=config, venv=venv, git=git
             )
         else:
-            # Unrecognised regex
-            msg.fail(
-                f"Argument: {project} did not match valid pattern.",
-                text=(
-                    "Valid pattern is 'project' for a local or remote project you own,"
-                    " or 'user/project' to fork a repo you don't own."
-                ),
-                exits=1,
-            )
+            msg.fail(f"Project: {project!r} not found locally or on GitHub.", exits=1)
+    else:
+        # Unrecognised regex
+        msg.fail(
+            f"Argument: {project} did not match valid pattern.",
+            text=(
+                "Valid pattern is 'project' for a local or remote project you own,"
+                " or 'user/project' to fork a repo you don't own."
+            ),
+            exits=1,
+        )
 
 
 async def checkout_fork(
