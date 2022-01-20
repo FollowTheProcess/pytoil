@@ -17,7 +17,7 @@ class PytoilException(Exception):
         super().__init__(self.message)
 
 
-class ExternalToolNotInstalledException(PytoilException):
+class ExternalToolNotInstalledError(PytoilException):
     """
     Base exception for any child exception responsible
     for raising in the presence of a required external
@@ -29,7 +29,7 @@ class ExternalToolNotInstalledException(PytoilException):
         super().__init__(self.message)
 
 
-class GitNotInstalledError(ExternalToolNotInstalledException):
+class GitNotInstalledError(ExternalToolNotInstalledError):
     """
     Raise when calling something that needs the user
     to have git installed.
@@ -40,7 +40,7 @@ class GitNotInstalledError(ExternalToolNotInstalledException):
         super().__init__(self.message)
 
 
-class CodeNotInstalledError(ExternalToolNotInstalledException):
+class CodeNotInstalledError(ExternalToolNotInstalledError):
     """
     Raise when calling something that needs the user to have
     VSCode (specifically the `code` command) installed.
@@ -51,7 +51,7 @@ class CodeNotInstalledError(ExternalToolNotInstalledException):
         super().__init__(self.message)
 
 
-class CondaNotInstalledError(ExternalToolNotInstalledException):
+class CondaNotInstalledError(ExternalToolNotInstalledError):
     """
     Trying to do something that requires the user to have
     the `conda` package manager installed.
@@ -115,7 +115,7 @@ class RepoNotFoundError(PytoilException):
         super().__init__(self.message)
 
 
-class GoNotInstalledError(ExternalToolNotInstalledException):
+class GoNotInstalledError(ExternalToolNotInstalledError):
     """
     The user does not have `go` installed.
     """
@@ -125,7 +125,7 @@ class GoNotInstalledError(ExternalToolNotInstalledException):
         super().__init__(self.message)
 
 
-class CargoNotInstalledError(ExternalToolNotInstalledException):
+class CargoNotInstalledError(ExternalToolNotInstalledError):
     """
     The user does not have `cargo` installed.
     """
@@ -135,7 +135,7 @@ class CargoNotInstalledError(ExternalToolNotInstalledException):
         super().__init__(self.message)
 
 
-class FlitNotInstalledError(ExternalToolNotInstalledException):
+class FlitNotInstalledError(ExternalToolNotInstalledError):
     """
     The user does not have `flit` installed.
     """
@@ -145,7 +145,7 @@ class FlitNotInstalledError(ExternalToolNotInstalledException):
         super().__init__(self.message)
 
 
-class PoetryNotInstalledError(ExternalToolNotInstalledException):
+class PoetryNotInstalledError(ExternalToolNotInstalledError):
     """
     The user does not have `poetry` installed.
     """

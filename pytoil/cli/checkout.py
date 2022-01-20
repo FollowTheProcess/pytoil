@@ -22,7 +22,7 @@ from pytoil.config import Config
 from pytoil.environments import Environment
 from pytoil.exceptions import (
     EnvironmentAlreadyExistsError,
-    ExternalToolNotInstalledException,
+    ExternalToolNotInstalledError,
 )
 from pytoil.git import Git
 from pytoil.repo import Repo
@@ -81,7 +81,7 @@ async def checkout(config: Config, project: str, venv: bool) -> None:
     is a python package, in which case it will install it's requirements into the
     created environment.
 
-    More info about this can be found in the documentation.
+    More info about this can be found in the documentation. Use `pytoil docs` to go there.
 
     Examples:
 
@@ -126,6 +126,8 @@ async def checkout(config: Config, project: str, venv: bool) -> None:
         msg.good("Done!")
 
     elif bool(PROJECT_REGEX.match(project)):
+        # TODO: We should check for local first so local checkouts
+        # don't incur an API hit
         # User has passed a single project
         local, remote = await asyncio.gather(
             repo.exists_local(), repo.exists_remote(api)
@@ -241,7 +243,7 @@ async def handle_venv_creation(
         try:
             with msg.loading("Working..."):
                 await env.install_self(silent=True)
-        except ExternalToolNotInstalledException:
+        except ExternalToolNotInstalledError:
             msg.fail(title=f"{env.name!r} not installed", exits=1)
         except EnvironmentAlreadyExistsError:
             msg.warn(
