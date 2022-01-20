@@ -68,3 +68,15 @@ repos:
       - id: codespell
         args:
           - "-L Ines,ines"
+
+  - repo: https://github.com/PyCQA/bandit
+    rev: "1.7.1"
+    hooks:
+      - id: bandit
+        args:
+          - "--configfile"
+          - "pyproject.toml"
+          - "--exclude"
+          - "noxfile.py,tests/*"
+        additional_dependencies:
+          - "toml"

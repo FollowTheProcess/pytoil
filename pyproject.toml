@@ -114,3 +114,6 @@ path = "/pytoil"
 expand_stars = true
 all = true
 no_gitignore = false
+
+[tool.bandit]
+skips = ["B106"]
