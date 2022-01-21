@@ -87,24 +87,22 @@ pytoil will install everything it needs *in python* to work. However, it's full 
 
 `pytoil` is super easy to get started with.
 
-After installation, the first time you run it it will make you a config file.
+After you install pytoil, the first time you run it you'll get something like this.
 
 <div class="termy">
 
 ```console
-$ pytoil
+$ pytoil <any command>
 
-No config file yet!
-Making you a default one...
+No pytoil config file detected!
+? Interactively configure pytoil? [y/n]
 ```
 
 </div>
 
-This will create a default config file which can be found at `~/.pytoil.toml`. See [config] for what information you need to put in here.
+If you say yes, pytoil will walk you through a few questions and fill out your config file with the values you enter. If you'd rather not do this interactively, just say no and it will instead put a default config file in the right place for you to edit later.
 
-Don't worry though, there's only a few options to configure! :sleeping:
-
-After you've set your config, you're good to go! You can do things like:
+Once you've configured it properly, you can do things like...
 
 #### See your local and remote projects
 
