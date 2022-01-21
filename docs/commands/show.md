@@ -147,6 +147,9 @@ Showing 2 out of 2 forked projects
 
 !!! note
 
-    Pytoil caches the responses from the GitHub API up to a maximum of 1 minute so repeated `show remote`, `show forks` or `show diff` calls in that time period
-    will hit the cache not the GitHub API directly, this is good for you because you'll see the results quicker and it's generally good behaviour for us so we don't
-    excessively hit the GitHub API 👍🏻
+    Pytoil caches the responses from the GitHub API so repeated calls in that time period will hit the cache not the GitHub API directly, this is good for you because you'll see the results quicker and it's generally good behaviour for us so we don't excessively hit the GitHub API 👍🏻
+
+    The cache timeout defaults to 120 seconds but is configurable (see [config]) and you can manually force a refresh or a clear using the `pytoil cache` subcommand group (see [cache])
+
+[config]: ../config.md
+[cache]: cache.md

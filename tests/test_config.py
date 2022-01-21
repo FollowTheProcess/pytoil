@@ -16,6 +16,7 @@ def test_config_init_defaults():
     assert config.vscode == defaults.VSCODE
     assert config.code_bin == defaults.CODE_BIN
     assert config.common_packages == defaults.COMMON_PACKAGES
+    assert config.cache_timeout == defaults.CACHE_TIMEOUT_SECS
     assert config.git == defaults.GIT
 
 
@@ -28,6 +29,7 @@ def test_config_init_passed():
         vscode=True,
         code_bin="code-insiders",
         common_packages=["black", "mypy", "flake8"],
+        cache_timeout=500,
         git=False,
     )
 
@@ -37,6 +39,7 @@ def test_config_init_passed():
     assert config.vscode is True
     assert config.code_bin == "code-insiders"
     assert config.common_packages == ["black", "mypy", "flake8"]
+    assert config.cache_timeout == 500
     assert config.git is False
 
 

@@ -25,7 +25,7 @@ CONFIG_KEYS: set[str] = {
 
 # API cache
 CACHE_DIR = Path.home().joinpath(".cache/pytoil")
-CACHE_TIMEOUT_SECS = 60
+CACHE_TIMEOUT_SECS = 120
 
 
 # Pytoil docs URL

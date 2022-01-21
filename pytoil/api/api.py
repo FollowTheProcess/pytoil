@@ -73,6 +73,11 @@ class API:
         Returns:
             list[dict[str, Any]]: The repos info.
         """
+        # TODO: Not sure I like cache path stuff being here?
+        cache_dir = defaults.CACHE_DIR.joinpath("get_repos")
+        if not await aiofiles.os.path.exists(cache_dir):
+            await aiofiles.os.makedirs(cache_dir)
+
         async with httpx.AsyncClient(
             http2=True,
             headers=self.headers,
@@ -113,14 +118,17 @@ class API:
         Returns:
             Set[str]: The names of the user's repos.
         """
+        # TODO: Not sure I like cache path stuff being here?
+        cache_dir = defaults.CACHE_DIR.joinpath("get_repo_names")
+        if not await aiofiles.os.path.exists(cache_dir):
+            await aiofiles.os.makedirs(cache_dir)
+
         async with httpx.AsyncClient(
             http2=True,
             headers=self.headers,
             transport=httpx_cache.AsyncCacheControlTransport(
                 cacheable_methods=("POST",),
-                cache=httpx_cache.FileCache(
-                    cache_dir=defaults.CACHE_DIR.joinpath("get_repo_names")
-                ),
+                cache=httpx_cache.FileCache(cache_dir=cache_dir),
             ),
         ) as client:
             r = await client.post(
@@ -155,14 +163,17 @@ class API:
         Returns:
             list[dict[str, Any]]: The JSON info for all forks.
         """
+        # TODO: Not sure I like cache path stuff being here?
+        cache_dir = defaults.CACHE_DIR.joinpath("get_forks")
+        if not await aiofiles.os.path.exists(cache_dir):
+            await aiofiles.os.makedirs(cache_dir)
+
         async with httpx.AsyncClient(
             http2=True,
             headers=self.headers,
             transport=httpx_cache.AsyncCacheControlTransport(
                 cacheable_methods=("POST",),
-                cache=httpx_cache.FileCache(
-                    cache_dir=defaults.CACHE_DIR.joinpath("get_forks")
-                ),
+                cache=httpx_cache.FileCache(cache_dir=cache_dir),
             ),
         ) as client:
             r = await client.post(
@@ -251,6 +262,7 @@ class API:
         Returns:
             Dict[str, Any]: Repository info.
         """
+        # TODO: Not sure I like cache path stuff being here?
         # Cache each name separately to avoid collision
         cache_dir = defaults.CACHE_DIR.joinpath(f"get_repo_info/{name}")
         if not await aiofiles.os.path.exists(cache_dir):
