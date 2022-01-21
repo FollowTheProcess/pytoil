@@ -49,19 +49,19 @@ After you install pytoil, the first time you run it you'll get something like th
 ```console
 $ pytoil
 
-No config file yet!
-Making you a default one...
+No pytoil config file detected!
+? Interactively configure pytoil? [y/n]
 ```
 
 </div>
 
-pytoil will then will write a default config state to a file: `~/.pytoil.toml`.
+If you say yes, pytoil will walk you through a few questions and fill out your config file with the values you enter. If you'd rather not do this interactively, just say no and it will instead put a default config file in the right place for you to edit later.
 
 !!! note
 
-    This command will only write a config file if it doesn't find one already. If one already exists, running `pytoil config show` will show you the settings from that file.
+    This command will only write a config file if it doesn't find one already. If one already exists, running `pytoil config show` will show you the settings from that file. Remember, you can always quickly edit your pytoil config file using `pytoil config edit` 🔥
 
-When you open the default config state you just wrote, it will look like this:
+When you open the config file, it will look something like this:
 
 ```toml
 # ~/.pytoil.toml
