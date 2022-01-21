@@ -100,7 +100,7 @@ class API:
         raw: dict[str, Any] = r.json()
 
         if data := raw.get("data"):
-            return [node for node in data["user"]["repositories"]["nodes"]]
+            return list(data["user"]["repositories"]["nodes"])
 
         return None
 
@@ -188,7 +188,7 @@ class API:
         raw: dict[str, Any] = r.json()
 
         if data := raw.get("data"):
-            return [node for node in data["user"]["repositories"]["nodes"]]
+            return list(data["user"]["repositories"]["nodes"])
 
         return None
 
