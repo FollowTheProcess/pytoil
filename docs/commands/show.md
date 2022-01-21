@@ -144,3 +144,9 @@ Showing 2 out of 2 forked projects
 ```
 
 </div>
+
+!!! note
+
+    Pytoil caches the responses from the GitHub API up to a maximum of 1 minute so repeated `show remote`, `show forks` or `show diff` calls in that time period
+    will hit the cache not the GitHub API directly, this is good for you because you'll see the results quicker and it's generally good behaviour for us so we don't
+    excessively hit the GitHub API 👍🏻

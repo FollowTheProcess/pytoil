@@ -23,6 +23,11 @@ CONFIG_KEYS: set[str] = {
     "git",
 }
 
+# API cache
+CACHE_DIR = Path.home().joinpath(".cache/pytoil")
+CACHE_TIMEOUT_SECS = 60
+
+
 # Pytoil docs URL
 PYTOIL_DOCS_URL: str = "https://followtheprocess.github.io/pytoil/"
 

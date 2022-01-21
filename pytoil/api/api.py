@@ -14,15 +14,16 @@ from datetime import datetime
 from typing import Any
 
 import httpx
+import httpx_cache
 import humanize
 
 from pytoil import __version__
 from pytoil.api import queries
+from pytoil.config import defaults
 
 URL = "https://api.github.com/graphql"
-
-
 GITHUB_TIME_FORMAT = r"%Y-%m-%dT%H:%M:%SZ"
+DEFAULT_REPO_LIMIT = 50
 
 
 class API:
@@ -55,20 +56,32 @@ class API:
             "Authorization": f"token {self.token}",
             "User-Agent": f"pytoil/{__version__}",
             "Accept": "application/vnd.github.v4+json",
+            "Cache-Control": f"max-age:{defaults.CACHE_TIMEOUT_SECS}",
         }
 
-    async def get_repos(self, limit: int = 50) -> list[dict[str, Any]] | None:
+    async def get_repos(
+        self, limit: int = DEFAULT_REPO_LIMIT
+    ) -> list[dict[str, Any]] | None:
         """
         Gets some summary info for all the users repos.
 
         Args:
             limit (int, optional): Maximum number of repos to return.
-                Defaults to 50.
+                Defaults to DEFAULT_REPO_LIMIT.
 
         Returns:
             list[dict[str, Any]]: The repos info.
         """
-        async with httpx.AsyncClient(http2=True, headers=self.headers) as client:
+        async with httpx.AsyncClient(
+            http2=True,
+            headers=self.headers,
+            transport=httpx_cache.AsyncCacheControlTransport(
+                cacheable_methods=("POST",),
+                cache=httpx_cache.FileCache(
+                    cache_dir=defaults.CACHE_DIR.joinpath("get_repos")
+                ),
+            ),
+        ) as client:
             r = await client.post(
                 self.url,
                 json={
@@ -85,13 +98,13 @@ class API:
 
         return None
 
-    async def get_repo_names(self, limit: int = 50) -> set[str]:
+    async def get_repo_names(self, limit: int = DEFAULT_REPO_LIMIT) -> set[str]:
         """
         Gets the names of all repos owned by the authenticated user.
 
         Args:
             limit (int, optional): Maximum number of repos to return.
-                Defaults to 50.
+                Defaults to DEFAULT_REPO_LIMIT.
 
         Raises:
             ValueError: If the GraphQL query is malformed.
@@ -100,7 +113,16 @@ class API:
             Set[str]: The names of the user's repos.
         """
 
-        async with httpx.AsyncClient(http2=True, headers=self.headers) as client:
+        async with httpx.AsyncClient(
+            http2=True,
+            headers=self.headers,
+            transport=httpx_cache.AsyncCacheControlTransport(
+                cacheable_methods=("POST",),
+                cache=httpx_cache.FileCache(
+                    cache_dir=defaults.CACHE_DIR.joinpath("get_repo_names")
+                ),
+            ),
+        ) as client:
             r = await client.post(
                 self.url,
                 json={
@@ -120,18 +142,29 @@ class API:
         else:
             raise ValueError(f"Bad GraphQL: {raw}")
 
-    async def get_forks(self, limit: int = 50) -> list[dict[str, Any]] | None:
+    async def get_forks(
+        self, limit: int = DEFAULT_REPO_LIMIT
+    ) -> list[dict[str, Any]] | None:
         """
         Gets info for all users forks.
 
         Args:
             limit: (int, optional): Maximum number of repos to return.
-                Defaults to 50.
+                Defaults to DEFAULT_REPO_LIMIT.
 
         Returns:
             list[dict[str, Any]]: The JSON info for all forks.
         """
-        async with httpx.AsyncClient(http2=True, headers=self.headers) as client:
+        async with httpx.AsyncClient(
+            http2=True,
+            headers=self.headers,
+            transport=httpx_cache.AsyncCacheControlTransport(
+                cacheable_methods=("POST",),
+                cache=httpx_cache.FileCache(
+                    cache_dir=defaults.CACHE_DIR.joinpath("get_forks")
+                ),
+            ),
+        ) as client:
             r = await client.post(
                 self.url,
                 json={
@@ -159,6 +192,7 @@ class API:
         Returns:
             bool: True if repo exists on GitHub, else False.
         """
+        # Note: we don't cache this response as we want the data to be up to date always
         async with httpx.AsyncClient(http2=True, headers=self.headers) as client:
             r = await client.post(
                 self.url,
@@ -192,6 +226,7 @@ class API:
         rest_headers["Accept"] = "application/vnd.github.v3+json"
         fork_url = f"https://api.github.com/repos/{owner}/{repo}/forks"
 
+        # Nothing to cache here
         async with httpx.AsyncClient(http2=True, headers=rest_headers) as client:
             r = await client.post(fork_url)
             r.raise_for_status()
@@ -216,7 +251,16 @@ class API:
         Returns:
             Dict[str, Any]: Repository info.
         """
-        async with httpx.AsyncClient(http2=True, headers=self.headers) as client:
+        async with httpx.AsyncClient(
+            http2=True,
+            headers=self.headers,
+            transport=httpx_cache.AsyncCacheControlTransport(
+                cacheable_methods=("POST",),
+                cache=httpx_cache.FileCache(
+                    cache_dir=defaults.CACHE_DIR.joinpath("get_repo_info")
+                ),
+            ),
+        ) as client:
             r = await client.post(
                 self.url,
                 json={

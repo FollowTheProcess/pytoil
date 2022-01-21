@@ -126,3 +126,7 @@ async def main(ctx: click.Context) -> None:
         # We have a valid config file at the right place so load it into click's
         # context and pass it down to all subcommands
         ctx.obj = config
+
+        # Ensure the API cache dir exists
+        if not defaults.CACHE_DIR.exists():
+            defaults.CACHE_DIR.mkdir(parents=True)
