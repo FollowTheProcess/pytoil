@@ -72,6 +72,10 @@ async def clear(config: Config) -> None:
     using the GitHub API to fetch the latest data.
 
     It may be slightly slower as a result.
+
+    Examples:
+
+    $ pytoil cache clear
     """
     loop = asyncio.get_event_loop()
     await loop.run_in_executor(
