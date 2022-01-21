@@ -9,10 +9,10 @@ Created: 21/01/2022
 from __future__ import annotations
 
 import asyncio
+import functools
 import shutil
 
 import asyncclick as click
-from importlib_metadata import functools
 from wasabi import msg
 
 from pytoil.api import API
