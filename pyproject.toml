@@ -55,6 +55,7 @@ pydantic = "1.9.0"
 humanize = "3.13.1"
 questionary = "1.10.0"
 httpx-cache = "0.4.0"
+attrs = "21.4.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "6.2.5"
