@@ -88,7 +88,7 @@ After you've set your config, you're good to go! You can do things like:
 
 #### See your local and remote projects
 
-```shell
+```plain
 $ pytoil show local
 Local Projects
 
@@ -103,7 +103,7 @@ Showing 3 out of 3 local projects
 
 #### See which ones you have on GitHub, but not on your computer
 
-```shell
+```plain
 $ pytoil show diff
 Diff: Remote - Local
 
@@ -118,7 +118,7 @@ Showing 3 out of 3 projects
 
 #### Easily grab a project, regardless of where it is
 
-```shell
+```plain
 $ pytoil checkout myproject
 
 // Will now either open that project if local
@@ -127,7 +127,7 @@ $ pytoil checkout myproject
 
 #### Create a new project and virtual environment in one go
 
-```shell
+```plain
 $ pytoil new myproject --venv venv
 
 Creating project: 'myproject' at '/Users/you/projects/myproject'
@@ -137,7 +137,7 @@ Creating virtual environment for: 'myproject'
 
 #### And even do this from a [cookiecutter] template
 
-```shell
+```plain
 $ pytoil new myproject --venv venv --cookie https://github.com/some/cookie.git
 
 Creating project: 'myproject' with cookiecutter template: 'https://github.com/some/cookie.git'
@@ -152,7 +152,7 @@ And loads more!
 
 Like all good CLI programs, pytoil (as well as all it's subcommands, and all *their* subcommands!) has a `--help` option to show you what to do.
 
-```shell
+```plain
 $ pytoil --help
 
 Usage: pytoil [OPTIONS] COMMAND [ARGS]...
@@ -190,7 +190,7 @@ This is true for any subcommand of pytoil so you won't accidentally break anythi
 
 And if you get truly stuck, you can quickly open pytoil's documentation with:
 
-```shell
+```plain
 $ pytoil docs
 
 Opening pytoil's documentation in your browser...
