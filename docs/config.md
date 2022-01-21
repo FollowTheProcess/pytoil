@@ -19,6 +19,7 @@ There are also some *optional* configurations you can tweak:
 |     `vscode`      |                           Whether you want pytoil to open things in VSCode                            |        False        |
 |     `code_bin`    |                           The name of the VSCode binary (code or code-insiders)                       |        `code`       |
 | `common_packages` | List of packages you want pytoil to inject in every environment it creates (linters, formatters etc.) |       `None`        |
+| `cache_timeout`   | Maximum duration you want pytoil to keep a cache of API responses for (seconds)                       |       120           |
 |   `git`           |        Whether you want pytoil to initialise and commit a git repo when it makes a fresh project      |        True         |
 
 These optional settings don't have to be set if you're happy using the default settings!
@@ -66,6 +67,7 @@ When you open the default config state you just wrote, it will look like this:
 # ~/.pytoil.toml
 
 [pytoil]
+cache_timeout = 120
 code_bin = "code"
 common_packages = []
 git = true
@@ -87,6 +89,7 @@ So as an example, your filled out config file might look like this:
 # ~/.pytoil.toml
 
 [pytoil]
+cache_timeout = 500
 code_bin = "code"
 common_packages = ["black", "mypy", "isort", "flake8"]
 git = true

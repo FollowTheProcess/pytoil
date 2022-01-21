@@ -10,12 +10,25 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import aiofiles.os
 import asyncclick as click
 import questionary
 from wasabi import msg
 
 from pytoil import __version__
-from pytoil.cli import checkout, config, docs, find, gh, info, new, pull, remove, show
+from pytoil.cli import (
+    cache,
+    checkout,
+    config,
+    docs,
+    find,
+    gh,
+    info,
+    new,
+    pull,
+    remove,
+    show,
+)
 from pytoil.config import Config, defaults
 
 
@@ -31,6 +44,7 @@ from pytoil.config import Config, defaults
         pull.pull,
         remove.remove,
         show.show,
+        cache.cache,
     )
 )
 @click.version_option(version=__version__, package_name="pytoil", prog_name="pytoil")
@@ -126,3 +140,7 @@ async def main(ctx: click.Context) -> None:
         # We have a valid config file at the right place so load it into click's
         # context and pass it down to all subcommands
         ctx.obj = config
+
+        # Ensure the API cache dir exists
+        if not await aiofiles.os.path.exists(defaults.CACHE_DIR):
+            await aiofiles.os.makedirs(defaults.CACHE_DIR)

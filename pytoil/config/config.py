@@ -33,6 +33,7 @@ class ConfigDict(TypedDict):
     vscode: bool
     code_bin: str
     common_packages: list[str]
+    cache_timeout: int
     git: bool
 
 
@@ -43,6 +44,7 @@ class Config(BaseModel):
     vscode: bool = defaults.VSCODE
     code_bin: str = defaults.CODE_BIN
     common_packages: list[str] = defaults.COMMON_PACKAGES
+    cache_timeout: int = defaults.CACHE_TIMEOUT_SECS
     git: bool = defaults.GIT
 
     @classmethod
@@ -103,6 +105,7 @@ class Config(BaseModel):
             "vscode": self.vscode,
             "code_bin": self.code_bin,
             "common_packages": self.common_packages,
+            "cache_timeout": self.cache_timeout,
             "git": self.git,
         }
 
