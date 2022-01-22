@@ -9,6 +9,7 @@ Created: 21/12/2021
 from __future__ import annotations
 
 import asyncio
+import functools
 
 import aiofiles.os
 import asyncclick as click
@@ -172,7 +173,15 @@ async def new(  # noqa: C901
     # If we get here, we're good to create a new project
     if cookie:
         msg.info(f"Creating {repo.name!r} from cookiecutter: {cookie!r}.")
-        cookiecutter(template=cookie, output_dir=repo.name)
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(
+            executor=None,
+            func=functools.partial(
+                cookiecutter,
+                template=cookie,
+                output_dir=config.projects_dir,
+            ),
+        )
 
     elif starter == "go":
         msg.info(f"Creating {repo.name!r} from starter: {starter!r}.")
