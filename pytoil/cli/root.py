@@ -8,6 +8,7 @@ Created: 21/12/2021
 
 from __future__ import annotations
 
+import asyncio
 from pathlib import Path
 
 import aiofiles.os
@@ -143,4 +144,15 @@ async def main(ctx: click.Context) -> None:
 
         # Ensure the API cache dir exists
         if not await aiofiles.os.path.exists(defaults.CACHE_DIR):
-            await aiofiles.os.makedirs(defaults.CACHE_DIR)
+            # List of all cache sub directories to also create
+            children = [
+                defaults.CACHE_DIR.joinpath("get_repos"),
+                defaults.CACHE_DIR.joinpath("get_repo_names"),
+                defaults.CACHE_DIR.joinpath("get_forks"),
+                defaults.CACHE_DIR.joinpath("get_repo_info"),
+            ]
+
+            # Make them all
+            await asyncio.gather(
+                *[aiofiles.os.makedirs(child, exist_ok=True) for child in children]
+            )

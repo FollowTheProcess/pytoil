@@ -80,7 +80,7 @@ class Venv:
         )
 
         # Install any specified packages
-        if packages:
+        if packages:  # pragma: no cover
             await self.install(packages=packages, silent=silent)
 
     async def install(self, packages: Sequence[str], silent: bool = False) -> None:

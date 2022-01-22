@@ -2,6 +2,7 @@ import asyncio
 import sys
 from pathlib import Path
 
+import aiofiles
 import pytest
 from pytest_mock import MockerFixture
 
@@ -14,6 +15,11 @@ def test_virtualenv():
     assert venv.project_path == Path("somewhere").resolve()
     assert venv.executable == Path("somewhere").resolve().joinpath(".venv/bin/python")
     assert venv.name == "venv"
+
+
+def test_virtualenv_repr():
+    venv = Venv(root=Path("somewhere"))
+    assert repr(venv) == f"Venv(root={Path('somewhere')!r})"
 
 
 @pytest.mark.asyncio
@@ -159,3 +165,14 @@ async def test_install_self_creates_venv_if_not_one_already(
         stdout=stdout,
         stderr=stderr,
     )
+
+
+@pytest.mark.asyncio
+async def test_venv_create():
+    async with aiofiles.tempfile.TemporaryDirectory("w") as tmp:
+        tmp_path = Path(tmp).resolve()
+        venv = Venv(tmp_path)
+        await venv.create(silent=True)
+
+        assert tmp_path.joinpath(".venv").exists()
+        assert tmp_path.joinpath(".venv/pyvenv.cfg").exists()

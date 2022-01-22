@@ -16,6 +16,11 @@ def test_requirements():
     assert env.executable == Path("somewhere").resolve().joinpath(".venv/bin/python")
 
 
+def test_requirements_repr():
+    env = Requirements(root=Path("somewhere"))
+    assert repr(env) == f"Requirements(root={Path('somewhere')!r})"
+
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "silent, stdout, stderr",
