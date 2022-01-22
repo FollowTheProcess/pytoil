@@ -29,7 +29,7 @@ classifiers = [
     "Topic :: Utilities",
     "Typing :: Typed",
 ]
-
+include = ["pytoil/py.typed"]
 keywords = ["cli", "python", "developer-tools", "automation"]
 
 [tool.poetry.scripts]
