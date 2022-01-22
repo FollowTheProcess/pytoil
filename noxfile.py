@@ -128,7 +128,6 @@ def poetry_install(session: nox.Session, *args: str, **kwargs: Any) -> None:
 
         kwargs: Keyword arguments passed to session.install.
     """
-
     with tempfile.NamedTemporaryFile() as requirements:
         session.run(
             "poetry",
@@ -155,7 +154,6 @@ def set_up_vscode(session: nox.Session) -> None:
     Args:
         session (nox.Session): The enclosing nox session.
     """
-
     if not VSCODE_DIR.exists():
         session.log("Setting up VSCode Workspace.")
         VSCODE_DIR.mkdir(parents=True)
@@ -179,7 +177,6 @@ def update_seeds(session: nox.Session) -> None:
     Args:
         session (nox.Session): The enclosing nox session.
     """
-
     session.install("--upgrade", *SEEDS)
 
 
@@ -202,7 +199,6 @@ def session_requires(session: nox.Session, tool: str) -> None:
 
         tool (str): Name of the external tool to check for.
     """
-
     if not bool(shutil.which(tool)):
         session.error(
             f"{tool!r} not installed. Session: {session.name!r} requires {tool!r}."
@@ -223,7 +219,6 @@ def get_session_requirements(session: nox.Session) -> list[str]:
     Returns:
         List[str]: List of requirements for the session.
     """
-
     requirements = SESSION_REQUIREMENTS.get(f"{session.name}", [])
     if not requirements:
         session.error(
@@ -313,7 +308,7 @@ def dev(session: nox.Session) -> None:
     # Here we use the absolute path to the poetry venv's python interpreter
     session.run(PYTHON, "-m", "pip", "install", "--upgrade", *SEEDS, silent=True)
 
-    if bool(shutil.which("code")):
+    if bool(shutil.which("code")) or bool(shutil.which("code-insiders")):
         # Only do this is user has VSCode installed
         set_up_vscode(session)
 
@@ -323,7 +318,6 @@ def update(session: nox.Session) -> None:
     """
     Updates the dependencies in the poetry.lock file.
     """
-
     # Error out if user does not have poetry installed
     session_requires(session, "poetry")
     session.run("poetry", "update")
@@ -334,7 +328,6 @@ def test(session: nox.Session) -> None:
     """
     Runs the test suite against all supported python versions.
     """
-
     # Error out if user does not have poetry installed
     session_requires(session, "poetry")
 
@@ -361,7 +354,6 @@ def coverage(session: nox.Session) -> None:
     """
     Test coverage analysis.
     """
-
     # Error out if user does not have poetry installed
     session_requires(session, "poetry")
 
@@ -396,7 +388,6 @@ def docs(session: nox.Session) -> None:
     """
     Builds the project documentation. Use '-- serve' to see changes live.
     """
-
     # Error out if user does not have poetry installed
     session_requires(session, "poetry")
 
@@ -467,7 +458,6 @@ def build(session: nox.Session) -> None:
     """
     Builds the package sdist and wheel.
     """
-
     # Error out if user does not have poetry installed
     session_requires(session, "poetry")
 
