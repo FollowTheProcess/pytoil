@@ -104,7 +104,7 @@ async def checkout(config: Config, project: str, venv: bool) -> None:
         name=project,
         local_path=config.projects_dir.joinpath(project),
     )
-    code = VSCode(root=repo.local_path)
+    code = VSCode(root=repo.local_path, code=config.code_bin)
     git = Git()
 
     if bool(USER_REPO_REGEX.match(project)):
@@ -211,7 +211,7 @@ async def checkout_fork(
     env = await fork.dispatch_env()
 
     # Special code instance because the argument 'project' will be the user/repo pattern
-    code = VSCode(root=config.projects_dir.joinpath(name))
+    code = VSCode(root=config.projects_dir.joinpath(name), code=config.code_bin)
 
     if venv:
         await handle_venv_creation(env=env, config=config, code=code)
