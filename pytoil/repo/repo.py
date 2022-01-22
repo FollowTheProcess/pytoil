@@ -85,10 +85,13 @@ class Repo:
         """
         return await api.check_repo_exists(self.name)
 
-    async def _local_info(self) -> dict[str, Any] | None:
+    async def _local_info(self) -> dict[str, Any] | None:  # pragma: no cover
         """
         Return local path information for the repo.
         """
+        # Mostly just pathlib stuff here, not much point in us testing it
+        # and doing so is a pain because we have to freeze time on the filesystem and in the test
+        # if pathlib doesn't work we have bigger problems anyway
         try:
             return {
                 "Name": self.local_path.name,

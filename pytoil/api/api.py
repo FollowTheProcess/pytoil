@@ -83,9 +83,7 @@ class API:
             headers=self.headers,
             transport=httpx_cache.AsyncCacheControlTransport(
                 cacheable_methods=("POST",),
-                cache=httpx_cache.FileCache(
-                    cache_dir=defaults.CACHE_DIR.joinpath("get_repos")
-                ),
+                cache=httpx_cache.FileCache(cache_dir=cache_dir),
             ),
         ) as client:
             r = await client.post(
@@ -102,7 +100,7 @@ class API:
         if data := raw.get("data"):
             return list(data["user"]["repositories"]["nodes"])
 
-        return None
+        return None  # pragma: no cover
 
     async def get_repo_names(self, limit: int = DEFAULT_REPO_LIMIT) -> set[str]:
         """
@@ -190,7 +188,7 @@ class API:
         if data := raw.get("data"):
             return list(data["user"]["repositories"]["nodes"])
 
-        return None
+        return None  # pragma: no cover
 
     async def check_repo_exists(self, name: str) -> bool:
         """
@@ -222,7 +220,7 @@ class API:
             else:
                 return True
         else:
-            raise ValueError(f"Bad GraphQL: {raw}")
+            raise ValueError(f"Bad GraphQL: {raw}")  # pragma: no cover
 
     async def create_fork(self, owner: str, repo: str) -> None:
         """
@@ -302,5 +300,5 @@ class API:
                     else None,
                     "Remote": True,
                 }
-            return None
-        return None
+            return None  # pragma: no cover
+        return None  # pragma: no cover

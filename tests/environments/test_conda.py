@@ -53,6 +53,15 @@ def test_conda_passed(mocker: MockerFixture):
     assert conda.conda == "notconda"
 
 
+def test_conda_repr():
+    conda = Conda(root=Path("somewhere"), environment_name="test", conda="notconda")
+    assert (
+        repr(conda)
+        == f"Conda(root={Path('somewhere')!r}, environment_name='test',"
+        " conda='notconda')"
+    )
+
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "exists_return, want",

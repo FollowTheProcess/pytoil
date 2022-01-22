@@ -18,6 +18,11 @@ def test_flit():
     assert flit.flit == "notflit"
 
 
+def test_flit_repr():
+    flit = Flit(root=Path("somewhere"), flit="notflit")
+    assert repr(flit) == f"Flit(root={Path('somewhere')!r}, flit='notflit')"
+
+
 @pytest.mark.asyncio
 async def test_raises_if_flit_not_installed():
     flit = Flit(root=Path("somewhere"), flit=None)

@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pytest
+from freezegun import freeze_time
 from pytest_httpx import HTTPXMock
 from pytest_mock import MockerFixture
 
@@ -21,6 +22,14 @@ def test_html_url():
     repo = Repo(owner="me", name="project", local_path=Path("doesn't/matter"))
 
     assert repo.html_url == "https://github.com/me/project"
+
+
+def test_repo_repr():
+    repo = Repo(owner="me", name="project", local_path=Path("somewhere"))
+    assert (
+        repr(repo)
+        == f"Repo(owner='me', name='project', local_path={Path('somewhere')!r})"
+    )
 
 
 @pytest.mark.asyncio
@@ -69,6 +78,28 @@ async def test_exists_remote_returns_true_when_remote_exists(
 
     result = await repo.exists_remote(api=api)
     assert result is True
+
+
+@pytest.mark.asyncio
+@freeze_time("2022-01-22 09:00")
+async def test_remote_info_returns_correct_details(
+    httpx_mock: HTTPXMock, fake_repo_info_response
+):
+    api = API(username="me", token="something")
+    repo = Repo(owner="me", name="test", local_path=Path("somewhere"))
+
+    httpx_mock.add_response(url=api.url, json=fake_repo_info_response, status_code=200)
+
+    result = await repo._remote_info(api)
+    assert result == {
+        "Created": "11 months ago",
+        "Description": "CLI to automate the development workflow :robot:",
+        "License": "Apache License 2.0",
+        "Name": "pytoil",
+        "Remote": True,
+        "Size": "3.2 MB",
+        "Updated": "25 days ago",
+    }
 
 
 @pytest.mark.asyncio

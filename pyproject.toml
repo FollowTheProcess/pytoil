@@ -97,6 +97,9 @@ omit = [
 ]
 branch = true
 
+[tool.coverage.report]
+exclude_lines = ["# pragma: no cover", "def __repr__"]
+
 [tool.mypy]
 files = ["pytoil/**/*.py", "noxfile.py"]
 ignore_missing_imports = true

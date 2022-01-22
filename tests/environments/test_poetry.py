@@ -28,6 +28,11 @@ def test_poetry_instanciation_passed():
     assert poetry.executable == Path("somewhere").resolve().joinpath(".venv/bin/python")
 
 
+def test_poetry_repr():
+    poetry = Poetry(root=Path("somewhere"), poetry="notpoetry")
+    assert repr(poetry) == f"Poetry(root={Path('somewhere')!r}, poetry='notpoetry')"
+
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "exists_return, exists",
