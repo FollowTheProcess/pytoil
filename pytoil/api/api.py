@@ -13,6 +13,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any
 
+import aiofiles.os
 import httpx
 import httpx_cache
 import humanize
@@ -72,14 +73,17 @@ class API:
         Returns:
             list[dict[str, Any]]: The repos info.
         """
+        # TODO: Not sure I like cache path stuff being here?
+        cache_dir = defaults.CACHE_DIR.joinpath("get_repos")
+        if not await aiofiles.os.path.exists(cache_dir):
+            await aiofiles.os.makedirs(cache_dir)
+
         async with httpx.AsyncClient(
             http2=True,
             headers=self.headers,
             transport=httpx_cache.AsyncCacheControlTransport(
                 cacheable_methods=("POST",),
-                cache=httpx_cache.FileCache(
-                    cache_dir=defaults.CACHE_DIR.joinpath("get_repos")
-                ),
+                cache=httpx_cache.FileCache(cache_dir=cache_dir),
             ),
         ) as client:
             r = await client.post(
@@ -112,14 +116,17 @@ class API:
         Returns:
             Set[str]: The names of the user's repos.
         """
+        # TODO: Not sure I like cache path stuff being here?
+        cache_dir = defaults.CACHE_DIR.joinpath("get_repo_names")
+        if not await aiofiles.os.path.exists(cache_dir):
+            await aiofiles.os.makedirs(cache_dir)
+
         async with httpx.AsyncClient(
             http2=True,
             headers=self.headers,
             transport=httpx_cache.AsyncCacheControlTransport(
                 cacheable_methods=("POST",),
-                cache=httpx_cache.FileCache(
-                    cache_dir=defaults.CACHE_DIR.joinpath("get_repo_names")
-                ),
+                cache=httpx_cache.FileCache(cache_dir=cache_dir),
             ),
         ) as client:
             r = await client.post(
@@ -139,7 +146,7 @@ class API:
             return {node["name"] for node in data["user"]["repositories"]["nodes"]}
 
         else:
-            raise ValueError(f"Bad GraphQL: {raw}")  # pragma: no cover
+            raise ValueError(f"Bad GraphQL: {raw}")
 
     async def get_forks(
         self, limit: int = DEFAULT_REPO_LIMIT
@@ -154,14 +161,17 @@ class API:
         Returns:
             list[dict[str, Any]]: The JSON info for all forks.
         """
+        # TODO: Not sure I like cache path stuff being here?
+        cache_dir = defaults.CACHE_DIR.joinpath("get_forks")
+        if not await aiofiles.os.path.exists(cache_dir):
+            await aiofiles.os.makedirs(cache_dir)
+
         async with httpx.AsyncClient(
             http2=True,
             headers=self.headers,
             transport=httpx_cache.AsyncCacheControlTransport(
                 cacheable_methods=("POST",),
-                cache=httpx_cache.FileCache(
-                    cache_dir=defaults.CACHE_DIR.joinpath("get_forks")
-                ),
+                cache=httpx_cache.FileCache(cache_dir=cache_dir),
             ),
         ) as client:
             r = await client.post(
@@ -250,14 +260,18 @@ class API:
         Returns:
             Dict[str, Any]: Repository info.
         """
+        # TODO: Not sure I like cache path stuff being here?
+        # Cache each name separately to avoid collision
+        cache_dir = defaults.CACHE_DIR.joinpath(f"get_repo_info/{name}")
+        if not await aiofiles.os.path.exists(cache_dir):
+            await aiofiles.os.makedirs(cache_dir)
+
         async with httpx.AsyncClient(
             http2=True,
             headers=self.headers,
             transport=httpx_cache.AsyncCacheControlTransport(
                 cacheable_methods=("POST",),
-                cache=httpx_cache.FileCache(
-                    cache_dir=defaults.CACHE_DIR.joinpath(f"get_repo_info/{name}")
-                ),
+                cache=httpx_cache.FileCache(cache_dir=cache_dir),
             ),
         ) as client:
             r = await client.post(
