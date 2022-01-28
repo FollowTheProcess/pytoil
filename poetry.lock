@@ -734,7 +734,7 @@ virtualenv = ">=20.0.8"
 
 [[package]]
 name = "prompt-toolkit"
-version = "3.0.25"
+version = "3.0.26"
 description = "Library for building powerful interactive command lines in Python"
 category = "main"
 optional = false
@@ -1582,8 +1582,8 @@ pre-commit = [
     {file = "pre_commit-2.17.0.tar.gz", hash = "sha256:c1a8040ff15ad3d648c70cc3e55b93e4d2d5b687320955505587fd79bbaed06a"},
 ]
 prompt-toolkit = [
-    {file = "prompt_toolkit-3.0.25-py3-none-any.whl", hash = "sha256:c79f8d3fe475116a2daaed1c5c08d4450becbe7b5c1a513d50b6d45248857a67"},
-    {file = "prompt_toolkit-3.0.25.tar.gz", hash = "sha256:45f3137a16a7bb5893928f918bfcc36cfe812db49437d087201cd2a78016cbb3"},
+    {file = "prompt_toolkit-3.0.26-py3-none-any.whl", hash = "sha256:4bcf119be2200c17ed0d518872ef922f1de336eb6d1ddbd1e089ceb6447d97c6"},
+    {file = "prompt_toolkit-3.0.26.tar.gz", hash = "sha256:a51d41a6a45fd9def54365bca8f0402c8f182f2b6f7e29c74d55faeb9fb38ac4"},
 ]
 py = [
     {file = "py-1.11.0-py2.py3-none-any.whl", hash = "sha256:607c53218732647dff4acdfcd50cb62615cedf612e72d1724fb1a0cc6405b378"},
