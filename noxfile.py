@@ -128,7 +128,7 @@ def poetry_install(session: nox.Session, *args: str, **kwargs: Any) -> None:
 
         kwargs: Keyword arguments passed to session.install.
     """
-    with tempfile.NamedTemporaryFile() as requirements:
+    with tempfile.NamedTemporaryFile(mode="w") as requirements:
         session.run(
             "poetry",
             "export",
