@@ -1,9 +1,15 @@
+import os
+import platform
 from pathlib import Path
 
 import aiofiles
 import pytest
 
 from pytoil.config import Config, defaults
+
+# GitHub Actions
+ON_CI = bool(os.getenv("CI"))
+ON_WINDOWS = platform.system().lower() == "windows"
 
 
 def test_config_init_defaults():
@@ -88,7 +94,9 @@ def test_can_use_api(username, token, expected):
 
 @pytest.mark.asyncio
 async def test_file_write():
-    async with aiofiles.tempfile.NamedTemporaryFile("w") as file:
+    async with aiofiles.tempfile.NamedTemporaryFile(
+        "w", delete=False if ON_CI and ON_WINDOWS else True
+    ) as file:
         # Make a fake config object
         config = Config(
             projects_dir=Path("some/dir"),
