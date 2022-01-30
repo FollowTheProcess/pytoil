@@ -7,6 +7,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import platform
 import shutil
 import subprocess
 import tempfile
@@ -17,11 +18,12 @@ from typing import Any
 import nox
 
 # Nox config
-nox.needs_version = ">=2021.10.1"
+nox.needs_version = ">=2022.1.7"
 nox.options.error_on_external_run = True
 
 # GitHub Actions
 ON_CI = bool(os.getenv("CI"))
+ON_WINDOWS = platform.system().lower() == "windows"
 
 # Global project stuff
 PROJECT_ROOT = Path(__file__).parent.resolve()
@@ -128,7 +130,12 @@ def poetry_install(session: nox.Session, *args: str, **kwargs: Any) -> None:
 
         kwargs: Keyword arguments passed to session.install.
     """
-    with tempfile.NamedTemporaryFile() as requirements:
+    # NamedTemporaryFile has known issue where exiting the context manager throws
+    # a PermissionError, this is solved on CI by simply not deleting the file as it
+    # will be cleaned up when the runner is shut down anyway
+    with tempfile.NamedTemporaryFile(
+        mode="w", encoding="utf-8", delete=False if ON_CI and ON_WINDOWS else True
+    ) as requirements:
         session.run(
             "poetry",
             "export",

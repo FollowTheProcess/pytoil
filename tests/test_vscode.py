@@ -102,7 +102,7 @@ async def test_vscode_set_workspace_python_works_on_existing_settings(
         "python.linting.blackPath": "usr/bin/black",
         "randomSetting": "yes",
         "HowHardThisIsToComeUpWith": 10,
-        WORKSPACE_PYTHON_SETTING: "/usr/bin/sillypython",
+        WORKSPACE_PYTHON_SETTING: str(ppath),
         "python.testing.pytestEnabled": False,
     }
 
