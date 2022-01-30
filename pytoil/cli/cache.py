@@ -56,7 +56,7 @@ async def refresh(config: Config) -> None:
         api.get_repos(),
         api.get_forks(),
         api.get_repo_names(),
-        *[api.get_repo_info(name) for name in names]
+        *[api.get_repo_info(name) for name in names],
     )
 
     msg.good("Cache refreshed successfully")
