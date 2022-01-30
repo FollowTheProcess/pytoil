@@ -17,35 +17,33 @@ import questionary
 from wasabi import msg
 
 from pytoil import __version__
-from pytoil.cli import (
-    cache,
-    checkout,
-    config,
-    docs,
-    find,
-    gh,
-    info,
-    new,
-    pull,
-    remove,
-    show,
-)
+from pytoil.cli.cache import cache
+from pytoil.cli.checkout import checkout
+from pytoil.cli.config import config
+from pytoil.cli.docs import docs
+from pytoil.cli.find import find
+from pytoil.cli.gh import gh
+from pytoil.cli.info import info
+from pytoil.cli.new import new
+from pytoil.cli.pull import pull
+from pytoil.cli.remove import remove
+from pytoil.cli.show import show
 from pytoil.config import Config, defaults
 
 
 @click.group(
     commands=(
-        checkout.checkout,
-        config.config,
-        docs.docs,
-        find.find,
-        gh.gh,
-        info.info,
-        new.new,
-        pull.pull,
-        remove.remove,
-        show.show,
-        cache.cache,
+        checkout,
+        config,
+        docs,
+        find,
+        gh,
+        info,
+        new,
+        pull,
+        remove,
+        show,
+        cache,
     )
 )
 @click.version_option(version=__version__, package_name="pytoil", prog_name="pytoil")

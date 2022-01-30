@@ -66,7 +66,7 @@ class Config(BaseModel):
         try:
             async with aiofiles.open(path, mode="r", encoding="utf-8") as f:
                 content = await f.read()
-                config_dict: ConfigDict = tomlkit.parse(content).get("pytoil")
+                config_dict: ConfigDict = tomlkit.parse(content).get("pytoil", "")
         except FileNotFoundError:
             raise
         else:
@@ -85,9 +85,6 @@ class Config(BaseModel):
         Returns:
             Config: Helper config object.
         """
-        # Typed ignored here because we know we're correct, mypy doesn't like this
-        # probably something to do with Config being a pydantic model
-        # not a pure python class
         return Config(
             token="Put your GitHub personal access token here",
             username="This your GitHub username",

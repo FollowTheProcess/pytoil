@@ -85,7 +85,7 @@ async def edit(config: Config) -> None:
 
     $ pytoil config edit
     """
-    click.edit(filename=defaults.CONFIG_FILE)
+    click.edit(filename=str(defaults.CONFIG_FILE))
 
 
 @config.command()

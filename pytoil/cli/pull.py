@@ -93,21 +93,12 @@ async def pull(
         if not remote_projects:
             msg.warn("You don't have any remote projects to pull.", exits=1)
 
-        not_found = False
         specified_remotes = remote_projects if all_ else set(projects)
 
         # Check for typos
         for project in projects:
             if project not in remote_projects:
-                not_found = True
-                missing_project = project
-                break
-            break
-
-        if not_found:
-            msg.warn(
-                f"{missing_project!r} not found on GitHub. Was it a typo?", exits=1
-            )
+                msg.warn(f"{project!r} not found on GitHub. Was it a typo?", exits=1)
 
         diff = specified_remotes.difference(local_projects)
         if not diff:
