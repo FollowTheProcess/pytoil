@@ -17,7 +17,7 @@ from typing import Any
 import nox
 
 # Nox config
-nox.needs_version = ">=2021.10.1"
+nox.needs_version = ">=2022.1.7"
 nox.options.error_on_external_run = True
 
 # GitHub Actions
