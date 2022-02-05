@@ -18,7 +18,7 @@ from wasabi import msg
 
 from pytoil.api import API
 from pytoil.cli import utils
-from pytoil.cli.printer import Printer
+from pytoil.cli.printer import printer
 from pytoil.config import Config
 from pytoil.environments import Environment
 from pytoil.exceptions import (
@@ -34,8 +34,6 @@ USER_REPO_REGEX = re.compile(r"^([A-Za-z0-9_.-])+/([A-Za-z0-9_.-])+$")
 
 # The bare 'project' pattern
 PROJECT_REGEX = re.compile(r"^([A-Za-z0-9_.-])+$")
-
-printer = Printer()
 
 
 @click.command()
@@ -95,7 +93,7 @@ async def checkout(config: Config, project: str, venv: bool) -> None:
     $ pytoil checkout someoneelse/project
     """
     if not config.can_use_api():
-        printer.warn(
+        printer.error(
             "You must set your GitHub username and personal access token to use API"
             " features.",
             exits=1,
@@ -139,13 +137,11 @@ async def checkout(config: Config, project: str, venv: bool) -> None:
                 repo=repo, code=code, config=config, venv=venv, git=git
             )
         else:
-            printer.error(
-                f"Project: {project!r} not found locally or on GitHub.", exits=1
-            )
+            printer.error(f"{project!r} not found locally or on GitHub.", exits=1)
     else:
         # Unrecognised regex
         printer.error(f"{project!r} did not match valid pattern.")
-        printer.note("Valid patterns are 'user/repo' or 'repo'.", exits=1)
+        printer.note('Valid patterns are "user/repo" or "repo".', exits=1)
 
 
 async def checkout_fork(

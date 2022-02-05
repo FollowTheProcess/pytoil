@@ -10,10 +10,10 @@ from __future__ import annotations
 
 import asyncclick as click
 import httpx
-from wasabi import msg
 
 from pytoil.api import API
 from pytoil.cli import utils
+from pytoil.cli.printer import printer
 from pytoil.config import Config
 from pytoil.repo import Repo
 
@@ -33,7 +33,7 @@ async def gh(config: Config, project: str) -> None:
     $ pytoil gh my_project
     """
     if not config.can_use_api():
-        msg.warn(
+        printer.warn(
             "You must set your GitHub username and personal access token to use API"
             " features.",
             exits=1,
@@ -52,7 +52,9 @@ async def gh(config: Config, project: str) -> None:
         utils.handle_http_status_error(err)
     else:
         if not exists:
-            msg.warn(f"Could not find {project!r} on GitHub. Was it a typo?", exits=1)
+            printer.error(
+                f"Could not find {project!r} on GitHub. Was it a typo?", exits=1
+            )
         else:
-            msg.info(f"Opening {project!r} on GitHub")
+            printer.info(f"Opening {project} on GitHub")
             click.launch(url=repo.html_url)

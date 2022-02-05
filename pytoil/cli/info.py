@@ -11,9 +11,9 @@ from __future__ import annotations
 import asyncclick as click
 from rich.console import Console
 from rich.table import Table, box
-from wasabi import msg
 
 from pytoil.api import API
+from pytoil.cli.printer import printer
 from pytoil.config import Config
 from pytoil.exceptions import RepoNotFoundError
 from pytoil.repo import Repo
@@ -40,7 +40,7 @@ async def info(config: Config, project: str) -> None:
     $ pytoil info my_project
     """
     if not config.can_use_api():
-        msg.warn(
+        printer.warn(
             "You must set your GitHub username and personal access token to use API"
             " features.",
             exits=1,
@@ -56,10 +56,10 @@ async def info(config: Config, project: str) -> None:
     try:
         info = await repo.info(api)
     except RepoNotFoundError:
-        msg.warn(f"{project!r} not found locally or on GitHub. Was it a typo?", exits=1)
+        printer.error(
+            f"{project!r} not found locally or on GitHub. Was it a typo?", exits=1
+        )
     else:
-        click.secho(f"Info for {project}:", fg="cyan", bold=True)
-
         table = Table(box=box.SIMPLE)
         table.add_column("Key", style="cyan", justify="right")
         table.add_column("Value", justify="left")

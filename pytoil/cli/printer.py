@@ -12,7 +12,7 @@ from rich.console import Console
 from rich.style import Style
 from rich.theme import Theme
 
-__all__ = ["Printer"]
+__all__ = ["Printer", "printer"]
 
 
 class Printer:
@@ -121,6 +121,9 @@ class Printer:
             sys.exit(exits)
 
 
+# Export a default printer
+printer = Printer()
+
+
 if __name__ == "__main__":
-    printer = Printer()
     printer.note("This is a note")

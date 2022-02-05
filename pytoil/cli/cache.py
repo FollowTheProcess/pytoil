@@ -15,7 +15,7 @@ import shutil
 import asyncclick as click
 
 from pytoil.api import API
-from pytoil.cli.printer import Printer
+from pytoil.cli.printer import printer
 from pytoil.config import Config, defaults
 
 
@@ -50,7 +50,6 @@ async def refresh(config: Config) -> None:
     """
     api = API(username=config.username, token=config.token)
     names = await api.get_repo_names()
-    printer = Printer()
 
     # Just hit all the cacheable endpoints to initialise the cache
     await asyncio.gather(
@@ -78,7 +77,6 @@ async def clear(config: Config) -> None:
 
     $ pytoil cache clear
     """
-    printer = Printer()
     loop = asyncio.get_event_loop()
     await loop.run_in_executor(
         executor=None,
