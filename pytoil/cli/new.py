@@ -17,6 +17,7 @@ from cookiecutter.main import cookiecutter
 from wasabi import msg
 
 from pytoil.api import API
+from pytoil.cli.printer import printer
 from pytoil.config import Config
 from pytoil.environments import Conda, Venv
 from pytoil.exceptions import (
@@ -118,7 +119,7 @@ async def new(  # noqa: C901
     $ pytoil new my_project --starter python
     """
     if not config.can_use_api():
-        msg.warn(
+        printer.warn(
             "You must set your GitHub username and personal access token to use API"
             " features.",
             exits=1,
@@ -138,7 +139,7 @@ async def new(  # noqa: C901
 
     # Can't use --cookie and --starter
     if cookie and starter:
-        msg.warn("--cookie and --starter are mutually exclusive", exits=1)
+        printer.error("--cookie and --starter are mutually exclusive", exits=1)
 
     # Can't use --venv with non-python starters
     if (
@@ -146,7 +147,7 @@ async def new(  # noqa: C901
         and starter != "python"  # Requested starter is not python
         and venv is not None  # And the user wants a virtual environment
     ):
-        msg.warn(f"Can't create a venv for a {starter} project", exits=1)
+        printer.error(f"Can't create a venv for a {starter} project", exits=1)
 
     # Resolve config vs flag for no-git
     # flag takes priority over config
@@ -157,22 +158,20 @@ async def new(  # noqa: C901
     local, remote = await asyncio.gather(repo.exists_local(), repo.exists_remote(api))
 
     if local:
-        msg.warn(
-            title=f"{repo.name} already exists locally.",
-            text=f"To checkout this project, use 'pytoil checkout {repo.name}'.",
-            exits=1,
+        printer.error(f"{repo.name} already exists locally.")
+        printer.note(
+            f"To checkout this project, use 'pytoil checkout {repo.name}'.", exits=1
         )
 
     if remote:
-        msg.warn(
-            title=f"{repo.name} already exists on GitHub.",
-            text=f"To checkout this project, use 'pytoil checkout {repo.name}'.",
-            exits=1,
+        printer.error(f"{repo.name} already exists on GitHub.")
+        printer.note(
+            f"To checkout this project, use 'pytoil checkout {repo.name}'.", exits=1
         )
 
     # If we get here, we're good to create a new project
     if cookie:
-        msg.info(f"Creating {repo.name!r} from cookiecutter: {cookie!r}.")
+        printer.info(f"Creating {repo.name} from cookiecutter: {cookie}.")
         loop = asyncio.get_event_loop()
         await loop.run_in_executor(
             executor=None,
@@ -184,13 +183,13 @@ async def new(  # noqa: C901
         )
 
     elif starter == "go":
-        msg.info(f"Creating {repo.name!r} from starter: {starter!r}.")
+        printer.info(f"Creating {repo.name} from starter: {starter}.")
         go_starter = GoStarter(path=config.projects_dir, name=repo.name)
 
         try:
             await go_starter.generate(username=config.username)
         except GoNotInstalledError:
-            msg.fail("Error: Go not installed.", exits=1)
+            printer.error("Go not installed.", exits=1)
         else:
             if use_git:
                 await git.init(cwd=repo.local_path, silent=False)
@@ -198,7 +197,7 @@ async def new(  # noqa: C901
                 await git.commit(cwd=repo.local_path, silent=False)
 
     elif starter == "python":
-        msg.info(f"Creating {repo.name!r} from starter: {starter!r}.")
+        printer.info(f"Creating {repo.name} from starter: {starter}.")
         python_starter = PythonStarter(path=config.projects_dir, name=repo.name)
         await python_starter.generate()
         if use_git:
@@ -207,13 +206,13 @@ async def new(  # noqa: C901
             await git.commit(cwd=repo.local_path, silent=False)
 
     elif starter == "rust":
-        msg.info(f"Creating {repo.name!r} from starter: {starter!r}.")
+        printer.info(f"Creating {repo.name} from starter: {starter}.")
         rust_starter = RustStarter(path=config.projects_dir, name=repo.name)
 
         try:
             await rust_starter.generate()
         except CargoNotInstalledError:
-            msg.fail("Error: Cargo not installed.", exits=1)
+            printer.error("Cargo not installed.", exits=1)
         else:
             if use_git:
                 await git.init(cwd=repo.local_path, silent=False)
@@ -222,32 +221,32 @@ async def new(  # noqa: C901
 
     else:
         # Just a blank new project
-        msg.info(f"Creating {repo.name!r} at {repo.local_path}.")
+        printer.info(f"Creating {repo.name} at {repo.local_path}.")
         await aiofiles.os.mkdir(repo.local_path)
         if use_git:
             await git.init(cwd=repo.local_path, silent=False)
 
     # Now we need to handle any requested virtual environments
     if venv == "venv":
-        msg.info(
-            title=f"Creating virtual environment for {repo.name!r}",
-            text=f"Including packages: {', '.join(to_install)}" if to_install else "",
-        )
+        printer.info(f"Creating virtual environment for {repo.name}")
+        if to_install:
+            printer.note(f"Including {', '.join(to_install)}")
+
         env = Venv(root=repo.local_path)
         with msg.loading("Working..."):
             await env.create(packages=to_install, silent=True)
 
     elif venv == "conda":
-        msg.info(
-            title=f"Creating conda environment for {repo.name!r}",
-            text=f"Including packages: {', '.join(to_install)}" if to_install else "",
-        )
+        printer.info(f"Creating conda environment for {repo.name}")
+        if to_install:
+            printer.note(f"Including {', '.join(to_install)}")
+
         conda_env = Conda(root=repo.local_path, environment_name=repo.name)
         try:
             await conda_env.create(packages=to_install)
         except EnvironmentAlreadyExistsError:
-            msg.fail(
-                f"Conda environment: {conda_env.environment_name!r} already exists",
+            printer.error(
+                f"Conda environment {conda_env.environment_name!r} already exists",
                 exits=1,
             )
         else:
@@ -256,5 +255,5 @@ async def new(  # noqa: C901
 
     # Now handle opening in VSCode
     if config.vscode:
-        msg.info(f"Opening {repo.name!r} in VSCode.")
+        msg.info(f"Opening {repo.name} in VSCode.", spaced=True)
         await code.open()
