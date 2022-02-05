@@ -74,6 +74,7 @@ async def local(config: Config, limit: int) -> None:
 
     $ pytoil show local --limit 5
     """
+    console = Console()
     local_projects: set[Path] = {
         f
         for f in config.projects_dir.iterdir()
@@ -94,12 +95,10 @@ async def local(config: Config, limit: int) -> None:
 
     results = {project: stat for project, stat in zip(local_projects, stats)}
 
-    click.secho("Local Projects", fg="cyan", bold=True)
-    click.secho(
-        f"\nShowing {min(limit, len(results))} out of {len(local_projects)} local"
-        " projects",
-        fg="bright_black",
-        italic=True,
+    printer.title("Local Projects", spaced=False)
+    console.print(
+        f"[bright_black italic]\nShowing {min(limit, len(results))} out of"
+        f" {len(local_projects)} local projects [/]"
     )
     for path, result in sorted(results.items(), key=lambda x: str.casefold(str(x[0])))[
         :limit
@@ -110,7 +109,6 @@ async def local(config: Config, limit: int) -> None:
             humanize.naturaltime(datetime.utcfromtimestamp(result.st_mtime)),
         )
 
-    console = Console()
     console.print(table)
 
 
@@ -142,6 +140,7 @@ async def remote(config: Config, limit: int) -> None:
 
     $ pytoil show remote --limit 10
     """
+    console = Console()
     api = API(username=config.username, token=config.token)
 
     try:
@@ -160,11 +159,10 @@ async def remote(config: Config, limit: int) -> None:
         table.add_column("Created")
         table.add_column("Modified")
 
-        click.secho("Remote Projects", fg="cyan", bold=True)
-        click.secho(
-            f"\nShowing {min(limit, len(repos))} out of {len(repos)} remote projects",
-            fg="bright_black",
-            italic=True,
+        printer.title("Remote Projects", spaced=False)
+        console.print(
+            f"[bright_black italic]\nShowing {min(limit, len(repos))} out of"
+            f" {len(repos)} remote projects [/]"
         )
 
         for repo in repos[:limit]:
@@ -179,7 +177,6 @@ async def remote(config: Config, limit: int) -> None:
                 ),
             )
 
-        console = Console()
         console.print(table)
 
 
@@ -209,6 +206,7 @@ async def forks(config: Config, limit: int) -> None:
 
     $ pytoil show forks --limit 10
     """
+    console = Console()
     api = API(username=config.username, token=config.token)
 
     try:
@@ -227,11 +225,10 @@ async def forks(config: Config, limit: int) -> None:
         table.add_column("Modified")
         table.add_column("Parent")
 
-        click.secho("Forked Projects", fg="cyan", bold=True)
-        click.secho(
-            f"\nShowing {min(limit, len(forks))} out of {len(forks)} forked projects",
-            fg="bright_black",
-            italic=True,
+        printer.title("Forked Projects", spaced=False)
+        console.print(
+            f"[bright_black italic]\nShowing {min(limit, len(forks))} out of"
+            f" {len(forks)} forked projects [/]"
         )
 
         for repo in forks[:limit]:
@@ -277,6 +274,7 @@ async def diff(config: Config, limit: int) -> None:
 
     $ pytoil show diff --limit 10
     """
+    console = Console()
     api = API(username=config.username, token=config.token)
 
     local_projects: set[str] = {
@@ -312,12 +310,10 @@ async def diff(config: Config, limit: int) -> None:
             table.add_column("Created")
             table.add_column("Modified")
 
-            click.secho("Diff: Remote - Local", fg="cyan", bold=True)
-            click.secho(
-                f"\nShowing {min(limit, len(diff_info))} out of"
-                f" {len(diff_info)} projects",
-                fg="bright_black",
-                italic=True,
+            printer.title("Diff: Remote - Local", spaced=False)
+            console.print(
+                f"[bright_black italic]\nShowing {min(limit, len(diff_info))} out of"
+                f" {len(diff_info)} projects [/]"
             )
 
             for repo in diff_info[:limit]:

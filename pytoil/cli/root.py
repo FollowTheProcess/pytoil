@@ -14,6 +14,7 @@ from pathlib import Path
 import aiofiles.os
 import asyncclick as click
 import questionary
+from rich.traceback import install
 
 from pytoil import __version__
 from pytoil.cli.cache import cache
@@ -29,6 +30,9 @@ from pytoil.cli.pull import pull
 from pytoil.cli.remove import remove
 from pytoil.cli.show import show
 from pytoil.config import Config, defaults
+
+# So that if we do ever get a traceback, it uses rich to show it nicely
+install()
 
 
 @click.group(

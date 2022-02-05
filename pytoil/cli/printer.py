@@ -24,23 +24,16 @@ class Printer:
     friendly, colourful output, not for logging.
     """
 
-    _title_style = Style(color="bright_cyan", bold=True)
-    _info_style = Style(color="bright_cyan")
-    _warning_style = Style(color="yellow", bold=True)
-    _good_style = Style(color="bright_green")
-    _error_style = Style(color="bright_red", bold=True)
-    _error_message_style = Style(color="white", bold=True)
-    _note_style = Style(color="white", bold=True)
-
     _pytoil_theme = Theme(
         styles={
-            "title": _title_style,
-            "info": _info_style,
-            "warning": _warning_style,
-            "error": _error_style,
-            "error_message": _error_message_style,
-            "good": _good_style,
-            "note": _note_style,
+            "title": Style(color="bright_cyan", bold=True),
+            "info": Style(color="bright_cyan"),
+            "warning": Style(color="yellow", bold=True),
+            "error": Style(color="bright_red", bold=True),
+            "error_message": Style(color="white", bold=True),
+            "good": Style(color="bright_green"),
+            "note": Style(color="white", bold=True),
+            "subtle": Style(color="bright_black", italic=True),
         }
     )
 
@@ -48,11 +41,14 @@ class Printer:
 
     __slots__ = ()
 
-    def title(self, msg: str) -> None:
+    def title(self, msg: str, spaced: bool = True) -> None:
         """
         Print a bold title message or section header.
         """
-        self._pytoil_console.print(f"{msg}\n", style="title")
+        to_print = f"{msg}"
+        if spaced:
+            to_print = f"{msg}\n"
+        self._pytoil_console.print(to_print, style="title")
 
     def warn(self, msg: str, exits: int | None = None) -> None:
         """
@@ -104,7 +100,7 @@ class Printer:
 
     def note(self, msg: str, exits: int | None = None) -> None:
         """
-        Print an note, designed for supplementary info on another
+        Print a note, designed for supplementary info on another
         printer method.
 
         If `exits` is not None, will call `sys.exit` with given code.
@@ -130,6 +126,12 @@ class Printer:
         text_column = TextColumn("{task.description}")
         spinner_column = SpinnerColumn("simpleDotsScrolling", style="bold white")
         return Progress(text_column, spinner_column, transient=True)
+
+    def subtle(self, msg: str) -> None:
+        """
+        Print subtle greyed out text.
+        """
+        self._pytoil_console.print(msg, style="subtle", markup=None)
 
 
 # Export a default printer

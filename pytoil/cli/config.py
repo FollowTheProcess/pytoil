@@ -68,11 +68,8 @@ async def get(config: Config, key: str) -> None:
     if key not in defaults.CONFIG_KEYS:
         printer.error(f"{key} is not a valid pytoil config key.", exits=1)
 
-    config_dict = config.to_dict()
-    # Make the key a nice colour
-    config_start = click.style(f"{key}: ", fg="cyan")
-    config_msg = config_start + f"{config_dict.get(key)!r}"
-    click.secho(config_msg)
+    console = Console()
+    console.print(f"[cyan]{key}[/]: [default]{config.to_dict().get(key)}[/]")
 
 
 @config.command()
