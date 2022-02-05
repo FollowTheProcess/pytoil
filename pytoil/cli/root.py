@@ -120,7 +120,7 @@ async def main(ctx: click.Context) -> None:
         ).ask_async()
 
         config = Config(
-            projects_dir=Path(projects_dir),
+            projects_dir=Path(projects_dir).resolve(),
             token=token,
             username=username,
             vscode=vscode,
@@ -135,7 +135,12 @@ async def main(ctx: click.Context) -> None:
         return
 
     else:
-        # TODO: Move check for API credentials here rather than in each child command
+        if not config.can_use_api():
+            printer.error(
+                "You must set your GitHub username and personal access token to use API"
+                " features.",
+                exits=1,
+            )
         # We have a valid config file at the right place so load it into click's
         # context and pass it down to all subcommands
         ctx.obj = config

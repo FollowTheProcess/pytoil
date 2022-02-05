@@ -56,13 +56,6 @@ async def find(config: Config, project: str, limit: int) -> None:
 
     $ pytoil find proj --limit 5
     """
-    if not config.can_use_api():
-        printer.warn(
-            "You must set your GitHub username and personal access token to use API"
-            " features.",
-            exits=1,
-        )
-
     api = API(username=config.username, token=config.token)
 
     local_projects: set[str] = {
