@@ -9,6 +9,10 @@ There's really not much to configure, all pytoil *needs* you to specify is:
 
 If you don't know how to generate a GitHub token, check out the [docs].
 
+!!! note
+
+    If you don't specify `token` but have `GITHUB_TOKEN` set as environment variable, pytoil will use that instead :thumbsup:
+
 ## Optional
 
 There are also some *optional* configurations you can tweak:
