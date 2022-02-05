@@ -18,6 +18,7 @@ from wasabi import msg
 
 from pytoil.api import API
 from pytoil.cli import utils
+from pytoil.cli.printer import Printer
 from pytoil.config import Config
 from pytoil.environments import Environment
 from pytoil.exceptions import (
@@ -33,6 +34,8 @@ USER_REPO_REGEX = re.compile(r"^([A-Za-z0-9_.-])+/([A-Za-z0-9_.-])+$")
 
 # The bare 'project' pattern
 PROJECT_REGEX = re.compile(r"^([A-Za-z0-9_.-])+$")
+
+printer = Printer()
 
 
 @click.command()
@@ -92,7 +95,7 @@ async def checkout(config: Config, project: str, venv: bool) -> None:
     $ pytoil checkout someoneelse/project
     """
     if not config.can_use_api():
-        msg.warn(
+        printer.warn(
             "You must set your GitHub username and personal access token to use API"
             " features.",
             exits=1,
@@ -112,7 +115,9 @@ async def checkout(config: Config, project: str, venv: bool) -> None:
         # to create a fork
         owner, name = project.split("/")
         if owner == config.username:
-            msg.warn("You don't need the '/' when checking out a repo you own", exits=1)
+            printer.warn(
+                "You don't need the '/' when checking out a repo you own", exits=1
+            )
 
         await checkout_fork(
             owner=owner,
@@ -123,7 +128,7 @@ async def checkout(config: Config, project: str, venv: bool) -> None:
             venv=venv,
         )
 
-        msg.good("Done!")
+        printer.good("Done!")
 
     elif bool(PROJECT_REGEX.match(project)):
 
@@ -134,17 +139,13 @@ async def checkout(config: Config, project: str, venv: bool) -> None:
                 repo=repo, code=code, config=config, venv=venv, git=git
             )
         else:
-            msg.fail(f"Project: {project!r} not found locally or on GitHub.", exits=1)
+            printer.error(
+                f"Project: {project!r} not found locally or on GitHub.", exits=1
+            )
     else:
         # Unrecognised regex
-        msg.fail(
-            f"Argument: {project} did not match valid pattern.",
-            text=(
-                "Valid pattern is 'project' for a local or remote project you own,"
-                " or 'user/project' to fork a repo you don't own."
-            ),
-            exits=1,
-        )
+        printer.error(f"{project!r} did not match valid pattern.")
+        printer.note("Valid patterns are 'user/repo' or 'repo'.", exits=1)
 
 
 async def checkout_fork(
@@ -154,7 +155,7 @@ async def checkout_fork(
     Forks the passed repo, clones it, sets the upstream and informs
     the user along the way.
     """
-    msg.info(f"'{owner}/{name}' belongs to {owner!r}")
+    printer.info(f"{owner}/{name} belongs to {owner}")
     confirmed: bool = await questionary.confirm(
         f"This will fork '{owner}/{name}' to your GitHub. Are you sure?",
         default=False,
@@ -162,7 +163,7 @@ async def checkout_fork(
     ).ask_async()
 
     if not confirmed:
-        raise click.Abort()
+        printer.warn("Aborting", exits=1)
 
     # Check if we've already forked it, in which case the repo will already
     # exist under the user's namespace
@@ -173,12 +174,10 @@ async def checkout_fork(
     )
 
     if await fork.exists_remote(api):
-        msg.warn(
-            f"Looks like you've already forked '{owner}/{name}'.",
-            text=f"Use 'pytoil checkout {name}' to pull down your fork.",
-            exits=1,
-        )
+        printer.warn(f"Looks like you've already forked {owner}/{name}")
+        printer.note(f"Use pytoil checkout {name} to pull down your fork.", exits=1)
 
+    # TODO: Make our own spinner in the printer module
     with msg.loading(f"Forking '{owner}/{name}'..."):
         try:
             await api.create_fork(owner=owner, repo=name)
@@ -191,20 +190,18 @@ async def checkout_fork(
         await asyncio.sleep(3)
 
     if not await fork.exists_remote(api):
-        msg.warn(
-            "Fork not available yet.",
-            text=(
-                "Forking happens asynchronously so this is normal. Give it a few"
-                " more seconds and try checking it out again."
-            ),
+        printer.warn("Fork not available yet.")
+        printer.note(
+            "Forking happens asynchronously so this is normal. Give it a few"
+            " more seconds and try checking it out again.",
             exits=1,
         )
 
-    msg.info(f"Cloning your fork: {config.username}/{name}.", spaced=True)
+    printer.info(f"Cloning your fork: {config.username}/{name}.", spaced=True)
     # Only cloning 1 repo so makes sense to show the clone output
     await git.clone(url=fork.clone_url, cwd=config.projects_dir, silent=False)
 
-    msg.info("Setting 'upstream' to original repo.")
+    printer.info("Setting 'upstream' to original repo.")
     await git.set_upstream(owner=owner, repo=name, cwd=fork.local_path)
 
     # Automatic environment detection
@@ -217,7 +214,7 @@ async def checkout_fork(
         await handle_venv_creation(env=env, config=config, code=code)
 
     if config.vscode:
-        msg.info(f"Opening {fork.name!r} in VSCode.")
+        printer.info(f"Opening {fork.name} in VSCode.")
         await code.open()
 
 
@@ -229,23 +226,22 @@ async def handle_venv_creation(
     environments based on detected repo context.
     """
     if not env:
-        msg.warn("Unable to auto-detect required environment. Skipping.")
+        printer.warn("Unable to auto-detect required environment. Skipping.")
 
     else:
-        msg.info(f"Auto creating virtual environment using: {env.name}")
+        printer.info(
+            f"Auto creating virtual environment using: {env.name}", spaced=True
+        )
         if env.name == "conda":
-            msg.text("Note: Conda environments can take a few minutes to create.")
+            printer.note("Conda environments can take a few minutes to create.")
 
         try:
             with msg.loading("Working..."):
                 await env.install_self(silent=True)
         except ExternalToolNotInstalledError:
-            msg.fail(title=f"{env.name!r} not installed", exits=1)
+            printer.error(f"{env.name} not installed", exits=1)
         except EnvironmentAlreadyExistsError:
-            msg.warn(
-                title="Environment already exists",
-                text="No need to create a new one, Skipping.",
-            )
+            printer.warn("Environment already exists. Skipping.")
         finally:
             # Because the first exception will exit, this is okay
             # to call as finally
@@ -257,15 +253,15 @@ async def checkout_local(repo: Repo, code: VSCode, config: Config, venv: bool) -
     """
     Helper to checkout a local repo.
     """
-    msg.info(f"{repo.name} available locally")
+    printer.info(f"{repo.name} available locally")
 
     # No environment or git stuff here, chances are if it exists locally
     # user has already done all this stuff
     if venv:
-        click.secho("Note: '--venv' is ignored for local projects.", fg="yellow")
+        printer.note("The --venv flag is ignored for local projects.")
 
     if config.vscode:
-        msg.info(f"Opening {repo.name!r} in VSCode.")
+        printer.info(f"Opening {repo.name} in VSCode.", spaced=True)
         await code.open()
 
 
@@ -275,7 +271,7 @@ async def checkout_remote(
     """
     Helper to checkout a remote repo.
     """
-    msg.info(f"{repo.name} found on GitHub. Cloning...", spaced=True)
+    printer.info(f"{repo.name} found on GitHub. Cloning...", spaced=True)
     # Only cloning 1 repo so makes sense to show output
     await git.clone(url=repo.clone_url, cwd=config.projects_dir, silent=False)
 
@@ -285,5 +281,5 @@ async def checkout_remote(
         await handle_venv_creation(env=env, config=config, code=code)
 
     if config.vscode:
-        msg.info(f"Opening {repo.name!r} in VSCode.", spaced=True)
+        printer.info(f"Opening {repo.name} in VSCode.", spaced=True)
         await code.open()
