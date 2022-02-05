@@ -6,6 +6,8 @@ Author: Tom Fleet
 Created: 05/02/2022
 """
 
+from __future__ import annotations
+
 import sys
 
 from rich.console import Console
