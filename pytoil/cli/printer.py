@@ -11,6 +11,7 @@ from __future__ import annotations
 import sys
 
 from rich.console import Console
+from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.style import Style
 from rich.theme import Theme
 
@@ -122,10 +123,14 @@ class Printer:
         if exits is not None:
             sys.exit(exits)
 
+    def progress(self) -> Progress:
+        """
+        Return a pre-configured rich spinner.
+        """
+        text_column = TextColumn("{task.description}")
+        spinner_column = SpinnerColumn("simpleDotsScrolling", style="bold white")
+        return Progress(text_column, spinner_column, transient=True)
+
 
 # Export a default printer
 printer = Printer()
-
-
-if __name__ == "__main__":
-    printer.note("This is a note")

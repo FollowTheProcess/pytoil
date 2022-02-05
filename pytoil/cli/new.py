@@ -14,7 +14,6 @@ import functools
 import aiofiles.os
 import asyncclick as click
 from cookiecutter.main import cookiecutter
-from wasabi import msg
 
 from pytoil.api import API
 from pytoil.cli.printer import printer
@@ -153,13 +152,13 @@ async def new(  # noqa: C901
     if local:
         printer.error(f"{repo.name} already exists locally.")
         printer.note(
-            f"To checkout this project, use 'pytoil checkout {repo.name}'.", exits=1
+            f"To checkout this project, use `pytoil checkout {repo.name}`.", exits=1
         )
 
     if remote:
         printer.error(f"{repo.name} already exists on GitHub.")
         printer.note(
-            f"To checkout this project, use 'pytoil checkout {repo.name}'.", exits=1
+            f"To checkout this project, use `pytoil checkout {repo.name}`.", exits=1
         )
 
     # If we get here, we're good to create a new project
@@ -214,7 +213,7 @@ async def new(  # noqa: C901
 
     else:
         # Just a blank new project
-        printer.info(f"Creating {repo.name} at {repo.local_path}.")
+        printer.info(f"Creating {repo.name} at '{repo.local_path}'.")
         await aiofiles.os.mkdir(repo.local_path)
         if use_git:
             await git.init(cwd=repo.local_path, silent=False)
@@ -226,7 +225,8 @@ async def new(  # noqa: C901
             printer.note(f"Including {', '.join(to_install)}")
 
         env = Venv(root=repo.local_path)
-        with msg.loading("Working..."):
+        with printer.progress() as p:
+            p.add_task("[bold white]Working")
             await env.create(packages=to_install, silent=True)
 
     elif venv == "conda":
