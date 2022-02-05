@@ -255,5 +255,5 @@ async def new(  # noqa: C901
 
     # Now handle opening in VSCode
     if config.vscode:
-        msg.info(f"Opening {repo.name} in VSCode.", spaced=True)
+        printer.info(f"Opening {repo.name} in VSCode.", spaced=True)
         await code.open()

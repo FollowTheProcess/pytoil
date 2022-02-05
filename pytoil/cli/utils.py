@@ -8,7 +8,8 @@ Created: 30/12/2021
 from __future__ import annotations
 
 import httpx
-from wasabi import msg
+
+from pytoil.cli.printer import printer
 
 
 def handle_http_status_error(error: httpx.HTTPStatusError) -> None:
@@ -23,20 +24,11 @@ def handle_http_status_error(error: httpx.HTTPStatusError) -> None:
     code = error.response.status_code
 
     if code == 401:
-        msg.fail(
-            title="HTTP Error: 401 - Unauthorized",
-            text="This usually means something is wrong with your token!",
-            exits=1,
-        )
+        printer.error("HTTP 401 - Unauthorized")
+        printer.note("This usually means something is wrong with your token!", exits=1)
     elif code == 404:
-        msg.fail(
-            title="HTTP Error: 404 - Not Found",
-            text="This usually means you've made a typo.",
-            exits=1,
-        )
+        printer.error("HTTP 404 - Not Found")
+        printer.note("This is a bug we've not handled, please raise an issue!")
     elif code == 500:
-        msg.fail(
-            title="HTTP Error: 500 - Internal Server Error",
-            text="This usually means GitHub is not happy.",
-            exits=1,
-        )
+        printer.error("HTTP 500 - Server Error")
+        printer.note("This is very rare but it means GitHub is not happy!", exits=1)

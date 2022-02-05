@@ -14,7 +14,6 @@ from pathlib import Path
 import aiofiles.os
 import asyncclick as click
 import questionary
-from wasabi import msg
 
 from pytoil import __version__
 from pytoil.cli.cache import cache
@@ -25,6 +24,7 @@ from pytoil.cli.find import find
 from pytoil.cli.gh import gh
 from pytoil.cli.info import info
 from pytoil.cli.new import new
+from pytoil.cli.printer import printer
 from pytoil.cli.pull import pull
 from pytoil.cli.remove import remove
 from pytoil.cli.show import show
@@ -65,7 +65,7 @@ async def main(ctx: click.Context) -> None:
     try:
         config = await Config.load()
     except FileNotFoundError:
-        msg.warn("No pytoil config file detected!")
+        printer.warn("No pytoil config file detected!")
         interactive: bool = await questionary.confirm(
             "Interactively configure pytoil?", default=False, auto_enter=False
         ).ask_async()
@@ -74,12 +74,12 @@ async def main(ctx: click.Context) -> None:
             # User doesn't want to interactively walk through a config file
             # so just make a default and exit cleanly
             await Config.helper().write()
-            msg.good(
-                title="I made a default file for you",
-                text=f"It's here: {defaults.CONFIG_FILE}",
-                spaced=True,
+            printer.good("I made a default file for you.")
+            printer.note(
+                f"It's here: {defaults.CONFIG_FILE}, you can edit it with `pytoil"
+                " config edit``",
+                exits=0,
             )
-            msg.text("Tip: You can edit it with `pytoil config edit`.", exits=0)
             return
 
         # If we get here, the user wants to interactively make the config
@@ -130,9 +130,8 @@ async def main(ctx: click.Context) -> None:
 
         await config.write()
 
-        msg.good(
-            "Config created", text=f"It's available at {defaults.CONFIG_FILE}.", exits=0
-        )
+        printer.good("Config created")
+        printer.note(f"It's available at {defaults.CONFIG_FILE}.", exits=0)
         return
 
     else:
