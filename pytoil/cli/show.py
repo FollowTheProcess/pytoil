@@ -26,6 +26,7 @@ from pytoil.cli.printer import printer
 from pytoil.config import Config
 
 GITHUB_TIME_FORMAT = r"%Y-%m-%dT%H:%M:%SZ"
+MAX_PROJECTS = 15  # Default max to show
 
 
 @click.group()
@@ -52,7 +53,7 @@ async def show() -> None:
     "-l",
     "--limit",
     type=int,
-    default=30,
+    default=MAX_PROJECTS,
     help="Maximum number of projects to list.",
     show_default=True,
 )
@@ -118,7 +119,7 @@ async def local(config: Config, limit: int) -> None:
     "-l",
     "--limit",
     type=int,
-    default=30,
+    default=MAX_PROJECTS,
     help="Maximum number of projects to list.",
     show_default=True,
 )
@@ -187,7 +188,7 @@ async def remote(config: Config, limit: int) -> None:
     "-l",
     "--limit",
     type=int,
-    default=30,
+    default=MAX_PROJECTS,
     help="Maximum number of projects to list.",
     show_default=True,
 )
@@ -255,7 +256,7 @@ async def forks(config: Config, limit: int) -> None:
     "-l",
     "--limit",
     type=int,
-    default=30,
+    default=MAX_PROJECTS,
     help="Maximum number of projects to list.",
     show_default=True,
 )
