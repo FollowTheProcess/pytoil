@@ -19,10 +19,10 @@ import httpx
 import humanize
 from rich.console import Console
 from rich.table import Table, box
-from wasabi import msg
 
 from pytoil.api import API
 from pytoil.cli import utils
+from pytoil.cli.printer import printer
 from pytoil.config import Config
 
 GITHUB_TIME_FORMAT = r"%Y-%m-%dT%H:%M:%SZ"
@@ -80,7 +80,7 @@ async def local(config: Config, limit: int) -> None:
     }
 
     if not local_projects:
-        msg.warn("You don't have any local projects yet!", exits=1)
+        printer.error("You don't have any local projects yet!", exits=1)
 
     table = Table(box=box.SIMPLE)
     table.add_column("Name", style="bold white")
@@ -142,7 +142,7 @@ async def remote(config: Config, limit: int) -> None:
     $ pytoil show remote --limit 10
     """
     if not config.can_use_api():
-        msg.warn(
+        printer.warn(
             "You must set your GitHub username and personal access token to use API"
             " features.",
             exits=1,
@@ -156,7 +156,8 @@ async def remote(config: Config, limit: int) -> None:
         utils.handle_http_status_error(err)
     else:
         if not repos:
-            msg.warn("You don't have any projects on GitHub yet.", exits=1)
+            printer.error("You don't have any projects on GitHub yet.", exits=1)
+            # Return so mypy knows we've narrowed type of repos
             return
 
         table = Table(box=box.SIMPLE)
@@ -215,7 +216,7 @@ async def forks(config: Config, limit: int) -> None:
     $ pytoil show forks --limit 10
     """
     if not config.can_use_api():
-        msg.warn(
+        printer.warn(
             "You must set your GitHub username and personal access token to use API"
             " features.",
             exits=1,
@@ -229,7 +230,7 @@ async def forks(config: Config, limit: int) -> None:
         utils.handle_http_status_error(err)
     else:
         if not forks:
-            msg.warn("You don't have any forks yet.", exits=1)
+            printer.error("You don't have any forks yet.", exits=1)
             return
 
         table = Table(box=box.SIMPLE)
@@ -290,7 +291,7 @@ async def diff(config: Config, limit: int) -> None:
     $ pytoil show diff --limit 10
     """
     if not config.can_use_api():
-        msg.warn(
+        printer.warn(
             "You must set your GitHub username and personal access token to use API"
             " features.",
             exits=1,
@@ -310,7 +311,7 @@ async def diff(config: Config, limit: int) -> None:
         utils.handle_http_status_error(err)
     else:
         if not remote_projects:
-            msg.warn("You don't have any projects on GitHub yet!", exits=1)
+            printer.error("You don't have any projects on GitHub yet!", exits=1)
             return
 
         remote_names: set[str] = {repo["name"] for repo in remote_projects}
@@ -323,7 +324,7 @@ async def diff(config: Config, limit: int) -> None:
                     diff_info.append(repo)
 
         if not diff:
-            msg.good("Your local and remote projects are in sync!")
+            printer.good("Your local and remote projects are in sync!")
         else:
             table = Table(box=box.SIMPLE)
             table.add_column("Name", style="bold white")

@@ -13,10 +13,10 @@ import asyncio
 import asyncclick as click
 import httpx
 import questionary
-from wasabi import msg
 
 from pytoil.api import API
 from pytoil.cli import utils
+from pytoil.cli.printer import printer
 from pytoil.config import Config
 from pytoil.git import Git
 from pytoil.repo import Repo
@@ -66,14 +66,14 @@ async def pull(
     $ pytoil pull --all --force
     """
     if not config.can_use_api():
-        msg.warn(
+        printer.warn(
             "You must set your GitHub username and personal access token to use API"
             " features.",
             exits=1,
         )
 
     if not projects and not all_:
-        msg.warn(
+        printer.error(
             "If not using the '--all' flag, you must specify projects to pull.", exits=1
         )
 
@@ -91,18 +91,20 @@ async def pull(
         utils.handle_http_status_error(err)
     else:
         if not remote_projects:
-            msg.warn("You don't have any remote projects to pull.", exits=1)
+            printer.error("You don't have any remote projects to pull.", exits=1)
 
         specified_remotes = remote_projects if all_ else set(projects)
 
         # Check for typos
         for project in projects:
             if project not in remote_projects:
-                msg.warn(f"{project!r} not found on GitHub. Was it a typo?", exits=1)
+                printer.error(
+                    f"{project!r} not found on GitHub. Was it a typo?", exits=1
+                )
 
         diff = specified_remotes.difference(local_projects)
         if not diff:
-            msg.good("Your local and remote projects are in sync!", exits=0)
+            printer.good("Your local and remote projects are in sync!", exits=0)
 
         if not force:
             if len(diff) <= 3:
@@ -135,4 +137,4 @@ async def pull(
 
 async def clone_and_report(repo: Repo, git: Git, config: Config) -> None:
     await git.clone(url=repo.clone_url, cwd=config.projects_dir)
-    msg.good(f"Cloned {repo.name!r}")
+    printer.good(f"Cloned {repo.name!r}")

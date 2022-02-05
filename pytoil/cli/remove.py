@@ -14,8 +14,8 @@ import shutil
 
 import asyncclick as click
 import questionary
-from wasabi import msg
 
+from pytoil.cli.printer import printer
 from pytoil.config import Config
 
 
@@ -66,10 +66,10 @@ async def remove(
     }
 
     if not local_projects:
-        msg.warn("You don't have any local projects to remove", exits=1)
+        printer.error("You don't have any local projects to remove", exits=1)
 
     if not projects and not all_:
-        msg.warn(
+        printer.error(
             "If not using the '--all' flag, you must specify projects to remove.",
             exits=1,
         )
@@ -77,7 +77,7 @@ async def remove(
     # If user gives a project that doesn't exist (e.g. typo), abort
     for project in projects:
         if project not in local_projects:
-            msg.warn(
+            printer.error(
                 f"{project!r} not found under {config.projects_dir}. Was it a typo?",
                 exits=1,
             )
@@ -128,4 +128,4 @@ async def remove_and_report(config: Config, project: str) -> None:
             ignore_errors=True,
         ),
     )
-    msg.good(f"Deleted {project}")
+    printer.good(f"Deleted {project}")
