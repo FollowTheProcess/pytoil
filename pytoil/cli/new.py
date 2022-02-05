@@ -118,13 +118,6 @@ async def new(  # noqa: C901
 
     $ pytoil new my_project --starter python
     """
-    if not config.can_use_api():
-        printer.warn(
-            "You must set your GitHub username and personal access token to use API"
-            " features.",
-            exits=1,
-        )
-
     api = API(username=config.username, token=config.token)
     repo = Repo(
         owner=config.username,

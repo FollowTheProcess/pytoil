@@ -141,13 +141,6 @@ async def remote(config: Config, limit: int) -> None:
 
     $ pytoil show remote --limit 10
     """
-    if not config.can_use_api():
-        printer.warn(
-            "You must set your GitHub username and personal access token to use API"
-            " features.",
-            exits=1,
-        )
-
     api = API(username=config.username, token=config.token)
 
     try:
@@ -215,13 +208,6 @@ async def forks(config: Config, limit: int) -> None:
 
     $ pytoil show forks --limit 10
     """
-    if not config.can_use_api():
-        printer.warn(
-            "You must set your GitHub username and personal access token to use API"
-            " features.",
-            exits=1,
-        )
-
     api = API(username=config.username, token=config.token)
 
     try:
@@ -290,13 +276,6 @@ async def diff(config: Config, limit: int) -> None:
 
     $ pytoil show diff --limit 10
     """
-    if not config.can_use_api():
-        printer.warn(
-            "You must set your GitHub username and personal access token to use API"
-            " features.",
-            exits=1,
-        )
-
     api = API(username=config.username, token=config.token)
 
     local_projects: set[str] = {

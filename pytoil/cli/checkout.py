@@ -92,13 +92,6 @@ async def checkout(config: Config, project: str, venv: bool) -> None:
 
     $ pytoil checkout someoneelse/project
     """
-    if not config.can_use_api():
-        printer.error(
-            "You must set your GitHub username and personal access token to use API"
-            " features.",
-            exits=1,
-        )
-
     api = API(username=config.username, token=config.token)
     repo = Repo(
         owner=config.username,

@@ -65,13 +65,6 @@ async def pull(
 
     $ pytoil pull --all --force
     """
-    if not config.can_use_api():
-        printer.warn(
-            "You must set your GitHub username and personal access token to use API"
-            " features.",
-            exits=1,
-        )
-
     if not projects and not all_:
         printer.error(
             "If not using the '--all' flag, you must specify projects to pull.", exits=1

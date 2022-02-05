@@ -39,13 +39,6 @@ async def info(config: Config, project: str) -> None:
 
     $ pytoil info my_project
     """
-    if not config.can_use_api():
-        printer.warn(
-            "You must set your GitHub username and personal access token to use API"
-            " features.",
-            exits=1,
-        )
-
     api = API(username=config.username, token=config.token)
     repo = Repo(
         owner=config.username,
