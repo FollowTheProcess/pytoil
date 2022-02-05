@@ -28,7 +28,7 @@ def handle_http_status_error(error: httpx.HTTPStatusError) -> None:
         printer.note("This usually means something is wrong with your token!", exits=1)
     elif code == 404:
         printer.error("HTTP 404 - Not Found")
-        printer.note("This is a bug we've not handled, please raise an issue!")
+        printer.note("This is a bug we've not handled, please raise an issue!", exits=1)
     elif code == 500:
         printer.error("HTTP 500 - Server Error")
         printer.note("This is very rare but it means GitHub is not happy!", exits=1)
