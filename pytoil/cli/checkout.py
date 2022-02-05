@@ -14,7 +14,6 @@ import re
 import asyncclick as click
 import httpx
 import questionary
-from wasabi import msg
 
 from pytoil.api import API
 from pytoil.cli import utils
@@ -166,8 +165,8 @@ async def checkout_fork(
         printer.warn(f"Looks like you've already forked {owner}/{name}")
         printer.note(f"Use pytoil checkout {name} to pull down your fork.", exits=1)
 
-    # TODO: Make our own spinner in the printer module
-    with msg.loading(f"Forking '{owner}/{name}'..."):
+    with printer.progress() as p:
+        p.add_task(f"[bold white]Forking {owner}/{name}")
         try:
             await api.create_fork(owner=owner, repo=name)
         except httpx.HTTPStatusError as err:
@@ -225,7 +224,8 @@ async def handle_venv_creation(
             printer.note("Conda environments can take a few minutes to create.")
 
         try:
-            with msg.loading("Working..."):
+            with printer.progress() as p:
+                p.add_task("[bold white]Working")
                 await env.install_self(silent=True)
         except ExternalToolNotInstalledError:
             printer.error(f"{env.name} not installed", exits=1)
