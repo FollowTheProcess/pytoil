@@ -212,6 +212,7 @@ Options:
   --help     Show this message and exit.
 
 Commands:
+  cache     Interact with pytoil's cache.
   checkout  Checkout an existing development project.
   config    Interact with pytoil's configuration.
   docs      Open pytoil's documentation in your browser.

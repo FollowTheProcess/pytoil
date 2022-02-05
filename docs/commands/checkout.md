@@ -47,7 +47,8 @@ Usage: pytoil checkout [OPTIONS] PROJECT
   checking out is a python package, in which case it will install it's
   requirements into the created environment.
 
-  More info about this can be found in the documentation.
+  More info about this can be found in the documentation. Use `pytoil docs` to
+  go there.
 
   Examples:
 

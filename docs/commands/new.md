@@ -24,8 +24,8 @@ Usage: pytoil new [OPTIONS] PROJECT [PACKAGES]...
 
   By default, pytoil will initialise a local git repo in the folder and commit
   it, following the style of modern language build tools such as rust's cargo.
-  You can disable this behaviour by setting 'git' to false in pytoil's
-  config file or by passing the '--no-git/-n' flag here.
+  You can disable this behaviour by setting 'git' to false in pytoil's config
+  file or by passing the '--no-git/-n' flag here.
 
   If you want pytoil to create a new virtual environment for your project, you
   can use the '--venv/-v' flag. Standard python and conda virtual environments
@@ -67,7 +67,6 @@ Options:
   -v, --venv [venv|conda]         Which type of virtual environment to create.
   -n, --no-git                    Don't do any git stuff.
   --help                          Show this message and exit.
-
 ```
 
 </div>

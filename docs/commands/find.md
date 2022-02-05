@@ -34,7 +34,7 @@ Usage: pytoil find [OPTIONS] PROJECT
   $ pytoil find proj --limit 5
 
 Options:
-  -l, --limit INTEGER  Limit results to maximum number.  [default: 3]
+  -l, --limit INTEGER  Limit results to maximum number.  [default: 5]
   --help               Show this message and exit.
 ```
 

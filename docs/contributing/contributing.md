@@ -10,7 +10,7 @@ I've tried to structure pytoil to make it nice and easy for people to contribute
 
 If you want to fix a bug, improve the docs, add tests, add a feature or any other type of direct contribution to pytoil: here's how you do it!
 
-**To work on pytoil you'll need python >=3.8**
+**To work on pytoil you'll need python >=3.9**
 
 ### Step 1: Fork pytoil
 
