@@ -13,9 +13,9 @@ import functools
 import shutil
 
 import asyncclick as click
-from wasabi import msg
 
 from pytoil.api import API
+from pytoil.cli.printer import Printer
 from pytoil.config import Config, defaults
 
 
@@ -50,6 +50,7 @@ async def refresh(config: Config) -> None:
     """
     api = API(username=config.username, token=config.token)
     names = await api.get_repo_names()
+    printer = Printer()
 
     # Just hit all the cacheable endpoints to initialise the cache
     await asyncio.gather(
@@ -59,7 +60,7 @@ async def refresh(config: Config) -> None:
         *[api.get_repo_info(name) for name in names],
     )
 
-    msg.good("Cache refreshed successfully")
+    printer.good("Cache refreshed successfully")
 
 
 @cache.command()
@@ -77,6 +78,7 @@ async def clear(config: Config) -> None:
 
     $ pytoil cache clear
     """
+    printer = Printer()
     loop = asyncio.get_event_loop()
     await loop.run_in_executor(
         executor=None,
@@ -87,4 +89,4 @@ async def clear(config: Config) -> None:
         ),
     )
 
-    msg.good("Cache cleared successfully")
+    printer.good("Cache cleared successfully")
