@@ -9,8 +9,8 @@ Created: 21/12/2021
 from __future__ import annotations
 
 import asyncclick as click
-from wasabi import msg
 
+from pytoil.cli.printer import printer
 from pytoil.config import defaults
 
 
@@ -23,5 +23,5 @@ async def docs() -> None:
 
     $ pytoil docs
     """
-    msg.info("Opening pytoil's docs in your browser...")
+    printer.info("Opening pytoil's docs in your browser...")
     click.launch(url=defaults.PYTOIL_DOCS_URL)

@@ -13,9 +13,9 @@ from rich.console import Console
 from rich.table import Table, box
 from rich.text import Text
 from thefuzz import process
-from wasabi import msg
 
 from pytoil.api import API
+from pytoil.cli.printer import printer
 from pytoil.config import Config
 
 FUZZY_SCORE_CUTOFF = 75
@@ -57,7 +57,7 @@ async def find(config: Config, project: str, limit: int) -> None:
     $ pytoil find proj --limit 5
     """
     if not config.can_use_api():
-        msg.warn(
+        printer.warn(
             "You must set your GitHub username and personal access token to use API"
             " features.",
             exits=1,
@@ -84,7 +84,7 @@ async def find(config: Config, project: str, limit: int) -> None:
     table.add_column("Where")
 
     if len(matches) == 0:
-        msg.warn("No matches found!", exits=1)
+        printer.error("No matches found!", exits=1)
 
     for match in matches:
         is_local = match[0] in local_projects

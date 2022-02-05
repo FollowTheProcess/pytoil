@@ -136,6 +136,7 @@ async def main(ctx: click.Context) -> None:
         return
 
     else:
+        # TODO: Move check for API credentials here rather than in each child command
         # We have a valid config file at the right place so load it into click's
         # context and pass it down to all subcommands
         ctx.obj = config

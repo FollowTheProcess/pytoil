@@ -12,8 +12,8 @@ import asyncclick as click
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.table import Table, box
-from wasabi import msg
 
+from pytoil.cli.printer import printer
 from pytoil.config import Config, defaults
 
 
@@ -66,7 +66,7 @@ async def get(config: Config, key: str) -> None:
     $ pytoil config get vscode
     """
     if key not in defaults.CONFIG_KEYS:
-        msg.warn(f"{key!r} is not a valid pytoil config key.", exits=1)
+        printer.error(f"{key} is not a valid pytoil config key.", exits=1)
 
     config_dict = config.to_dict()
     # Make the key a nice colour
