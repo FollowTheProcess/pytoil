@@ -27,7 +27,7 @@ FUZZY_SCORE_CUTOFF = 75
     "-l",
     "--limit",
     type=int,
-    default=3,
+    default=5,
     help="Limit results to maximum number.",
     show_default=True,
 )
@@ -54,7 +54,7 @@ async def find(config: Config, project: str, limit: int) -> None:
 
     $ pytoil find my
 
-    $ pytoil find proj --limit 5
+    $ pytoil find proj --limit 3
     """
     api = API(username=config.username, token=config.token)
 

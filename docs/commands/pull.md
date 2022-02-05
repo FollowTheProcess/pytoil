@@ -51,7 +51,6 @@ Options:
   -f, --force  Force pull without confirmation.
   -a, --all    Pull down all your projects.
   --help       Show this message and exit.
-
 ```
 
 </div>
