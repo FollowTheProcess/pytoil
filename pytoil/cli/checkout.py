@@ -250,7 +250,7 @@ async def checkout_local(repo: Repo, code: VSCode, config: Config, venv: bool) -
         printer.note("The --venv flag is ignored for local projects.")
 
     if config.vscode:
-        printer.info(f"Opening {repo.name} in VSCode.", spaced=True)
+        printer.info(f"Opening {repo.name} in VSCode.")
         await code.open()
 
 
