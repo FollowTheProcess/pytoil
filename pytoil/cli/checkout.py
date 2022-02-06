@@ -242,7 +242,7 @@ async def checkout_local(repo: Repo, code: VSCode, config: Config, venv: bool) -
     """
     Helper to checkout a local repo.
     """
-    printer.info(f"{repo.name} available locally")
+    printer.info(f"{repo.name} available locally.")
 
     # No environment or git stuff here, chances are if it exists locally
     # user has already done all this stuff
