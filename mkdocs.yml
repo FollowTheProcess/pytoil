@@ -13,6 +13,7 @@ nav:
       - New: commands/new.md
       - Checkout: commands/checkout.md
       - Remove: commands/remove.md
+      - Keep: commands/keep.md
       - Info: commands/info.md
       - Find: commands/find.md
       - GH: commands/gh.md

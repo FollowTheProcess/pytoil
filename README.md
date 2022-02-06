@@ -177,6 +177,7 @@ Commands:
   find      Quickly locate a project.
   gh        Open one of your projects on GitHub.
   info      Get useful info for a project.
+  keep      Remove all but the specified projects.
   new       Create a new development project.
   pull      Pull down your remote projects.
   remove    Remove projects from your local filesystem.
