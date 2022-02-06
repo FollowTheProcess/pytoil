@@ -1,9 +1,9 @@
 """
-The pytoil remove command.
+The pytoil keep command.
 
 
 Author: Tom Fleet
-Created: 21/12/2021
+Created: 06/02/2022
 """
 
 from __future__ import annotations
@@ -22,25 +22,15 @@ from pytoil.config import Config
 @click.command()
 @click.argument("projects", nargs=-1)
 @click.option("-f", "--force", is_flag=True, help="Force delete without confirmation.")
-@click.option(
-    "-a",
-    "--all",
-    "all_",
-    is_flag=True,
-    help="Delete all of your local projects.",
-)
 @click.pass_obj
-async def remove(
-    config: Config, projects: tuple[str, ...], force: bool, all_: bool
-) -> None:
+async def keep(config: Config, projects: tuple[str, ...], force: bool) -> None:
     """
-    Remove projects from your local filesystem.
+    Remove all but the specified projects.
 
-    The remove command provides an easy interface for decluttering your local
-    projects directory.
+    The keep command lets you delete all projects from your local
+    projects directory whilst keeping the specified ones untouched.
 
-    You can selectively remove any number of projects by passing them as
-    arguments or nuke the whole lot with "--all/-a" if you want.
+    It is effectively the inverse of `pytoil remove`.
 
     As with most programmatic deleting, the directories are deleted instantly and
     not sent to trash. As such, pytoil will prompt you for confirmation before
@@ -51,13 +41,9 @@ async def remove(
 
     Examples:
 
-    $ pytoil remove project1 project2 project3
+    $ pytoil keep project1 project2 project3
 
-    $ pytoil remove project1 project2 project3 --force
-
-    $ pytoil remove --all
-
-    $ pytoil remove --all --force
+    $ pytoil keep project1 project2 project3 --force
     """
     local_projects: set[str] = {
         f.name
@@ -68,12 +54,6 @@ async def remove(
     if not local_projects:
         printer.error("You don't have any local projects to remove", exits=1)
 
-    if not projects and not all_:
-        printer.error(
-            "If not using the '--all' flag, you must specify projects to remove.",
-            exits=1,
-        )
-
     # If user gives a project that doesn't exist (e.g. typo), abort
     for project in projects:
         if project not in local_projects:
@@ -82,19 +62,14 @@ async def remove(
                 exits=1,
             )
 
-    to_delete = local_projects if all_ else projects
+    specified = set(projects)
+    to_delete = local_projects.difference(specified)
 
     if not force:
-        if all_:
-            question = questionary.confirm(
-                "This will delete ALL of your projects. Are you sure?",
-                default=False,
-                auto_enter=False,
-            )
-        elif len(projects) <= 3:
+        if len(to_delete) <= 3:
             # Nice number to show the names
             question = questionary.confirm(
-                f"This will delete {', '.join(projects)} from your local filesystem."
+                f"This will delete {', '.join(to_delete)} from your local filesystem."
                 " Are you sure?",
                 default=False,
                 auto_enter=False,
@@ -102,8 +77,8 @@ async def remove(
         else:
             # Too many to print the names nicely
             question = questionary.confirm(
-                f"This will delete {len(projects)} projects from your local filesystem."
-                " Are you sure?",
+                f"This will delete {len(to_delete)} projects from your local"
+                " filesystem. Are you sure?",
                 default=False,
                 auto_enter=False,
             )

@@ -24,6 +24,7 @@ from pytoil.cli.docs import docs
 from pytoil.cli.find import find
 from pytoil.cli.gh import gh
 from pytoil.cli.info import info
+from pytoil.cli.keep import keep
 from pytoil.cli.new import new
 from pytoil.cli.printer import printer
 from pytoil.cli.pull import pull
@@ -48,6 +49,7 @@ install()
         remove,
         show,
         cache,
+        keep,
     )
 )
 @click.version_option(version=__version__, package_name="pytoil", prog_name="pytoil")
