@@ -28,6 +28,31 @@ jobs:
       - name: Run Tests and Coverage
         run: nox --non-interactive --session "test-${{ matrix.python-version }}"
 
+  codecov:
+    name: Codecov
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
+      - name: Install Dependencies
+        run: |
+          python3 -m pip install --upgrade pip setuptools wheel
+          python3 -m pip install poetry
+          python3 -m pip install nox
+
+      - name: Run Tests and Coverage
+        run: nox --non-interactive --session "codecov"
+
+      - name: Upload Coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          files: ./coverage.xml
+
   lint:
     name: Lint
     runs-on: ubuntu-latest
