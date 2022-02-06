@@ -43,8 +43,6 @@ ARTIFACTS = [
 # Git info
 DEFAULT_BRANCH = "main"
 
-# Where to save the coverage badge
-COVERAGE_BADGE = PROJECT_ROOT / "docs" / "img" / "coverage.svg"
 
 # VSCode
 VSCODE_DIR = PROJECT_ROOT / ".vscode"
@@ -96,7 +94,15 @@ SESSION_REQUIREMENTS: dict[str, list[str]] = {
     ],
     "coverage": [
         "coverage[toml]",
-        "coverage-badge",
+    ],
+    "codecov": [
+        "pytest",
+        "pytest-asyncio",
+        "pytest-httpx",
+        "pytest-cov",
+        "pytest-mock",
+        "freezegun",
+        "coverage[toml]",
     ],
 }
 
@@ -107,6 +113,260 @@ if not VENV_DIR.exists() and not ON_CI:
     nox.options.sessions = ["dev"]
 else:
     nox.options.sessions = ["test", "coverage", "lint", "docs"]
+
+
+@nox.session(python=False)
+def dev(session: nox.Session) -> None:
+    """
+    Sets up a python dev environment for the project if one doesn't already exist.
+    """
+    # Check if dev has been run before
+    # this prevents manual running nox -s dev more than once
+    # thus potentially corrupting an environment
+    if VENV_DIR.exists():
+        session.error(
+            "There is already a virtual environment deactivate and remove it "
+            "before running 'dev' again"
+        )
+
+    # Error out if user does not have poetry installed
+    session_requires(session, "poetry")
+
+    session.run("poetry", "install", external=True)
+
+    # Poetry doesn't always install latest pip
+    # Here we use the absolute path to the poetry venv's python interpreter
+    session.run(PYTHON, "-m", "pip", "install", "--upgrade", *SEEDS, silent=True)
+
+    if bool(shutil.which("code")) or bool(shutil.which("code-insiders")):
+        # Only do this is user has VSCode installed
+        set_up_vscode(session)
+
+
+@nox.session(python=False)
+def update(session: nox.Session) -> None:
+    """
+    Updates the dependencies in the poetry.lock file.
+    """
+    # Error out if user does not have poetry installed
+    session_requires(session, "poetry")
+    session.run("poetry", "update")
+
+
+@nox.session(python=PYTHON_VERSIONS)
+def test(session: nox.Session) -> None:
+    """
+    Runs the test suite against all supported python versions.
+    """
+    # Error out if user does not have poetry installed
+    session_requires(session, "poetry")
+
+    # We can't use get_session_requirements here because the session
+    # is parametrized against different python versions meaning the
+    # session name is 'test-{version}'
+    requirements = SESSION_REQUIREMENTS.get("test", [])
+    if not requirements:
+        session.error("Requirements for nox session: 'test', not found in noxfile.py.")
+
+    update_seeds(session)
+    # Tests require the package to be installed
+    session.run("poetry", "install", "--no-dev", external=True, silent=True)
+    poetry_install(session, *requirements)
+
+    session.run("pytest", f"--cov={PROJECT_SRC}", f"{PROJECT_TESTS}")
+    # Notify queues up 'coverage' to run next
+    # so 'nox -s test' will run coverage afterwards
+    session.notify("coverage")
+
+
+@nox.session(python=DEFAULT_PYTHON)
+def coverage(session: nox.Session) -> None:
+    """
+    Test coverage analysis.
+    """
+    # Error out if user does not have poetry installed
+    session_requires(session, "poetry")
+
+    requirements = get_session_requirements(session)
+
+    update_seeds(session)
+    poetry_install(session, *requirements)
+
+    session.run("coverage", "report", "--show-missing")
+
+
+@nox.session(python=DEFAULT_PYTHON)
+def codecov(session: nox.Session) -> None:
+    """
+    Generate a codecov xml report for CI.
+    """
+    session_requires(session, "poetry")
+    requirements = get_session_requirements(session)
+    update_seeds(session)
+
+    session.run("poetry", "install", "--no-dev", external=True, silent=True)
+    poetry_install(session, *requirements)
+
+    session.run("pytest", f"--cov={PROJECT_SRC}", f"{PROJECT_TESTS}")
+    session.run("coverage", "xml")
+
+
+@nox.session(python=DEFAULT_PYTHON)
+def lint(session: nox.Session) -> None:
+    """
+    Run pre-commit linting.
+    """
+    session_requires(session, "poetry")
+    requirements = get_session_requirements(session)
+    update_seeds(session)
+    poetry_install(session, *requirements)
+
+    session.run("pre-commit", "run", "--all-files")
+
+
+@nox.session(python=DEFAULT_PYTHON)
+def docs(session: nox.Session) -> None:
+    """
+    Builds the project documentation. Use '-- serve' to see changes live.
+    """
+    # Error out if user does not have poetry installed
+    session_requires(session, "poetry")
+
+    requirements = get_session_requirements(session)
+
+    update_seeds(session)
+    poetry_install(session, *requirements)
+
+    if "serve" in session.posargs:
+        webbrowser.open(url="http://127.0.0.1:8000/pytoil/")
+        session.run("mkdocs", "serve")
+    else:
+        session.run("mkdocs", "build", "--clean")
+
+
+@nox.session(python=DEFAULT_PYTHON)
+def profile(session: nox.Session) -> None:
+    """
+    Profile the profile passing session posargs to the CLI.
+
+    E.g. `nox -s profile -- config show`
+    """
+    session.install(".")
+    session.install("scalene")
+    session.run(
+        "scalene",
+        "--html",
+        "--outfile",
+        str(PROJECT_PROFILE),
+        str(PROJECT_ENTRY_POINT),
+        *session.posargs,
+    )
+
+
+@nox.session
+def deploy_docs(session: nox.Session) -> None:
+    """
+    Used by GitHub actions to deploy docs to GitHub Pages.
+    """
+    session_requires(session, "poetry")
+
+    requirements = SESSION_REQUIREMENTS.get("docs")
+    if not requirements:
+        session.error("Could not find requirements for 'docs' in SESSION_REQUIREMENTS")
+
+    update_seeds(session)
+    poetry_install(session, *requirements)  # type: ignore
+
+    if ON_CI:
+        session.run(
+            "git",
+            "remote",
+            "add",
+            "gh-token",
+            "https://${GITHUB_TOKEN}@github.com/FollowTheProcess/pytoil.git",
+            external=True,
+        )
+        session.run("git", "fetch", "gh-token", external=True)
+        session.run("git", "fetch", "gh-token", "gh-pages:gh-pages", external=True)
+
+        session.run("mkdocs", "gh-deploy", "-v", "--clean", "--remote-name", "gh-token")
+    else:
+        session.run("mkdocs", "gh-deploy")
+
+
+@nox.session(python=DEFAULT_PYTHON)
+def build(session: nox.Session) -> None:
+    """
+    Builds the package sdist and wheel.
+    """
+    # Error out if user does not have poetry installed
+    session_requires(session, "poetry")
+
+    update_seeds(session)
+    session.run("poetry", "install", "--no-dev", external=True, silent=True)
+
+    session.run("poetry", "build", external=True)
+
+
+@nox.session(python=False)
+def clean(session: nox.Session) -> None:
+    """
+    Clean up artifacts from other nox sessions.
+    """
+    for artifact in ARTIFACTS:
+        if artifact.exists():
+            if artifact.is_dir():
+                shutil.rmtree(artifact, ignore_errors=True)
+            else:
+                os.remove(artifact)
+
+
+@nox.session(python=DEFAULT_PYTHON)
+def release(session: nox.Session) -> None:
+    """
+    Kicks off the automated release process by creating and pushing a new tag.
+
+    Invokes bump2version with the posarg setting the version.
+
+    Usage:
+
+    $ nox -s release -- [major|minor|patch]
+    """
+    enforce_branch_no_changes(session)
+
+    parser = argparse.ArgumentParser(description="Release a new semantic version.")
+    parser.add_argument(
+        "version",
+        type=str,
+        nargs=1,
+        help="The type of semver release to make.",
+        choices={"major", "minor", "patch"},
+    )
+    args: argparse.Namespace = parser.parse_args(args=session.posargs)
+    version: str = args.version.pop()
+
+    # If we get here, we should be good to go
+    # Let's do a final check for safety
+    confirm = input(
+        f"You are about to bump the {version!r} version. Are you sure? [y/n]: "
+    )
+
+    # Abort on anything other than 'y'
+    if confirm.lower().strip() != "y":
+        session.error(f"You said no when prompted to bump the {version!r} version.")
+
+    # Error out if user does not have poetry installed
+    session_requires(session, "poetry")
+    update_seeds(session)
+
+    poetry_install(session, "bump2version")
+
+    session.log(f"Bumping the {version!r} version")
+    session.run("bump2version", version)
+
+    session.log("Pushing the new tag")
+    session.run("git", "push", external=True)
+    session.run("git", "push", "--tags", external=True)
 
 
 def poetry_install(session: nox.Session, *args: str, **kwargs: Any) -> None:
@@ -290,246 +550,3 @@ def enforce_branch_no_changes(session: nox.Session) -> None:
         session.error(
             f"Must be on {DEFAULT_BRANCH!r} branch. Currently on {branch!r} branch"
         )
-
-
-@nox.session(python=False)
-def dev(session: nox.Session) -> None:
-    """
-    Sets up a python dev environment for the project if one doesn't already exist.
-    """
-    # Check if dev has been run before
-    # this prevents manual running nox -s dev more than once
-    # thus potentially corrupting an environment
-    if VENV_DIR.exists():
-        session.error(
-            "There is already a virtual environment deactivate and remove it "
-            "before running 'dev' again"
-        )
-
-    # Error out if user does not have poetry installed
-    session_requires(session, "poetry")
-
-    session.run("poetry", "install", external=True)
-
-    # Poetry doesn't always install latest pip
-    # Here we use the absolute path to the poetry venv's python interpreter
-    session.run(PYTHON, "-m", "pip", "install", "--upgrade", *SEEDS, silent=True)
-
-    if bool(shutil.which("code")) or bool(shutil.which("code-insiders")):
-        # Only do this is user has VSCode installed
-        set_up_vscode(session)
-
-
-@nox.session(python=False)
-def update(session: nox.Session) -> None:
-    """
-    Updates the dependencies in the poetry.lock file.
-    """
-    # Error out if user does not have poetry installed
-    session_requires(session, "poetry")
-    session.run("poetry", "update")
-
-
-@nox.session(python=PYTHON_VERSIONS)
-def test(session: nox.Session) -> None:
-    """
-    Runs the test suite against all supported python versions.
-    """
-    # Error out if user does not have poetry installed
-    session_requires(session, "poetry")
-
-    # We can't use get_session_requirements here because the session
-    # is parametrized against different python versions meaning the
-    # session name is 'test-{version}'
-    requirements = SESSION_REQUIREMENTS.get("test", [])
-    if not requirements:
-        session.error("Requirements for nox session: 'test', not found in noxfile.py.")
-
-    update_seeds(session)
-    # Tests require the package to be installed
-    session.run("poetry", "install", "--no-dev", external=True, silent=True)
-    poetry_install(session, *requirements)
-
-    session.run("pytest", f"--cov={PROJECT_SRC}", f"{PROJECT_TESTS}")
-    # Notify queues up 'coverage' to run next
-    # so 'nox -s test' will run coverage afterwards
-    session.notify("coverage")
-
-
-@nox.session(python=DEFAULT_PYTHON)
-def coverage(session: nox.Session) -> None:
-    """
-    Test coverage analysis.
-    """
-    # Error out if user does not have poetry installed
-    session_requires(session, "poetry")
-
-    requirements = get_session_requirements(session)
-
-    if not COVERAGE_BADGE.exists():
-        COVERAGE_BADGE.parent.mkdir(parents=True)
-        COVERAGE_BADGE.touch()
-
-    update_seeds(session)
-    poetry_install(session, *requirements)
-
-    session.run("coverage", "report", "--show-missing")
-    session.run("coverage-badge", "-fo", f"{COVERAGE_BADGE}")
-
-
-@nox.session(python=DEFAULT_PYTHON)
-def lint(session: nox.Session) -> None:
-    """
-    Run pre-commit linting.
-    """
-    session_requires(session, "poetry")
-    requirements = get_session_requirements(session)
-    update_seeds(session)
-    poetry_install(session, *requirements)
-
-    session.run("pre-commit", "run", "--all-files")
-
-
-@nox.session(python=DEFAULT_PYTHON)
-def docs(session: nox.Session) -> None:
-    """
-    Builds the project documentation. Use '-- serve' to see changes live.
-    """
-    # Error out if user does not have poetry installed
-    session_requires(session, "poetry")
-
-    requirements = get_session_requirements(session)
-
-    update_seeds(session)
-    poetry_install(session, *requirements)
-
-    if "serve" in session.posargs:
-        webbrowser.open(url="http://127.0.0.1:8000/pytoil/")
-        session.run("mkdocs", "serve")
-    else:
-        session.run("mkdocs", "build", "--clean")
-
-
-@nox.session(python=DEFAULT_PYTHON)
-def profile(session: nox.Session) -> None:
-    """
-    Profile the profile passing session posargs to the CLI.
-
-    E.g. `nox -s profile -- config show`
-    """
-    session.install(".")
-    session.install("scalene")
-    session.run(
-        "scalene",
-        "--html",
-        "--outfile",
-        str(PROJECT_PROFILE),
-        str(PROJECT_ENTRY_POINT),
-        *session.posargs,
-    )
-
-
-@nox.session
-def deploy_docs(session: nox.Session) -> None:
-    """
-    Used by GitHub actions to deploy docs to GitHub Pages.
-    """
-    session_requires(session, "poetry")
-
-    requirements = SESSION_REQUIREMENTS.get("docs")
-    if not requirements:
-        session.error("Could not find requirements for 'docs' in SESSION_REQUIREMENTS")
-
-    update_seeds(session)
-    poetry_install(session, *requirements)  # type: ignore
-
-    if ON_CI:
-        session.run(
-            "git",
-            "remote",
-            "add",
-            "gh-token",
-            "https://${GITHUB_TOKEN}@github.com/FollowTheProcess/pytoil.git",
-            external=True,
-        )
-        session.run("git", "fetch", "gh-token", external=True)
-        session.run("git", "fetch", "gh-token", "gh-pages:gh-pages", external=True)
-
-        session.run("mkdocs", "gh-deploy", "-v", "--clean", "--remote-name", "gh-token")
-    else:
-        session.run("mkdocs", "gh-deploy")
-
-
-@nox.session(python=DEFAULT_PYTHON)
-def build(session: nox.Session) -> None:
-    """
-    Builds the package sdist and wheel.
-    """
-    # Error out if user does not have poetry installed
-    session_requires(session, "poetry")
-
-    update_seeds(session)
-    session.run("poetry", "install", "--no-dev", external=True, silent=True)
-
-    session.run("poetry", "build", external=True)
-
-
-@nox.session(python=False)
-def clean(session: nox.Session) -> None:
-    """
-    Clean up artifacts from other nox sessions.
-    """
-    for artifact in ARTIFACTS:
-        if artifact.exists():
-            if artifact.is_dir():
-                shutil.rmtree(artifact, ignore_errors=True)
-            else:
-                os.remove(artifact)
-
-
-@nox.session(python=DEFAULT_PYTHON)
-def release(session: nox.Session) -> None:
-    """
-    Kicks off the automated release process by creating and pushing a new tag.
-
-    Invokes bump2version with the posarg setting the version.
-
-    Usage:
-
-    $ nox -s release -- [major|minor|patch]
-    """
-    enforce_branch_no_changes(session)
-
-    parser = argparse.ArgumentParser(description="Release a new semantic version.")
-    parser.add_argument(
-        "version",
-        type=str,
-        nargs=1,
-        help="The type of semver release to make.",
-        choices={"major", "minor", "patch"},
-    )
-    args: argparse.Namespace = parser.parse_args(args=session.posargs)
-    version: str = args.version.pop()
-
-    # If we get here, we should be good to go
-    # Let's do a final check for safety
-    confirm = input(
-        f"You are about to bump the {version!r} version. Are you sure? [y/n]: "
-    )
-
-    # Abort on anything other than 'y'
-    if confirm.lower().strip() != "y":
-        session.error(f"You said no when prompted to bump the {version!r} version.")
-
-    # Error out if user does not have poetry installed
-    session_requires(session, "poetry")
-    update_seeds(session)
-
-    poetry_install(session, "bump2version")
-
-    session.log(f"Bumping the {version!r} version")
-    session.run("bump2version", version)
-
-    session.log("Pushing the new tag")
-    session.run("git", "push", external=True)
-    session.run("git", "push", "--tags", external=True)
