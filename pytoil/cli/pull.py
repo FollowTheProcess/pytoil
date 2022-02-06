@@ -111,7 +111,7 @@ async def pull(
             ).ask_async()
 
             if not confirmed:
-                raise click.Abort()
+                printer.warn("Aborted", exits=1)
 
         # Now we're good to go
         to_clone = [
