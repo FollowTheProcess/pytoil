@@ -43,8 +43,6 @@ ARTIFACTS = [
 # Git info
 DEFAULT_BRANCH = "main"
 
-# Where to save the coverage badge
-COVERAGE_BADGE = PROJECT_ROOT / "docs" / "img" / "coverage.svg"
 
 # VSCode
 VSCODE_DIR = PROJECT_ROOT / ".vscode"
@@ -96,7 +94,6 @@ SESSION_REQUIREMENTS: dict[str, list[str]] = {
     ],
     "coverage": [
         "coverage[toml]",
-        "coverage-badge",
     ],
     "codecov": [
         "pytest",
@@ -192,15 +189,10 @@ def coverage(session: nox.Session) -> None:
 
     requirements = get_session_requirements(session)
 
-    if not COVERAGE_BADGE.exists():
-        COVERAGE_BADGE.parent.mkdir(parents=True)
-        COVERAGE_BADGE.touch()
-
     update_seeds(session)
     poetry_install(session, *requirements)
 
     session.run("coverage", "report", "--show-missing")
-    session.run("coverage-badge", "-fo", f"{COVERAGE_BADGE}")
 
 
 @nox.session(python=DEFAULT_PYTHON)
