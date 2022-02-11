@@ -82,6 +82,7 @@ SESSION_REQUIREMENTS: dict[str, list[str]] = {
         "pytest-httpx",
         "pytest-cov",
         "pytest-mock",
+        "pytest-clarity",
         "freezegun",
         "coverage[toml]",
     ],
@@ -101,6 +102,7 @@ SESSION_REQUIREMENTS: dict[str, list[str]] = {
         "pytest-httpx",
         "pytest-cov",
         "pytest-mock",
+        "pytest-clarity",
         "freezegun",
         "coverage[toml]",
     ],
@@ -173,7 +175,11 @@ def test(session: nox.Session) -> None:
     session.run("poetry", "install", "--no-dev", external=True, silent=True)
     poetry_install(session, *requirements)
 
-    session.run("pytest", f"--cov={PROJECT_SRC}", f"{PROJECT_TESTS}")
+    if "verbose" in session.posargs:
+        session.run("pytest", "-vv", f"--cov={PROJECT_SRC}", f"{PROJECT_TESTS}")
+    else:
+        session.run("pytest", f"--cov={PROJECT_SRC}", f"{PROJECT_TESTS}")
+
     # Notify queues up 'coverage' to run next
     # so 'nox -s test' will run coverage afterwards
     session.notify("coverage")
