@@ -24,6 +24,18 @@ def test_html_url():
     assert repo.html_url == "https://github.com/me/project"
 
 
+def test_issues_url():
+    repo = Repo(owner="me", name="project", local_path=Path("doesn't/matter"))
+
+    assert repo.issues_url == "https://github.com/me/project/issues"
+
+
+def test_pulls_url():
+    repo = Repo(owner="me", name="project", local_path=Path("doesn't/matter"))
+
+    assert repo.pulls_url == "https://github.com/me/project/pulls"
+
+
 def test_repo_repr():
     repo = Repo(owner="me", name="project", local_path=Path("somewhere"))
     assert (
