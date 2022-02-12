@@ -20,17 +20,26 @@ from pytoil.repo import Repo
 
 @click.command()
 @click.argument("project", nargs=1)
+@click.option("-i", "--issues", is_flag=True, help="Go to the issues page.")
+@click.option("-p", "--prs", is_flag=True, help="Go to the pull requests page.")
 @click.pass_obj
-async def gh(config: Config, project: str) -> None:
+async def gh(config: Config, project: str, issues: bool, prs: bool) -> None:
     """
     Open one of your projects on GitHub.
 
     Given a project name (must exist on GitHub and be owned by you),
     'gh' will open your browser and navigate to the project on GitHub.
 
+    You can also use the "--issues" or "--prs" flags to immediately
+    open up the repo's issues or pull requests page.
+
     Examples:
 
     $ pytoil gh my_project
+
+    $ pytoil gh my_project --issues
+
+    $ pytoil gh my_project --prs
     """
     api = API(username=config.username, token=config.token)
     repo = Repo(
@@ -48,6 +57,12 @@ async def gh(config: Config, project: str) -> None:
             printer.error(
                 f"Could not find {project!r} on GitHub. Was it a typo?", exits=1
             )
+        if issues:
+            printer.info(f"Opening {project}'s issues on GitHub")
+            click.launch(url=repo.issues_url)
+        elif prs:
+            printer.info(f"Opening {project}'s pull requests on GitHub")
+            click.launch(url=repo.pulls_url)
         else:
             printer.info(f"Opening {project} on GitHub")
             click.launch(url=repo.html_url)

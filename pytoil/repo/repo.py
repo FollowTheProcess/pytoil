@@ -62,6 +62,20 @@ class Repo:
         """
         return f"https://github.com/{self.owner}/{self.name}"
 
+    @property
+    def issues_url(self) -> str:
+        """
+        The url to the issues page of this repo.
+        """
+        return f"{self.html_url}/issues"
+
+    @property
+    def pulls_url(self) -> str:
+        """
+        The url to the pull requests page of this repo.
+        """
+        return f"{self.html_url}/pulls"
+
     async def exists_local(self) -> bool:
         """
         Determines whether or not a `Repo` exists
