@@ -8,8 +8,7 @@
 [![codecov](https://codecov.io/gh/FollowTheProcess/pytoil/branch/main/graph/badge.svg?token=OLMR2P3J6N)](https://codecov.io/gh/FollowTheProcess/pytoil)
 [![Downloads](https://static.pepy.tech/personalized-badge/pytoil?period=month&units=international_system&left_color=grey&right_color=brightgreen&left_text=Downloads/month)](https://pepy.tech/project/pytoil)
 
-> ***toil***
-<br/>
+> ***toil:***
 > *"Long, strenuous or fatiguing labour"*
 
 * **Source Code**: [https://github.com/FollowTheProcess/pytoil](https://github.com/FollowTheProcess/pytoil)
