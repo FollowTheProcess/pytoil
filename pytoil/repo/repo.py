@@ -191,7 +191,7 @@ class Repo:
         """
         exists = await asyncio.gather(
             self._file_exists("requirements.txt"),
-            self._file_exists("requirements_dev.txt"),
+            self._file_exists("requirements-dev.txt"),
         )
 
         return any(exists)

@@ -498,12 +498,12 @@ def fake_flit_project(tmp_path_factory):
 @pytest_asyncio.fixture
 def requirements_dev_project(tmp_path_factory):
     """
-    Returns a temp directory containing a requirements_dev.txt
+    Returns a temp directory containing a requirements-dev.txt
     file.
     """
 
     folder: Path = tmp_path_factory.mktemp("myrepo")
-    req_dev_txt = folder.joinpath("requirements_dev.txt")
+    req_dev_txt = folder.joinpath("requirements-dev.txt")
     req_dev_txt.touch()
 
     return folder

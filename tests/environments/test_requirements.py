@@ -120,7 +120,7 @@ async def test_install_self_requirements_dev(
         return_value=True,
     )
 
-    # Make it think that requirements_dev.txt exists
+    # Make it think that requirements-dev.txt exists
     mocker.patch(
         "pytoil.environments.reqs.aiofiles.os.path.exists",
         autospec=True,
@@ -141,7 +141,7 @@ async def test_install_self_requirements_dev(
         "pip",
         "install",
         "-r",
-        "requirements_dev.txt",
+        "requirements-dev.txt",
         cwd=env.project_path,
         stdout=stdout,
         stderr=stderr,

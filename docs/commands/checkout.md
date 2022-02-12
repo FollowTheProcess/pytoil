@@ -189,11 +189,11 @@ A summary of what `pytoil` does when it finds certain files is found below, the 
 
 Must mean it's a conda project, delegate to conda using `conda env create --file environment.yml`
 
-### `requirements.txt` or `requirements_dev.txt`
+### `requirements.txt` or `requirements-dev.txt`
 
 Python script or non-package project e.g. django web app, delegate to pip using `pip install -r <file>`
 
-Prefers `requirements_dev.txt` if present as it will have everything needed to work on the project, falls back to `requirements.txt` if not.
+Prefers `requirements-dev.txt` if present as it will have everything needed to work on the project, falls back to `requirements.txt` if not.
 
 ### `setup.cfg` or `setup.py`
 
