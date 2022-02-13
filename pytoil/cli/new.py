@@ -230,6 +230,8 @@ async def new(  # noqa: C901
             await env.create(packages=to_install, silent=True)
 
     elif venv == "conda":
+        # Note, conda installs take longer so by default we don't hide the output
+        # like we do for normal python environments
         printer.info(f"Creating conda environment for {repo.name}")
         if to_install:
             printer.note(f"Including {', '.join(to_install)}")
