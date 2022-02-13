@@ -234,7 +234,9 @@ async def new(  # noqa: C901
         if to_install:
             printer.note(f"Including {', '.join(to_install)}")
 
-        conda_env = Conda(root=repo.local_path, environment_name=repo.name)
+        conda_env = Conda(
+            root=repo.local_path, environment_name=repo.name, conda=config.conda_bin
+        )
         try:
             await conda_env.create(packages=to_install)
         except EnvironmentAlreadyExistsError:

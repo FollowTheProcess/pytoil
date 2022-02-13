@@ -6,6 +6,7 @@ from pytest_httpx import HTTPXMock
 from pytest_mock import MockerFixture
 
 from pytoil.api import API
+from pytoil.config import Config
 from pytoil.environments import Conda, Flit, Poetry, Requirements, Venv
 from pytoil.repo import Repo
 
@@ -277,7 +278,7 @@ async def test_dispatch_env_correctly_identifies_conda(mocker: MockerFixture):
 
     repo = Repo(name="test", owner="me", local_path=Path("somewhere"))
 
-    env = await repo.dispatch_env()
+    env = await repo.dispatch_env(config=Config())
 
     assert isinstance(env, Conda)
 
@@ -289,7 +290,7 @@ async def test_dispatch_env_correctly_identifies_requirements_txt(
 
     repo = Repo(name="test", owner="me", local_path=requirements_project)
 
-    env = await repo.dispatch_env()
+    env = await repo.dispatch_env(config=Config())
 
     assert isinstance(env, Requirements)
 
@@ -301,7 +302,7 @@ async def test_dispatch_env_correctly_identifies_requirements_dev_txt(
 
     repo = Repo(name="test", owner="me", local_path=requirements_dev_project)
 
-    env = await repo.dispatch_env()
+    env = await repo.dispatch_env(config=Config())
 
     assert isinstance(env, Requirements)
 
@@ -315,7 +316,7 @@ async def test_dispatch_env_correctly_identifies_setuptools(mocker: MockerFixtur
 
     repo = Repo(name="test", owner="me", local_path=Path("somewhere"))
 
-    env = await repo.dispatch_env()
+    env = await repo.dispatch_env(config=Config())
 
     assert isinstance(env, Venv)
 
@@ -324,7 +325,7 @@ async def test_dispatch_env_correctly_identifies_setuptools(mocker: MockerFixtur
 async def test_dispatch_env_correctly_identifies_poetry(fake_poetry_project: Path):
     repo = Repo(name="test", owner="me", local_path=fake_poetry_project)
 
-    env = await repo.dispatch_env()
+    env = await repo.dispatch_env(config=Config())
 
     assert isinstance(env, Poetry)
 
@@ -334,7 +335,7 @@ async def test_dispatch_env_correctly_identifies_flit(fake_flit_project: Path):
 
     repo = Repo(name="test", owner="me", local_path=fake_flit_project)
 
-    env = await repo.dispatch_env()
+    env = await repo.dispatch_env(config=Config())
 
     assert isinstance(env, Flit)
 
@@ -348,6 +349,6 @@ async def test_dispatch_env_returns_none_if_it_cant_detect(mocker: MockerFixture
 
     repo = Repo(name="test", owner="me", local_path=Path("somewhere"))
 
-    env = await repo.dispatch_env()
+    env = await repo.dispatch_env(config=Config())
 
     assert env is None

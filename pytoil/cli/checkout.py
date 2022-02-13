@@ -193,7 +193,7 @@ async def checkout_fork(
     await git.set_upstream(owner=owner, repo=name, cwd=fork.local_path)
 
     # Automatic environment detection
-    env = await fork.dispatch_env()
+    env = await fork.dispatch_env(config=config)
 
     # Special code instance because the argument 'project' will be the user/repo pattern
     code = VSCode(root=config.projects_dir.joinpath(name), code=config.code_bin)
@@ -264,7 +264,7 @@ async def checkout_remote(
     # Only cloning 1 repo so makes sense to show output
     await git.clone(url=repo.clone_url, cwd=config.projects_dir, silent=False)
 
-    env = await repo.dispatch_env()
+    env = await repo.dispatch_env(config=config)
 
     if venv:
         await handle_venv_creation(env=env, config=config, code=code)
