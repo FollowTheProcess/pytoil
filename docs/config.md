@@ -22,6 +22,7 @@ There are also some *optional* configurations you can tweak:
 |  `projects_dir`   |                                     Where you keep your projects                                      | `$HOME/Development` |
 |     `vscode`      |                           Whether you want pytoil to open things in VSCode                            |        False        |
 |     `code_bin`    |                           The name of the VSCode binary (code or code-insiders)                       |        `code`       |
+|     `conda_bin`   |                           The name of the conda binary (conda or mamba)                               |        `conda`      |
 | `common_packages` | List of packages you want pytoil to inject in every environment it creates (linters, formatters etc.) |       `None`        |
 | `cache_timeout`   | Maximum duration you want pytoil to keep a cache of API responses for (seconds)                       |       120           |
 |   `git`           |        Whether you want pytoil to initialise and commit a git repo when it makes a fresh project      |        True         |
@@ -73,6 +74,7 @@ When you open the config file, it will look something like this:
 [pytoil]
 cache_timeout = 120
 code_bin = "code"
+conda_bin = "conda"
 common_packages = []
 git = true
 projects_dir = "/Users/you/Development"
@@ -95,6 +97,7 @@ So as an example, your filled out config file might look like this:
 [pytoil]
 cache_timeout = 500
 code_bin = "code"
+conda_bin = "mamba"
 common_packages = ["black", "mypy", "isort", "flake8"]
 git = true
 projects_dir = "/Users/you/Development"

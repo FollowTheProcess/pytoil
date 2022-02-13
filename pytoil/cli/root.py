@@ -113,7 +113,7 @@ async def main(ctx: click.Context) -> None:
 
             which_vscode: str = await questionary.select(
                 "Which version of VSCode do you use?",
-                choices=["stable", "insiders"],
+                choices=("stable", "insiders"),
                 default="stable",
             ).ask_async()
 
@@ -125,12 +125,19 @@ async def main(ctx: click.Context) -> None:
             "Make git repos when creating new projects?", default=True, auto_enter=False
         ).ask_async()
 
+        conda_bin: str = await questionary.select(
+            "Use conda or mamba for conda environments?",
+            choices=("conda", "mamba"),
+            default="conda",
+        ).ask_async()
+
         config = Config(
             projects_dir=Path(projects_dir).resolve(),
             token=token,
             username=username,
             vscode=vscode,
             code_bin=code_bin,
+            conda_bin=conda_bin,
             git=git,
         )
 

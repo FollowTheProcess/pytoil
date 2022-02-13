@@ -19,6 +19,7 @@ import humanize
 import tomlkit
 
 from pytoil.api import API
+from pytoil.config import Config
 from pytoil.environments import Conda, Environment, Flit, Poetry, Requirements, Venv
 from pytoil.exceptions import RepoNotFoundError
 
@@ -276,7 +277,7 @@ class Repo:
         """
         return await self._specifies_build_tool("flit")
 
-    async def dispatch_env(self) -> Environment | None:
+    async def dispatch_env(self, config: Config) -> Environment | None:
         """
         Returns the correct environment object for the calling `Repo`,
         or `None` if it cannot detect the environment.
@@ -305,7 +306,9 @@ class Repo:
         conda, requirements, setuptools, poetry, flit = exists
 
         if conda:
-            return Conda(root=self.local_path, environment_name=self.name)
+            return Conda(
+                root=self.local_path, environment_name=self.name, conda=config.conda_bin
+            )
         elif requirements:
             return Requirements(root=self.local_path)
         elif setuptools:

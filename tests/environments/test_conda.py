@@ -2,7 +2,7 @@ import asyncio
 import shutil
 import sys
 from pathlib import Path
-from typing import Coroutine, NamedTuple
+from typing import NamedTuple
 
 import pytest
 from pytest_mock import MockerFixture
@@ -223,7 +223,7 @@ async def test_create_from_yml_raises_if_conda_not_installed(mocker: MockerFixtu
     )
 
     with pytest.raises(CondaNotInstalledError):
-        await conda.create_from_yml(Path("somewhere"))
+        await conda.create_from_yml(Path("somewhere"), conda="notconda")
 
 
 @pytest.mark.asyncio
@@ -257,12 +257,14 @@ async def test_create_from_yml_correctly_calls_subprocess(
         return_value="conda",
     )
 
-    conda = Conda(root=Path("somewhere"), environment_name="test", conda="conda")
+    conda = Conda(root=Path("somewhere"), environment_name="test", conda="notconda")
 
-    await conda.create_from_yml(project_path=temp_environment_yml.parent, silent=silent)
+    await conda.create_from_yml(
+        project_path=temp_environment_yml.parent, conda="notconda", silent=silent
+    )
 
     mock_subprocess.assert_called_once_with(
-        "conda",
+        "notconda",
         "env",
         "create",
         "--file",
@@ -282,13 +284,13 @@ async def test_create_from_yml_raises_on_bad_yml_file(
     mocker.patch(
         "pytoil.environments.conda.shutil.which",
         autospec=True,
-        return_value="conda",
+        return_value="notconda",
     )
 
-    conda = Conda(root=Path("somewhere"), environment_name="test", conda="conda")
+    conda = Conda(root=Path("somewhere"), environment_name="test", conda="notconda")
 
     with pytest.raises(BadEnvironmentFileError):
-        await conda.create_from_yml(bad_temp_environment_yml.parent)
+        await conda.create_from_yml(bad_temp_environment_yml.parent, conda="notconda")
 
 
 @pytest.mark.asyncio
@@ -299,7 +301,7 @@ async def test_create_from_yml_raises_if_environment_already_exists(
     mocker.patch(
         "pytoil.environments.conda.shutil.which",
         autospec=True,
-        return_value="conda",
+        return_value="notconda",
     )
 
     # Make it think the environment already exists
@@ -307,10 +309,12 @@ async def test_create_from_yml_raises_if_environment_already_exists(
         "pytoil.environments.conda.Conda.exists", autospec=True, return_value=True
     )
 
-    conda = Conda(root=Path("somewhere"), environment_name="test", conda="conda")
+    conda = Conda(root=Path("somewhere"), environment_name="test", conda="notconda")
 
     with pytest.raises(EnvironmentAlreadyExistsError):
-        await conda.create_from_yml(project_path=temp_environment_yml.parent)
+        await conda.create_from_yml(
+            project_path=temp_environment_yml.parent, conda="notconda"
+        )
 
 
 def test_get_envs_dir_returns_correctly_for_miniconda(
@@ -476,8 +480,21 @@ async def test_install_self_calls_create_from_yml(mocker: MockerFixture, silent:
     await conda.install_self(silent=silent)
 
     mock_create_from_yml.assert_called_once_with(
-        project_path=Path("somewhere").resolve(), silent=silent
+        project_path=Path("somewhere").resolve(), silent=silent, conda="notconda"
     )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("silent", [True, False])
+async def test_install_self_raises_if_conda_not_installed(
+    mocker: MockerFixture, silent: bool
+):
+    mocker.patch("pytoil.environments.conda.Conda.create_from_yml", autospec=True)
+
+    conda = Conda(root=Path("somewhere"), environment_name="testy", conda=None)
+
+    with pytest.raises(CondaNotInstalledError):
+        await conda.install_self(silent=silent)
 
 
 @pytest.mark.asyncio
@@ -535,7 +552,7 @@ async def test_export_yml(mocker: MockerFixture, temp_environment_yml: Path):
         - pandas
         """
 
-        async def communicate(self) -> Coroutine[None, None, tuple[bytes, bytes]]:
+        async def communicate(self) -> tuple[bytes, bytes]:
             """
             Fake our stdout and stderr streams
             """

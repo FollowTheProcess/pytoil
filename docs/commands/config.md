@@ -54,11 +54,13 @@ $ pytoil config show
                Key   Value
  ─────────────────────────────────────────────────────────────
      projects_dir:   /Users/tomfleet/Development
-            token:   jsbsljas72j2kx0ub
+            token:   lknskjb983e7g23hb8
          username:   FollowTheProcess
            vscode:   True
-         code_bin:   code
+         code_bin:   code-insiders
+        conda_bin:   mamba
   common_packages:   ['black', 'mypy', 'isort', 'flake8']
+    cache_timeout:   120
               git:   True
 ```
 
@@ -117,10 +119,19 @@ $ pytoil config explain
 
     The name of the VSCode binary ('code' or 'code-insiders')
 
+- conda_bin (str)
+
+    The name of the conda binary ('conda' or 'mamba')
+
 - common_packages (List[str])
 
     A list of python package names to inject into every virtual environment pytoil creates
     (e.g. linters, formatters and other dev dependencies).
+
+- cache_timeout (int)
+
+    The number of seconds pytoil keeps a cache of GitHub API requests for. Subsequent API calls
+    within this window will be served from cache not from the API.
 
 - git (bool)
 
