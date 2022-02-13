@@ -50,18 +50,18 @@ vscode: True
 
 ```console
 $ pytoil config show
-                                                               
-               Key   Value                                     
- ───────────────────────────────────────────────────────────── 
-     projects_dir:   /Users/tomfleet/Development               
-            token:   lknskjb983e7g23hb8  
-         username:   FollowTheProcess                          
-           vscode:   True                                      
-         code_bin:   code-insiders                             
-        conda_bin:   mamba                                     
-  common_packages:   ['black', 'mypy', 'isort', 'flake8']      
-    cache_timeout:   120                                       
-              git:   True                                      
+
+               Key   Value
+ ─────────────────────────────────────────────────────────────
+     projects_dir:   /Users/tomfleet/Development
+            token:   lknskjb983e7g23hb8
+         username:   FollowTheProcess
+           vscode:   True
+         code_bin:   code-insiders
+        conda_bin:   mamba
+  common_packages:   ['black', 'mypy', 'isort', 'flake8']
+    cache_timeout:   120
+              git:   True
 ```
 
 </div>
