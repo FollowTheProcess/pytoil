@@ -19,6 +19,9 @@ CONFIG_KEYS: set[str] = {
     "token",
     "username",
     "vscode",
+    "code_bin",
+    "conda_bin",
+    "cache_timeout",
     "common_packages",
     "git",
 }
@@ -37,6 +40,7 @@ TOKEN: str = os.getenv("GITHUB_TOKEN", "")
 USERNAME: str = ""
 VSCODE: bool = False
 CODE_BIN: str = "code"
+CONDA_BIN: str = "conda"
 COMMON_PACKAGES: list[str] = []
 GIT: bool = True
 
@@ -71,6 +75,16 @@ Whether you want pytoil to open projects up using VSCode. This will happen on 'n
 
 The name of the VSCode binary. Will differ depending on version installed. Either "code" (default)
 or "code-insiders"
+
+## conda_bin *(str)*
+
+The name of the binary to use when performing conda operations. Either "conda" (default)
+or "mamba"
+
+# cache_timeout *(int)*
+
+The number of seconds pytoil keeps a cache of GitHub API requests for. Subsequent API calls
+within this window will be served from cache not from the API.
 
 ## common_packages *(List[str])*
 

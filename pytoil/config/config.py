@@ -32,6 +32,7 @@ class ConfigDict(TypedDict):
     username: str
     vscode: bool
     code_bin: str
+    conda_bin: str
     common_packages: list[str]
     cache_timeout: int
     git: bool
@@ -43,6 +44,7 @@ class Config(BaseModel):
     username: str = defaults.USERNAME
     vscode: bool = defaults.VSCODE
     code_bin: str = defaults.CODE_BIN
+    conda_bin: str = defaults.CONDA_BIN
     common_packages: list[str] = defaults.COMMON_PACKAGES
     cache_timeout: int = defaults.CACHE_TIMEOUT_SECS
     git: bool = defaults.GIT
@@ -101,6 +103,7 @@ class Config(BaseModel):
             "username": self.username,
             "vscode": self.vscode,
             "code_bin": self.code_bin,
+            "conda_bin": self.conda_bin,
             "common_packages": self.common_packages,
             "cache_timeout": self.cache_timeout,
             "git": self.git,
