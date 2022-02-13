@@ -35,7 +35,7 @@ query ($username: String!, $name: String!) {
     name,
     description,
     createdAt,
-    updatedAt,
+    pushedAt,
     diskUsage,
     licenseInfo {
       name
@@ -52,7 +52,7 @@ query ($username: String!, $limit: Int!) {
         name,
         description,
         createdAt,
-        updatedAt,
+        pushedAt,
         diskUsage
       }
     }
@@ -68,7 +68,7 @@ query ($username: String!, $limit: Int!) {
         name
         diskUsage
         createdAt
-        updatedAt
+        pushedAt
         parent {
           nameWithOwner
         }

@@ -291,7 +291,7 @@ class API:
                     "Name": repo["name"],
                     "Description": repo["description"],
                     "Created": self._humanize_datetime(repo["createdAt"]),
-                    "Updated": self._humanize_datetime(repo["updatedAt"]),
+                    "Updated": self._humanize_datetime(repo["pushedAt"]),
                     "Size": humanize.naturalsize(
                         int(repo["diskUsage"]) * 1024
                     ),  # diskUsage is in kB

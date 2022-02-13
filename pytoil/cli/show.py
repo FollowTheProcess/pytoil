@@ -173,7 +173,7 @@ async def remote(config: Config, limit: int) -> None:
                     datetime.strptime(repo["createdAt"], GITHUB_TIME_FORMAT)
                 ),
                 humanize.naturaltime(
-                    datetime.strptime(repo["updatedAt"], GITHUB_TIME_FORMAT)
+                    datetime.strptime(repo["pushedAt"], GITHUB_TIME_FORMAT)
                 ),
             )
 
@@ -239,7 +239,7 @@ async def forks(config: Config, limit: int) -> None:
                     datetime.strptime(repo["createdAt"], GITHUB_TIME_FORMAT)
                 ),
                 humanize.naturaltime(
-                    datetime.strptime(repo["updatedAt"], GITHUB_TIME_FORMAT)
+                    datetime.strptime(repo["pushedAt"], GITHUB_TIME_FORMAT)
                 ),
                 repo["parent"]["nameWithOwner"],
             )
@@ -324,7 +324,7 @@ async def diff(config: Config, limit: int) -> None:
                         datetime.strptime(repo["createdAt"], GITHUB_TIME_FORMAT)
                     ),
                     humanize.naturaltime(
-                        datetime.strptime(repo["updatedAt"], GITHUB_TIME_FORMAT)
+                        datetime.strptime(repo["pushedAt"], GITHUB_TIME_FORMAT)
                     ),
                 )
 

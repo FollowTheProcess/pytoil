@@ -67,9 +67,6 @@ class Venv:
             silent (bool, optional): Whether to discard or display output.
                 Defaults to False.
         """
-        # TODO: I'm actually not sure how to mock this out?
-        # maybe we just create a tempdir and create a real venv, check the contents
-        # then delete it? Would slow down the tests though
         loop = asyncio.get_event_loop()
         await loop.run_in_executor(
             executor=None,
