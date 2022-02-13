@@ -183,13 +183,16 @@ class Conda:
         await proc.wait()
 
     @staticmethod
-    async def create_from_yml(project_path: Path, silent: bool = False) -> None:
+    async def create_from_yml(
+        project_path: Path, conda: str, silent: bool = False
+    ) -> None:
         """
         Creates a conda environment from the `environment.yml` contained
         in the root `project_path`
 
         Args:
             project_path (Path): Filepath to the project root.
+            conda (str): The conda binary.
             silent (bool, optional): Whether to discard or display output.
                 Defaults to False.
 
@@ -199,7 +202,7 @@ class Conda:
                 exists on the system.
         """
 
-        if not shutil.which("conda"):
+        if not shutil.which(conda):
             raise CondaNotInstalledError
 
         # Ensure we have a fully resolved project path
@@ -226,7 +229,7 @@ class Conda:
 
         # Can't use self.conda here as static method so just rely on $PATH
         proc = await asyncio.create_subprocess_exec(
-            "conda",
+            conda,
             "env",
             "create",
             "--file",
@@ -325,4 +328,9 @@ class Conda:
             silent (bool, optional): Whether to discard or display output.
                 Defaults to False.
         """
-        await self.create_from_yml(project_path=self.project_path, silent=silent)
+        if not self.conda:
+            raise CondaNotInstalledError
+
+        await self.create_from_yml(
+            project_path=self.project_path, conda=self.conda, silent=silent
+        )
