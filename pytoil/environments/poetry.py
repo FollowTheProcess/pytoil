@@ -66,8 +66,6 @@ class Poetry:
             "true",
             "--local",
             cwd=self.project_path,
-            stdout=asyncio.subprocess.DEVNULL if silent else sys.stdout,
-            stderr=asyncio.subprocess.DEVNULL if silent else sys.stderr,
         )
 
         await proc.wait()
