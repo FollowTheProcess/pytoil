@@ -68,6 +68,8 @@ repos:
       - id: codespell
         args:
           - "-L Ines,ines"
+          - "--skip"
+          - "*.svg"
 
   - repo: https://github.com/PyCQA/bandit
     rev: "1.7.2"
