@@ -16,6 +16,8 @@
 
 * **Documentation**: [https://FollowTheProcess.github.io/pytoil/](https://FollowTheProcess.github.io/pytoil/)
 
+![help](https://github.com/FollowTheProcess/pytoil/raw/main/docs/img/help.svg)
+
 ## What is it?
 
 *pytoil is a small, helpful CLI to take the toil out of software development!*
@@ -50,35 +52,11 @@ So I decided to make a robust CLI with the proper error handling and testability
 
 As pytoil is a CLI program, I'd recommend installing with [pipx].
 
-<div class="termy">
-
-```console
-$ pipx install pytoil
----> 100%
-Successfully installed pytoil
-```
-
-</div>
-
-!!! note
-
-    If you don't know what pipx is, go check it out! But basically it allows python CLI tools to be installed in their own sandboxed environments but you can still access the CLI as if it was installed globally!
+![pipx-install](https://github.com/FollowTheProcess/pytoil/raw/main/docs/img/pipx_install.svg)
 
 You can always fall back to pip
 
-<div class="termy">
-
-```console
-$ python3 -m pip install pytoil
----> 100%
-Successfully installed pytoil
-```
-
-</div>
-
-!!! warning
-
-    keep in mind though, you'll have to install it globally for it to work so it might be better to use pipx
+![pip-install](https://github.com/FollowTheProcess/pytoil/raw/main/docs/img/pip_install.svg)
 
 pytoil will install everything it needs *in python* to work. However, it's full feature set can only be accessed if you have the following external dependencies:
 
@@ -94,16 +72,7 @@ pytoil will install everything it needs *in python* to work. However, it's full 
 
 After you install pytoil, the first time you run it you'll get something like this.
 
-<div class="termy">
-
-```console
-$ pytoil <any command>
-
-No pytoil config file detected!
-? Interactively configure pytoil? [y/n]
-```
-
-</div>
+![setup](https://github.com/FollowTheProcess/pytoil/raw/main/docs/img/setup.svg)
 
 If you say yes, pytoil will walk you through a few questions and fill out your config file with the values you enter. If you'd rather not do this interactively, just say no and it will instead put a default config file in the right place for you to edit later.
 
@@ -111,153 +80,61 @@ Once you've configured it properly, you can do things like...
 
 #### See your local and remote projects
 
-<div class="termy">
-
-```console
-$ pytoil show local
-Local Projects
-
-Showing 3 out of 3 local projects
-
-  Name              Created          Modified
- ───────────────────────────────────────────────────
-  project 1         13 days ago      9 days ago
-  project 2         a day ago        a minute ago
-  project 3         a month ago      a month ago
-```
-
-</div>
+![show-local](https://github.com/FollowTheProcess/pytoil/raw/main/docs/img/show_local.svg)
 
 #### See which ones you have on GitHub, but not on your computer
 
-<div class="termy">
-
-```console
-$ pytoil show diff
-Diff: Remote - Local
-
-Showing 3 out of 3 projects
-
-  Name             Size       Created                Modified
- ─────────────────────────────────────────────────────────────────────────
-  remote 1         154.6 kB   a month ago            29 days ago
-  remote 2         2.1 MB     1 year, 15 days ago    11 months ago
-  remote 3         753.7 kB   1 year, 6 months ago   a month ago
-```
-
-</div>
+![show-diff](https://github.com/FollowTheProcess/pytoil/raw/main/docs/img/show_diff.svg)
 
 #### Easily grab a project, regardless of where it is
 
-<div class="termy">
+This project is available on your local machine...
 
-```console
-$ pytoil checkout myproject
+![checkout-local](https://github.com/FollowTheProcess/pytoil/raw/main/docs/img/checkout_local.svg)
 
-// Will now either open that project if local
-// or clone it, then open it if not
-```
+This one is on GitHub...
 
-</div>
+![checkout-remote](https://github.com/FollowTheProcess/pytoil/raw/main/docs/img/checkout_remote.svg)
 
 #### Create a new project and virtual environment in one go
 
-<div class="termy">
+![new-venv](https://github.com/FollowTheProcess/pytoil/raw/main/docs/img/new_venv.svg)
 
-```console
-$ pytoil new myproject --venv venv
-
-Creating project: 'myproject' at '/Users/you/projects/myproject'
-
-Creating virtual environment for: 'myproject'
-```
-
-</div>
+(And include custom packages, see the [docs])
 
 #### And even do this from a [cookiecutter] template
 
-<div class="termy">
-
-```console
-$ pytoil new myproject --venv venv --cookie https://github.com/some/cookie.git
-
-Creating project: 'myproject' with cookiecutter template: 'https://github.com/some/cookie.git'
-
-// You'll then be asked all the cookiecutter questions defined in the template
-// After which pytoil will take over and create the virtual environment as normal
-```
-
-</div>
+![new-cookie](https://github.com/FollowTheProcess/pytoil/raw/main/docs/img/new_cookie.svg)
 
 And loads more!
 
-### Help
+pytoil's CLI is designed such that if you don't specify any arguments, it won't do anything! just show you the `--help`. This is called being a 'well behaved' unix command line tool.
 
-Like all good CLI programs, pytoil (as well as all it's subcommands, and all *their* subcommands!) has a `--help` option to show you what to do.
-
-<div class="termy">
-
-```console
-$ pytoil --help
-
-Usage: pytoil [OPTIONS] COMMAND [ARGS]...
-
-  Helpful CLI to automate the development workflow.
-
-  - Create and manage your local and remote projects
-
-  - Build projects from cookiecutter templates.
-
-  - Easily create/manage virtual environments.
-
-  - Minimal configuration required.
-
-Options:
-  --version  Show the version and exit.
-  --help     Show this message and exit.
-
-Commands:
-  cache     Interact with pytoil's cache.
-  checkout  Checkout an existing development project.
-  config    Interact with pytoil's configuration.
-  docs      Open pytoil's documentation in your browser.
-  find      Quickly locate a project.
-  gh        Open one of your projects on GitHub.
-  info      Get useful info for a project.
-  keep      Remove all but the specified projects.
-  new       Create a new development project.
-  pull      Pull down your remote projects.
-  remove    Remove projects from your local filesystem.
-  show      View your local/remote projects.
-```
-
-</div>
-
-!!! info
-
-    pytoil's CLI is designed such that if you don't specify any arguments, it won't do anything! just show you the `--help`. This is called being a 'well behaved' unix command line tool.
-
-    This is true for any subcommand of pytoil so you won't accidentally break anything if you don't specify arguments :tada:.
+This is true for any subcommand of pytoil so you won't accidentally break anything if you don't specify arguments 🎉
 
 And if you get truly stuck, you can quickly open pytoil's documentation with:
 
-<div class="termy">
+![docs](https://github.com/FollowTheProcess/pytoil/raw/main/docs/img/docs.svg)
 
-```console
-$ pytoil docs
+Check out the [docs] for more 💥
 
-Opening pytoil's documentation in your browser...
+## Contributing
 
-// Now you'll be on this page in whatever your default browser is!
-```
+`pytoil` is an open source project and, as such, welcomes contributions of all kinds 😃
 
-</div>
+Your best bet is to check out the [contributing guide] in the docs!
 
+[pipx]: https://pipxproject.github.io/pipx/
+[docs]: https://FollowTheProcess.github.io/pytoil/
+[FollowTheProcess/poetry_pypackage]: https://github.com/FollowTheProcess/poetry_pypackage
+[wasabi]: https://github.com/ines/wasabi
+[httpx]: https://www.python-httpx.org
+[async-click]: https://github.com/python-trio/asyncclick
+[contributing guide]: https://followtheprocess.github.io/pytoil/contributing/contributing.html
 [git]: https://git-scm.com
 [conda]: https://docs.conda.io/en/latest/
 [VSCode]: https://code.visualstudio.com
 [config]: config.md
-[pipx]: https://pipxproject.github.io/pipx/
 [cookiecutter]: https://github.com/cookiecutter/cookiecutter
 [poetry]: https://python-poetry.org
 [flit]: https://flit.readthedocs.io
