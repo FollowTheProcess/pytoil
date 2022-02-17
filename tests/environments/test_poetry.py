@@ -65,23 +65,14 @@ async def test_create_raises_not_implemented_error():
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "silent, stdout, stderr",
-    [
-        (True, asyncio.subprocess.DEVNULL, asyncio.subprocess.DEVNULL),
-        (False, sys.stdout, sys.stderr),
-    ],
-)
-async def test_enforce_local_config_correctly_calls_poetry(
-    mocker: MockerFixture, silent: bool, stdout, stderr
-):
+async def test_enforce_local_config_correctly_calls_poetry(mocker: MockerFixture):
     mock = mocker.patch(
         "pytoil.environments.poetry.asyncio.create_subprocess_exec", autospec=True
     )
 
     poetry = Poetry(root=Path("somewhere"), poetry="notpoetry")
 
-    await poetry.enforce_local_config(silent=silent)
+    await poetry.enforce_local_config()
 
     mock.assert_called_once_with(
         "notpoetry",
@@ -90,8 +81,6 @@ async def test_enforce_local_config_correctly_calls_poetry(
         "true",
         "--local",
         cwd=poetry.project_path,
-        stdout=stdout,
-        stderr=stderr,
     )
 
 
