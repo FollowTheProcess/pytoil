@@ -6,7 +6,7 @@
 [![Code Style](https://img.shields.io/badge/code%20style-black-black)](https://github.com/FollowTheProcess/pytoil)
 [![CI](https://github.com/FollowTheProcess/pytoil/workflows/CI/badge.svg)](https://github.com/FollowTheProcess/pytoil/actions?query=workflow%3ACI)
 [![codecov](https://codecov.io/gh/FollowTheProcess/pytoil/branch/main/graph/badge.svg?token=OLMR2P3J6N)](https://codecov.io/gh/FollowTheProcess/pytoil)
-[![Downloads](https://static.pepy.tech/personalized-badge/pytoil?period=month&units=international_system&left_color=grey&right_color=brightgreen&left_text=Downloads/month)](https://pepy.tech/project/pytoil)
+[![Downloads](https://static.pepy.tech/personalized-badge/pytoil?period=total&units=international_system&left_color=grey&right_color=green&left_text=Downloads)](https://pepy.tech/project/pytoil)
 
 > ***toil:***
 > *"Long, strenuous or fatiguing labour"*
