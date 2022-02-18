@@ -114,7 +114,7 @@ SESSION_REQUIREMENTS: dict[str, list[str]] = {
 if not VENV_DIR.exists() and not ON_CI:
     nox.options.sessions = ["dev"]
 else:
-    nox.options.sessions = ["test", "coverage", "lint", "docs"]
+    nox.options.sessions = ["test", "coverage", "lint", "docs", "audit"]
 
 
 @nox.session(python=False)
@@ -248,6 +248,19 @@ def docs(session: nox.Session) -> None:
         session.run("mkdocs", "serve")
     else:
         session.run("mkdocs", "build", "--clean")
+
+
+@nox.session(python=DEFAULT_PYTHON)
+def audit(session: nox.Session) -> None:
+    """
+    Audit dependencies for security vulnerabilities.
+    """
+    session_requires(session, "poetry")
+    update_seeds(session)
+    session.run(
+        "poetry", "install", external=True, silent=True
+    )  # Install everything, dev deps included
+    session.run("pip-audit")
 
 
 @nox.session(python=DEFAULT_PYTHON)
