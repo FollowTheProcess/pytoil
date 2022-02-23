@@ -20,6 +20,7 @@ nav:
       - Pull: commands/pull.md
       - Config: commands/config.md
       - Cache: commands/cache.md
+      - Bug: commands/bug.md
   - Contributing:
       - Guide: contributing/contributing.md
       - Code of Conduct: contributing/code_of_conduct.md

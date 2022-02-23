@@ -31,8 +31,9 @@ CACHE_DIR = Path.home().joinpath(".cache/pytoil")
 CACHE_TIMEOUT_SECS = 120
 
 
-# Pytoil docs URL
+# Pytoil meta stuff
 PYTOIL_DOCS_URL: str = "https://followtheprocess.github.io/pytoil/"
+PYTOIL_ISSUES_URL: str = "https://github.com/FollowTheProcess/pytoil/issues"
 
 # Defaults for pytoil config
 PROJECTS_DIR: Path = Path.home().joinpath("Development").resolve()

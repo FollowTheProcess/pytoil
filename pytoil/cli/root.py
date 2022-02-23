@@ -17,6 +17,7 @@ import questionary
 from rich.traceback import install
 
 from pytoil import __version__
+from pytoil.cli.bug import bug
 from pytoil.cli.cache import cache
 from pytoil.cli.checkout import checkout
 from pytoil.cli.config import config
@@ -50,6 +51,7 @@ install()
         show,
         cache,
         keep,
+        bug,
     )
 )
 @click.version_option(version=__version__, package_name="pytoil", prog_name="pytoil")
