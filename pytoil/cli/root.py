@@ -103,25 +103,16 @@ async def main(ctx: click.Context) -> None:
             "What's your GitHub username?"
         ).ask_async()
 
-        vscode: bool = await questionary.confirm(
-            "Do you use VSCode?",
-            default=False,
-            auto_enter=False,
+        use_editor: bool = await questionary.confirm(
+            "Auto open projects in an editor?", default=False, auto_enter=False
         ).ask_async()
 
-        code_bin = defaults.CODE_BIN
-
-        if vscode:
-
-            which_vscode: str = await questionary.select(
-                "Which version of VSCode do you use?",
-                choices=("stable", "insiders"),
-                default="stable",
+        if use_editor:
+            editor: str = await questionary.text(
+                "Name of the editor binary to use?"
             ).ask_async()
-
-            code_bin = (
-                "code-insiders" if which_vscode == "insiders" else defaults.CODE_BIN
-            )
+        else:
+            editor = "None"
 
         git: bool = await questionary.confirm(
             "Make git repos when creating new projects?", default=True, auto_enter=False
@@ -137,8 +128,7 @@ async def main(ctx: click.Context) -> None:
             projects_dir=Path(projects_dir).resolve(),
             token=token,
             username=username,
-            vscode=vscode,
-            code_bin=code_bin,
+            editor=editor,
             conda_bin=conda_bin,
             git=git,
         )

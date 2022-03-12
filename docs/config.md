@@ -20,8 +20,7 @@ There are also some *optional* configurations you can tweak:
 |        Key        |                                              Definition                                               |       Default       |
 | :---------------: | :---------------------------------------------------------------------------------------------------: | :-----------------: |
 |  `projects_dir`   |                                     Where you keep your projects                                      | `$HOME/Development` |
-|     `vscode`      |                           Whether you want pytoil to open things in VSCode                            |        False        |
-|     `code_bin`    |                           The name of the VSCode binary (code or code-insiders)                       |        `code`       |
+|  `editor`         |                                     Name of the binary to use when opening projects.                  |      `$EDITOR`      |
 |     `conda_bin`   |                           The name of the conda binary (conda or mamba)                               |        `conda`      |
 | `common_packages` | List of packages you want pytoil to inject in every environment it creates (linters, formatters etc.) |       `None`        |
 | `cache_timeout`   | Maximum duration you want pytoil to keep a cache of API responses for (seconds)                       |       120           |
@@ -38,12 +37,6 @@ These optional settings don't have to be set if you're happy using the default s
     * Create forks of other people's projects when requested (e.g. when using [checkout])
 
     In fact, the only permissions pytoil needs is repo and user access! :smiley:
-
-!!! note
-
-    I used VSCode as the only configurable editor as it's the one I use and is therefore the only one I have experience with configuring programmatically and launching via the command line.
-
-    If you want to help add support for more editors then PR's are always welcome!
 
 ## The Config File
 
@@ -73,14 +66,13 @@ When you open the config file, it will look something like this:
 
 [pytoil]
 cache_timeout = 120
-code_bin = "code"
-conda_bin = "conda"
 common_packages = []
+conda_bin = "conda"
+editor = "code-insiders"
 git = true
-projects_dir = "/Users/you/Development"
-token = "Your GitHub personal access token"
-username = "Your GitHub username"
-vscode = false
+projects_dir = "/Users/tomfleet/Development"
+token = "Your github personal access token"
+username = "Your github username"
 ```
 
 !!! warning
@@ -95,16 +87,14 @@ So as an example, your filled out config file might look like this:
 # ~/.pytoil.toml
 
 [pytoil]
-cache_timeout = 500
-code_bin = "code"
-conda_bin = "mamba"
+cache_timeout = 120
 common_packages = ["black", "mypy", "isort", "flake8"]
+conda_bin = "mamba"
+editor = "code-insiders"
 git = true
-projects_dir = "/Users/you/Development"
-token = "asljas98ghefiub29e8b" # I've made this up
+projects_dir = "/Users/tomfleet/Development"
+token = "ljbsxu9uqwd978" # This isn't real
 username = "FollowTheProcess"
-vscode = true
-
 ```
 
 !!! tip

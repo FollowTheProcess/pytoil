@@ -40,17 +40,6 @@ class GitNotInstalledError(ExternalToolNotInstalledError):
         super().__init__(self.message)
 
 
-class CodeNotInstalledError(ExternalToolNotInstalledError):
-    """
-    Raise when calling something that needs the user to have
-    VSCode (specifically the `code` command) installed.
-    """
-
-    def __init__(self) -> None:
-        self.message = "VSCode binary not found on $PATH. Is VSCode installed?"
-        super().__init__(self.message)
-
-
 class CondaNotInstalledError(ExternalToolNotInstalledError):
     """
     Trying to do something that requires the user to have

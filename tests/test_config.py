@@ -19,8 +19,7 @@ def test_config_init_defaults():
     assert config.projects_dir == defaults.PROJECTS_DIR
     assert config.token == defaults.TOKEN
     assert config.username == defaults.USERNAME
-    assert config.vscode == defaults.VSCODE
-    assert config.code_bin == defaults.CODE_BIN
+    assert config.editor == defaults.EDITOR
     assert config.conda_bin == defaults.CONDA_BIN
     assert config.common_packages == defaults.COMMON_PACKAGES
     assert config.cache_timeout == defaults.CACHE_TIMEOUT_SECS
@@ -33,8 +32,7 @@ def test_config_init_passed():
         projects_dir=Path("some/dir"),
         token="sometoken",
         username="me",
-        vscode=True,
-        code_bin="code-insiders",
+        editor="fakeedit",
         conda_bin="mamba",
         common_packages=["black", "mypy", "flake8"],
         cache_timeout=500,
@@ -44,8 +42,7 @@ def test_config_init_passed():
     assert config.projects_dir == Path("some/dir")
     assert config.token == "sometoken"
     assert config.username == "me"
-    assert config.vscode is True
-    assert config.code_bin == "code-insiders"
+    assert config.editor == "fakeedit"
     assert config.conda_bin == "mamba"
     assert config.common_packages == ["black", "mypy", "flake8"]
     assert config.cache_timeout == 500
@@ -59,11 +56,25 @@ def test_config_helper():
     assert config.projects_dir == defaults.PROJECTS_DIR
     assert config.token == "Put your GitHub personal access token here"
     assert config.username == "This your GitHub username"
-    assert config.vscode == defaults.VSCODE
-    assert config.code_bin == defaults.CODE_BIN
+    assert config.editor == defaults.EDITOR
     assert config.conda_bin == defaults.CONDA_BIN
     assert config.common_packages == defaults.COMMON_PACKAGES
     assert config.git == defaults.GIT
+
+
+@pytest.mark.parametrize(
+    "editor, want",
+    [
+        ("code", True),
+        ("", True),  # Because it will default to $EDITOR
+        ("None", False),
+        ("none", False),
+    ],
+)
+def test_specifies_editor(editor: str, want: bool):
+
+    config = Config(editor=editor)
+    assert config.specifies_editor() is want
 
 
 @pytest.mark.asyncio
@@ -106,7 +117,7 @@ async def test_file_write():
             projects_dir=Path("some/dir"),
             token="sometoken",
             username="me",
-            vscode=True,
+            editor="fakeedit",
             common_packages=["black", "mypy", "flake8"],
             git=False,
         )

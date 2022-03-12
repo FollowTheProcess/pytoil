@@ -30,8 +30,7 @@ class ConfigDict(TypedDict):
     projects_dir: str
     token: str
     username: str
-    vscode: bool
-    code_bin: str
+    editor: str
     conda_bin: str
     common_packages: list[str]
     cache_timeout: int
@@ -42,8 +41,7 @@ class Config(BaseModel):
     projects_dir: Path = defaults.PROJECTS_DIR
     token: str = defaults.TOKEN
     username: str = defaults.USERNAME
-    vscode: bool = defaults.VSCODE
-    code_bin: str = defaults.CODE_BIN
+    editor: str = defaults.EDITOR
     conda_bin: str = defaults.CONDA_BIN
     common_packages: list[str] = defaults.COMMON_PACKAGES
     cache_timeout: int = defaults.CACHE_TIMEOUT_SECS
@@ -101,8 +99,7 @@ class Config(BaseModel):
             "projects_dir": str(self.projects_dir),
             "token": self.token,
             "username": self.username,
-            "vscode": self.vscode,
-            "code_bin": self.code_bin,
+            "editor": self.editor,
             "conda_bin": self.conda_bin,
             "common_packages": self.common_packages,
             "cache_timeout": self.cache_timeout,
@@ -139,3 +136,22 @@ class Config(BaseModel):
         ]
 
         return not any(conditions)
+
+    def specifies_editor(self) -> bool:
+        """
+        Returns whether the user has set an editor, either directly
+        or through the $EDITOR env var.
+
+        If a user has no `editor` key in the config file, pytoil will
+        use $EDITOR.
+
+        If the key is present but is set to the literal "None", pytoil
+        will not try to open projects.
+
+        Otherwise the value of the key `editor` will be used as the name
+        of the binary.
+
+        Returns:
+            bool: True if editor is not literal "None" else False.
+        """
+        return self.editor.lower() != "none"

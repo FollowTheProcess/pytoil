@@ -35,9 +35,9 @@ Commands:
 <div class="termy">
 
 ```console
-$ pytoil config get vscode
+$ pytoil config get editor
 
-vscode: True
+editor: code-insiders
 ```
 
 </div>
@@ -54,14 +54,14 @@ $ pytoil config show
                Key   Value
  ─────────────────────────────────────────────────────────────
      projects_dir:   /Users/tomfleet/Development
-            token:   lknskjb983e7g23hb8
+            token:   skjdbakshbv82v27676cv
          username:   FollowTheProcess
-           vscode:   True
-         code_bin:   code-insiders
+           editor:   code-insiders
         conda_bin:   mamba
   common_packages:   ['black', 'mypy', 'isort', 'flake8']
     cache_timeout:   120
               git:   True
+
 ```
 
 </div>
@@ -83,62 +83,5 @@ Opening ~/.pytoil.toml in your $EDITOR
 ## Explain
 
 The command `pytoil config explain` outputs a (hopefully) helpful description of the pytoil configuration schema.
-
-<div class="termy">
-
-```console
-$ pytoil config explain
-
-======================= The '.pytoil.yml' config file =======================
-
-
-- projects_dir (bool)
-
-    The absolute path to where you keep your development projects
-    (e.g. /Users/you/Projects)
-
-- token (str)
-
-    Your GitHub personal access token. This must have a minimum of repo
-    read access. See the documentation here:
-    https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token
-
-    Pytoil will try and get this from the config file initially, then fall back to the $GITHUB_TOKEN environment
-    variable. If neither of these places are set, you will not be able to use pytoil commands that rely on the
-    GitHub API. Pytoil will notify you of this when any of these commands are called.
-
-- username (str)
-
-    Your GitHub username.
-
-- vscode (bool)
-
-    Whether you want pytoil to open projects up using VSCode. This will happen on 'new' and 'checkout'.
-
-- code_bin (str)
-
-    The name of the VSCode binary ('code' or 'code-insiders')
-
-- conda_bin (str)
-
-    The name of the conda binary ('conda' or 'mamba')
-
-- common_packages (List[str])
-
-    A list of python package names to inject into every virtual environment pytoil creates
-    (e.g. linters, formatters and other dev dependencies).
-
-- cache_timeout (int)
-
-    The number of seconds pytoil keeps a cache of GitHub API requests for. Subsequent API calls
-    within this window will be served from cache not from the API.
-
-- git (bool)
-
-    Whether or not you want pytoil to create an empty git repo when you make a new project with
-    'pytoil new'. This can also be disabled on a per use basis using the '--no-git' flag.
-```
-
-</div>
 
 [pydantic]: https://pydantic-docs.helpmanual.io

@@ -15,6 +15,7 @@ import asyncclick as click
 import httpx
 import questionary
 
+from pytoil import editor
 from pytoil.api import API
 from pytoil.cli import utils
 from pytoil.cli.printer import printer
@@ -26,7 +27,6 @@ from pytoil.exceptions import (
 )
 from pytoil.git import Git
 from pytoil.repo import Repo
-from pytoil.vscode import VSCode
 
 # The username/repo pattern
 USER_REPO_REGEX = re.compile(r"^([A-Za-z0-9_.-])+/([A-Za-z0-9_.-])+$")
@@ -52,12 +52,12 @@ async def checkout(config: Config, project: str, venv: bool) -> None:
     whether that project is available locally in your configured projects
     directory, or if it is on GitHub.
 
-    If pytoil finds your project locally, and you have enabled VSCode in your
+    If pytoil finds your project locally, and you have specified an editor in your
     config file it will open it for you. If not, it will just tell you it already
     exists locally and where to find it.
 
     If your project is on your GitHub, pytoil will clone it for you and then open it
-    (or tell you where it cloned it if you dont have VSCode set up).
+    (or tell you where it cloned it if you dont have an editor set up).
 
     Finally, if checkout can't find a match after searching locally and on GitHub,
     it will prompt you to use 'pytoil new' to create a new one.
@@ -97,7 +97,6 @@ async def checkout(config: Config, project: str, venv: bool) -> None:
         name=project,
         local_path=config.projects_dir.joinpath(project),
     )
-    code = VSCode(root=repo.local_path, code=config.code_bin)
     git = Git()
 
     if bool(USER_REPO_REGEX.match(project)):
@@ -123,11 +122,9 @@ async def checkout(config: Config, project: str, venv: bool) -> None:
     elif bool(PROJECT_REGEX.match(project)):
 
         if await repo.exists_local():
-            await checkout_local(repo=repo, code=code, config=config, venv=venv)
+            await checkout_local(repo=repo, config=config, venv=venv)
         elif await repo.exists_remote(api):
-            await checkout_remote(
-                repo=repo, code=code, config=config, venv=venv, git=git
-            )
+            await checkout_remote(repo=repo, config=config, venv=venv, git=git)
         else:
             printer.error(f"{project!r} not found locally or on GitHub.", exits=1)
     else:
@@ -195,20 +192,15 @@ async def checkout_fork(
     # Automatic environment detection
     env = await fork.dispatch_env(config=config)
 
-    # Special code instance because the argument 'project' will be the user/repo pattern
-    code = VSCode(root=config.projects_dir.joinpath(name), code=config.code_bin)
-
     if venv:
-        await handle_venv_creation(env=env, config=config, code=code)
+        await handle_venv_creation(env=env, config=config)
 
-    if config.vscode:
-        printer.info(f"Opening {fork.name} in VSCode.")
-        await code.open()
+    if config.specifies_editor():
+        printer.info(f"Opening {fork.name} with {config.editor}")
+        await editor.launch(path=config.projects_dir.joinpath(name), bin=config.editor)
 
 
-async def handle_venv_creation(
-    env: Environment | None, config: Config, code: VSCode
-) -> None:
+async def handle_venv_creation(env: Environment | None, config: Config) -> None:
     """
     Handles automatic detection and creation of python virtual
     environments based on detected repo context.
@@ -231,14 +223,9 @@ async def handle_venv_creation(
             printer.error(f"{env.name} not installed", exits=1)
         except EnvironmentAlreadyExistsError:
             printer.warn("Environment already exists. Skipping.")
-        finally:
-            # Because the first exception will exit, this is okay
-            # to call as finally
-            if config.vscode:
-                await code.set_workspace_python(python_path=env.executable)
 
 
-async def checkout_local(repo: Repo, code: VSCode, config: Config, venv: bool) -> None:
+async def checkout_local(repo: Repo, config: Config, venv: bool) -> None:
     """
     Helper to checkout a local repo.
     """
@@ -249,14 +236,12 @@ async def checkout_local(repo: Repo, code: VSCode, config: Config, venv: bool) -
     if venv:
         printer.note("The --venv flag is ignored for local projects.")
 
-    if config.vscode:
-        printer.info(f"Opening {repo.name} in VSCode.")
-        await code.open()
+    if config.specifies_editor():
+        printer.info(f"Opening {repo.name} with {config.editor}")
+        await editor.launch(path=repo.local_path, bin=config.editor)
 
 
-async def checkout_remote(
-    repo: Repo, code: VSCode, config: Config, venv: bool, git: Git
-) -> None:
+async def checkout_remote(repo: Repo, config: Config, venv: bool, git: Git) -> None:
     """
     Helper to checkout a remote repo.
     """
@@ -267,8 +252,8 @@ async def checkout_remote(
     env = await repo.dispatch_env(config=config)
 
     if venv:
-        await handle_venv_creation(env=env, config=config, code=code)
+        await handle_venv_creation(env=env, config=config)
 
-    if config.vscode:
-        printer.info(f"Opening {repo.name} in VSCode.", spaced=True)
-        await code.open()
+    if config.specifies_editor():
+        printer.info(f"Opening {repo.name} with {config.editor}", spaced=True)
+        await editor.launch(path=repo.local_path, bin=config.editor)

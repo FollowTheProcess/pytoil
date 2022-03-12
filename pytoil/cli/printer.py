@@ -15,7 +15,7 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.style import Style
 from rich.theme import Theme
 
-__all__ = ["Printer", "printer"]
+__all__ = ("Printer", "printer")
 
 
 class Printer:

@@ -63,7 +63,7 @@ async def get(config: Config, key: str) -> None:
 
     Examples:
 
-    $ pytoil config get vscode
+    $ pytoil config get editor
     """
     if key not in defaults.CONFIG_KEYS:
         printer.error(f"{key} is not a valid pytoil config key.", exits=1)

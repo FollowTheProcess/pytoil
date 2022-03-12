@@ -17,12 +17,12 @@ Usage: pytoil checkout [OPTIONS] PROJECT
   whether that project is available locally in your configured projects
   directory, or if it is on GitHub.
 
-  If pytoil finds your project locally, and you have enabled VSCode in your
-  config file it will open it for you. If not, it will just tell you it
+  If pytoil finds your project locally, and you have specified an editor in
+  your config file it will open it for you. If not, it will just tell you it
   already exists locally and where to find it.
 
   If your project is on your GitHub, pytoil will clone it for you and then
-  open it (or tell you where it cloned it if you dont have VSCode set up).
+  open it (or tell you where it cloned it if you dont have an editor set up).
 
   Finally, if checkout can't find a match after searching locally and on
   GitHub, it will prompt you to use 'pytoil new' to create a new one.
@@ -67,7 +67,7 @@ Options:
 
 ## Local Project
 
-If the project is available locally, `checkout` will simply open it for you
+If the project is available locally, `checkout` will simply open it for you using whatever editor you have configured pytoil to use
 
 <div class="termy">
 
@@ -77,7 +77,7 @@ $ pytoil checkout my_local_project
 
 Project: 'my_local_project' found locally!
 
-Opening 'my_github_project' in VSCode...
+Opening 'my_github_project' with <editor>...
 ```
 
 </div>
@@ -87,7 +87,7 @@ Opening 'my_github_project' in VSCode...
 If pytoil can't find your project locally, but it is on your GitHub `checkout` will:
 
 * Clone it to your projects directory
-* Open it for you (if you configure VSCode in [config])
+* Open it for you (if you configure an appropriate editor in [config])
 
 <div class="termy">
 
@@ -98,16 +98,22 @@ $ pytoil checkout my_github_project
 Project: 'my_github_project' found on GitHub! Cloning...
 // You might see some git clone output here
 
-Opening 'my_github_project' in VSCode...
+Opening 'my_github_project' with <editor>...
 ```
 
 </div>
 
-!!! info "Why just VSCode?"
+!!! info "What's an appropriate editor?"
 
-    When developing pytoil I was debating how to handle this. I use VSCode for everything but I know other people have different editor preferences. Initially I looked at using the `$EDITOR` environment variable but working out how best to launch a variety of possible editors from a CLI was tricky. Plus pytoil does things like alter workspace settings to point at the right virtual environment, and I only know how to do this with VSCode.
+    Initially pytoil only supported VSCode as that was what I was most familiar with. However since version 0.28.0, pytoil now supports specifying an editor
+    using the `editor` key in the config file.
 
-    PR's are very welcome though if you think you can introduce support for your preferred editor! :grin:
+    However, there are a few caveats:
+    * The editor must be "directory aware" i.e. it must be able to open entire directories at once e.g. VSCode, Pycharm, Atom, Sublime etc.
+    * It must have a command line interface, the name of which you should use when setting the `editor` config key, e.g. `code` or `code-insiders` for VSCode
+    * The command to launch the editor at a certain filepath must be of the form `<cmd> <path>`
+
+    If your editor ticks all those boxes, you can use it with pytoil 👍🏻
 
 ## Someone else's project
 
@@ -150,13 +156,6 @@ If you pass the `--venv` option, `checkout` will also:
 * Try to detect what environment would work best for the project (conda, venv, flit, poetry)
 * Auto create this virtual environment
 * Look for requirements files that specify dependencies such as `environment.yml` for conda, `setup.cfg` or `setup.py` for normal python packages etc.
-* If you have VSCode configured, `pytoil` will also set your workspace `python.defaultInterpreterPath`
-
-!!! note
-
-    From about version 1.57.1, VSCode have been deprecating the workspace setting `python.pythonPath` in favour of `python.defaultInterpreterPath` which up until v0.6.0, pytoil used as part of the whole "automate your dev life" thing! These settings do differ in their functionality, which you can read about here: [https://github.com/microsoft/vscode-python/issues/12313](https://github.com/microsoft/vscode-python/issues/12313).
-
-    But it turns out that because the only time we set this is when creating brand new projects, or checking out remote projects, these settings behave exactly the same for us, so it effectively represents a straight swap.
 
 <div class="termy">
 
@@ -170,7 +169,7 @@ Project: 'my_github_project' found on GitHub! Cloning...
 Auto-creating correct virtual environment
 // Here you might see some conda or venv stuff
 
-Opening 'my_github_project' in VSCode...
+Opening 'my_github_project' with <editor>...
 ```
 
 </div>

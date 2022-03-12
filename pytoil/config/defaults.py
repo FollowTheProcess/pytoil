@@ -18,8 +18,7 @@ CONFIG_KEYS: set[str] = {
     "projects_dir",
     "token",
     "username",
-    "vscode",
-    "code_bin",
+    "editor",
     "conda_bin",
     "cache_timeout",
     "common_packages",
@@ -39,8 +38,7 @@ PYTOIL_ISSUES_URL: str = "https://github.com/FollowTheProcess/pytoil/issues"
 PROJECTS_DIR: Path = Path.home().joinpath("Development").resolve()
 TOKEN: str = os.getenv("GITHUB_TOKEN", "")
 USERNAME: str = ""
-VSCODE: bool = False
-CODE_BIN: str = "code"
+EDITOR: str = os.getenv("EDITOR", "")
 CONDA_BIN: str = "conda"
 COMMON_PACKAGES: list[str] = []
 GIT: bool = True
@@ -68,14 +66,25 @@ GitHub API. Pytoil will notify you of this when any of these commands are called
 
 Your GitHub username. Pytoil needs this so it can construct urls to your projects.
 
-## vscode *(bool)*
+## editor *(str)*
 
-Whether you want pytoil to open projects up using VSCode. This will happen on 'new' and 'checkout'.
+The name of the editor you'd like pytoil to use to open projects. Note: This editor must
+be directory-aware and have a command line binary that can be used to launch projects.
 
-## code_bin *(str)*
+For example:
+    `code /path/to/my/project`
+    `code-insiders /path/to/my/project`
+    `pycharm /path/to/my/project`
 
-The name of the VSCode binary. Will differ depending on version installed. Either "code" (default)
-or "code-insiders"
+If the key is not present in the config file, pytoil will fall back to $EDITOR, which may fail
+if the configured $EDITOR is not directory-aware e.g. things like vim and nvim.
+
+If the key is set to the literal string "None" (case-insensitive), pytoil will not attempt to open
+projects for you.
+
+Otherwise, the value of `editor` will be used as the name of the command line binary used to open
+projects e.g. `code, `code-insiders`, `pycharm` etc.
+
 
 ## conda_bin *(str)*
 
