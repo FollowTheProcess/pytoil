@@ -109,6 +109,7 @@ Opening 'my_github_project' with <editor>...
     using the `editor` key in the config file.
 
     However, there are a few caveats:
+    
     * The editor must be "directory aware" i.e. it must be able to open entire directories at once e.g. VSCode, Pycharm, Atom, Sublime etc.
     * It must have a command line interface, the name of which you should use when setting the `editor` config key, e.g. `code` or `code-insiders` for VSCode
     * The command to launch the editor at a certain filepath must be of the form `<cmd> <path>`
