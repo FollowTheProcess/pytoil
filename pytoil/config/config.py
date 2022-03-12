@@ -8,7 +8,6 @@ Created: 21/12/2021
 
 from __future__ import annotations
 
-import shutil
 from pathlib import Path
 from typing import TypedDict
 
@@ -72,8 +71,6 @@ class Config(BaseModel):
             raise
         else:
             conf = Config(**config_dict)
-            if resolved_editor := shutil.which(conf.editor):
-                conf.editor = resolved_editor
 
             return conf
 
