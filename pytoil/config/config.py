@@ -8,6 +8,7 @@ Created: 21/12/2021
 
 from __future__ import annotations
 
+import shutil
 from pathlib import Path
 from typing import TypedDict
 
@@ -30,8 +31,7 @@ class ConfigDict(TypedDict):
     projects_dir: str
     token: str
     username: str
-    vscode: bool
-    code_bin: str
+    editor: str
     conda_bin: str
     common_packages: list[str]
     cache_timeout: int
@@ -42,8 +42,7 @@ class Config(BaseModel):
     projects_dir: Path = defaults.PROJECTS_DIR
     token: str = defaults.TOKEN
     username: str = defaults.USERNAME
-    vscode: bool = defaults.VSCODE
-    code_bin: str = defaults.CODE_BIN
+    editor: str = defaults.EDITOR
     conda_bin: str = defaults.CONDA_BIN
     common_packages: list[str] = defaults.COMMON_PACKAGES
     cache_timeout: int = defaults.CACHE_TIMEOUT_SECS
@@ -72,7 +71,11 @@ class Config(BaseModel):
         except FileNotFoundError:
             raise
         else:
-            return Config(**config_dict)
+            conf = Config(**config_dict)
+            if resolved_editor := shutil.which(conf.editor):
+                conf.editor = resolved_editor
+
+            return conf
 
     @classmethod
     def helper(cls) -> Config:
@@ -101,8 +104,7 @@ class Config(BaseModel):
             "projects_dir": str(self.projects_dir),
             "token": self.token,
             "username": self.username,
-            "vscode": self.vscode,
-            "code_bin": self.code_bin,
+            "editor": self.editor,
             "conda_bin": self.conda_bin,
             "common_packages": self.common_packages,
             "cache_timeout": self.cache_timeout,
