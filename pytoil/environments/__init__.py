@@ -5,11 +5,11 @@ from pytoil.environments.poetry import Poetry
 from pytoil.environments.reqs import Requirements
 from pytoil.environments.virtualenv import Venv
 
-__all__ = [
+__all__ = (
     "Poetry",
     "Environment",
     "Venv",
     "Requirements",
     "Flit",
     "Conda",
-]
+)
