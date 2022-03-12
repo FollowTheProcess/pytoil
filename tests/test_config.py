@@ -62,6 +62,21 @@ def test_config_helper():
     assert config.git == defaults.GIT
 
 
+@pytest.mark.parametrize(
+    "editor, want",
+    [
+        ("code", True),
+        ("", True),  # Because it will default to $EDITOR
+        ("None", False),
+        ("none", False),
+    ],
+)
+def test_specifies_editor(editor: str, want: bool):
+
+    config = Config(editor=editor)
+    assert config.specifies_editor() is want
+
+
 @pytest.mark.asyncio
 async def test_from_file_raises_on_missing_file():
 

@@ -50,18 +50,18 @@ editor: code-insiders
 
 ```console
 $ pytoil config show
-                                                               
-               Key   Value                                     
- ───────────────────────────────────────────────────────────── 
-     projects_dir:   /Users/tomfleet/Development               
-            token:   skjdbakshbv82v27676cv  
-         username:   FollowTheProcess                          
-           editor:   code-insiders                             
-        conda_bin:   mamba                                     
-  common_packages:   ['black', 'mypy', 'isort', 'flake8']      
-    cache_timeout:   120                                       
-              git:   True                                      
-                                                               
+
+               Key   Value
+ ─────────────────────────────────────────────────────────────
+     projects_dir:   /Users/tomfleet/Development
+            token:   skjdbakshbv82v27676cv
+         username:   FollowTheProcess
+           editor:   code-insiders
+        conda_bin:   mamba
+  common_packages:   ['black', 'mypy', 'isort', 'flake8']
+    cache_timeout:   120
+              git:   True
+
 ```
 
 </div>
