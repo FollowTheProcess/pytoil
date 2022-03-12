@@ -24,8 +24,7 @@ async def launch(path: Path, bin: str) -> None:
 
     Args:
         path (Path): Absolute path to the root of the project to open.
-        bin (str): Path of the editor binary e.g. `/usr/bin/code`.
-            Typical usage is to use `shutil.which` here.
+        bin (str): Name of the editor binary e.g. `code`.
     """
     proc = await asyncio.create_subprocess_exec(
         bin,

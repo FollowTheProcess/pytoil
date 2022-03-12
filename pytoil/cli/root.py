@@ -112,7 +112,7 @@ async def main(ctx: click.Context) -> None:
                 "Name of the editor binary to use?"
             ).ask_async()
         else:
-            editor = ""
+            editor = "None"
 
         git: bool = await questionary.confirm(
             "Make git repos when creating new projects?", default=True, auto_enter=False

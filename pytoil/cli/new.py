@@ -15,6 +15,7 @@ import aiofiles.os
 import asyncclick as click
 from cookiecutter.main import cookiecutter
 
+from pytoil import editor
 from pytoil.api import API
 from pytoil.cli.printer import printer
 from pytoil.config import Config
@@ -27,7 +28,6 @@ from pytoil.exceptions import (
 from pytoil.git import Git
 from pytoil.repo import Repo
 from pytoil.starters import GoStarter, PythonStarter, RustStarter
-from pytoil.vscode import VSCode
 
 
 @click.command()
@@ -123,7 +123,6 @@ async def new(  # noqa: C901
         name=project,
         local_path=config.projects_dir.joinpath(project),
     )
-    code = VSCode(root=repo.local_path, code=config.code_bin)
     git = Git()
 
     # Additional packages to include
@@ -170,7 +169,7 @@ async def new(  # noqa: C901
             func=functools.partial(
                 cookiecutter,
                 template=cookie,
-                output_dir=config.projects_dir,
+                output_dir=str(config.projects_dir),
             ),
         )
 
@@ -250,7 +249,7 @@ async def new(  # noqa: C901
             # Export the environment.yml
             await conda_env.export_yml()
 
-    # Now handle opening in VSCode
-    if config.vscode:
-        printer.info(f"Opening {repo.name} in VSCode.", spaced=True)
-        await code.open()
+    # Now handle opening in an editor
+    if config.specifies_editor():
+        printer.info(f"Opening {repo.name} with {config.editor}", spaced=True)
+        await editor.launch(path=repo.local_path, bin=config.editor)

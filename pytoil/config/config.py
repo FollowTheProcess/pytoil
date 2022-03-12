@@ -70,9 +70,7 @@ class Config(BaseModel):
         except FileNotFoundError:
             raise
         else:
-            conf = Config(**config_dict)
-
-            return conf
+            return Config(**config_dict)
 
     @classmethod
     def helper(cls) -> Config:
@@ -138,3 +136,22 @@ class Config(BaseModel):
         ]
 
         return not any(conditions)
+
+    def specifies_editor(self) -> bool:
+        """
+        Returns whether the user has set an editor, either directly
+        or through the $EDITOR env var.
+
+        If a user has no `editor` key in the config file, pytoil will
+        use $EDITOR.
+
+        If the key is present but is set to the literal "None", pytoil
+        will not try to open projects.
+
+        Otherwise the value of the key `editor` will be used as the name
+        of the binary.
+
+        Returns:
+            bool: True if editor is not literal "None" else False.
+        """
+        return self.editor.lower() != "none"

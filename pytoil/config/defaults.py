@@ -76,6 +76,15 @@ For example:
     `code-insiders /path/to/my/project`
     `pycharm /path/to/my/project`
 
+If the key is not present in the config file, pytoil will fall back to $EDITOR, which may fail
+if the configured $EDITOR is not directory-aware e.g. things like vim and nvim.
+
+If the key is set to the literal string "None" (case-insensitive), pytoil will not attempt to open
+projects for you.
+
+Otherwise, the value of `editor` will be used as the name of the command line binary used to open
+projects e.g. `code, `code-insiders`, `pycharm` etc.
+
 
 ## conda_bin *(str)*
 
