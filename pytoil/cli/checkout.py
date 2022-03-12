@@ -52,12 +52,12 @@ async def checkout(config: Config, project: str, venv: bool) -> None:
     whether that project is available locally in your configured projects
     directory, or if it is on GitHub.
 
-    If pytoil finds your project locally, and you have enabled VSCode in your
+    If pytoil finds your project locally, and you have specified an editor in your
     config file it will open it for you. If not, it will just tell you it already
     exists locally and where to find it.
 
     If your project is on your GitHub, pytoil will clone it for you and then open it
-    (or tell you where it cloned it if you dont have VSCode set up).
+    (or tell you where it cloned it if you dont have an editor set up).
 
     Finally, if checkout can't find a match after searching locally and on GitHub,
     it will prompt you to use 'pytoil new' to create a new one.

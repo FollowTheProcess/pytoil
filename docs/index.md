@@ -62,7 +62,7 @@ pytoil will install everything it needs *in python* to work. However, it's full 
 
 * [git]
 * [conda] (if you work with conda environments)
-* [VSCode] (if you want to use pytoil to automatically open your projects for you)
+* A directory-aware editor e.g. [VSCode] etc. (if you want to use pytoil to automatically open your projects for you)
 * [poetry] (if you want to create poetry environments)
 * [flit] (if you want to create flit environments)
 
