@@ -747,7 +747,7 @@ python-versions = ">=3.7"
 
 [[package]]
 name = "pip-audit"
-version = "2.0.0"
+version = "2.1.0"
 description = "A tool for scanning Python environments for known vulnerabilities"
 category = "dev"
 optional = false
@@ -755,15 +755,15 @@ python-versions = ">=3.7"
 
 [package.dependencies]
 CacheControl = {version = ">=0.12.10", extras = ["filecache"]}
-cyclonedx-python-lib = ">=1.0.0,<2.0.0"
+cyclonedx-python-lib = ">=1.0.0,<3.0.0"
 html5lib = ">=1.1"
 packaging = ">=21.0.0"
-pip-api = ">=0.0.27"
+pip-api = ">=0.0.28"
 progress = ">=1.6"
 resolvelib = ">=0.8.0"
 
 [package.extras]
-dev = ["bump", "flake8", "black", "isort", "pytest", "pytest-cov", "pretend", "coverage", "interrogate", "pdoc3", "mypy", "types-requests", "types-html5lib"]
+dev = ["bump (>=1.3.1)", "flake8", "black", "isort", "pytest", "pytest-cov", "pretend", "coverage", "interrogate", "pdoc3", "mypy", "types-requests", "types-html5lib"]
 
 [[package]]
 name = "platformdirs"
@@ -1311,7 +1311,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "0e278313a93d626f7083cb72f08bcb6f76c9823643ea722327741debef5bfa75"
+content-hash = "21753e7160af0a7e06a48d73c645396fc7ea520e49f297f48bfce50a3a0c8056"
 
 [metadata.files]
 aiofiles = [
@@ -1714,8 +1714,8 @@ pip-api = [
     {file = "pip_api-0.0.29-py3-none-any.whl", hash = "sha256:36c3211975e69c46c1d3b13b702dcc96d054d54e02147b1485300cf5fc45c1a0"},
 ]
 pip-audit = [
-    {file = "pip-audit-2.0.0.tar.gz", hash = "sha256:f435c4a2fad527029761523b94342ea8b90e3062e270976c52e34bcb5a1a8a48"},
-    {file = "pip_audit-2.0.0-py3-none-any.whl", hash = "sha256:9d74a50661af43f0ee7773611d8e1851529fb1918bdba46f1ce210f6eb0f7db9"},
+    {file = "pip-audit-2.1.0.tar.gz", hash = "sha256:b987aa4c6b31e316db197d370443ff34053ca0400a27f7407e74a71d92006a89"},
+    {file = "pip_audit-2.1.0-py3-none-any.whl", hash = "sha256:5006fdefa17b97c9698eea007a39dfcb6c12529d2136047805ce7f25fec72ad5"},
 ]
 platformdirs = [
     {file = "platformdirs-2.5.1-py3-none-any.whl", hash = "sha256:bcae7cab893c2d310a711b70b24efb93334febe65f8de776ee320b517471e227"},
