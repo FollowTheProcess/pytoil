@@ -63,12 +63,14 @@ async def checkout(config: Config, project: str, venv: bool) -> None:
     it will prompt you to use 'pytoil new' to create a new one.
 
     If you pass the shorthand to someone elses repo e.g. 'someoneelse/repo' pytoil
-    will detect this and automatically create a fork of this repo for you. Forking
-    happens asynchronously so we give it a few seconds, then check whether or not
+    will detect this and ask you whether you want to create a fork or clone the original.
+    Forking happens asynchronously so we give it a few seconds, then check whether or not
     your fork exists yet. If it does, all is well and we can clone it for you
     automatically. If not, (which is totally normal), we'll let you know. In
     which case just give it a few seconds then a 'pytoil checkout repo'
     will bring it down as normal.
+
+    If you pick "clone" then it just clones the original for you.
 
     You can also ask pytoil to automatically create a virtual environment on
     checkout with the '--venv/-v' flag. This only happens for projects pulled down
@@ -134,21 +136,21 @@ async def checkout(config: Config, project: str, venv: bool) -> None:
 
 
 async def checkout_fork(
-    owner: str, name: str, api: API, config: Config, git: Git, venv: bool
+    owner: str,
+    name: str,
+    api: API,
+    config: Config,
+    git: Git,
+    venv: bool,
 ) -> None:
     """
     Forks the passed repo, clones it, sets the upstream and informs
     the user along the way.
     """
     printer.info(f"{owner}/{name} belongs to {owner}")
-    confirmed: bool = await questionary.confirm(
-        f"This will fork '{owner}/{name}' to your GitHub. Are you sure?",
-        default=False,
-        auto_enter=False,
+    choice: str = await questionary.select(
+        "Fork project or clone the original?", choices=("fork", "clone"), default="fork"
     ).ask_async()
-
-    if not confirmed:
-        printer.warn("Aborting", exits=1)
 
     # Check if we've already forked it, in which case the repo will already
     # exist under the user's namespace
@@ -157,47 +159,58 @@ async def checkout_fork(
         name=name,
         local_path=config.projects_dir.joinpath(name),
     )
+    original = Repo(
+        owner=owner, name=name, local_path=config.projects_dir.joinpath(name)
+    )
 
     if await fork.exists_remote(api):
         printer.warn(f"Looks like you've already forked {owner}/{name}")
         printer.note(f"Use pytoil checkout {name} to pull down your fork.", exits=1)
 
-    with printer.progress() as p:
-        p.add_task(f"[bold white]Forking {owner}/{name}")
-        try:
-            await api.create_fork(owner=owner, repo=name)
-        except httpx.HTTPStatusError as err:
-            utils.handle_http_status_error(err)
+    if choice == "fork":
+        with printer.progress() as p:
+            p.add_task(f"[bold white]Forking {owner}/{name}")
+            try:
+                await api.create_fork(owner=owner, repo=name)
+            except httpx.HTTPStatusError as err:
+                utils.handle_http_status_error(err)
 
-        # Forking happens asynchronously
-        # see https://docs.github.com/en/rest/reference/repos#create-a-fork
-        # So here we naively just wait a few seconds before trying to clone the fork
-        await asyncio.sleep(3)
+            # Forking happens asynchronously
+            # see https://docs.github.com/en/rest/reference/repos#create-a-fork
+            # So here we naively just wait a few seconds before trying to clone the fork
+            await asyncio.sleep(3)
 
-    if not await fork.exists_remote(api):
-        printer.warn("Fork not available yet.")
-        printer.note(
-            "Forking happens asynchronously so this is normal. Give it a few"
-            " more seconds and try checking it out again.",
-            exits=1,
-        )
+        if not await fork.exists_remote(api):
+            printer.warn("Fork not available yet.")
+            printer.note(
+                "Forking happens asynchronously so this is normal. Give it a few"
+                " more seconds and try checking it out again.",
+                exits=1,
+            )
 
-    printer.info(f"Cloning your fork: {config.username}/{name}.", spaced=True)
-    # Only cloning 1 repo so makes sense to show the clone output
-    await git.clone(url=fork.clone_url, cwd=config.projects_dir, silent=False)
+        printer.info(f"Cloning your fork: {config.username}/{name}.", spaced=True)
+        # Only cloning 1 repo so makes sense to show the clone output
+        await git.clone(url=fork.clone_url, cwd=config.projects_dir, silent=False)
 
-    printer.info("Setting 'upstream' to original repo.")
-    await git.set_upstream(owner=owner, repo=name, cwd=fork.local_path)
+        printer.info("Setting 'upstream' to original repo.")
+        await git.set_upstream(owner=owner, repo=name, cwd=fork.local_path)
 
-    # Automatic environment detection
-    env = await fork.dispatch_env(config=config)
+        # Automatic environment detection
+        env = await fork.dispatch_env(config=config)
 
-    if venv:
-        await handle_venv_creation(env=env, config=config)
+        if venv:
+            await handle_venv_creation(env=env, config=config)
 
-    if config.specifies_editor():
-        printer.info(f"Opening {fork.name} with {config.editor}")
-        await editor.launch(path=config.projects_dir.joinpath(name), bin=config.editor)
+        if config.specifies_editor():
+            printer.info(f"Opening {fork.name} with {config.editor}")
+            await editor.launch(
+                path=config.projects_dir.joinpath(name), bin=config.editor
+            )
+    elif choice == "clone":
+        await checkout_remote(repo=original, config=config, venv=venv, git=git)
+    else:
+        # We'll only get here if the user hits ctrl + c or something so just abort
+        printer.error("Aborting", exits=1)
 
 
 async def handle_venv_creation(env: Environment | None, config: Config) -> None:
@@ -245,7 +258,7 @@ async def checkout_remote(repo: Repo, config: Config, venv: bool, git: Git) -> N
     """
     Helper to checkout a remote repo.
     """
-    printer.info(f"{repo.name} found on GitHub. Cloning...", spaced=True)
+    printer.info(f"{repo.owner}/{repo.name} found on GitHub. Cloning...", spaced=True)
     # Only cloning 1 repo so makes sense to show output
     await git.clone(url=repo.clone_url, cwd=config.projects_dir, silent=False)
 
