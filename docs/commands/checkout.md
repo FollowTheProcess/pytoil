@@ -28,12 +28,14 @@ Usage: pytoil checkout [OPTIONS] PROJECT
   GitHub, it will prompt you to use 'pytoil new' to create a new one.
 
   If you pass the shorthand to someone elses repo e.g. 'someoneelse/repo'
-  pytoil will detect this and automatically create a fork of this repo for
-  you. Forking happens asynchronously so we give it a few seconds, then check
-  whether or not your fork exists yet. If it does, all is well and we can
-  clone it for you automatically. If not, (which is totally normal), we'll let
-  you know. In which case just give it a few seconds then a 'pytoil checkout
-  repo' will bring it down as normal.
+  pytoil will detect this and ask you whether you want to create a fork or
+  clone the original. Forking happens asynchronously so we give it a few
+  seconds, then check whether or not your fork exists yet. If it does, all is
+  well and we can clone it for you automatically. If not, (which is totally
+  normal), we'll let you know. In which case just give it a few seconds then a
+  'pytoil checkout repo' will bring it down as normal.
+
+  If you pick "clone" then it just clones the original for you.
 
   You can also ask pytoil to automatically create a virtual environment on
   checkout with the '--venv/-v' flag. This only happens for projects pulled
@@ -120,9 +122,9 @@ Opening 'my_github_project' with <editor>...
 
 A common workflow in open source is to fork someone elses project and then work on your fork. With `pytoil` this can be done in the same command! If you provide the shorthand repo path to `pytoil checkout` e.g. `someoneelse/repo`, `pytoil` will:
 
-* Fork the repo for you
-* Clone your fork
-* Add the original repo as remote 'upstream'
+* Ask you whether you want to fork it and clone your fork, or just clone the original
+* If you pick fork it will fork the project to your GitHub, clone it for you and add the original repo as remote "upstream"
+* If you pick clone it will simply clone the original repo for you e.g. if you're a collaborator and want to checkout a PR
 
 Basically all the chores you would have to do to work on a open source project! :tada:
 
@@ -133,13 +135,11 @@ Basically all the chores you would have to do to work on a open source project! 
 $ pytoil checkout someone/their_github_project
 
 'someone/their_github_project' belongs to 'someone'
-This will fork 'someone/their_github_project' to your GitHub. Are you sure? [y/N]: y
+? Fork project or clone the original?
+> fork
+> clone
 
-Forking...
-
-Cloning...
-
-More awesome stuff!
+Do awesome stuff!
 ```
 
 </div>
