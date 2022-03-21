@@ -51,7 +51,7 @@ rich = "12.0.0"
 tomlkit = "0.10.0"
 thefuzz = { extras = ["speedup"], version = "0.19.0" }
 cookiecutter = "1.7.3"
-virtualenv = "20.13.3"
+virtualenv = "20.13.4"
 pydantic = "1.9.0"
 humanize = "4.0.0"
 questionary = "1.10.0"
