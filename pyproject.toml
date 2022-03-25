@@ -68,7 +68,7 @@ nox = "2022.1.7"
 black = "22.1.0"
 pytest-cov = "3.0.0"
 coverage = { extras = ["toml"], version = "6.3.2" }
-mypy = "0.941"
+mypy = "0.942"
 mkdocs = "1.2.3"
 mkdocs-material = "8.2.6"
 types-click = "7.1.8"
