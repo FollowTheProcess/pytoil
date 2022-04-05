@@ -53,6 +53,7 @@ As pytoil is a CLI program, I'd recommend installing with [pipx].
 
 ```shell
 pipx install pytoil
+```
 
 ![pipx-install](https://github.com/FollowTheProcess/pytoil/raw/main/docs/img/pipx_install.svg)
 
