@@ -51,7 +51,8 @@ So I decided to make a robust CLI with the proper error handling and testability
 
 As pytoil is a CLI program, I'd recommend installing with [pipx].
 
-`pipx install pytoil`
+```shell
+pipx install pytoil
 
 ![pipx-install](https://github.com/FollowTheProcess/pytoil/raw/main/docs/img/pipx_install.svg)
 
