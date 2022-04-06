@@ -147,11 +147,6 @@ async def checkout_fork(
     Forks the passed repo, clones it, sets the upstream and informs
     the user along the way.
     """
-    printer.info(f"{owner}/{name} belongs to {owner}")
-    choice: str = await questionary.select(
-        "Fork project or clone the original?", choices=("fork", "clone"), default="fork"
-    ).ask_async()
-
     # Check if we've already forked it, in which case the repo will already
     # exist under the user's namespace
     fork = Repo(
@@ -162,6 +157,14 @@ async def checkout_fork(
     original = Repo(
         owner=owner, name=name, local_path=config.projects_dir.joinpath(name)
     )
+
+    if not await original.exists_remote(api=api):
+        printer.error(f"{owner}/{name} not found on GitHub. Was it a typo?", exits=1)
+
+    printer.info(f"{owner}/{name} belongs to {owner}")
+    choice: str = await questionary.select(
+        "Fork project or clone the original?", choices=("fork", "clone"), default="fork"
+    ).ask_async()
 
     if await fork.exists_remote(api):
         printer.warn(f"Looks like you've already forked {owner}/{name}")

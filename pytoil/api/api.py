@@ -190,7 +190,7 @@ class API:
 
         return None  # pragma: no cover
 
-    async def check_repo_exists(self, name: str) -> bool:
+    async def check_repo_exists(self, owner: str, name: str) -> bool:
         """
         Checks whether or not a repo given by `name` exists
         under the current user
@@ -207,7 +207,7 @@ class API:
                 self.url,
                 json={
                     "query": queries.CHECK_REPO_EXISTS,
-                    "variables": {"username": self.username, "name": name},
+                    "variables": {"username": owner, "name": name},
                 },
             )
             r.raise_for_status()
