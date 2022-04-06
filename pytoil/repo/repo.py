@@ -98,7 +98,7 @@ class Repo:
         Returns:
             bool: True if exists remote, else False.
         """
-        return await api.check_repo_exists(self.name)
+        return await api.check_repo_exists(owner=self.owner, name=self.name)
 
     async def _local_info(self) -> dict[str, Any] | None:  # pragma: no cover
         """

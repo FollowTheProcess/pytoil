@@ -49,7 +49,7 @@ async def test_check_repo_exists_returns_false_if_not_exists(
         url=api.url, json=fake_repo_exists_false_response, status_code=200
     )
 
-    exists = await api.check_repo_exists("dave")
+    exists = await api.check_repo_exists(owner="me", name="dave")
 
     assert exists is False
 
@@ -64,7 +64,7 @@ async def test_check_repo_exists_returns_true_if_exists(
         url=api.url, json=fake_repo_exists_true_response, status_code=200
     )
 
-    exists = await api.check_repo_exists("pytoil")
+    exists = await api.check_repo_exists(owner="me", name="pytoil")
 
     assert exists is True
 
