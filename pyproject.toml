@@ -107,6 +107,9 @@ strict = true
 pretty = true
 disallow_untyped_decorators = false
 plugins = "pydantic.mypy"
+show_error_codes = true
+warn_unreachable = true
+enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
 
 [[tool.mypy.overrides]]
 module = "tests.*"
@@ -114,6 +117,12 @@ ignore_errors = true
 
 [tool.pytest.ini_options]
 asyncio_mode = "strict"
+minversion = "6.0"
+addopts = ["-ra", "--strict-markers", "--strict-config"]
+xfail_strict = true
+filterwarnings = ["error"]
+log_cli_level = "info"
+testpaths = ["tests"]
 
 [tool.pycln]
 path = "/pytoil"

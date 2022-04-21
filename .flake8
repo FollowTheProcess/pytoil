@@ -18,3 +18,4 @@ max-line-length = 120
 extend-ignore =
     E203, # Black compatability: whitespace before :
     W503, # Black compatability: line break before binary operator
+extend-select = B9
