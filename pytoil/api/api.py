@@ -246,7 +246,9 @@ class API:
         Takes a string datetime of GITHUB_TIME_FORMAT
         and converts it to our STR_TIME_FORMAT.
         """
-        s: str = humanize.naturaltime(datetime.strptime(dt, GITHUB_TIME_FORMAT))
+        s: str = humanize.naturaltime(
+            datetime.strptime(dt, GITHUB_TIME_FORMAT), when=datetime.utcnow()
+        )
         return s
 
     async def get_repo_info(self, name: str) -> dict[str, Any] | None:

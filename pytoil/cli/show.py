@@ -105,8 +105,12 @@ async def local(config: Config, limit: int) -> None:
     ]:
         table.add_row(
             path.name,
-            humanize.naturaltime(datetime.utcfromtimestamp(result.st_birthtime)),
-            humanize.naturaltime(datetime.utcfromtimestamp(result.st_mtime)),
+            humanize.naturaltime(
+                datetime.utcfromtimestamp(result.st_birthtime), when=datetime.utcnow()
+            ),
+            humanize.naturaltime(
+                datetime.utcfromtimestamp(result.st_mtime), when=datetime.utcnow()
+            ),
         )
 
     console.print(table)
@@ -170,10 +174,12 @@ async def remote(config: Config, limit: int) -> None:
                 repo["name"],
                 humanize.naturalsize(int(repo["diskUsage"]) * 1024),
                 humanize.naturaltime(
-                    datetime.strptime(repo["createdAt"], GITHUB_TIME_FORMAT)
+                    datetime.strptime(repo["createdAt"], GITHUB_TIME_FORMAT),
+                    when=datetime.utcnow(),
                 ),
                 humanize.naturaltime(
-                    datetime.strptime(repo["pushedAt"], GITHUB_TIME_FORMAT)
+                    datetime.strptime(repo["pushedAt"], GITHUB_TIME_FORMAT),
+                    when=datetime.utcnow(),
                 ),
             )
 
@@ -236,10 +242,12 @@ async def forks(config: Config, limit: int) -> None:
                 repo["name"],
                 humanize.naturalsize(int(repo["diskUsage"]) * 1024),
                 humanize.naturaltime(
-                    datetime.strptime(repo["createdAt"], GITHUB_TIME_FORMAT)
+                    datetime.strptime(repo["createdAt"], GITHUB_TIME_FORMAT),
+                    when=datetime.utcnow(),
                 ),
                 humanize.naturaltime(
-                    datetime.strptime(repo["pushedAt"], GITHUB_TIME_FORMAT)
+                    datetime.strptime(repo["pushedAt"], GITHUB_TIME_FORMAT),
+                    when=datetime.utcnow(),
                 ),
                 repo["parent"]["nameWithOwner"],
             )
@@ -321,10 +329,12 @@ async def diff(config: Config, limit: int) -> None:
                     repo["name"],
                     humanize.naturalsize(int(repo["diskUsage"] * 1024)),
                     humanize.naturaltime(
-                        datetime.strptime(repo["createdAt"], GITHUB_TIME_FORMAT)
+                        datetime.strptime(repo["createdAt"], GITHUB_TIME_FORMAT),
+                        when=datetime.utcnow(),
                     ),
                     humanize.naturaltime(
-                        datetime.strptime(repo["pushedAt"], GITHUB_TIME_FORMAT)
+                        datetime.strptime(repo["pushedAt"], GITHUB_TIME_FORMAT),
+                        when=datetime.utcnow(),
                     ),
                 )
 
