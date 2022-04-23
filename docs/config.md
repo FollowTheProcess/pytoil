@@ -23,7 +23,6 @@ There are also some *optional* configurations you can tweak:
 |  `editor`         |                                     Name of the binary to use when opening projects.                  |      `$EDITOR`      |
 |     `conda_bin`   |                           The name of the conda binary (conda or mamba)                               |        `conda`      |
 | `common_packages` | List of packages you want pytoil to inject in every environment it creates (linters, formatters etc.) |       `None`        |
-| `cache_timeout`   | Maximum duration you want pytoil to keep a cache of API responses for (seconds)                       |       120           |
 |   `git`           |        Whether you want pytoil to initialise and commit a git repo when it makes a fresh project      |        True         |
 
 These optional settings don't have to be set if you're happy using the default settings!
@@ -65,7 +64,6 @@ When you open the config file, it will look something like this:
 # ~/.pytoil.toml
 
 [pytoil]
-cache_timeout = 120
 common_packages = []
 conda_bin = "conda"
 editor = "code-insiders"
@@ -87,7 +85,6 @@ So as an example, your filled out config file might look like this:
 # ~/.pytoil.toml
 
 [pytoil]
-cache_timeout = 120
 common_packages = ["black", "mypy", "isort", "flake8"]
 conda_bin = "mamba"
 editor = "code-insiders"

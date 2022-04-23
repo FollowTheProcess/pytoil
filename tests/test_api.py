@@ -4,7 +4,6 @@ from pytest_httpx import HTTPXMock
 
 from pytoil import __version__
 from pytoil.api import API
-from pytoil.config import defaults
 
 
 def test_headers():
@@ -14,7 +13,6 @@ def test_headers():
         "Authorization": "token notatoken",
         "User-Agent": f"pytoil/{__version__}",
         "Accept": "application/vnd.github.v4+json",
-        "Cache-Control": f"max-age:{defaults.CACHE_TIMEOUT_SECS}",
     }
 
 

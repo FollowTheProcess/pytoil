@@ -59,7 +59,6 @@ $ pytoil config show
            editor:   code-insiders
         conda_bin:   mamba
   common_packages:   ['black', 'mypy', 'isort', 'flake8']
-    cache_timeout:   120
               git:   True
 
 ```
