@@ -33,7 +33,6 @@ class ConfigDict(TypedDict):
     editor: str
     conda_bin: str
     common_packages: list[str]
-    cache_timeout: int
     git: bool
 
 
@@ -44,7 +43,6 @@ class Config(BaseModel):
     editor: str = defaults.EDITOR
     conda_bin: str = defaults.CONDA_BIN
     common_packages: list[str] = defaults.COMMON_PACKAGES
-    cache_timeout: int = defaults.CACHE_TIMEOUT_SECS
     git: bool = defaults.GIT
 
     @classmethod
@@ -102,7 +100,6 @@ class Config(BaseModel):
             "editor": self.editor,
             "conda_bin": self.conda_bin,
             "common_packages": self.common_packages,
-            "cache_timeout": self.cache_timeout,
             "git": self.git,
         }
 

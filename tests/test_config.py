@@ -22,7 +22,6 @@ def test_config_init_defaults():
     assert config.editor == defaults.EDITOR
     assert config.conda_bin == defaults.CONDA_BIN
     assert config.common_packages == defaults.COMMON_PACKAGES
-    assert config.cache_timeout == defaults.CACHE_TIMEOUT_SECS
     assert config.git == defaults.GIT
 
 
@@ -35,7 +34,6 @@ def test_config_init_passed():
         editor="fakeedit",
         conda_bin="mamba",
         common_packages=["black", "mypy", "flake8"],
-        cache_timeout=500,
         git=False,
     )
 
@@ -45,7 +43,6 @@ def test_config_init_passed():
     assert config.editor == "fakeedit"
     assert config.conda_bin == "mamba"
     assert config.common_packages == ["black", "mypy", "flake8"]
-    assert config.cache_timeout == 500
     assert config.git is False
 
 

@@ -19,7 +19,6 @@ nav:
       - GH: commands/gh.md
       - Pull: commands/pull.md
       - Config: commands/config.md
-      - Cache: commands/cache.md
       - Bug: commands/bug.md
   - Contributing:
       - Guide: contributing/contributing.md

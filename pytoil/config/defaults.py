@@ -20,15 +20,9 @@ CONFIG_KEYS: set[str] = {
     "username",
     "editor",
     "conda_bin",
-    "cache_timeout",
     "common_packages",
     "git",
 }
-
-# API cache
-CACHE_DIR = Path.home().joinpath(".cache/pytoil")
-CACHE_TIMEOUT_SECS = 120
-
 
 # Pytoil meta stuff
 PYTOIL_DOCS_URL: str = "https://followtheprocess.github.io/pytoil/"
@@ -90,11 +84,6 @@ projects e.g. `code, `code-insiders`, `pycharm` etc.
 
 The name of the binary to use when performing conda operations. Either "conda" (default)
 or "mamba"
-
-# cache_timeout *(int)*
-
-The number of seconds pytoil keeps a cache of GitHub API requests for. Subsequent API calls
-within this window will be served from cache not from the API.
 
 ## common_packages *(List[str])*
 

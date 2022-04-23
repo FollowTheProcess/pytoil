@@ -13,14 +13,11 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any
 
-import aiofiles.os
 import httpx
-import httpx_cache
 import humanize
 
 from pytoil import __version__
 from pytoil.api import queries
-from pytoil.config import defaults
 
 URL = "https://api.github.com/graphql"
 GITHUB_TIME_FORMAT = r"%Y-%m-%dT%H:%M:%SZ"
@@ -57,7 +54,6 @@ class API:
             "Authorization": f"token {self.token}",
             "User-Agent": f"pytoil/{__version__}",
             "Accept": "application/vnd.github.v4+json",
-            "Cache-Control": f"max-age:{defaults.CACHE_TIMEOUT_SECS}",
         }
 
     async def get_repos(
@@ -73,19 +69,7 @@ class API:
         Returns:
             list[dict[str, Any]]: The repos info.
         """
-        # TODO: Not sure I like cache path stuff being here?
-        cache_dir = defaults.CACHE_DIR.joinpath("get_repos")
-        if not await aiofiles.os.path.exists(cache_dir):
-            await aiofiles.os.makedirs(cache_dir)
-
-        async with httpx.AsyncClient(
-            http2=True,
-            headers=self.headers,
-            transport=httpx_cache.AsyncCacheControlTransport(
-                cacheable_methods=("POST",),
-                cache=httpx_cache.FileCache(cache_dir=cache_dir),
-            ),
-        ) as client:
+        async with httpx.AsyncClient(http2=True, headers=self.headers) as client:
             r = await client.post(
                 self.url,
                 json={
@@ -116,19 +100,7 @@ class API:
         Returns:
             Set[str]: The names of the user's repos.
         """
-        # TODO: Not sure I like cache path stuff being here?
-        cache_dir = defaults.CACHE_DIR.joinpath("get_repo_names")
-        if not await aiofiles.os.path.exists(cache_dir):
-            await aiofiles.os.makedirs(cache_dir)
-
-        async with httpx.AsyncClient(
-            http2=True,
-            headers=self.headers,
-            transport=httpx_cache.AsyncCacheControlTransport(
-                cacheable_methods=("POST",),
-                cache=httpx_cache.FileCache(cache_dir=cache_dir),
-            ),
-        ) as client:
+        async with httpx.AsyncClient(http2=True, headers=self.headers) as client:
             r = await client.post(
                 self.url,
                 json={
@@ -146,7 +118,7 @@ class API:
             return {node["name"] for node in data["user"]["repositories"]["nodes"]}
 
         else:
-            raise ValueError(f"Bad GraphQL: {raw}")
+            raise ValueError(f"Bad GraphQL: {raw}")  # pragma: no cover
 
     async def get_forks(
         self, limit: int = DEFAULT_REPO_LIMIT
@@ -161,19 +133,7 @@ class API:
         Returns:
             list[dict[str, Any]]: The JSON info for all forks.
         """
-        # TODO: Not sure I like cache path stuff being here?
-        cache_dir = defaults.CACHE_DIR.joinpath("get_forks")
-        if not await aiofiles.os.path.exists(cache_dir):
-            await aiofiles.os.makedirs(cache_dir)
-
-        async with httpx.AsyncClient(
-            http2=True,
-            headers=self.headers,
-            transport=httpx_cache.AsyncCacheControlTransport(
-                cacheable_methods=("POST",),
-                cache=httpx_cache.FileCache(cache_dir=cache_dir),
-            ),
-        ) as client:
+        async with httpx.AsyncClient(http2=True, headers=self.headers) as client:
             r = await client.post(
                 self.url,
                 json={
@@ -201,7 +161,6 @@ class API:
         Returns:
             bool: True if repo exists on GitHub, else False.
         """
-        # Note: we don't cache this response as we want the data to be up to date always
         async with httpx.AsyncClient(http2=True, headers=self.headers) as client:
             r = await client.post(
                 self.url,
@@ -235,7 +194,6 @@ class API:
         rest_headers["Accept"] = "application/vnd.github.v3+json"
         fork_url = f"https://api.github.com/repos/{owner}/{repo}/forks"
 
-        # Nothing to cache here
         async with httpx.AsyncClient(http2=True, headers=rest_headers) as client:
             r = await client.post(fork_url)
             r.raise_for_status()
@@ -262,20 +220,7 @@ class API:
         Returns:
             Dict[str, Any]: Repository info.
         """
-        # TODO: Not sure I like cache path stuff being here?
-        # Cache each name separately to avoid collision
-        cache_dir = defaults.CACHE_DIR.joinpath(f"get_repo_info/{name}")
-        if not await aiofiles.os.path.exists(cache_dir):
-            await aiofiles.os.makedirs(cache_dir)
-
-        async with httpx.AsyncClient(
-            http2=True,
-            headers=self.headers,
-            transport=httpx_cache.AsyncCacheControlTransport(
-                cacheable_methods=("POST",),
-                cache=httpx_cache.FileCache(cache_dir=cache_dir),
-            ),
-        ) as client:
+        async with httpx.AsyncClient(http2=True, headers=self.headers) as client:
             r = await client.post(
                 self.url,
                 json={
