@@ -3,7 +3,7 @@ from typing import Union
 
 import aiofiles
 import pytest_asyncio
-import tomlkit
+import rtoml
 import yaml
 
 
@@ -438,7 +438,7 @@ def project_with_no_build_backend(tmp_path_factory):
     }
 
     with open(pyproject_toml, mode="w", encoding="utf-8") as f:
-        tomlkit.dump(build_system, f)
+        rtoml.dump(build_system, f)
 
     return folder
 
@@ -464,7 +464,7 @@ def fake_poetry_project(tmp_path_factory):
     }
 
     with open(pyproject_toml, mode="w", encoding="utf-8") as f:
-        tomlkit.dump(build_system, f)
+        rtoml.dump(build_system, f)
 
     return folder
 
@@ -490,7 +490,7 @@ def fake_flit_project(tmp_path_factory):
     }
 
     with open(pyproject_toml, mode="w", encoding="utf-8") as f:
-        tomlkit.dump(build_system, f)
+        rtoml.dump(build_system, f)
 
     return folder
 

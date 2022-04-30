@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import TypedDict
 
 import aiofiles
-import tomlkit
+import rtoml
 from pydantic import BaseModel
 
 from pytoil.config import defaults
@@ -64,7 +64,7 @@ class Config(BaseModel):
         try:
             async with aiofiles.open(path, mode="r", encoding="utf-8") as f:
                 content = await f.read()
-                config_dict: ConfigDict = tomlkit.parse(content).get("pytoil", "")
+                config_dict: ConfigDict = rtoml.loads(content).get("pytoil", "")
         except FileNotFoundError:
             raise
         else:
@@ -113,7 +113,7 @@ class Config(BaseModel):
                 Defaults to defaults.CONFIG_FILE.
         """
         async with aiofiles.open(path, mode="w", encoding="utf-8") as f:
-            content = tomlkit.dumps({"pytoil": self.to_dict()}, sort_keys=True)
+            content = rtoml.dumps({"pytoil": self.to_dict()}, pretty=True)
             await f.write(content)
 
     def can_use_api(self) -> bool:

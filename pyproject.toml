@@ -48,13 +48,13 @@ httpx = { extras = ["http2"], version = "0.22.0" }
 aiofiles = "0.8.0"
 PyYAML = "6.0"
 rich = "12.3.0"
-tomlkit = "0.10.2"
 thefuzz = { extras = ["speedup"], version = "0.19.0" }
 cookiecutter = "1.7.3"
 virtualenv = "20.14.1"
 pydantic = "1.9.0"
 humanize = "4.0.0"
 questionary = "1.10.0"
+rtoml = "0.7.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "7.1.2"
