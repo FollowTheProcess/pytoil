@@ -16,7 +16,7 @@ from typing import Any
 import aiofiles
 import aiofiles.os
 import humanize
-import tomlkit
+import rtoml
 
 from pytoil.api import API
 from pytoil.config import Config
@@ -111,7 +111,7 @@ class Repo:
             return {
                 "Name": self.local_path.name,
                 "Created": humanize.naturaltime(
-                    datetime.utcfromtimestamp(self.local_path.stat().st_birthtime),
+                    datetime.utcfromtimestamp(self.local_path.stat().st_birthtime),  # type: ignore[attr-defined]
                     when=datetime.utcnow(),
                 ),
                 "Updated": humanize.naturaltime(
@@ -253,7 +253,7 @@ class Repo:
 
         async with aiofiles.open(self.local_path.joinpath("pyproject.toml")) as file:
             content = await file.read()
-            toml = tomlkit.parse(content)
+            toml = rtoml.loads(content)
 
         if build_system := toml.get("build-system"):
             if build_backend := build_system.get("build-backend"):
