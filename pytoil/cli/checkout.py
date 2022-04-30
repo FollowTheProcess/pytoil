@@ -163,7 +163,7 @@ async def checkout_fork(
 
     printer.info(f"{owner}/{name} belongs to {owner}")
     choice: str = await questionary.select(
-        "Fork project or clone the original?", choices=("fork", "clone"), default="fork"
+        "Fork project or clone the original?", choices=("fork", "clone")
     ).ask_async()
 
     if await fork.exists_remote(api):
