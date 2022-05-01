@@ -83,6 +83,7 @@ SESSION_REQUIREMENTS: dict[str, list[str]] = {
         "pytest-cov",
         "pytest-mock",
         "pytest-clarity",
+        "pytest-randomly",
         "freezegun",
         "coverage[toml]",
     ],
