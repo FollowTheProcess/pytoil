@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-__version__ = "0.30.1"
+from pytoil._version import version
+
+__version__ = version
 
 __doc__ = """
 
