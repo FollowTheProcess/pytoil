@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pytoil.environments.base import Environment
 from pytoil.environments.conda import Conda
 from pytoil.environments.flit import Flit
