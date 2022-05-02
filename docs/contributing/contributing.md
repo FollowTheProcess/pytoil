@@ -80,9 +80,13 @@ This will (in order):
 
 Before you do anything, you'll want to set up your development environment...
 
-pytoil uses [poetry] to manage development and [nox] for automation superpowers. So to work on it you'll need to get both of those tools too!
+pytoil uses [nox] for automation superpowers. So to work on it you'll need to get it too!
 
-I recommend using [pipx] for python command line tools like these, it installs each tool in it's own isolated environment but exposes the command to your terminal as if you installed it globally.
+I recommend using [pipx] for python command line tools like these, it installs each tool in it's own isolated environment but exposes the command to your terminal as if you installed it globally. To install [nox] with pipx:
+
+```shell
+pipx install nox
+```
 
 We've automated the crap out of the development process for pytoil, to get started all you need to do is run:
 
@@ -109,6 +113,18 @@ Wait for it to do it's thing and then you can get started.
 !!! note
 
     The next time you run `nox`, it won't do this step again. It will run all the project tests, lint and format the source code, analyse test coverage and build the docs :robot:
+
+If you don't want to use [nox] to do this automatically, you can still set up a dev environment very easily with standard python tools:
+
+```shell
+python -m venv .venv
+
+source .venv/bin/activate
+
+python -m pip install --upgrade pip setuptools wheel
+
+python -m pip install -e .[dev]
+```
 
 ### Step 4: Do your thing
 
@@ -200,4 +216,3 @@ If you add pages to the docs, make sure they are placed in the nav tree in the `
 [mkdocs]: https://www.mkdocs.org
 [mkdocs-material]: https://squidfunk.github.io/mkdocs-material/
 [pipx]: https://pypa.github.io/pipx/installation/
-[poetry]: https://python-poetry.org

@@ -41,12 +41,12 @@ body:
         examples:
           - **OS**: Ubuntu 20.04
           - **Python**: 3.9.7
-          - **pytoil**: 0.14.2
+          - **pytoil**: 0.6.0
       value: |
         - OS:
         - Python:
         - pytoil:
-      render: markdown
+      render: Markdown
     validations:
       required: false
   - type: textarea

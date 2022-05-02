@@ -22,7 +22,6 @@ jobs:
       - name: Install Dependencies
         run: |
           python3 -m pip install --upgrade pip setuptools wheel
-          python3 -m pip install poetry
           python3 -m pip install nox
 
       - name: Run Tests and Coverage
@@ -42,7 +41,6 @@ jobs:
       - name: Install Dependencies
         run: |
           python3 -m pip install --upgrade pip setuptools wheel
-          python3 -m pip install poetry
           python3 -m pip install nox
 
       - name: Run Tests and Coverage
@@ -67,7 +65,6 @@ jobs:
       - name: Install Dependencies
         run: |
           python3 -m pip install --upgrade pip setuptools wheel
-          python3 -m pip install poetry
           python3 -m pip install nox
 
       - name: Lint
@@ -87,7 +84,6 @@ jobs:
       - name: Install Dependencies
         run: |
           python3 -m pip install --upgrade pip setuptools wheel
-          python3 -m pip install poetry
           python3 -m pip install nox
 
       - name: Build Docs
@@ -107,7 +103,6 @@ jobs:
       - name: Install Dependencies
         run: |
           python3 -m pip install --upgrade pip setuptools wheel
-          python3 -m pip install poetry
           python3 -m pip install nox
 
       - name: Run Pip Audit
@@ -129,7 +124,6 @@ jobs:
       - name: Install Dependencies
         run: |
           python3 -m pip install --upgrade pip setuptools wheel
-          python3 -m pip install poetry
           python3 -m pip install nox
 
       - name: Deploy Docs to GitHub Pages
@@ -155,10 +149,10 @@ jobs:
       - name: Install Dependencies
         run: |
           python3 -m pip install --upgrade pip setuptools wheel
-          python3 -m pip install poetry
+          python3 -m pip install nox
 
       - name: Build sdist and wheel
-        run: poetry build
+        run: nox --non-interactive --session "build"
 
       - name: Publish Distribution to PyPI
         uses: pypa/gh-action-pypi-publish@v1.5.0

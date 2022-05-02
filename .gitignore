@@ -10,9 +10,6 @@ __pycache__/
 # C extensions
 *.so
 
-# Scalene profiling
-profile.html
-
 # Distribution / packaging
 .Python
 env/
@@ -110,9 +107,6 @@ docs/site
 
 # mypy
 .mypy_cache/
-
-# poetry
-# poetry.lock
 
 # IDE settings
 .vscode/
