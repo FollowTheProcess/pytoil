@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Union
 
 import aiofiles
 import pytest_asyncio
@@ -246,7 +245,7 @@ async def temp_environment_yml(tmp_path_factory):
 
     env_file: Path = tmp_path_factory.mktemp("temp").joinpath("environment.yml")
 
-    fake_env_info: dict[str, Union[str, list[str]]] = {
+    fake_env_info: dict[str, str | list[str]] = {
         "name": "testy",
         "channels": ["defaults", "conda-forge"],
         "dependencies": [
