@@ -80,9 +80,6 @@ dev = [
 [project.scripts]
 pytoil = "pytoil.cli.root:main"
 
-[tool.setuptools_scm]
-write_to = "src/pytoil/_version.py"
-
 [tool.isort]
 # Added for compatibility with black
 profile = "black"
