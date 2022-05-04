@@ -51,7 +51,7 @@ classifiers = [
   "Programming Language :: Python :: 3.10",
   "Topic :: Software Development",
   "Topic :: Utilities",
-  "Typing :: Typed"
+  "Typing :: Typed",
 ]
 [project.optional-dependencies]
 dev = [
@@ -98,7 +98,7 @@ omit = [
   "src/pytoil/cli/*",
   "*exceptions.py",
   "src/pytoil/environments/base.py",
-  "src/pytoil/starters/base.py"
+  "src/pytoil/starters/base.py",
 ]
 branch = true
 
@@ -130,7 +130,6 @@ filterwarnings = [ "error" ]
 log_cli_level = "info"
 pythonpath = [ "src" ]
 testpaths = [ "tests" ]
-
 [tool.pycln]
 path = "/pytoil"
 expand_stars = true
