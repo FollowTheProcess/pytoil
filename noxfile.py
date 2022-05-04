@@ -4,9 +4,11 @@ Nox automation tasks for pytoil
 
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import shutil
+import subprocess
 import webbrowser
 from pathlib import Path
 
@@ -241,6 +243,52 @@ def build(session: nox.Session) -> None:
     session.run("pyproject-build", "--sdist", "--wheel")
 
 
+@nox.session(python=DEFAULT_PYTHON)
+def release(session: nox.Session) -> None:
+    """
+    Kicks off the automated release process by creating and pushing a new tag.
+
+    Invokes bump2version with the posarg setting the version.
+
+    Usage:
+
+    $ nox -s release -- [major|minor|patch]
+    """
+    enforce_branch_no_changes(session)
+
+    parser = argparse.ArgumentParser(description="Release a new semantic version.")
+    parser.add_argument(
+        "version",
+        type=str,
+        nargs=1,
+        help="The type of semver release to make.",
+        choices={"major", "minor", "patch"},
+    )
+    args: argparse.Namespace = parser.parse_args(args=session.posargs)
+    version: str = args.version.pop()
+
+    # If we get here, we should be good to go
+    # Let's do a final check for safety
+    confirm = input(
+        f"You are about to bump the {version!r} version. Are you sure? [y/n]: "
+    )
+
+    # Abort on anything other than 'y'
+    if confirm.lower().strip() != "y":
+        session.error(f"You said no when prompted to bump the {version!r} version.")
+
+    update_seeds(session)
+
+    session.install("bump2version")
+
+    session.log(f"Bumping the {version!r} version")
+    session.run("bump2version", version)
+
+    session.log("Pushing the new tag")
+    session.run("git", "push", external=True)
+    session.run("git", "push", "--tags", external=True)
+
+
 def set_up_vscode(session: nox.Session) -> None:
     """
     Helper function that will set VSCode's workspace settings
@@ -276,3 +324,60 @@ def update_seeds(session: nox.Session) -> None:
         session (nox.Session): The nox session currently running.
     """
     session.install("--upgrade", *SEEDS)
+
+
+def has_changes() -> bool:
+    """
+    Invoke git in a subprocess to check if we have
+    any uncommitted changes in the local repo.
+
+    Returns:
+        bool: True if uncommitted changes, else False.
+    """
+    status = (
+        subprocess.run(
+            "git status --porcelain",
+            shell=True,
+            check=True,
+            stdout=subprocess.PIPE,
+        )
+        .stdout.decode()
+        .strip()
+    )
+    return len(status) > 0
+
+
+def get_branch() -> str:
+    """
+    Invoke git in a subprocess to get the name of
+    the current branch.
+
+    Returns:
+        str: Name of current branch.
+    """
+    return (
+        subprocess.run(
+            "git rev-parse --abbrev-ref HEAD",
+            shell=True,
+            check=True,
+            stdout=subprocess.PIPE,
+        )
+        .stdout.decode()
+        .strip()
+    )
+
+
+def enforce_branch_no_changes(session: nox.Session) -> None:
+    """
+    Errors out the current session if we're not on
+    default branch or if there are uncommitted changes.
+    """
+    if has_changes():
+        session.error("All changes must be committed or removed before release")
+
+    branch = get_branch()
+
+    if branch != DEFAULT_BRANCH:
+        session.error(
+            f"Must be on {DEFAULT_BRANCH!r} branch. Currently on {branch!r} branch"
+        )
