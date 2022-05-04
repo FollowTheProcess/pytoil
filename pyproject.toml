@@ -89,7 +89,6 @@ pytoil = "pytoil.cli.root:main"
 
 
 [tool.isort]
-# Added for compatibility with black
 profile = "black"
 
 [tool.coverage.run]
