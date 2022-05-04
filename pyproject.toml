@@ -30,7 +30,6 @@ classifiers = [
     "Typing :: Typed",
 ]
 keywords = ["cli", "python", "developer-tools", "automation"]
-dynamic = ["version"]
 dependencies = [
     "asyncclick==8.0.3.2",
     "anyio==3.5.0",
