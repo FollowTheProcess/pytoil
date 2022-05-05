@@ -88,6 +88,11 @@ repository = "https://github.com/FollowTheProcess/pytoil"
 pytoil = "pytoil.cli.root:main"
 
 
+[tool.setuptools]
+zip-safe = false
+include-package-data = true
+package-data = { "pytoil" = [ "py.typed" ] }
+
 [tool.isort]
 profile = "black"
 
