@@ -130,6 +130,7 @@ filterwarnings = [ "error" ]
 log_cli_level = "info"
 pythonpath = [ "src" ]
 testpaths = [ "tests" ]
+
 [tool.pycln]
 path = "/pytoil"
 expand_stars = true
