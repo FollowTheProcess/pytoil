@@ -251,5 +251,5 @@ async def new(  # noqa: C901
 
     # Now handle opening in an editor
     if config.specifies_editor():
-        printer.info(f"Opening {repo.name} with {config.editor}", spaced=True)
+        printer.sub_info(f"Opening {repo.name} with {config.editor}")
         await editor.launch(path=repo.local_path, bin=config.editor)

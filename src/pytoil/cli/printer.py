@@ -76,6 +76,16 @@ class Printer:
         if exits is not None:
             sys.exit(exits)
 
+    def sub_info(self, msg: str, exits: int | None = None) -> None:
+        """
+        Print a sub-info message.
+
+        If `exits` is not None, will call `sys.exit` with given code.
+        """
+        self._pytoil_console.print(f"  ↪ {msg}")
+        if exits is not None:
+            sys.exit(exits)
+
     def error(self, msg: str, exits: int | None = None) -> None:
         """
         Print an error message.
