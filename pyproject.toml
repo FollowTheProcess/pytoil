@@ -80,9 +80,9 @@ dev = [
 ]
 
 [project.urls]
-documentation = "https://FollowTheProcess.github.io/pytoil/"
-homepage = "https://github.com/FollowTheProcess/pytoil"
-repository = "https://github.com/FollowTheProcess/pytoil"
+Documentation = "https://FollowTheProcess.github.io/pytoil/"
+Homepage = "https://github.com/FollowTheProcess/pytoil"
+Source = "https://github.com/FollowTheProcess/pytoil"
 
 [project.scripts]
 pytoil = "pytoil.cli.root:main"
