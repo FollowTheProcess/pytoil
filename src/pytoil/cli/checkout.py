@@ -205,7 +205,7 @@ async def checkout_fork(
             await handle_venv_creation(env=env, config=config)
 
         if config.specifies_editor():
-            printer.info(f"Opening {fork.name} with {config.editor}")
+            printer.sub_info(f"Opening {fork.name} with {config.editor}")
             await editor.launch(
                 path=config.projects_dir.joinpath(name), bin=config.editor
             )
@@ -253,7 +253,7 @@ async def checkout_local(repo: Repo, config: Config, venv: bool) -> None:
         printer.note("The --venv flag is ignored for local projects.")
 
     if config.specifies_editor():
-        printer.info(f"Opening {repo.name} with {config.editor}")
+        printer.sub_info(f"Opening {repo.name} with {config.editor}")
         await editor.launch(path=repo.local_path, bin=config.editor)
 
 
