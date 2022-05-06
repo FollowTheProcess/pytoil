@@ -16,7 +16,7 @@ keywords = [
   "developer-tools",
   "python",
 ]
-license = { file = "LICENSE" }
+license = { text = "Apache Software License 2.0" }
 maintainers = [ { name = "Tom Fleet" }, { email = "tomfleet2018@gmail.com" } ]
 authors = [ { name = "Tom Fleet" }, { email = "tomfleet2018@gmail.com" } ]
 requires-python = ">=3.9"
