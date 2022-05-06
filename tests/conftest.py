@@ -445,6 +445,34 @@ def project_with_no_build_backend(tmp_path_factory):
 
 
 @pytest_asyncio.fixture
+def project_with_setuptools_pep621_backend(tmp_path_factory):
+    """
+    Returns a temporary directory containing a PEP 621
+    pyproject.toml configured to use setuptools as the
+    build backend.
+    """
+    # Create the folder and pyproject.toml file
+    folder: Path = tmp_path_factory.mktemp("myrepo")
+    pyproject_toml = folder.joinpath("pyproject.toml")
+    pyproject_toml.touch()
+
+    build_system = {
+        "build-system": {
+            "requires": [
+                "setuptools>=61",
+                "wheel>=0.37.1",
+            ],
+            "build-backend": "setuptools.build_meta",
+        }
+    }
+
+    with open(pyproject_toml, mode="w", encoding="utf-8") as f:
+        rtoml.dump(build_system, f)
+
+    return folder
+
+
+@pytest_asyncio.fixture
 def fake_poetry_project(tmp_path_factory):
     """
     Returns a temporary directory containing a

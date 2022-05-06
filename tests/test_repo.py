@@ -151,7 +151,7 @@ async def test_does_file_exist(
         ("setup.py", True),
         ("dingle.cfg", False),
         ("dingle.py", False),
-        ("pyproject.toml", False),
+        ("pyproject.toml", False),  # Empty pyproject.toml
         ("environment.yml", False),
     ],
 )
@@ -167,6 +167,15 @@ async def test_is_setuptools(
     repo_folder_with_random_existing_files.joinpath(file).touch()
 
     assert await repo.is_setuptools() is expect
+
+
+@pytest.mark.asyncio
+async def test_is_setuptools_pep621(project_with_setuptools_pep621_backend: Path):
+    repo = Repo(
+        owner="me", name="test", local_path=project_with_setuptools_pep621_backend
+    )
+
+    assert await repo.is_setuptools() is True
 
 
 @pytest.mark.asyncio
