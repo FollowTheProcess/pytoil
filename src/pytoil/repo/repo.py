@@ -194,7 +194,9 @@ class Repo:
             bool: True if setuptools, else False.
         """
         exists = await asyncio.gather(
-            self._file_exists("setup.cfg"), self._file_exists("setup.py")
+            self._file_exists("setup.cfg"),
+            self._file_exists("setup.py"),
+            self._specifies_build_tool("setuptools.build_meta"),
         )
 
         return any(exists)
