@@ -121,6 +121,9 @@ def update(session: nox.Session) -> None:
 
     Note: this is still based on the version specifiers present in pyproject.toml.
     """
+    session.run(
+        PYTHON, "-m", "pip", "install", "--upgrade", "pip", "setuptools", "wheel"
+    )
     session.run(PYTHON, "-m", "pip", "install", "--upgrade", "-e", ".[dev]")
 
 
@@ -241,6 +244,17 @@ def build(session: nox.Session) -> None:
     session.install("build")
 
     session.run("pyproject-build", "--sdist", "--wheel")
+
+
+@nox.session(python=DEFAULT_PYTHON)
+def dependabot(session: nox.Session) -> None:
+    """
+    Runs the poormans_dependabot utility.
+    """
+    update_seeds(session)
+    session.install("httpx", "rtoml", "rich")
+
+    session.run("python", "scripts/poormans_dependabot.py")
 
 
 @nox.session(python=DEFAULT_PYTHON)

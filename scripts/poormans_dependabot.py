@@ -7,10 +7,14 @@ as good, but it'll do until they implement PEP621 support.
 
 It just shows any potential differences, "potential" because it's not
 perfect, it sees "6.0.0" and "6.0" as different for example.
+
+Run with nox --session dependabot to guarantee dependencies are
+installed.
 """
 
 from __future__ import annotations
 
+import argparse
 import asyncio
 import logging
 from dataclasses import dataclass
@@ -22,17 +26,6 @@ import rtoml
 from rich.console import Console
 from rich.logging import RichHandler
 from rich.table import Table, box
-
-LOG_LEVEL = logging.INFO
-
-logger = logging.getLogger(__name__)
-logger.setLevel(LOG_LEVEL)
-ch = RichHandler()
-ch.setLevel(LOG_LEVEL)
-formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-ch.setFormatter(formatter)
-logger.addHandler(ch)
-
 
 RELEASE_URL = "https://pypi.org/pypi/{project}/json"
 PYPROJECT_TOML = Path(__file__).parent.parent.joinpath("pyproject.toml").resolve()
@@ -172,4 +165,23 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        prog="poormans_dependabot", description="Sort of dependabot-like local utility"
+    )
+    parser.add_argument("--verbose", action="store_true", help="Show verbose log info")
+    args = parser.parse_args()
+
+    if args.verbose:
+        LOG_LEVEL = logging.DEBUG
+    else:
+        LOG_LEVEL = logging.INFO
+
+    logger = logging.getLogger(__name__)
+    logger.setLevel(LOG_LEVEL)
+    ch = RichHandler()
+    ch.setLevel(LOG_LEVEL)
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(message)s")
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+
     asyncio.run(main=main())
