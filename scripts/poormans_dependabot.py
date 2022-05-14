@@ -98,7 +98,7 @@ async def get_current_versions() -> dict[str, str]:
     Returns:
         dict[str, str]: Map of project: version
     """
-    with open(PYPROJECT_TOML, mode="r", encoding="utf-8") as f:
+    with open(PYPROJECT_TOML, encoding="utf-8") as f:
         contents = rtoml.load(f)
 
     all_deps: list[str] = []
@@ -138,9 +138,7 @@ async def main() -> None:
     """
     console = Console()
     current_versions = await get_current_versions()
-    latest_versions = await get_latest_versions(
-        projects=[key for key in current_versions.keys()]
-    )
+    latest_versions = await get_latest_versions(projects=list(current_versions.keys()))
 
     if len(current_versions) != len(latest_versions):
         raise ValueError(
