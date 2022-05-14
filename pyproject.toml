@@ -22,7 +22,7 @@ authors = [ { name = "Tom Fleet" }, { email = "tomfleet2018@gmail.com" } ]
 requires-python = ">=3.9"
 dependencies = [
   "aiofiles==0.8",
-  "anyio==3.5",
+  "anyio==3.6.1",
   "asyncclick==8.0.3.2",
   "cookiecutter==1.7.3",
   "httpx[http2]==0.22",
@@ -31,7 +31,7 @@ dependencies = [
   "PyYAML==6",
   "questionary==1.10",
   "rich==12.4.1",
-  "rtoml==0.7.1",
+  "rtoml==0.8",
   "thefuzz[speedup]==0.19",
   "virtualenv==20.14.1",
 ]
@@ -56,7 +56,7 @@ classifiers = [
 [project.optional-dependencies]
 dev = [
   "black==22.3",
-  "coverage[toml]==6.3.2",
+  "coverage[toml]==6.3.3",
   "flake8==4.0.1",
   "flake8-bugbear==22.4.25",
   "freezegun==1.2.1",
@@ -72,7 +72,7 @@ dev = [
   "pytest-cov==3",
   "pytest-httpx==0.20",
   "pytest-mock==3.7",
-  "pytest-randomly==3.11",
+  "pytest-randomly==3.12",
   "types-aiofiles==0.8.8",
   "types-click==7.1.8",
   "types-PyYAML==6.0.7",
