@@ -41,11 +41,24 @@ class Difference:
     current: str
     latest: str
 
+
+@dataclass
+class Version:
+    """
+    Object representing a dependency version, ensures that if
+    a version is e.g. "6", this is canonicalised to "6.0.0"
+    """
+
+    version: str
+
     def __str__(self) -> str:
-        return (
-            f"Potential difference in {self.name!r}: {self.current!r} ->"
-            f" {self.latest!r}"
-        )
+        """
+        Canonicalises the version.
+        """
+        while len(self.version.split(".")) < 3:
+            self.version = f"{self.version}.0"
+
+        return self.version
 
 
 async def get_latest_versions(projects: list[str]) -> dict[str, str]:
@@ -76,9 +89,9 @@ async def get_latest_versions(projects: list[str]) -> dict[str, str]:
             result = await hit
             data: dict[str, Any] = result.json()
             name = data.get("info", {}).get("name", "Unknown")
-            version = data.get("info", {}).get("version", "Unknown")
-            logger.debug(f"Latest version for {name!r} is {version!r}")
-            results[name] = version
+            version = Version(data.get("info", {}).get("version", "Unknown"))
+            logger.debug(f"Latest version for {name!r} is {version}")
+            results[name] = str(version)
 
     return results
 
@@ -109,14 +122,15 @@ async def get_current_versions() -> dict[str, str]:
 
     for dep in all_deps:
         # Because we've pinned everything, this is easy
-        name, version = dep.split("==")
+        name, v = dep.split("==")
+        version = Version(v)
         # Look for additional [http2] type things
         if "[" in name:
             bracket_start = name.index("[")
             name = name[:bracket_start]
-        logger.debug(f"Current version for {name!r} is {version!r}")
+        logger.debug(f"Current version for {name!r} is {version}")
 
-        results[name] = version
+        results[name] = str(version)
 
     return results
 
@@ -153,10 +167,10 @@ async def main() -> None:
     table.add_column("Latest", style="green")
 
     if len(differences) == 0:
-        console.print("Everything is up to date", style="bold green")
+        console.print("Everything is up to date ✔", style="bold green")
         return
 
-    console.print("Potential Differences detected:", style="bold yellow")
+    console.print("⚠️ Potential Differences detected:", style="bold yellow")
 
     for diff in differences:
         table.add_row(diff.name, diff.current, diff.latest)
@@ -176,11 +190,11 @@ if __name__ == "__main__":
     else:
         LOG_LEVEL = logging.INFO
 
-    logger = logging.getLogger(__name__)
+    logger = logging.getLogger()
     logger.setLevel(LOG_LEVEL)
     ch = RichHandler()
     ch.setLevel(LOG_LEVEL)
-    formatter = logging.Formatter("%(asctime)s - %(name)s - %(message)s")
+    formatter = logging.Formatter("%(asctime)s - %(message)s")
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
