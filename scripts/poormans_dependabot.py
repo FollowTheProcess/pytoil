@@ -5,8 +5,8 @@ using a PEP 621 pyproject.toml.
 This script is a local version that is almost certainly not
 as good, but it'll do until they implement PEP621 support.
 
-It just shows any potential differences, "potential" because it's not
-perfect, it sees "6.0.0" and "6.0" as different for example.
+It just shows any potential differences, "potential" because it's
+version parsing is best guess and not perfect.
 
 Run with nox --session dependabot to guarantee dependencies are
 installed.
@@ -27,7 +27,7 @@ from rich.console import Console
 from rich.logging import RichHandler
 from rich.table import Table, box
 
-RELEASE_URL = "https://pypi.org/pypi/{project}/json"
+PROJECT_URL = "https://pypi.org/pypi/{project}/json"
 PYPROJECT_TOML = Path(__file__).parent.parent.joinpath("pyproject.toml").resolve()
 
 
@@ -82,7 +82,7 @@ async def get_latest_versions(projects: list[str]) -> dict[str, str]:
     async with httpx.AsyncClient() as client:
         for hit in asyncio.as_completed(
             [
-                client.get(RELEASE_URL.format(project=project), follow_redirects=True)
+                client.get(PROJECT_URL.format(project=project), follow_redirects=True)
                 for project in projects
             ]
         ):
