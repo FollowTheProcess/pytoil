@@ -252,7 +252,7 @@ def dependabot(session: nox.Session) -> None:
     Runs the poormans_dependabot utility.
     """
     update_seeds(session)
-    session.install("httpx", "rtoml", "rich")
+    session.install("httpx[http2]", "rtoml", "rich")
 
     session.run("python", "scripts/poormans_dependabot.py")
 
