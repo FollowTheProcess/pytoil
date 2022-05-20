@@ -27,7 +27,7 @@ dependencies = [
   "cookiecutter==1.7.3",
   "httpx[http2]==0.22",
   "humanize==4.1",
-  "pydantic==1.9",
+  "pydantic==1.9.1",
   "PyYAML==6",
   "questionary==1.10",
   "rich==12.4.1",
@@ -110,7 +110,7 @@ branch = true
 exclude_lines = [ "# pragma: no cover", "def __repr__" ]
 
 [tool.mypy]
-files = [ "pytoil/**/*.py", "noxfile.py" ]
+files = [ "pytoil/**/*.py", "noxfile.py", "scripts/**/*.py" ]
 python_version = "3.9"
 ignore_missing_imports = true
 strict = true
@@ -136,10 +136,7 @@ pythonpath = [ "src" ]
 testpaths = [ "tests" ]
 
 [tool.pycln]
-path = "/pytoil"
+path = "/src"
 expand_stars = true
 all = true
 no_gitignore = false
-
-[tool.bandit]
-skips = [ "B105", "B106" ]
