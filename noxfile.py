@@ -8,7 +8,6 @@ import argparse
 import json
 import os
 import shutil
-import subprocess
 import webbrowser
 from pathlib import Path
 
@@ -44,16 +43,6 @@ DEFAULT_PYTHON: str = "3.10"
 PYTHON_VERSIONS: list[str] = [
     "3.9",
     "3.10",
-]
-
-# List of seed packages to upgrade to their most
-# recent versions in every nox environment
-# these aren't strictly required but I've found including them
-# solves most installation problems
-SEEDS: list[str] = [
-    "pip",
-    "setuptools",
-    "wheel",
 ]
 
 # "dev" should only be run if no virtual environment found and we're not on CI
@@ -132,7 +121,7 @@ def test(session: nox.Session) -> None:
     """
     Runs the test suite against all supported python versions.
     """
-    update_seeds(session)
+    session.install("--upgrade", "pip", "setuptools", "wheel")
     # Tests require the package to be installed
     session.install(".")
     session.install(
@@ -155,7 +144,7 @@ def codecov(session: nox.Session) -> None:
     """
     Generate a codecov xml report for CI.
     """
-    update_seeds(session)
+    session.install("--upgrade", "pip", "setuptools", "wheel")
 
     session.install(".")
     session.install(
@@ -178,7 +167,7 @@ def coverage(session: nox.Session) -> None:
     """
     Test coverage analysis.
     """
-    update_seeds(session)
+    session.install("--upgrade", "pip", "setuptools", "wheel")
     session.install("coverage[toml]")
 
     session.run("coverage", "report", "--show-missing")
@@ -189,7 +178,7 @@ def lint(session: nox.Session) -> None:
     """
     Run pre-commit linting.
     """
-    update_seeds(session)
+    session.install("--upgrade", "pip", "setuptools", "wheel")
     session.install("pre-commit")
 
     session.run("pre-commit", "run", "--all-files")
@@ -200,7 +189,7 @@ def docs(session: nox.Session) -> None:
     """
     Builds the project documentation. Use '-- serve' to see changes live.
     """
-    update_seeds(session)
+    session.install("--upgrade", "pip", "setuptools", "wheel")
     session.install("mkdocs", "mkdocs-material")
 
     if "serve" in session.posargs:
@@ -215,7 +204,7 @@ def deploy_docs(session: nox.Session) -> None:
     """
     Used by GitHub actions to deploy docs to GitHub Pages.
     """
-    update_seeds(session)
+    session.install("--upgrade", "pip", "setuptools", "wheel")
     session.install("mkdocs", "mkdocs-material")
 
     if ON_CI:
@@ -240,7 +229,7 @@ def build(session: nox.Session) -> None:
     """
     Builds the package sdist and wheel.
     """
-    update_seeds(session)
+    session.install("--upgrade", "pip", "setuptools", "wheel")
     session.install("build")
 
     session.run("pyproject-build", "--sdist", "--wheel")
@@ -251,7 +240,7 @@ def dependabot(session: nox.Session) -> None:
     """
     Runs the poormans_dependabot utility.
     """
-    update_seeds(session)
+    session.install("--upgrade", "pip", "setuptools", "wheel")
     session.install("httpx[http2]", "rtoml", "rich")
 
     session.run("python", "scripts/poormans_dependabot.py")
@@ -268,7 +257,19 @@ def release(session: nox.Session) -> None:
 
     $ nox -s release -- [major|minor|patch]
     """
-    enforce_branch_no_changes(session)
+    # Little known Nox fact: Passing silent=True captures the output
+    status = session.run("git", "status", "--porcelain", silent=True, external=True)
+    if len(status) > 1:
+        session.error("All changes must be committed or removed before release")
+
+    branch = session.run(
+        "git", "rev-parse", "--abbrev-ref", "HEAD", silent=True, external=True
+    )
+
+    if branch != DEFAULT_BRANCH:
+        session.error(
+            f"Must be on {DEFAULT_BRANCH!r} branch. Currently on {branch!r} branch"
+        )
 
     parser = argparse.ArgumentParser(description="Release a new semantic version.")
     parser.add_argument(
@@ -291,7 +292,7 @@ def release(session: nox.Session) -> None:
     if confirm.lower().strip() != "y":
         session.error(f"You said no when prompted to bump the {version!r} version.")
 
-    update_seeds(session)
+    session.install("--upgrade", "pip", "setuptools", "wheel")
 
     session.install("bump2version")
 
@@ -328,70 +329,3 @@ def set_up_vscode(session: nox.Session) -> None:
 
         with open(SETTINGS_JSON, mode="w", encoding="utf-8") as f:
             json.dump(settings, f, sort_keys=True, indent=4)
-
-
-def update_seeds(session: nox.Session) -> None:
-    """
-    Helper function to update the core installation seed packages
-    to their latest versions in each session.
-    Args:
-        session (nox.Session): The nox session currently running.
-    """
-    session.install("--upgrade", *SEEDS)
-
-
-def has_changes() -> bool:
-    """
-    Invoke git in a subprocess to check if we have
-    any uncommitted changes in the local repo.
-
-    Returns:
-        bool: True if uncommitted changes, else False.
-    """
-    status = (
-        subprocess.run(
-            "git status --porcelain",
-            shell=True,
-            check=True,
-            stdout=subprocess.PIPE,
-        )
-        .stdout.decode()
-        .strip()
-    )
-    return len(status) > 0
-
-
-def get_branch() -> str:
-    """
-    Invoke git in a subprocess to get the name of
-    the current branch.
-
-    Returns:
-        str: Name of current branch.
-    """
-    return (
-        subprocess.run(
-            "git rev-parse --abbrev-ref HEAD",
-            shell=True,
-            check=True,
-            stdout=subprocess.PIPE,
-        )
-        .stdout.decode()
-        .strip()
-    )
-
-
-def enforce_branch_no_changes(session: nox.Session) -> None:
-    """
-    Errors out the current session if we're not on
-    default branch or if there are uncommitted changes.
-    """
-    if has_changes():
-        session.error("All changes must be committed or removed before release")
-
-    branch = get_branch()
-
-    if branch != DEFAULT_BRANCH:
-        session.error(
-            f"Must be on {DEFAULT_BRANCH!r} branch. Currently on {branch!r} branch"
-        )
