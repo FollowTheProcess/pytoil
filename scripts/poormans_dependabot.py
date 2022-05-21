@@ -77,7 +77,7 @@ async def get_latest_versions(projects: list[str]) -> dict[str, str]:
     Returns:
         dict[str, str]: Map of project: version
     """
-    logger.debug("Getting latest versions")
+    logger.info("Getting latest versions")
     results: dict[str, str] = {}
     async with httpx.AsyncClient(
         http2=True,
@@ -93,7 +93,7 @@ async def get_latest_versions(projects: list[str]) -> dict[str, str]:
             data: dict[str, Any] = result.json()
             name = data.get("info", {}).get("name", "Unknown")
             version = Version(data.get("info", {}).get("version", "Unknown"))
-            logger.debug(f"Latest version for {name!r} is {version}")
+            logger.info(f"Latest version for {name!r} is {version}")
             results[name] = str(version)
 
     return results
@@ -131,7 +131,7 @@ async def get_current_versions() -> dict[str, str]:
         if "[" in name:
             bracket_start = name.index("[")
             name = name[:bracket_start]
-        logger.debug(f"Current version for {name!r} is {version}")
+        logger.info(f"Current version for {name!r} is {version}")
 
         results[name] = str(version)
 
@@ -189,9 +189,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.verbose:
-        LOG_LEVEL = logging.DEBUG
-    else:
         LOG_LEVEL = logging.INFO
+    else:
+        LOG_LEVEL = logging.WARNING
 
     logger = logging.getLogger()
     logger.setLevel(LOG_LEVEL)
