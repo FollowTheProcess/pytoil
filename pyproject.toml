@@ -23,7 +23,7 @@ dependencies = [
   "aiofiles==0.8",
   "anyio==3.6.1",
   "asyncclick==8.0.3.2",
-  "cookiecutter==1.7.3",
+  "cookiecutter==2.1.0",
   "httpx[http2]==0.23",
   "humanize==4.1",
   "pydantic==1.9.1",
