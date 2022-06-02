@@ -259,14 +259,14 @@ def release(session: nox.Session) -> None:
     """
     # Little known Nox fact: Passing silent=True captures the output
     status = session.run("git", "status", "--porcelain", silent=True, external=True)
-    if len(status) > 1:
+    if len(status.strip()) > 1:
         session.error("All changes must be committed or removed before release")
 
     branch = session.run(
         "git", "rev-parse", "--abbrev-ref", "HEAD", silent=True, external=True
     )
 
-    if branch != DEFAULT_BRANCH:
+    if branch.strip() != DEFAULT_BRANCH:
         session.error(
             f"Must be on {DEFAULT_BRANCH!r} branch. Currently on {branch!r} branch"
         )
