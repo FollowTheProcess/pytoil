@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-__version__ = "0.31.1"
+__version__ = "0.32.0"
 
 __doc__ = """
 
