@@ -16,8 +16,8 @@ Usage: pytoil new [OPTIONS] PROJECT [PACKAGES]...
   Bare usage will simply create an empty folder in your configured projects
   directory.
 
-  You can also create a project from a cookiecutter template by passing a
-  valid url to the '--cookie/-c' flag.
+  You can also create a project from a cookiecutter or copier template by
+  passing a valid url to the '--cookie/-c' or '--copier/-C' flags.
 
   If you just want a very simple, language-specific starting template, use the
   '--starter/-s' option.
@@ -54,7 +54,8 @@ Usage: pytoil new [OPTIONS] PROJECT [PACKAGES]...
 
   $ pytoil new my_project --venv conda
 
-  $ pytoil new my_project -c https://github.com/some/cookie.git -v conda --no-git
+  $ pytoil new my_project -c https://github.com/some/cookie.git -v conda --no-
+  git
 
   $ pytoil new my_project -v venv requests "flask>=1.0.0"
 
@@ -63,6 +64,8 @@ Usage: pytoil new [OPTIONS] PROJECT [PACKAGES]...
 Options:
   -c, --cookie TEXT               URL to a cookiecutter template from which to
                                   build the project.
+  -C, --copier TEXT               URL to a copier template from which to build
+                                  the project.
   -s, --starter [python|go|rust]  Use a language-specific starter template.
   -v, --venv [venv|conda]         Which type of virtual environment to create.
   -n, --no-git                    Don't do any git stuff.
@@ -176,17 +179,13 @@ Including packages: pandas, numpy, scikit-learn
 
     This is also where the `common_packages` setting from the config file comes in! If you specify packages here, these will automatically get injected into every environment pytoil creates, whether its a python virtual environment or a conda environment. This is particularly useful for development dependencies like linters and formatters etc.
 
-## Build a project from a Cookiecutter Template
+## Build a project from a Cookiecutter/Copier Template
 
-If you don't know what [cookiecutter] is, go and check them out! Essentially, it is a templating engine for development projects and, after asking you a few questions, it can dynamically insert and modify text inside your project, set up directory structure and all sorts of cool automation stuff!
+If you don't know what [cookiecutter] or [copier] are, go and check them out! Essentially, they are templating engines for development projects and, after asking you a few questions, can dynamically insert and modify text inside your project, set up directory structure and all sorts of cool automation stuff!
 
 It means that if you find a template you like (or make your own) you can use it as the base for development projects without having to create so much boilerplate at the beginning, they're great :thumbsup:
 
-!!! note
-
-    In fact, pytoil was itself started from a cookiecutter template! This one: [https://github.com/FollowTheProcess/poetry_pypackage](https://github.com/FollowTheProcess/poetry_pypackage)
-
-Because I love cookiecutter so much, I built pytoil to support them easily. You can create a new project from a cookiecutter template by using the `--cookie/-c` flag like this:
+Because I love these projects so much, I built pytoil to support them easily. You can create a new project from a cookiecutter or copier template by using the `--cookie/-c` or `--copier/-C` flag like this:
 
 <div class="termy">
 
@@ -266,6 +265,7 @@ In this snippet we've:
 That's better than doing all this yourself isn't it! :thumbsup:
 
 [cookiecutter]: https://cookiecutter.readthedocs.io/en/1.7.2/
+[copier]: https://copier.readthedocs.io/en/latest/
 [venv]: https://docs.python.org/3/library/venv.html
 [conda]: https://docs.conda.io/en/latest/
 [miniconda]: https://docs.conda.io/en/latest/miniconda.html
