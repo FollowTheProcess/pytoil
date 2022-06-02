@@ -13,6 +13,7 @@ import functools
 
 import aiofiles.os
 import asyncclick as click
+import copier
 from cookiecutter.main import cookiecutter
 
 from pytoil import editor
@@ -40,6 +41,13 @@ from pytoil.starters import GoStarter, PythonStarter, RustStarter
     help="URL to a cookiecutter template from which to build the project.",
 )
 @click.option(
+    "-C",
+    "--copier",
+    "_copier",
+    type=str,
+    help="URL to a copier template from which to build the project.",
+)
+@click.option(
     "-s",
     "--starter",
     type=click.Choice(choices=("python", "go", "rust"), case_sensitive=True),
@@ -64,6 +72,7 @@ async def new(  # noqa: C901
     project: str,
     packages: tuple[str, ...],
     cookie: str | None,
+    _copier: str | None,
     starter: str | None,
     venv: str | None,
     no_git: bool = False,
@@ -74,8 +83,8 @@ async def new(  # noqa: C901
     Bare usage will simply create an empty folder in your configured projects
     directory.
 
-    You can also create a project from a cookiecutter template by passing a valid
-    url to the '--cookie/-c' flag.
+    You can also create a project from a cookiecutter or copier template by passing a valid
+    url to the '--cookie/-c' or '--copier/-C' flags.
 
     If you just want a very simple, language-specific starting template, use the
     '--starter/-s' option.
@@ -132,6 +141,10 @@ async def new(  # noqa: C901
     if cookie and starter:
         printer.error("--cookie and --starter are mutually exclusive", exits=1)
 
+    # Can't use --copier and --starter
+    if _copier and starter:
+        printer.error("--copier and --starter are mutually exclusive", exits=1)
+
     # Can't use --venv with non-python starters
     if (
         starter is not None  # User specified --starter
@@ -170,6 +183,16 @@ async def new(  # noqa: C901
                 cookiecutter,
                 template=cookie,
                 output_dir=str(config.projects_dir),
+            ),
+        )
+
+    elif _copier:
+        printer.info(f"Creating {repo.name} from copier: {_copier}.")
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(
+            executor=None,
+            func=functools.partial(
+                copier.run_auto, src_path=_copier, dst_path=repo.local_path
             ),
         )
 
