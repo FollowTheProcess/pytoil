@@ -8,9 +8,9 @@ Created: 21/12/2021
 
 from __future__ import annotations
 
-import asyncio
+from concurrent.futures import ThreadPoolExecutor
 
-import asyncclick as click
+import click
 import httpx
 import questionary
 
@@ -27,9 +27,7 @@ from pytoil.repo import Repo
 @click.option("-f", "--force", is_flag=True, help="Force pull without confirmation.")
 @click.option("-a", "--all", "all_", is_flag=True, help="Pull down all your projects.")
 @click.pass_obj
-async def pull(
-    config: Config, projects: tuple[str, ...], force: bool, all_: bool
-) -> None:
+def pull(config: Config, projects: tuple[str, ...], force: bool, all_: bool) -> None:
     """
     Pull down your remote projects.
 
@@ -79,7 +77,7 @@ async def pull(
     }
 
     try:
-        remote_projects = await api.get_repo_names()
+        remote_projects = api.get_repo_names()
     except httpx.HTTPStatusError as err:
         utils.handle_http_status_error(err)
     else:
@@ -106,9 +104,9 @@ async def pull(
                 # Too many to show nicely
                 message = f"This will pull down {len(diff)} projects. Are you sure?"
 
-            confirmed: bool = await questionary.confirm(
+            confirmed: bool = questionary.confirm(
                 message, default=False, auto_enter=False
-            ).ask_async()
+            ).ask()
 
             if not confirmed:
                 printer.warn("Aborted", exits=1)
@@ -123,11 +121,11 @@ async def pull(
             for project in diff
         ]
         git = Git()
-        await asyncio.gather(
-            *[clone_and_report(repo, git, config) for repo in to_clone]
-        )
+        with ThreadPoolExecutor() as executor:
+            for repo in to_clone:
+                executor.submit(clone_and_report, repo=repo, git=git, config=config)
 
 
-async def clone_and_report(repo: Repo, git: Git, config: Config) -> None:
-    await git.clone(url=repo.clone_url, cwd=config.projects_dir)
+def clone_and_report(repo: Repo, git: Git, config: Config) -> None:
+    git.clone(url=repo.clone_url, cwd=config.projects_dir)
     printer.good(f"Cloned {repo.name!r}")

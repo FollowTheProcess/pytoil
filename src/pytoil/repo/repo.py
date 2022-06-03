@@ -8,13 +8,10 @@ Created: 22/12/2021
 
 from __future__ import annotations
 
-import asyncio
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-import aiofiles
-import aiofiles.os
 import humanize
 import rtoml
 
@@ -77,7 +74,7 @@ class Repo:
         """
         return f"{self.html_url}/pulls"
 
-    async def exists_local(self) -> bool:
+    def exists_local(self) -> bool:
         """
         Determines whether or not a `Repo` exists
         on the local filesystem.
@@ -85,9 +82,9 @@ class Repo:
         Returns:
             bool: True if exists locally, else False.
         """
-        return await aiofiles.os.path.exists(self.local_path)
+        return self.local_path.exists()
 
-    async def exists_remote(self, api: API) -> bool:
+    def exists_remote(self, api: API) -> bool:
         """
         Determines whether or not a `Repo` exists
         on GitHub.
@@ -98,9 +95,9 @@ class Repo:
         Returns:
             bool: True if exists remote, else False.
         """
-        return await api.check_repo_exists(owner=self.owner, name=self.name)
+        return api.check_repo_exists(owner=self.owner, name=self.name)
 
-    async def _local_info(self) -> dict[str, Any] | None:  # pragma: no cover
+    def _local_info(self) -> dict[str, Any] | None:  # pragma: no cover
         """
         Return local path information for the repo.
         """
@@ -111,7 +108,7 @@ class Repo:
             return {
                 "Name": self.local_path.name,
                 "Created": humanize.naturaltime(
-                    datetime.utcfromtimestamp(self.local_path.stat().st_birthtime),  # type: ignore[attr-defined]
+                    datetime.utcfromtimestamp(self.local_path.stat().st_birthtime),
                     when=datetime.utcnow(),
                 ),
                 "Updated": humanize.naturaltime(
@@ -123,13 +120,13 @@ class Repo:
         except FileNotFoundError:
             return None
 
-    async def _remote_info(self, api: API) -> dict[str, Any] | None:
+    def _remote_info(self, api: API) -> dict[str, Any] | None:
         """
         Return remote API information for the repo.
         """
-        return await api.get_repo_info(self.name)
+        return api.get_repo_info(self.name)
 
-    async def info(self, api: API) -> dict[str, Any]:
+    def info(self, api: API) -> dict[str, Any]:
         """
         Return summary info about the repo in question.
 
@@ -148,20 +145,17 @@ class Repo:
             Dict[str, Any]: Repository information.
         """
         info: dict[str, Any] = {}
-        exists_remote, remote_info, exists_local, local_info = await asyncio.gather(
-            self.exists_remote(api=api),
-            self._remote_info(api=api),
-            self.exists_local(),
-            self._local_info(),
-        )
+
+        exists_remote = self.exists_remote(api=api)
+        exists_local = self.exists_local()
 
         if exists_remote:
-            if remote_info:
+            if remote_info := self._remote_info(api=api):
                 info.update(remote_info)
             # Might also exist locally
             info.update({"Local": exists_local})
         elif exists_local:
-            if local_info:
+            if local_info := self._local_info():
                 info.update(local_info)
             # We know it doesn't exist on GitHub if we got here
             info.update({"Remote": False})
@@ -172,7 +166,7 @@ class Repo:
 
         return info
 
-    async def _file_exists(self, file: str) -> bool:
+    def _file_exists(self, file: str) -> bool:
         """
         Convenience method to determine whether or not
         the repo root directory contains `file`.
@@ -183,9 +177,9 @@ class Repo:
         Returns:
             bool: True if exists, else False.
         """
-        return await aiofiles.os.path.exists(self.local_path.joinpath(file))
+        return self.local_path.joinpath(file).exists()
 
-    async def is_setuptools(self) -> bool:
+    def is_setuptools(self) -> bool:
         """
         Is the project based on setuptools, i.e. does it
         have a `setup.cfg` or `setup.py`
@@ -193,38 +187,38 @@ class Repo:
         Returns:
             bool: True if setuptools, else False.
         """
-        exists = await asyncio.gather(
+        conditions = (
             self._file_exists("setup.cfg"),
             self._file_exists("setup.py"),
             self._specifies_build_tool("setuptools.build_meta"),
         )
 
-        return any(exists)
+        return any(conditions)
 
-    async def is_requirements(self) -> bool:
+    def is_requirements(self) -> bool:
         """
         Is the project a python app with a requirements file?
 
         Returns:
             bool: True if yes, else False.
         """
-        exists = await asyncio.gather(
+        conditions = (
             self._file_exists("requirements.txt"),
             self._file_exists("requirements-dev.txt"),
         )
 
-        return any(exists)
+        return any(conditions)
 
-    async def has_pyproject_toml(self) -> bool:
+    def has_pyproject_toml(self) -> bool:
         """
         Does the project have a `pyproject.toml` file.
 
         Returns:
             bool: True if yes, else False.
         """
-        return await self._file_exists("pyproject.toml")
+        return self._file_exists("pyproject.toml")
 
-    async def is_conda(self) -> bool:
+    def is_conda(self) -> bool:
         """
         Is the project based on conda. The only reliable
         way of detecting this is looking for an `environment.yml`.
@@ -232,9 +226,9 @@ class Repo:
         Returns:
             bool: True if conda, else False.
         """
-        return await self._file_exists("environment.yml")
+        return self._file_exists("environment.yml")
 
-    async def _specifies_build_tool(self, build_tool: str) -> bool:
+    def _specifies_build_tool(self, build_tool: str) -> bool:
         """
         Generalised method to check for a particular build tool
         in `pyproject.toml`
@@ -250,12 +244,11 @@ class Repo:
             bool: True if `pyproject.toml` specifies that build tool, else False.
         """
         # If it doesn't have a pyproject.toml, bail early
-        if not await self.has_pyproject_toml():
+        if not self.has_pyproject_toml():
             return False
 
-        async with aiofiles.open(self.local_path.joinpath("pyproject.toml")) as file:
-            content = await file.read()
-            toml = rtoml.loads(content)
+        with open(self.local_path.joinpath("pyproject.toml")) as file:
+            toml = rtoml.load(file)
 
         if build_system := toml.get("build-system"):
             if build_backend := build_system.get("build-backend"):
@@ -263,25 +256,25 @@ class Repo:
 
         return False
 
-    async def is_poetry(self) -> bool:
+    def is_poetry(self) -> bool:
         """
         Does the project specify a poetry build system
 
         Returns:
             bool: True if yes, else False.
         """
-        return await self._specifies_build_tool("poetry")
+        return self._specifies_build_tool("poetry")
 
-    async def is_flit(self) -> bool:
+    def is_flit(self) -> bool:
         """
         Does the proeject specify a flit build system.
 
         Returns:
             bool: True if yes, else False.
         """
-        return await self._specifies_build_tool("flit")
+        return self._specifies_build_tool("flit")
 
-    async def dispatch_env(self, config: Config) -> Environment | None:
+    def dispatch_env(self, config: Config) -> Environment | None:
         """
         Returns the correct environment object for the calling `Repo`,
         or `None` if it cannot detect the environment.
@@ -298,8 +291,7 @@ class Repo:
         # Each of the environment objects below implements the `Environment` Protocol
         # and has an `install_self` method that does the correct thing for it's environment
 
-        # Check the existence of files concurrently because why not
-        exists = await asyncio.gather(
+        exists = (
             self.is_conda(),
             self.is_requirements(),
             self.is_setuptools(),

@@ -9,31 +9,12 @@ Created: 21/12/2021
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TypedDict
+from typing import Any
 
-import aiofiles
 import rtoml
 from pydantic import BaseModel
 
 from pytoil.config import defaults
-
-
-class ConfigDict(TypedDict):
-    """
-    TypedDict for config.
-
-    Exactly the same as the dataclass except projects_dir
-    is a str here because that's how it will be brought in
-    when deserialising the toml file.
-    """
-
-    projects_dir: str
-    token: str
-    username: str
-    editor: str
-    conda_bin: str
-    common_packages: list[str]
-    git: bool
 
 
 class Config(BaseModel):
@@ -46,7 +27,7 @@ class Config(BaseModel):
     git: bool = defaults.GIT
 
     @classmethod
-    async def load(cls, path: Path = defaults.CONFIG_FILE) -> Config:
+    def load(cls, path: Path = defaults.CONFIG_FILE) -> Config:
         """
         Reads in the ~/.pytoil.toml config file and returns
         a populated `Config` object.
@@ -62,9 +43,8 @@ class Config(BaseModel):
             FileNotFoundError: If config file not found.
         """
         try:
-            async with aiofiles.open(path, mode="r", encoding="utf-8") as f:
-                content = await f.read()
-                config_dict: ConfigDict = rtoml.loads(content).get("pytoil", "")
+            with open(path, encoding="utf-8") as f:
+                config_dict: dict[str, Any] = rtoml.load(f).get("pytoil", "")
         except FileNotFoundError:
             raise
         else:
@@ -88,7 +68,7 @@ class Config(BaseModel):
             username="This your GitHub username",
         )
 
-    def to_dict(self) -> ConfigDict:
+    def to_dict(self) -> dict[str, Any]:
         """
         Writes out the attributes from the calling instance
         to a dictionary.
@@ -103,7 +83,7 @@ class Config(BaseModel):
             "git": self.git,
         }
 
-    async def write(self, path: Path = defaults.CONFIG_FILE) -> None:
+    def write(self, path: Path = defaults.CONFIG_FILE) -> None:
         """
         Overwrites the config file at `path` with the attributes from
         the calling instance.
@@ -112,9 +92,8 @@ class Config(BaseModel):
             path (Path, optional): Config file to overwrite.
                 Defaults to defaults.CONFIG_FILE.
         """
-        async with aiofiles.open(path, mode="w", encoding="utf-8") as f:
-            content = rtoml.dumps({"pytoil": self.to_dict()}, pretty=True)
-            await f.write(content)
+        with open(path, mode="w", encoding="utf-8") as f:
+            rtoml.dump({"pytoil": self.to_dict()}, f, pretty=True)
 
     def can_use_api(self) -> bool:
         """

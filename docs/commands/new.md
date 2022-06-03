@@ -269,4 +269,4 @@ That's better than doing all this yourself isn't it! :thumbsup:
 [venv]: https://docs.python.org/3/library/venv.html
 [conda]: https://docs.conda.io/en/latest/
 [miniconda]: https://docs.conda.io/en/latest/miniconda.html
-[async-click]: https://github.com/python-trio/asyncclick
+[click]: https://click.palletsprojects.com/en/8.1.x/

@@ -2,13 +2,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import aiofiles
-import pytest_asyncio
+import pytest
 import rtoml
 import yaml
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 def fake_get_repo_names_response():
     """
     Response snippet for the get_repo_names GraphQL
@@ -34,7 +33,7 @@ def fake_get_repo_names_response():
     }
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 def fake_get_repos_response():
     """
     Response snippet for the get_repos GraphQL
@@ -110,7 +109,7 @@ def fake_get_repos_response():
     }
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 def fake_get_forks_response():
     """
     Response snippet for the get_forks GraphQL
@@ -142,7 +141,7 @@ def fake_get_forks_response():
     }
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 def fake_repo_exists_false_response():
     """
     Response snippet for the check_repo_exists GraphQL
@@ -164,7 +163,7 @@ def fake_repo_exists_false_response():
     }
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 def fake_repo_exists_true_response():
     """
     Response snippet for the check_repo_exists GraphQL
@@ -173,7 +172,7 @@ def fake_repo_exists_true_response():
     return {"data": {"repository": {"name": "pytoil"}}}
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 def fake_repo_info_response():
     """
     Response snippet for the get_repo_info GraphQL
@@ -193,7 +192,7 @@ def fake_repo_info_response():
     }
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 def fake_repo_info_response_no_license():
     """
     Response snippet for the get_repo_info GraphQL
@@ -213,7 +212,7 @@ def fake_repo_info_response_no_license():
     }
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 def fake_projects_dir(tmp_path_factory):
     """
     Returns a fake projects directory complete
@@ -237,8 +236,8 @@ def fake_projects_dir(tmp_path_factory):
     return projects_dir
 
 
-@pytest_asyncio.fixture
-async def temp_environment_yml(tmp_path_factory):
+@pytest.fixture
+def temp_environment_yml(tmp_path_factory):
     """
     Returns a valid temporary environment.yml file
     """
@@ -262,15 +261,15 @@ async def temp_environment_yml(tmp_path_factory):
         ],
     }
 
-    async with aiofiles.open(env_file, mode="w", encoding="utf-8") as f:
+    with open(env_file, mode="w", encoding="utf-8") as f:
         content = yaml.dump(fake_env_info)
-        await f.write(content)
+        f.write(content)
 
     return env_file
 
 
-@pytest_asyncio.fixture
-async def bad_temp_environment_yml(tmp_path_factory):
+@pytest.fixture
+def bad_temp_environment_yml(tmp_path_factory):
     """
     Returns an invalid temporary environment.yml file
     """
@@ -295,14 +294,14 @@ async def bad_temp_environment_yml(tmp_path_factory):
         ],
     }
 
-    async with aiofiles.open(env_file, "w") as f:
+    with open(env_file, "w") as f:
         content = yaml.dump(fake_env_info)
-        await f.write(content)
+        f.write(content)
 
     return env_file
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 def fake_home_folder_miniconda(tmp_path_factory):
     """
     Returns a faked $HOME folder. Should be used as the return
@@ -319,7 +318,7 @@ def fake_home_folder_miniconda(tmp_path_factory):
     return fake_home
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 def fake_home_folder_anaconda(tmp_path_factory):
     """
     Returns a faked $HOME folder. Should be used as the return
@@ -336,7 +335,7 @@ def fake_home_folder_anaconda(tmp_path_factory):
     return fake_home
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 def fake_home_folder_miniforge(tmp_path_factory):
     """
     Returns a faked $HOME folder. Should be used as the return
@@ -353,7 +352,7 @@ def fake_home_folder_miniforge(tmp_path_factory):
     return fake_home
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 def fake_home_folder_mambaforge(tmp_path_factory):
     """
     Returns a faked $HOME folder. Should be used as the return
@@ -370,7 +369,7 @@ def fake_home_folder_mambaforge(tmp_path_factory):
     return fake_home
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 def fake_home_folder_no_conda(tmp_path_factory):
     """
     Returns a faked $HOME but without any conda dirs.
@@ -382,7 +381,7 @@ def fake_home_folder_no_conda(tmp_path_factory):
     return fake_home
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 def repo_folder_with_random_existing_files(tmp_path_factory):
     """
     Returns a temporary directory containing a few random files
@@ -401,7 +400,7 @@ def repo_folder_with_random_existing_files(tmp_path_factory):
     return folder
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 def project_with_no_build_system(tmp_path_factory):
     """
     Returns a temporary directory containing a
@@ -417,7 +416,7 @@ def project_with_no_build_system(tmp_path_factory):
     return folder
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 def project_with_no_build_backend(tmp_path_factory):
     """
     Returns a temporary directory containing a
@@ -444,7 +443,7 @@ def project_with_no_build_backend(tmp_path_factory):
     return folder
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 def project_with_setuptools_pep621_backend(tmp_path_factory):
     """
     Returns a temporary directory containing a PEP 621
@@ -472,7 +471,7 @@ def project_with_setuptools_pep621_backend(tmp_path_factory):
     return folder
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 def fake_poetry_project(tmp_path_factory):
     """
     Returns a temporary directory containing a
@@ -498,7 +497,7 @@ def fake_poetry_project(tmp_path_factory):
     return folder
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 def fake_flit_project(tmp_path_factory):
     """
     Returns a temporary directory containing a
@@ -524,7 +523,7 @@ def fake_flit_project(tmp_path_factory):
     return folder
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 def requirements_dev_project(tmp_path_factory):
     """
     Returns a temp directory containing a requirements-dev.txt
@@ -538,7 +537,7 @@ def requirements_dev_project(tmp_path_factory):
     return folder
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 def requirements_project(tmp_path_factory):
     """
     Returns a temp directory containing a requirements.txt

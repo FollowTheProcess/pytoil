@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 import sys
+import tempfile
 from pathlib import Path
 
-import aiofiles
-import aiofiles.os
 import pytest
 from pytest_mock import MockerFixture
 
@@ -24,43 +23,38 @@ def test_go_starter_init():
     ]
 
 
-@pytest.mark.asyncio
-async def test_generate_raises_if_go_not_installed():
+def test_generate_raises_if_go_not_installed():
     starter = GoStarter(path=Path("somewhere"), name="testygo", go=None)
 
     with pytest.raises(GoNotInstalledError):
-        await starter.generate()
+        starter.generate()
 
 
-@pytest.mark.asyncio
-async def test_go_starter_generate(mocker: MockerFixture):
-    async with aiofiles.tempfile.TemporaryDirectory() as tmpdir:
+def test_go_starter_generate(mocker: MockerFixture):
+    with tempfile.TemporaryDirectory() as tmpdir:
         starter = GoStarter(path=Path(tmpdir), name="tempgo", go="notgo")
 
         mock_go_mod_init = mocker.patch(
-            "pytoil.starters.go.asyncio.create_subprocess_exec", autospec=True
+            "pytoil.starters.go.subprocess.run", autospec=True
         )
 
-        await starter.generate(username="me")
+        starter.generate(username="me")
 
         mock_go_mod_init.assert_called_once_with(
-            "notgo",
-            "mod",
-            "init",
-            "github.com/me/tempgo",
+            ["notgo", "mod", "init", "github.com/me/tempgo"],
             cwd=starter.root,
             stdout=sys.stdout,
             stderr=sys.stderr,
         )
 
         for file in starter.files:
-            assert await aiofiles.os.path.exists(file)
+            assert file.exists()
 
-        async with aiofiles.open(starter.root.joinpath("README.md")) as readme:
-            readme_content = await readme.read()
+        with open(starter.root.joinpath("README.md")) as readme:
+            readme_content = readme.read()
 
-        async with aiofiles.open(starter.root.joinpath("main.go")) as main_go:
-            main_go_content = await main_go.read()
+        with open(starter.root.joinpath("main.go")) as main_go:
+            main_go_content = main_go.read()
 
         assert readme_content == "# tempgo\n"
         assert (

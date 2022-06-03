@@ -8,11 +8,7 @@ Created: 21/12/2021
 
 from __future__ import annotations
 
-import asyncio
-import functools
-
-import aiofiles.os
-import asyncclick as click
+import click
 import copier
 from cookiecutter.main import cookiecutter
 
@@ -67,7 +63,7 @@ from pytoil.starters import GoStarter, PythonStarter, RustStarter
     help="Don't do any git stuff.",
 )
 @click.pass_obj
-async def new(  # noqa: C901
+def new(  # noqa: C901
     config: Config,
     project: str,
     packages: tuple[str, ...],
@@ -159,7 +155,8 @@ async def new(  # noqa: C901
 
     # Does this project already exist?
     # Mightaswell check concurrently
-    local, remote = await asyncio.gather(repo.exists_local(), repo.exists_remote(api))
+    local = repo.exists_local()
+    remote = repo.exists_remote(api)
 
     if local:
         printer.error(f"{repo.name} already exists locally.")
@@ -176,69 +173,55 @@ async def new(  # noqa: C901
     # If we get here, we're good to create a new project
     if cookie:
         printer.info(f"Creating {repo.name} from cookiecutter: {cookie}.")
-        loop = asyncio.get_event_loop()
-        await loop.run_in_executor(
-            executor=None,
-            func=functools.partial(
-                cookiecutter,
-                template=cookie,
-                output_dir=str(config.projects_dir),
-            ),
-        )
+        cookiecutter(template=cookie, output_dir=str(config.projects_dir))
 
     elif _copier:
         printer.info(f"Creating {repo.name} from copier: {_copier}.")
-        loop = asyncio.get_event_loop()
-        await loop.run_in_executor(
-            executor=None,
-            func=functools.partial(
-                copier.run_auto, src_path=_copier, dst_path=repo.local_path
-            ),
-        )
+        copier.run_auto(src_path=_copier, dst_path=repo.local_path)
 
     elif starter == "go":
         printer.info(f"Creating {repo.name} from starter: {starter}.")
         go_starter = GoStarter(path=config.projects_dir, name=repo.name)
 
         try:
-            await go_starter.generate(username=config.username)
+            go_starter.generate(username=config.username)
         except GoNotInstalledError:
             printer.error("Go not installed.", exits=1)
         else:
             if use_git:
-                await git.init(cwd=repo.local_path, silent=False)
-                await git.add(cwd=repo.local_path, silent=False)
-                await git.commit(cwd=repo.local_path, silent=False)
+                git.init(cwd=repo.local_path, silent=False)
+                git.add(cwd=repo.local_path, silent=False)
+                git.commit(cwd=repo.local_path, silent=False)
 
     elif starter == "python":
         printer.info(f"Creating {repo.name} from starter: {starter}.")
         python_starter = PythonStarter(path=config.projects_dir, name=repo.name)
-        await python_starter.generate()
+        python_starter.generate()
         if use_git:
-            await git.init(cwd=repo.local_path, silent=False)
-            await git.add(cwd=repo.local_path, silent=False)
-            await git.commit(cwd=repo.local_path, silent=False)
+            git.init(cwd=repo.local_path, silent=False)
+            git.add(cwd=repo.local_path, silent=False)
+            git.commit(cwd=repo.local_path, silent=False)
 
     elif starter == "rust":
         printer.info(f"Creating {repo.name} from starter: {starter}.")
         rust_starter = RustStarter(path=config.projects_dir, name=repo.name)
 
         try:
-            await rust_starter.generate()
+            rust_starter.generate()
         except CargoNotInstalledError:
             printer.error("Cargo not installed.", exits=1)
         else:
             if use_git:
-                await git.init(cwd=repo.local_path, silent=False)
-                await git.add(cwd=repo.local_path, silent=False)
-                await git.commit(cwd=repo.local_path, silent=False)
+                git.init(cwd=repo.local_path, silent=False)
+                git.add(cwd=repo.local_path, silent=False)
+                git.commit(cwd=repo.local_path, silent=False)
 
     else:
         # Just a blank new project
         printer.info(f"Creating {repo.name} at '{repo.local_path}'.")
-        await aiofiles.os.mkdir(repo.local_path)
+        repo.local_path.mkdir()
         if use_git:
-            await git.init(cwd=repo.local_path, silent=False)
+            git.init(cwd=repo.local_path, silent=False)
 
     # Now we need to handle any requested virtual environments
     if venv == "venv":
@@ -249,7 +232,7 @@ async def new(  # noqa: C901
         env = Venv(root=repo.local_path)
         with printer.progress() as p:
             p.add_task("[bold white]Working")
-            await env.create(packages=to_install, silent=True)
+            env.create(packages=to_install, silent=True)
 
     elif venv == "conda":
         # Note, conda installs take longer so by default we don't hide the output
@@ -262,7 +245,7 @@ async def new(  # noqa: C901
             root=repo.local_path, environment_name=repo.name, conda=config.conda_bin
         )
         try:
-            await conda_env.create(packages=to_install)
+            conda_env.create(packages=to_install)
         except EnvironmentAlreadyExistsError:
             printer.error(
                 f"Conda environment {conda_env.environment_name!r} already exists",
@@ -270,9 +253,9 @@ async def new(  # noqa: C901
             )
         else:
             # Export the environment.yml
-            await conda_env.export_yml()
+            conda_env.export_yml()
 
     # Now handle opening in an editor
     if config.specifies_editor():
         printer.sub_info(f"Opening {repo.name} with {config.editor}")
-        await editor.launch(path=repo.local_path, bin=config.editor)
+        editor.launch(path=repo.local_path, bin=config.editor)

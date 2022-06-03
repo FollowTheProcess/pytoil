@@ -8,8 +8,8 @@ Created: 26/12/2021
 
 from __future__ import annotations
 
-import asyncio
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -34,7 +34,7 @@ class Flit(Venv):
     def name(self) -> str:
         return "flit"
 
-    async def install_self(self, silent: bool = False) -> None:
+    def install_self(self, silent: bool = False) -> None:
         """
         Installs a flit based project.
 
@@ -47,20 +47,20 @@ class Flit(Venv):
 
         # Unlike poetry, conda etc. flit does not make it's own virtual environment
         # we must make one here before installing the project
-        if not await self.exists():
-            await self.create()
+        if not self.exists():
+            self.create()
 
-        proc = await asyncio.create_subprocess_exec(
-            self.flit,
-            "install",
-            "--deps",
-            "develop",
-            "--symlink",
-            "--python",
-            f"{self.executable}",
+        subprocess.run(
+            [
+                self.flit,
+                "install",
+                "--deps",
+                "develop",
+                "--symlink",
+                "--python",
+                f"{self.executable}",
+            ],
             cwd=self.project_path,
-            stdout=asyncio.subprocess.DEVNULL if silent else sys.stdout,
-            stderr=asyncio.subprocess.DEVNULL if silent else sys.stderr,
+            stdout=subprocess.DEVNULL if silent else sys.stdout,
+            stderr=subprocess.DEVNULL if silent else sys.stderr,
         )
-
-        await proc.wait()

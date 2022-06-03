@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import asyncio
+import subprocess
 import sys
 from pathlib import Path
 
@@ -25,62 +25,57 @@ def test_flit_repr():
     assert repr(flit) == f"Flit(root={Path('somewhere')!r}, flit='notflit')"
 
 
-@pytest.mark.asyncio
-async def test_raises_if_flit_not_installed():
+def test_raises_if_flit_not_installed():
     flit = Flit(root=Path("somewhere"), flit=None)
 
     with pytest.raises(FlitNotInstalledError):
-        await flit.install_self()
+        flit.install_self()
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "silent, stdout, stderr",
     [
-        (True, asyncio.subprocess.DEVNULL, asyncio.subprocess.DEVNULL),
+        (True, subprocess.DEVNULL, subprocess.DEVNULL),
         (False, sys.stdout, sys.stderr),
     ],
 )
-async def test_install_self_venv_exists(
-    mocker: MockerFixture, silent: bool, stdout, stderr
-):
+def test_install_self_venv_exists(mocker: MockerFixture, silent: bool, stdout, stderr):
     mocker.patch(
         "pytoil.environments.flit.Flit.exists",
         autospec=True,
         return_value=True,
     )
 
-    mock = mocker.patch(
-        "pytoil.environments.flit.asyncio.create_subprocess_exec", autospec=True
-    )
+    mock = mocker.patch("pytoil.environments.flit.subprocess.run", autospec=True)
 
     env = Flit(root=Path("somewhere"), flit="notflit")
 
-    await env.install_self(silent=silent)
+    env.install_self(silent=silent)
 
     mock.assert_called_once_with(
-        "notflit",
-        "install",
-        "--deps",
-        "develop",
-        "--symlink",
-        "--python",
-        f"{env.executable}",
+        [
+            "notflit",
+            "install",
+            "--deps",
+            "develop",
+            "--symlink",
+            "--python",
+            f"{env.executable}",
+        ],
         cwd=env.project_path,
         stdout=stdout,
         stderr=stderr,
     )
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "silent, stdout, stderr",
     [
-        (True, asyncio.subprocess.DEVNULL, asyncio.subprocess.DEVNULL),
+        (True, subprocess.DEVNULL, subprocess.DEVNULL),
         (False, sys.stdout, sys.stderr),
     ],
 )
-async def test_install_self_venv_doesnt_exist(
+def test_install_self_venv_doesnt_exist(
     mocker: MockerFixture, silent: bool, stdout, stderr
 ):
     mocker.patch(
@@ -91,24 +86,24 @@ async def test_install_self_venv_doesnt_exist(
 
     mock_create = mocker.patch("pytoil.environments.flit.Flit.create", autospec=True)
 
-    mock = mocker.patch(
-        "pytoil.environments.flit.asyncio.create_subprocess_exec", autospec=True
-    )
+    mock = mocker.patch("pytoil.environments.flit.subprocess.run", autospec=True)
 
     env = Flit(root=Path("somewhere"), flit="notflit")
 
-    await env.install_self(silent=silent)
+    env.install_self(silent=silent)
 
     mock_create.assert_called_once()
 
     mock.assert_called_once_with(
-        "notflit",
-        "install",
-        "--deps",
-        "develop",
-        "--symlink",
-        "--python",
-        f"{env.executable}",
+        [
+            "notflit",
+            "install",
+            "--deps",
+            "develop",
+            "--symlink",
+            "--python",
+            f"{env.executable}",
+        ],
         cwd=env.project_path,
         stdout=stdout,
         stderr=stderr,

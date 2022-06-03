@@ -7,7 +7,6 @@ Author: Tom Fleet
 Created: 21/12/2021
 """
 
-
 from __future__ import annotations
 
 from datetime import datetime
@@ -56,9 +55,7 @@ class API:
             "Accept": "application/vnd.github.v4+json",
         }
 
-    async def get_repos(
-        self, limit: int = DEFAULT_REPO_LIMIT
-    ) -> list[dict[str, Any]] | None:
+    def get_repos(self, limit: int = DEFAULT_REPO_LIMIT) -> list[dict[str, Any]] | None:
         """
         Gets some summary info for all the users repos.
 
@@ -69,16 +66,16 @@ class API:
         Returns:
             list[dict[str, Any]]: The repos info.
         """
-        async with httpx.AsyncClient(http2=True, headers=self.headers) as client:
-            r = await client.post(
-                self.url,
-                json={
-                    "query": queries.GET_REPOS,
-                    "variables": {"username": self.username, "limit": limit},
-                },
-            )
-            r.raise_for_status()
+        r = httpx.post(
+            self.url,
+            json={
+                "query": queries.GET_REPOS,
+                "variables": {"username": self.username, "limit": limit},
+            },
+            headers=self.headers,
+        )
 
+        r.raise_for_status()
         raw: dict[str, Any] = r.json()
 
         if data := raw.get("data"):
@@ -86,7 +83,7 @@ class API:
 
         return None  # pragma: no cover
 
-    async def get_repo_names(self, limit: int = DEFAULT_REPO_LIMIT) -> set[str]:
+    def get_repo_names(self, limit: int = DEFAULT_REPO_LIMIT) -> set[str]:
         """
         Gets the names of all repos owned by the authenticated user.
 
@@ -100,16 +97,16 @@ class API:
         Returns:
             Set[str]: The names of the user's repos.
         """
-        async with httpx.AsyncClient(http2=True, headers=self.headers) as client:
-            r = await client.post(
-                self.url,
-                json={
-                    "query": queries.GET_REPO_NAMES,
-                    "variables": {"username": self.username, "limit": limit},
-                },
-            )
-            r.raise_for_status()
+        r = httpx.post(
+            self.url,
+            json={
+                "query": queries.GET_REPO_NAMES,
+                "variables": {"username": self.username, "limit": limit},
+            },
+            headers=self.headers,
+        )
 
+        r.raise_for_status()
         raw: dict[str, Any] = r.json()
 
         # TODO: I don't like the indexing here, must be a more type safe way of doing this
@@ -120,9 +117,7 @@ class API:
         else:
             raise ValueError(f"Bad GraphQL: {raw}")  # pragma: no cover
 
-    async def get_forks(
-        self, limit: int = DEFAULT_REPO_LIMIT
-    ) -> list[dict[str, Any]] | None:
+    def get_forks(self, limit: int = DEFAULT_REPO_LIMIT) -> list[dict[str, Any]] | None:
         """
         Gets info for all users forks.
 
@@ -133,16 +128,16 @@ class API:
         Returns:
             list[dict[str, Any]]: The JSON info for all forks.
         """
-        async with httpx.AsyncClient(http2=True, headers=self.headers) as client:
-            r = await client.post(
-                self.url,
-                json={
-                    "query": queries.GET_FORKS,
-                    "variables": {"username": self.username, "limit": limit},
-                },
-            )
-            r.raise_for_status()
+        r = httpx.post(
+            self.url,
+            json={
+                "query": queries.GET_FORKS,
+                "variables": {"username": self.username, "limit": limit},
+            },
+            headers=self.headers,
+        )
 
+        r.raise_for_status()
         raw: dict[str, Any] = r.json()
 
         if data := raw.get("data"):
@@ -150,7 +145,7 @@ class API:
 
         return None  # pragma: no cover
 
-    async def check_repo_exists(self, owner: str, name: str) -> bool:
+    def check_repo_exists(self, owner: str, name: str) -> bool:
         """
         Checks whether or not a repo given by `name` exists
         under the current user
@@ -161,16 +156,16 @@ class API:
         Returns:
             bool: True if repo exists on GitHub, else False.
         """
-        async with httpx.AsyncClient(http2=True, headers=self.headers) as client:
-            r = await client.post(
-                self.url,
-                json={
-                    "query": queries.CHECK_REPO_EXISTS,
-                    "variables": {"username": owner, "name": name},
-                },
-            )
-            r.raise_for_status()
+        r = httpx.post(
+            self.url,
+            json={
+                "query": queries.CHECK_REPO_EXISTS,
+                "variables": {"username": owner, "name": name},
+            },
+            headers=self.headers,
+        )
 
+        r.raise_for_status()
         raw: dict[str, Any] = r.json()
 
         if data := raw.get("data"):
@@ -181,7 +176,7 @@ class API:
         else:
             raise ValueError(f"Bad GraphQL: {raw}")  # pragma: no cover
 
-    async def create_fork(self, owner: str, repo: str) -> None:
+    def create_fork(self, owner: str, repo: str) -> None:
         """
         Use the v3 REST API to create a fork of the specified repository
         under the authenticated user.
@@ -194,9 +189,8 @@ class API:
         rest_headers["Accept"] = "application/vnd.github.v3+json"
         fork_url = f"https://api.github.com/repos/{owner}/{repo}/forks"
 
-        async with httpx.AsyncClient(http2=True, headers=rest_headers) as client:
-            r = await client.post(fork_url)
-            r.raise_for_status()
+        r = httpx.post(fork_url, headers=self.headers)
+        r.raise_for_status()
 
     @staticmethod
     def _humanize_datetime(dt: str) -> str:
@@ -209,7 +203,7 @@ class API:
         )
         return s
 
-    async def get_repo_info(self, name: str) -> dict[str, Any] | None:
+    def get_repo_info(self, name: str) -> dict[str, Any] | None:
         """
         Gets some descriptive info for the repo given by
         `name` under the current user.
@@ -220,16 +214,16 @@ class API:
         Returns:
             Dict[str, Any]: Repository info.
         """
-        async with httpx.AsyncClient(http2=True, headers=self.headers) as client:
-            r = await client.post(
-                self.url,
-                json={
-                    "query": queries.GET_REPO_INFO,
-                    "variables": {"username": self.username, "name": name},
-                },
-            )
-            r.raise_for_status()
+        r = httpx.post(
+            self.url,
+            json={
+                "query": queries.GET_REPO_INFO,
+                "variables": {"username": self.username, "name": name},
+            },
+            headers=self.headers,
+        )
 
+        r.raise_for_status()
         raw: dict[str, Any] = r.json()
 
         if data := raw.get("data"):

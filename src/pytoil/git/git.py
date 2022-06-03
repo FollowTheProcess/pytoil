@@ -8,8 +8,8 @@ Created: 22/12/2021
 
 from __future__ import annotations
 
-import asyncio
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -20,6 +20,8 @@ GIT = shutil.which("git")
 
 class Git:
     def __init__(self, git: str | None = GIT) -> None:
+        if git is None:
+            raise GitNotInstalledError
         self.git = git
 
     def __repr__(self) -> str:
@@ -27,7 +29,7 @@ class Git:
 
     __slots__ = ("git",)
 
-    async def clone(self, url: str, cwd: Path, silent: bool = True) -> None:
+    def clone(self, url: str, cwd: Path, silent: bool = True) -> None:
         """
         Clone a repo.
 
@@ -38,21 +40,14 @@ class Git:
                 up to stdout and stderr (False) or to discard and keep silent (True).
                 Defaults to True.
         """
-        if not self.git:
-            raise GitNotInstalledError
-
-        proc = await asyncio.create_subprocess_exec(
-            self.git,
-            "clone",
-            url,
+        subprocess.run(
+            [self.git, "clone", url],
             cwd=cwd,
-            stdout=asyncio.subprocess.DEVNULL if silent else sys.stdout,
-            stderr=asyncio.subprocess.DEVNULL if silent else sys.stderr,
+            stdout=subprocess.DEVNULL if silent else sys.stdout,
+            stderr=subprocess.DEVNULL if silent else sys.stderr,
         )
 
-        await proc.wait()
-
-    async def init(self, cwd: Path, silent: bool = True) -> None:
+    def init(self, cwd: Path, silent: bool = True) -> None:
         """
         Initialise a new git repo.
 
@@ -62,20 +57,14 @@ class Git:
                 up to stdout and stderr (False) or to discard and keep silent (True).
                 Defaults to True.
         """
-        if not self.git:
-            raise GitNotInstalledError
-
-        proc = await asyncio.create_subprocess_exec(
-            self.git,
-            "init",
+        subprocess.run(
+            [self.git, "init"],
             cwd=cwd,
-            stdout=asyncio.subprocess.DEVNULL if silent else sys.stdout,
-            stderr=asyncio.subprocess.DEVNULL if silent else sys.stderr,
+            stdout=subprocess.DEVNULL if silent else sys.stdout,
+            stderr=subprocess.DEVNULL if silent else sys.stderr,
         )
 
-        await proc.wait()
-
-    async def add(self, cwd: Path, silent: bool = True) -> None:
+    def add(self, cwd: Path, silent: bool = True) -> None:
         """
         Stages all files in cwd.
 
@@ -85,21 +74,14 @@ class Git:
                 to stdout and stderr (False) or to discard and keep silent (True).
                 Defaults to True.
         """
-        if not self.git:
-            raise GitNotInstalledError
-
-        proc = await asyncio.create_subprocess_exec(
-            self.git,
-            "add",
-            "-A",
+        subprocess.run(
+            [self.git, "add", "-A"],
             cwd=cwd,
-            stdout=asyncio.subprocess.DEVNULL if silent else sys.stdout,
-            stderr=asyncio.subprocess.DEVNULL if silent else sys.stderr,
+            stdout=subprocess.DEVNULL if silent else sys.stdout,
+            stderr=subprocess.DEVNULL if silent else sys.stderr,
         )
 
-        await proc.wait()
-
-    async def commit(
+    def commit(
         self,
         cwd: Path,
         message: str = "Initial Commit (Automated at Project Creation)",
@@ -116,22 +98,14 @@ class Git:
                 to stdout and stderr (False) or to discard and keep silent (True).
                 Defaults to True.
         """
-        if not self.git:
-            raise GitNotInstalledError
-
-        proc = await asyncio.create_subprocess_exec(
-            self.git,
-            "commit",
-            "-m",
-            message,
+        subprocess.run(
+            [self.git, "commit", "-m", message],
             cwd=cwd,
-            stdout=asyncio.subprocess.DEVNULL if silent else sys.stdout,
-            stderr=asyncio.subprocess.DEVNULL if silent else sys.stderr,
+            stdout=subprocess.DEVNULL if silent else sys.stdout,
+            stderr=subprocess.DEVNULL if silent else sys.stderr,
         )
 
-        await proc.wait()
-
-    async def set_upstream(
+    def set_upstream(
         self, owner: str, repo: str, cwd: Path, silent: bool = True
     ) -> None:
         """
@@ -148,21 +122,12 @@ class Git:
                 up to stdout and stderr (False) or to discard and keep silent (True).
                 Defaults to True.
         """
-        if not self.git:
-            raise GitNotInstalledError
-
         base_url = "https://github.com"
         constructed_upstream = f"{base_url}/{owner}/{repo}.git"
 
-        proc = await asyncio.create_subprocess_exec(
-            self.git,
-            "remote",
-            "add",
-            "upstream",
-            constructed_upstream,
+        subprocess.run(
+            [self.git, "remote", "add", "upstream", constructed_upstream],
             cwd=cwd,
-            stdout=asyncio.subprocess.DEVNULL if silent else sys.stdout,
-            stderr=asyncio.subprocess.DEVNULL if silent else sys.stderr,
+            stdout=subprocess.DEVNULL if silent else sys.stdout,
+            stderr=subprocess.DEVNULL if silent else sys.stderr,
         )
-
-        await proc.wait()

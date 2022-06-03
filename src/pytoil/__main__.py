@@ -8,4 +8,4 @@ from __future__ import annotations
 
 from pytoil.cli.root import main
 
-main(_anyio_backend="asyncio")
+main()

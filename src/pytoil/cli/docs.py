@@ -8,14 +8,14 @@ Created: 21/12/2021
 
 from __future__ import annotations
 
-import asyncclick as click
+import click
 
 from pytoil.cli.printer import printer
 from pytoil.config import defaults
 
 
 @click.command()
-async def docs() -> None:
+def docs() -> None:
     """
     Open pytoil's documentation in your browser.
 

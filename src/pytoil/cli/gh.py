@@ -8,7 +8,7 @@ Created: 21/12/2021
 
 from __future__ import annotations
 
-import asyncclick as click
+import click
 import httpx
 
 from pytoil.api import API
@@ -23,7 +23,7 @@ from pytoil.repo import Repo
 @click.option("-i", "--issues", is_flag=True, help="Go to the issues page.")
 @click.option("-p", "--prs", is_flag=True, help="Go to the pull requests page.")
 @click.pass_obj
-async def gh(config: Config, project: str, issues: bool, prs: bool) -> None:
+def gh(config: Config, project: str, issues: bool, prs: bool) -> None:
     """
     Open one of your projects on GitHub.
 
@@ -49,7 +49,7 @@ async def gh(config: Config, project: str, issues: bool, prs: bool) -> None:
     )
 
     try:
-        exists = await repo.exists_remote(api)
+        exists = repo.exists_remote(api)
     except httpx.HTTPStatusError as err:
         utils.handle_http_status_error(err)
     else:

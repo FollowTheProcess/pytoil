@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import os
 import platform
+import tempfile
 from pathlib import Path
 
-import aiofiles
 import pytest
 
 from pytoil.config import Config, defaults
@@ -76,11 +76,10 @@ def test_specifies_editor(editor: str, want: bool):
     assert config.specifies_editor() is want
 
 
-@pytest.mark.asyncio
-async def test_from_file_raises_on_missing_file():
+def test_from_file_raises_on_missing_file():
 
     with pytest.raises(FileNotFoundError):
-        await Config.load(path=Path("not/here.toml"))
+        Config.load(path=Path("not/here.toml"))
 
 
 @pytest.mark.parametrize(
@@ -106,9 +105,8 @@ def test_can_use_api(username, token, expected):
     assert config.can_use_api() is expected
 
 
-@pytest.mark.asyncio
-async def test_file_write():
-    async with aiofiles.tempfile.NamedTemporaryFile(
+def test_file_write():
+    with tempfile.NamedTemporaryFile(
         "w", delete=False if ON_CI and ON_WINDOWS else True
     ) as file:
         # Make a fake config object
@@ -122,8 +120,8 @@ async def test_file_write():
         )
 
         # Write the config
-        await config.write(path=file.name)
+        config.write(path=Path(file.name))
 
-        file_config = await Config.load(file.name)
+        file_config = Config.load(Path(file.name))
 
         assert file_config == config

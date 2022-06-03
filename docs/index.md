@@ -129,7 +129,7 @@ Your best bet is to check out the [contributing guide] in the docs!
 [FollowTheProcess/poetry_pypackage]: https://github.com/FollowTheProcess/poetry_pypackage
 [wasabi]: https://github.com/ines/wasabi
 [httpx]: https://www.python-httpx.org
-[async-click]: https://github.com/python-trio/asyncclick
+[click]: https://click.palletsprojects.com/en/8.1.x/
 [contributing guide]: https://followtheprocess.github.io/pytoil/contributing/contributing.html
 [git]: https://git-scm.com
 [conda]: https://docs.conda.io/en/latest/
