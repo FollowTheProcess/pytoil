@@ -79,7 +79,7 @@ async def get_latest_versions(projects: list[str]) -> dict[str, str]:
     """
     logger.info("Getting latest versions")
     results: dict[str, str] = {}
-    with httpx.AsyncClient(
+    async with httpx.AsyncClient(
         http2=True,
         headers={"User-Agent": "pytoil-pmd-script", "Accept": "application/json"},
     ) as client:
