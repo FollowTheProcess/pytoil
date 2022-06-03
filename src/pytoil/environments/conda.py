@@ -8,14 +8,12 @@ Created: 26/12/2021
 
 from __future__ import annotations
 
-import asyncio
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 from typing import Sequence, Union
 
-import aiofiles
-import aiofiles.os
 import yaml
 
 from pytoil.exceptions import (
@@ -113,7 +111,7 @@ class Conda:
         installation present. Checked for: {names}"""
         )
 
-    async def exists(self) -> bool:
+    def exists(self) -> bool:
         """
         Checks whether the environment exists by a proxy
         check if the `executable` exists.
@@ -121,9 +119,9 @@ class Conda:
         If this executable exists then the environment musty
         exist.
         """
-        return await aiofiles.os.path.exists(self.executable)
+        return self.executable.exists()
 
-    async def create(
+    def create(
         self, packages: Sequence[str] | None = None, silent: bool = False
     ) -> None:
         """
@@ -149,43 +147,25 @@ class Conda:
         if not self.conda:
             raise CondaNotInstalledError
 
-        if await self.exists():
+        if self.exists():
             raise EnvironmentAlreadyExistsError(
                 f"Conda env: {self.environment_name!r} already exists"
             )
 
-        if packages:
-            proc = await asyncio.create_subprocess_exec(
-                self.conda,
-                "create",
-                "-y",
-                "--name",
-                self.environment_name,
-                "python=3",
-                *packages,
-                cwd=self.project_path,
-                stdout=asyncio.subprocess.DEVNULL if silent else sys.stdout,
-                stderr=asyncio.subprocess.DEVNULL if silent else sys.stderr,
-            )
-        else:
-            proc = await asyncio.create_subprocess_exec(
-                self.conda,
-                "create",
-                "-y",
-                "--name",
-                self.environment_name,
-                "python=3",
-                cwd=self.project_path,
-                stdout=asyncio.subprocess.DEVNULL if silent else sys.stdout,
-                stderr=asyncio.subprocess.DEVNULL if silent else sys.stderr,
-            )
+        cmd = [self.conda, "create", "-y", "--name", self.environment_name, "python=3"]
 
-        await proc.wait()
+        if packages:
+            cmd.extend(packages)
+
+        subprocess.run(
+            cmd,
+            cwd=self.project_path,
+            stdout=subprocess.DEVNULL if silent else sys.stdout,
+            stderr=subprocess.DEVNULL if silent else sys.stderr,
+        )
 
     @staticmethod
-    async def create_from_yml(
-        project_path: Path, conda: str, silent: bool = False
-    ) -> None:
+    def create_from_yml(project_path: Path, conda: str, silent: bool = False) -> None:
         """
         Creates a conda environment from the `environment.yml` contained
         in the root `project_path`
@@ -209,9 +189,8 @@ class Conda:
         project_path = project_path.resolve()
         yml_file = project_path.joinpath("environment.yml")
 
-        async with aiofiles.open(yml_file) as file:
-            content = await file.read()
-            env_dict: EnvironmentYml = yaml.full_load(content)
+        with open(yml_file) as file:
+            env_dict: EnvironmentYml = yaml.safe_load(file)
 
         env_name = env_dict.get("name")
         if not isinstance(env_name, str):
@@ -222,26 +201,19 @@ class Conda:
 
         env = Conda(root=project_path, environment_name=env_name)
 
-        if await env.exists():
+        if env.exists():
             raise EnvironmentAlreadyExistsError(
                 f"Conda env: {env_name!r} already exists."
             )
-
         # Can't use self.conda here as static method so just rely on $PATH
-        proc = await asyncio.create_subprocess_exec(
-            conda,
-            "env",
-            "create",
-            "--file",
-            f"{yml_file}",
+        subprocess.run(
+            [conda, "env", "create", "--file", f"{yml_file}"],
             cwd=project_path,
-            stdout=asyncio.subprocess.DEVNULL if silent else sys.stdout,
-            stderr=asyncio.subprocess.DEVNULL if silent else sys.stderr,
+            stdout=subprocess.DEVNULL if silent else sys.stdout,
+            stderr=subprocess.DEVNULL if silent else sys.stderr,
         )
 
-        await proc.wait()
-
-    async def export_yml(self) -> None:
+    def export_yml(self) -> None:
         """
         Exports an environment.yml file for the conda environment
         described by the instance.
@@ -253,32 +225,32 @@ class Conda:
         if not self.conda:
             raise CondaNotInstalledError
 
-        if not await self.exists():
+        if not self.exists():
             raise EnvironmentDoesNotExistError(
                 f"Conda env: {self.environment_name!r} does not exist. Create it first"
                 " before exporting the environment file."
             )
 
-        proc = await asyncio.create_subprocess_exec(
-            self.conda,
-            "env",
-            "export",
-            "--from-history",
-            "--name",
-            self.environment_name,
+        process = subprocess.run(
+            [
+                self.conda,
+                "env",
+                "export",
+                "--from-history",
+                "--name",
+                self.environment_name,
+            ],
             cwd=self.project_path,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
+            capture_output=True,
+            encoding="utf-8",
         )
-
-        out, _ = await proc.communicate()
 
         yml_file = self.project_path.joinpath("environment.yml")
 
-        async with aiofiles.open(yml_file, mode="w", encoding="utf-8") as file:
-            await file.write(out.decode("utf-8"))
+        with open(yml_file, mode="w", encoding="utf-8") as file:
+            file.write(process.stdout)
 
-    async def install(self, packages: Sequence[str], silent: bool = False) -> None:
+    def install(self, packages: Sequence[str], silent: bool = False) -> None:
         """
         Installs `packages` into the conda environment described by
         the instance.
@@ -298,27 +270,20 @@ class Conda:
         if not self.conda:
             raise CondaNotInstalledError
 
-        if not await self.exists():
+        if not self.exists():
             raise EnvironmentDoesNotExistError(
                 f"Conda env: {self.environment_name!r} does not exist. Create it first"
                 " before installing packages."
             )
 
-        proc = await asyncio.create_subprocess_exec(
-            self.conda,
-            "install",
-            "-y",
-            "--name",
-            self.environment_name,
-            *packages,
+        subprocess.run(
+            [self.conda, "install", "-y", "--name", self.environment_name, *packages],
             cwd=self.project_path,
-            stdout=asyncio.subprocess.DEVNULL if silent else sys.stdout,
-            stderr=asyncio.subprocess.DEVNULL if silent else sys.stderr,
+            stdout=subprocess.DEVNULL if silent else sys.stdout,
+            stderr=subprocess.DEVNULL if silent else sys.stderr,
         )
 
-        await proc.wait()
-
-    async def install_self(self, silent: bool = False) -> None:
+    def install_self(self, silent: bool = False) -> None:
         """
         Creates a conda environment from an environment.yml.
 
@@ -331,6 +296,6 @@ class Conda:
         if not self.conda:
             raise CondaNotInstalledError
 
-        await self.create_from_yml(
+        self.create_from_yml(
             project_path=self.project_path, conda=self.conda, silent=silent
         )

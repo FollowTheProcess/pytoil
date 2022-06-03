@@ -8,14 +8,14 @@ Created: 23/02/2022
 
 from __future__ import annotations
 
-import asyncclick as click
+import click
 
 from pytoil.cli.printer import printer
 from pytoil.config import defaults
 
 
 @click.command()
-async def bug() -> None:
+def bug() -> None:
     """
     Raise an issue about pytoil.
 

@@ -1,5 +1,5 @@
 """
-The async-pytoil checkout command.
+The pytoil checkout command.
 
 
 Author: Tom Fleet
@@ -8,10 +8,10 @@ Created: 21/12/2021
 
 from __future__ import annotations
 
-import asyncio
 import re
+import time
 
-import asyncclick as click
+import click
 import httpx
 import questionary
 
@@ -44,7 +44,7 @@ PROJECT_REGEX = re.compile(r"^([A-Za-z0-9_.-])+$")
     help="Attempt to auto-create a virtual environment.",
 )
 @click.pass_obj
-async def checkout(config: Config, project: str, venv: bool) -> None:
+def checkout(config: Config, project: str, venv: bool) -> None:
     """
     Checkout an existing development project.
 
@@ -110,7 +110,7 @@ async def checkout(config: Config, project: str, venv: bool) -> None:
                 "You don't need the '/' when checking out a repo you own", exits=1
             )
 
-        await checkout_fork(
+        checkout_fork(
             owner=owner,
             name=name,
             api=api,
@@ -123,10 +123,10 @@ async def checkout(config: Config, project: str, venv: bool) -> None:
 
     elif bool(PROJECT_REGEX.match(project)):
 
-        if await repo.exists_local():
-            await checkout_local(repo=repo, config=config, venv=venv)
-        elif await repo.exists_remote(api):
-            await checkout_remote(repo=repo, config=config, venv=venv, git=git)
+        if repo.exists_local():
+            checkout_local(repo=repo, config=config, venv=venv)
+        elif repo.exists_remote(api):
+            checkout_remote(repo=repo, config=config, venv=venv, git=git)
         else:
             printer.error(f"{project!r} not found locally or on GitHub.", exits=1)
     else:
@@ -135,7 +135,7 @@ async def checkout(config: Config, project: str, venv: bool) -> None:
         printer.note('Valid patterns are "user/repo" or "repo".', exits=1)
 
 
-async def checkout_fork(
+def checkout_fork(
     owner: str,
     name: str,
     api: API,
@@ -158,15 +158,15 @@ async def checkout_fork(
         owner=owner, name=name, local_path=config.projects_dir.joinpath(name)
     )
 
-    if not await original.exists_remote(api=api):
+    if not original.exists_remote(api=api):
         printer.error(f"{owner}/{name} not found on GitHub. Was it a typo?", exits=1)
 
     printer.info(f"{owner}/{name} belongs to {owner}")
-    choice: str = await questionary.select(
+    choice: str = questionary.select(
         "Fork project or clone the original?", choices=("fork", "clone")
-    ).ask_async()
+    ).ask()
 
-    if await fork.exists_remote(api):
+    if fork.exists_remote(api):
         printer.warn(f"Looks like you've already forked {owner}/{name}")
         printer.note(f"Use pytoil checkout {name} to pull down your fork.", exits=1)
 
@@ -174,16 +174,16 @@ async def checkout_fork(
         with printer.progress() as p:
             p.add_task(f"[bold white]Forking {owner}/{name}")
             try:
-                await api.create_fork(owner=owner, repo=name)
+                api.create_fork(owner=owner, repo=name)
             except httpx.HTTPStatusError as err:
                 utils.handle_http_status_error(err)
 
             # Forking happens asynchronously
             # see https://docs.github.com/en/rest/reference/repos#create-a-fork
             # So here we naively just wait a few seconds before trying to clone the fork
-            await asyncio.sleep(3)
+            time.sleep(3)
 
-        if not await fork.exists_remote(api):
+        if not fork.exists_remote(api):
             printer.warn("Fork not available yet.")
             printer.note(
                 "Forking happens asynchronously so this is normal. Give it a few"
@@ -193,30 +193,28 @@ async def checkout_fork(
 
         printer.info(f"Cloning your fork: {config.username}/{name}.", spaced=True)
         # Only cloning 1 repo so makes sense to show the clone output
-        await git.clone(url=fork.clone_url, cwd=config.projects_dir, silent=False)
+        git.clone(url=fork.clone_url, cwd=config.projects_dir, silent=False)
 
         printer.info("Setting 'upstream' to original repo.")
-        await git.set_upstream(owner=owner, repo=name, cwd=fork.local_path)
+        git.set_upstream(owner=owner, repo=name, cwd=fork.local_path)
 
         # Automatic environment detection
-        env = await fork.dispatch_env(config=config)
+        env = fork.dispatch_env(config=config)
 
         if venv:
-            await handle_venv_creation(env=env, config=config)
+            handle_venv_creation(env=env, config=config)
 
         if config.specifies_editor():
             printer.sub_info(f"Opening {fork.name} with {config.editor}")
-            await editor.launch(
-                path=config.projects_dir.joinpath(name), bin=config.editor
-            )
+            editor.launch(path=config.projects_dir.joinpath(name), bin=config.editor)
     elif choice == "clone":
-        await checkout_remote(repo=original, config=config, venv=venv, git=git)
+        checkout_remote(repo=original, config=config, venv=venv, git=git)
     else:
         # We'll only get here if the user hits ctrl + c or something so just abort
         printer.error("Aborting", exits=1)
 
 
-async def handle_venv_creation(env: Environment | None, config: Config) -> None:
+def handle_venv_creation(env: Environment | None, config: Config) -> None:
     """
     Handles automatic detection and creation of python virtual
     environments based on detected repo context.
@@ -234,14 +232,14 @@ async def handle_venv_creation(env: Environment | None, config: Config) -> None:
         try:
             with printer.progress() as p:
                 p.add_task("[bold white]Working")
-                await env.install_self(silent=True)
+                env.install_self(silent=True)
         except ExternalToolNotInstalledError:
             printer.error(f"{env.name} not installed", exits=1)
         except EnvironmentAlreadyExistsError:
             printer.warn("Environment already exists. Skipping.")
 
 
-async def checkout_local(repo: Repo, config: Config, venv: bool) -> None:
+def checkout_local(repo: Repo, config: Config, venv: bool) -> None:
     """
     Helper to checkout a local repo.
     """
@@ -254,22 +252,22 @@ async def checkout_local(repo: Repo, config: Config, venv: bool) -> None:
 
     if config.specifies_editor():
         printer.sub_info(f"Opening {repo.name} with {config.editor}")
-        await editor.launch(path=repo.local_path, bin=config.editor)
+        editor.launch(path=repo.local_path, bin=config.editor)
 
 
-async def checkout_remote(repo: Repo, config: Config, venv: bool, git: Git) -> None:
+def checkout_remote(repo: Repo, config: Config, venv: bool, git: Git) -> None:
     """
     Helper to checkout a remote repo.
     """
     printer.info(f"{repo.owner}/{repo.name} found on GitHub. Cloning...", spaced=True)
     # Only cloning 1 repo so makes sense to show output
-    await git.clone(url=repo.clone_url, cwd=config.projects_dir, silent=False)
+    git.clone(url=repo.clone_url, cwd=config.projects_dir, silent=False)
 
-    env = await repo.dispatch_env(config=config)
+    env = repo.dispatch_env(config=config)
 
     if venv:
-        await handle_venv_creation(env=env, config=config)
+        handle_venv_creation(env=env, config=config)
 
     if config.specifies_editor():
         printer.info(f"Opening {repo.name} with {config.editor}", spaced=True)
-        await editor.launch(path=repo.local_path, bin=config.editor)
+        editor.launch(path=repo.local_path, bin=config.editor)

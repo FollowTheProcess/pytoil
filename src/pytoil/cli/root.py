@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import asyncclick as click
+import click
 import questionary
 from rich.traceback import install
 
@@ -52,7 +52,7 @@ install()
 )
 @click.version_option(version=__version__, package_name="pytoil", prog_name="pytoil")
 @click.pass_context
-async def main(ctx: click.Context) -> None:
+def main(ctx: click.Context) -> None:
     """
     Helpful CLI to automate the development workflow.
 
@@ -67,17 +67,17 @@ async def main(ctx: click.Context) -> None:
     # Load the config once on launch of the app and pass it down to the child commands
     # through click's context
     try:
-        config = await Config.load()
+        config = Config.load()
     except FileNotFoundError:
         printer.warn("No pytoil config file detected!")
-        interactive: bool = await questionary.confirm(
+        interactive: bool = questionary.confirm(
             "Interactively configure pytoil?", default=False, auto_enter=False
-        ).ask_async()
+        ).ask()
 
         if not interactive:
             # User doesn't want to interactively walk through a config file
             # so just make a default and exit cleanly
-            await Config.helper().write()
+            Config.helper().write()
             printer.good("I made a default file for you.")
             printer.note(
                 f"It's here: {defaults.CONFIG_FILE}, you can edit it with `pytoil"
@@ -87,38 +87,34 @@ async def main(ctx: click.Context) -> None:
             return
 
         # If we get here, the user wants to interactively make the config
-        projects_dir: str = await questionary.path(
+        projects_dir: str = questionary.path(
             "Where do you keep your projects?",
             default=str(defaults.PROJECTS_DIR),
             only_directories=True,
-        ).ask_async()
+        ).ask()
 
-        token: str = await questionary.text("GitHub personal access token?").ask_async()
+        token: str = questionary.text("GitHub personal access token?").ask()
 
-        username: str = await questionary.text(
-            "What's your GitHub username?"
-        ).ask_async()
+        username: str = questionary.text("What's your GitHub username?").ask()
 
-        use_editor: bool = await questionary.confirm(
+        use_editor: bool = questionary.confirm(
             "Auto open projects in an editor?", default=False, auto_enter=False
-        ).ask_async()
+        ).ask()
 
         if use_editor:
-            editor: str = await questionary.text(
-                "Name of the editor binary to use?"
-            ).ask_async()
+            editor: str = questionary.text("Name of the editor binary to use?").ask()
         else:
             editor = "None"
 
-        git: bool = await questionary.confirm(
+        git: bool = questionary.confirm(
             "Make git repos when creating new projects?", default=True, auto_enter=False
-        ).ask_async()
+        ).ask()
 
-        conda_bin: str = await questionary.select(
+        conda_bin: str = questionary.select(
             "Use conda or mamba for conda environments?",
             choices=("conda", "mamba"),
             default="conda",
-        ).ask_async()
+        ).ask()
 
         config = Config(
             projects_dir=Path(projects_dir).resolve(),
@@ -129,7 +125,7 @@ async def main(ctx: click.Context) -> None:
             git=git,
         )
 
-        await config.write()
+        config.write()
 
         printer.good("Config created")
         printer.note(f"It's available at {defaults.CONFIG_FILE}.", exits=0)

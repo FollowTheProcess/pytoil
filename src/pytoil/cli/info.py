@@ -8,7 +8,7 @@ Created: 21/12/2021
 
 from __future__ import annotations
 
-import asyncclick as click
+import click
 from rich.console import Console
 from rich.table import Table, box
 
@@ -22,7 +22,7 @@ from pytoil.repo import Repo
 @click.command()
 @click.argument("project", nargs=1)
 @click.pass_obj
-async def info(config: Config, project: str) -> None:
+def info(config: Config, project: str) -> None:
     """
     Get useful info for a project.
 
@@ -47,7 +47,7 @@ async def info(config: Config, project: str) -> None:
     )
 
     try:
-        info = await repo.info(api)
+        info = repo.info(api)
     except RepoNotFoundError:
         printer.error(
             f"{project!r} not found locally or on GitHub. Was it a typo?", exits=1

@@ -11,9 +11,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import aiofiles
-import aiofiles.os
-
 
 class PythonStarter:
     def __init__(self, path: Path, name: str) -> None:
@@ -30,29 +27,29 @@ class PythonStarter:
 
     __slots__ = ("path", "name", "root", "files")
 
-    async def generate(self, username: str | None = None) -> None:
+    def generate(self, username: str | None = None) -> None:
         """
         Generate a new python starter template.
         """
-        await aiofiles.os.mkdir(self.root)
+        self.root.mkdir()
 
         for file in self.files:
             file.touch()
 
         # Put the header in the README
         readme = self.root.joinpath("README.md")
-        async with aiofiles.open(readme, mode="w", encoding="utf-8") as f:
-            await f.write(f"# {self.name}\n")
+        with open(readme, mode="w", encoding="utf-8") as f:
+            f.write(f"# {self.name}\n")
 
         # Put a hint in the requirements.txt
         reqs = self.root.joinpath("requirements.txt")
-        async with aiofiles.open(reqs, mode="w", encoding="utf-8") as f:
-            await f.write("# Put your requirements here e.g. flask>=1.0.0\n")
+        with open(reqs, mode="w", encoding="utf-8") as f:
+            f.write("# Put your requirements here e.g. flask>=1.0.0\n")
 
         # Populate the python file
         py_file = self.root.joinpath(f"{self.name}.py")
         py_text = (
             'def hello(name: str = "world") -> None:\n    print(f"hello {name}")\n'
         )
-        async with aiofiles.open(py_file, mode="w", encoding="utf-8") as f:
-            await f.write(py_text)
+        with open(py_file, mode="w", encoding="utf-8") as f:
+            f.write(py_text)

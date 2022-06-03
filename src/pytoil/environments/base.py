@@ -41,7 +41,7 @@ class Environment(Protocol):
         """
         ...
 
-    async def exists(self) -> bool:
+    def exists(self) -> bool:
         """
         `.exists()` checks whether the virtual environment exists.
         How it does this is up to the concrete implementation, but a good
@@ -49,7 +49,7 @@ class Environment(Protocol):
         """
         ...
 
-    async def create(
+    def create(
         self, packages: Sequence[str] | None = None, silent: bool = False
     ) -> None:
         """
@@ -58,7 +58,7 @@ class Environment(Protocol):
         """
         ...
 
-    async def install(self, packages: Sequence[str], silent: bool = False) -> None:
+    def install(self, packages: Sequence[str], silent: bool = False) -> None:
         """
         Generic install method.
 
@@ -70,7 +70,7 @@ class Environment(Protocol):
         """
         ...
 
-    async def install_self(self, silent: bool = False) -> None:
+    def install_self(self, silent: bool = False) -> None:
         """
         Installs the current project.
 

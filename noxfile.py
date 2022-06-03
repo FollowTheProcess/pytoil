@@ -129,9 +129,7 @@ def test(session: nox.Session) -> None:
         "pytest-cov",
         "pytest-mock",
         "pytest-httpx",
-        "pytest-asyncio",
         "pytest-randomly",
-        "pytest-clarity",
         "freezegun",
     )
 
@@ -152,9 +150,7 @@ def codecov(session: nox.Session) -> None:
         "pytest-cov",
         "pytest-mock",
         "pytest-httpx",
-        "pytest-asyncio",
         "pytest-randomly",
-        "pytest-clarity",
         "freezegun",
     )
 
@@ -258,15 +254,17 @@ def release(session: nox.Session) -> None:
     $ nox -s release -- [major|minor|patch]
     """
     # Little known Nox fact: Passing silent=True captures the output
-    status = session.run("git", "status", "--porcelain", silent=True, external=True)
-    if len(status.strip()) > 1:
+    status = session.run(
+        "git", "status", "--porcelain", silent=True, external=True
+    ).strip()
+    if len(status) > 1:
         session.error("All changes must be committed or removed before release")
 
     branch = session.run(
         "git", "rev-parse", "--abbrev-ref", "HEAD", silent=True, external=True
-    )
+    ).strip()
 
-    if branch.strip() != DEFAULT_BRANCH:
+    if branch != DEFAULT_BRANCH:
         session.error(
             f"Must be on {DEFAULT_BRANCH!r} branch. Currently on {branch!r} branch"
         )

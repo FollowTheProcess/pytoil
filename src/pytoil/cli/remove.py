@@ -8,11 +8,10 @@ Created: 21/12/2021
 
 from __future__ import annotations
 
-import asyncio
-import functools
 import shutil
+from concurrent.futures import ThreadPoolExecutor
 
-import asyncclick as click
+import click
 import questionary
 
 from pytoil.cli.printer import printer
@@ -30,9 +29,7 @@ from pytoil.config import Config
     help="Delete all of your local projects.",
 )
 @click.pass_obj
-async def remove(
-    config: Config, projects: tuple[str, ...], force: bool, all_: bool
-) -> None:
+def remove(config: Config, projects: tuple[str, ...], force: bool, all_: bool) -> None:
     """
     Remove projects from your local filesystem.
 
@@ -108,24 +105,18 @@ async def remove(
                 auto_enter=False,
             )
 
-        confirmed: bool = await question.ask_async()
+        confirmed: bool = question.ask()
 
         if not confirmed:
             printer.warn("Aborted", exits=1)
 
     # If we get here, user has used --force or said yes when prompted
-    # Go async!
-    await asyncio.gather(*[remove_and_report(config, project) for project in to_delete])
+    # do the deleting in a threadpool so it's concurrent
+    with ThreadPoolExecutor() as executor:
+        for project in to_delete:
+            executor.submit(remove_and_report, config=config, project=project)
 
 
-async def remove_and_report(config: Config, project: str) -> None:
-    loop = asyncio.get_event_loop()
-    await loop.run_in_executor(
-        executor=None,
-        func=functools.partial(
-            shutil.rmtree,
-            path=config.projects_dir.joinpath(project),
-            ignore_errors=True,
-        ),
-    )
+def remove_and_report(config: Config, project: str) -> None:
+    shutil.rmtree(config.projects_dir.joinpath(project), ignore_errors=True)
     printer.good(f"Deleted {project}")

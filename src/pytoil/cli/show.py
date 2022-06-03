@@ -8,13 +8,11 @@ Created: 21/12/2021
 
 from __future__ import annotations
 
-import asyncio
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-import aiofiles.os
-import asyncclick as click
+import click
 import httpx
 import humanize
 from rich.console import Console
@@ -30,7 +28,7 @@ MAX_PROJECTS = 15  # Default max to show
 
 
 @click.group()
-async def show() -> None:
+def show() -> None:
     """
     View your local/remote projects.
 
@@ -58,7 +56,7 @@ async def show() -> None:
     show_default=True,
 )
 @click.pass_obj
-async def local(config: Config, limit: int) -> None:
+def local(config: Config, limit: int) -> None:
     """
     Show your local projects.
 
@@ -89,9 +87,7 @@ async def local(config: Config, limit: int) -> None:
     table.add_column("Created")
     table.add_column("Modified")
 
-    stats = await asyncio.gather(
-        *[aiofiles.os.stat(project) for project in local_projects]
-    )
+    stats = (project.stat() for project in local_projects)
 
     results = {project: stat for project, stat in zip(local_projects, stats)}
 
@@ -106,7 +102,7 @@ async def local(config: Config, limit: int) -> None:
         table.add_row(
             path.name,
             humanize.naturaltime(
-                datetime.utcfromtimestamp(result.st_birthtime), when=datetime.utcnow()
+                datetime.utcfromtimestamp(result.st_birthtime), when=datetime.utcnow()  # type: ignore[attr-defined]
             ),
             humanize.naturaltime(
                 datetime.utcfromtimestamp(result.st_mtime), when=datetime.utcnow()
@@ -126,7 +122,7 @@ async def local(config: Config, limit: int) -> None:
     show_default=True,
 )
 @click.pass_obj
-async def remote(config: Config, limit: int) -> None:
+def remote(config: Config, limit: int) -> None:
     """
     Show your remote projects.
 
@@ -148,7 +144,7 @@ async def remote(config: Config, limit: int) -> None:
     api = API(username=config.username, token=config.token)
 
     try:
-        repos = await api.get_repos()
+        repos = api.get_repos()
     except httpx.HTTPStatusError as err:
         utils.handle_http_status_error(err)
     else:
@@ -196,7 +192,7 @@ async def remote(config: Config, limit: int) -> None:
     show_default=True,
 )
 @click.pass_obj
-async def forks(config: Config, limit: int) -> None:
+def forks(config: Config, limit: int) -> None:
     """
     Show your forked projects.
 
@@ -216,7 +212,7 @@ async def forks(config: Config, limit: int) -> None:
     api = API(username=config.username, token=config.token)
 
     try:
-        forks = await api.get_forks()
+        forks = api.get_forks()
     except httpx.HTTPStatusError as err:
         utils.handle_http_status_error(err)
     else:
@@ -266,7 +262,7 @@ async def forks(config: Config, limit: int) -> None:
     show_default=True,
 )
 @click.pass_obj
-async def diff(config: Config, limit: int) -> None:
+def diff(config: Config, limit: int) -> None:
     """
     Show the difference in local/remote projects.
 
@@ -292,7 +288,7 @@ async def diff(config: Config, limit: int) -> None:
     }
 
     try:
-        remote_projects = await api.get_repos()
+        remote_projects = api.get_repos()
     except httpx.HTTPStatusError as err:
         utils.handle_http_status_error(err)
     else:

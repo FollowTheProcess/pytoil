@@ -1,10 +1,7 @@
 from __future__ import annotations
 
+import tempfile
 from pathlib import Path
-
-import aiofiles
-import aiofiles.os
-import pytest
 
 from pytoil.starters import PythonStarter
 
@@ -25,26 +22,23 @@ def test_python_starter_init():
     ]
 
 
-@pytest.mark.asyncio
-async def test_python_starter_generate():
-    async with aiofiles.tempfile.TemporaryDirectory() as tmpdir:
+def test_python_starter_generate():
+    with tempfile.TemporaryDirectory() as tmpdir:
         starter = PythonStarter(path=Path(tmpdir), name="temptest")
 
-        await starter.generate()
+        starter.generate()
 
         for file in starter.files:
-            assert await aiofiles.os.path.exists(file)
+            assert file.exists()
 
-        async with aiofiles.open(starter.root.joinpath("README.md")) as readme:
-            readme_content = await readme.read()
+        with open(starter.root.joinpath("README.md")) as readme:
+            readme_content = readme.read()
 
-        async with aiofiles.open(
-            starter.root.joinpath("requirements.txt")
-        ) as requirements:
-            requirements_content = await requirements.read()
+        with open(starter.root.joinpath("requirements.txt")) as requirements:
+            requirements_content = requirements.read()
 
-        async with aiofiles.open(starter.root.joinpath("temptest.py")) as python:
-            python_content = await python.read()
+        with open(starter.root.joinpath("temptest.py")) as python:
+            python_content = python.read()
 
         assert readme_content == "# temptest\n"
         assert (

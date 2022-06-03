@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import asyncio
+import subprocess
 import sys
 from pathlib import Path
 
@@ -23,53 +23,42 @@ def test_requirements_repr():
     assert repr(env) == f"Requirements(root={Path('somewhere')!r})"
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "silent, stdout, stderr",
     [
-        (True, asyncio.subprocess.DEVNULL, asyncio.subprocess.DEVNULL),
+        (True, subprocess.DEVNULL, subprocess.DEVNULL),
         (False, sys.stdout, sys.stderr),
     ],
 )
-async def test_install_self_venv_exists(
-    mocker: MockerFixture, silent: bool, stdout, stderr
-):
+def test_install_self_venv_exists(mocker: MockerFixture, silent: bool, stdout, stderr):
     mocker.patch(
         "pytoil.environments.reqs.Requirements.exists",
         autospec=True,
         return_value=True,
     )
 
-    mock = mocker.patch(
-        "pytoil.environments.reqs.asyncio.create_subprocess_exec", autospec=True
-    )
+    mock = mocker.patch("pytoil.environments.reqs.subprocess.run", autospec=True)
 
     env = Requirements(root=Path("somewhere"))
 
-    await env.install_self(silent=silent)
+    env.install_self(silent=silent)
 
     mock.assert_called_once_with(
-        f"{env.executable}",
-        "-m",
-        "pip",
-        "install",
-        "-r",
-        "requirements.txt",
+        [f"{env.executable}", "-m", "pip", "install", "-r", "requirements.txt"],
         cwd=env.project_path,
         stdout=stdout,
         stderr=stderr,
     )
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "silent, stdout, stderr",
     [
-        (True, asyncio.subprocess.DEVNULL, asyncio.subprocess.DEVNULL),
+        (True, subprocess.DEVNULL, subprocess.DEVNULL),
         (False, sys.stdout, sys.stderr),
     ],
 )
-async def test_install_self_venv_doesnt_exist(
+def test_install_self_venv_doesnt_exist(
     mocker: MockerFixture, silent: bool, stdout, stderr
 ):
     mocker.patch(
@@ -78,9 +67,7 @@ async def test_install_self_venv_doesnt_exist(
         return_value=False,
     )
 
-    mock = mocker.patch(
-        "pytoil.environments.reqs.asyncio.create_subprocess_exec", autospec=True
-    )
+    mock = mocker.patch("pytoil.environments.reqs.subprocess.run", autospec=True)
 
     mock_create = mocker.patch(
         "pytoil.environments.reqs.Requirements.create", autospec=True
@@ -88,32 +75,26 @@ async def test_install_self_venv_doesnt_exist(
 
     env = Requirements(root=Path("somewhere"))
 
-    await env.install_self(silent=silent)
+    env.install_self(silent=silent)
 
     mock_create.assert_called_once()
 
     mock.assert_called_once_with(
-        f"{env.executable}",
-        "-m",
-        "pip",
-        "install",
-        "-r",
-        "requirements.txt",
+        [f"{env.executable}", "-m", "pip", "install", "-r", "requirements.txt"],
         cwd=env.project_path,
         stdout=stdout,
         stderr=stderr,
     )
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "silent, stdout, stderr",
     [
-        (True, asyncio.subprocess.DEVNULL, asyncio.subprocess.DEVNULL),
+        (True, subprocess.DEVNULL, subprocess.DEVNULL),
         (False, sys.stdout, sys.stderr),
     ],
 )
-async def test_install_self_requirements_dev(
+def test_install_self_requirements_dev(
     mocker: MockerFixture, silent: bool, stdout, stderr
 ):
     mocker.patch(
@@ -124,26 +105,19 @@ async def test_install_self_requirements_dev(
 
     # Make it think that requirements-dev.txt exists
     mocker.patch(
-        "pytoil.environments.reqs.aiofiles.os.path.exists",
+        "pytoil.environments.reqs.Path.exists",
         autospec=True,
         return_value=True,
     )
 
-    mock = mocker.patch(
-        "pytoil.environments.reqs.asyncio.create_subprocess_exec", autospec=True
-    )
+    mock = mocker.patch("pytoil.environments.reqs.subprocess.run", autospec=True)
 
     env = Requirements(root=Path("somewhere"))
 
-    await env.install_self(silent=silent)
+    env.install_self(silent=silent)
 
     mock.assert_called_once_with(
-        f"{env.executable}",
-        "-m",
-        "pip",
-        "install",
-        "-r",
-        "requirements-dev.txt",
+        [f"{env.executable}", "-m", "pip", "install", "-r", "requirements-dev.txt"],
         cwd=env.project_path,
         stdout=stdout,
         stderr=stderr,

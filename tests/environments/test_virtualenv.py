@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-import asyncio
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
-import aiofiles
 import pytest
 from pytest_mock import MockerFixture
 
@@ -24,7 +24,6 @@ def test_virtualenv_repr():
     assert repr(venv) == f"Venv(root={Path('somewhere')!r})"
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "exists_return, exists",
     [
@@ -32,69 +31,69 @@ def test_virtualenv_repr():
         (False, False),
     ],
 )
-async def test_exists_returns_correct_value(
+def test_exists_returns_correct_value(
     mocker: MockerFixture, exists_return, exists: bool
 ):
 
-    # Ensure aiofiles.os.path.exists returns what we want it to
+    # Ensure Path.exists returns what we want it to
     mocker.patch(
-        "pytoil.environments.virtualenv.aiofiles.os.path.exists",
+        "pytoil.environments.virtualenv.Path.exists",
         autospec=True,
         return_value=exists_return,
     )
 
     venv = Venv(root=Path("somewhere"))
-    assert await venv.exists() is exists
+    assert venv.exists() is exists
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "silent, stdout, stderr",
     [
-        (True, asyncio.subprocess.DEVNULL, asyncio.subprocess.DEVNULL),
+        (True, subprocess.DEVNULL, subprocess.DEVNULL),
         (False, sys.stdout, sys.stderr),
     ],
 )
-async def test_install_calls_pip_correctly(
+def test_install_calls_pip_correctly(
     mocker: MockerFixture, silent: bool, stdout, stderr
 ):
     mock = mocker.patch(
-        "pytoil.environments.virtualenv.asyncio.create_subprocess_exec",
+        "pytoil.environments.virtualenv.subprocess.run",
         autospec=True,
     )
 
     venv = Venv(root=Path("somewhere"))
 
-    await venv.install(["black", "mypy", "isort", "flake8"], silent=silent)
+    venv.install(["black", "mypy", "isort", "flake8"], silent=silent)
 
     mock.assert_called_once_with(
-        f"{venv.executable}",
-        "-m",
-        "pip",
-        "install",
-        "black",
-        "mypy",
-        "isort",
-        "flake8",
+        [
+            f"{venv.executable}",
+            "-m",
+            "pip",
+            "install",
+            "black",
+            "mypy",
+            "isort",
+            "flake8",
+        ],
         cwd=venv.project_path,
         stdout=stdout,
         stderr=stderr,
     )
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "silent, stdout, stderr",
     [
-        (True, asyncio.subprocess.DEVNULL, asyncio.subprocess.DEVNULL),
+        (True, subprocess.DEVNULL, subprocess.DEVNULL),
         (False, sys.stdout, sys.stderr),
     ],
 )
-async def test_install_self_calls_pip_correctly(
+def test_install_self_calls_pip_correctly(
     mocker: MockerFixture, silent: bool, stdout, stderr
 ):
     mock = mocker.patch(
-        "pytoil.environments.virtualenv.asyncio.create_subprocess_exec",
+        "pytoil.environments.virtualenv.subprocess.run",
         autospec=True,
     )
 
@@ -107,34 +106,28 @@ async def test_install_self_calls_pip_correctly(
 
     venv = Venv(root=Path("somewhere"))
 
-    await venv.install_self(silent=silent)
+    venv.install_self(silent=silent)
 
     mock.assert_called_once_with(
-        f"{venv.executable}",
-        "-m",
-        "pip",
-        "install",
-        "-e",
-        ".[dev]",
+        [f"{venv.executable}", "-m", "pip", "install", "-e", ".[dev]"],
         cwd=venv.project_path,
         stdout=stdout,
         stderr=stderr,
     )
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "silent, stdout, stderr",
     [
-        (True, asyncio.subprocess.DEVNULL, asyncio.subprocess.DEVNULL),
+        (True, subprocess.DEVNULL, subprocess.DEVNULL),
         (False, sys.stdout, sys.stderr),
     ],
 )
-async def test_install_self_creates_venv_if_not_one_already(
+def test_install_self_creates_venv_if_not_one_already(
     mocker: MockerFixture, silent: bool, stdout, stderr
 ):
     mock = mocker.patch(
-        "pytoil.environments.virtualenv.asyncio.create_subprocess_exec",
+        "pytoil.environments.virtualenv.subprocess.run",
         autospec=True,
     )
 
@@ -152,29 +145,23 @@ async def test_install_self_creates_venv_if_not_one_already(
 
     venv = Venv(root=Path("somewhere"))
 
-    await venv.install_self(silent=silent)
+    venv.install_self(silent=silent)
 
     mock_create.assert_called_once()
 
     mock.assert_called_once_with(
-        f"{venv.executable}",
-        "-m",
-        "pip",
-        "install",
-        "-e",
-        ".[dev]",
+        [f"{venv.executable}", "-m", "pip", "install", "-e", ".[dev]"],
         cwd=venv.project_path,
         stdout=stdout,
         stderr=stderr,
     )
 
 
-@pytest.mark.asyncio
-async def test_venv_create():
-    async with aiofiles.tempfile.TemporaryDirectory("w") as tmp:
+def test_venv_create():
+    with tempfile.TemporaryDirectory("w") as tmp:
         tmp_path = Path(tmp).resolve()
         venv = Venv(tmp_path)
-        await venv.create(silent=True)
+        venv.create(silent=True)
 
         assert tmp_path.joinpath(".venv").exists()
         assert tmp_path.joinpath(".venv/pyvenv.cfg").exists()

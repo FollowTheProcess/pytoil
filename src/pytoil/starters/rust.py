@@ -8,13 +8,10 @@ Created: 29/12/2021
 
 from __future__ import annotations
 
-import asyncio
 import shutil
+import subprocess
 import sys
 from pathlib import Path
-
-import aiofiles
-import aiofiles.os
 
 from pytoil.exceptions import CargoNotInstalledError
 
@@ -37,32 +34,27 @@ class RustStarter:
 
     __slots__ = ("path", "name", "cargo", "root", "files")
 
-    async def generate(self, username: str | None = None) -> None:
+    def generate(self, username: str | None = None) -> None:
         """
         Generate a new rust/cargo starter template.
         """
         if not self.cargo:
             raise CargoNotInstalledError
 
-        await aiofiles.os.mkdir(self.root)
+        self.root.mkdir()
 
         # Call cargo init
-        proc = await asyncio.create_subprocess_exec(
-            self.cargo,
-            "init",
-            "--vcs",
-            "none",
+        subprocess.run(
+            [self.cargo, "init", "--vcs", "none"],
             cwd=self.root,
             stdout=sys.stdout,
             stderr=sys.stderr,
         )
-
-        await proc.wait()
 
         # Create the README
         for file in self.files:
             file.touch()
 
         readme = self.root.joinpath("README.md")
-        async with aiofiles.open(readme, mode="w", encoding="utf-8") as f:
-            await f.write(f"# {self.name}\n")
+        with open(readme, mode="w", encoding="utf-8") as f:
+            f.write(f"# {self.name}\n")

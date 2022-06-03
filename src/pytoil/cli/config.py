@@ -1,5 +1,5 @@
 """
-The async-pytoil config command group.
+The pytoil config command group.
 
 
 Author: Tom Fleet
@@ -8,7 +8,7 @@ Created: 21/12/2021
 
 from __future__ import annotations
 
-import asyncclick as click
+import click
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.table import Table, box
@@ -18,7 +18,7 @@ from pytoil.config import Config, defaults
 
 
 @click.group()
-async def config() -> None:
+def config() -> None:
     """
     Interact with pytoil's configuration.
 
@@ -28,7 +28,7 @@ async def config() -> None:
 
 @config.command()
 @click.pass_obj
-async def show(config: Config) -> None:
+def show(config: Config) -> None:
     """
     Show pytoil's config.
 
@@ -55,7 +55,7 @@ async def show(config: Config) -> None:
 @config.command()
 @click.argument("key", nargs=1)
 @click.pass_obj
-async def get(config: Config, key: str) -> None:
+def get(config: Config, key: str) -> None:
     """
     Get the currently set value for a config key.
 
@@ -73,8 +73,7 @@ async def get(config: Config, key: str) -> None:
 
 
 @config.command()
-@click.pass_obj
-async def edit(config: Config) -> None:
+def edit() -> None:
     """
     Open pytoil's config file in $EDITOR.
 
@@ -86,7 +85,7 @@ async def edit(config: Config) -> None:
 
 
 @config.command()
-async def explain() -> None:
+def explain() -> None:
     """
     Print a list and description of pytoil config values.
 

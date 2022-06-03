@@ -8,7 +8,7 @@ Created: 21/12/2021
 
 from __future__ import annotations
 
-import asyncclick as click
+import click
 from rich.console import Console
 from rich.table import Table, box
 from rich.text import Text
@@ -32,7 +32,7 @@ FUZZY_SCORE_CUTOFF = 75
     show_default=True,
 )
 @click.pass_obj
-async def find(config: Config, project: str, limit: int) -> None:
+def find(config: Config, project: str, limit: int) -> None:
     """
     Quickly locate a project.
 
@@ -63,7 +63,7 @@ async def find(config: Config, project: str, limit: int) -> None:
         for f in config.projects_dir.iterdir()
         if f.is_dir() and not f.name.startswith(".")
     }
-    remote_projects = await api.get_repo_names()
+    remote_projects = api.get_repo_names()
 
     all_projects = local_projects.union(remote_projects)
 

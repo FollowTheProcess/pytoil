@@ -20,7 +20,7 @@ from typing import Protocol
 
 
 class Starter(Protocol):
-    async def generate(self, username: str | None = None) -> None:
+    def generate(self, username: str | None = None) -> None:
         """
         Implements the generation of the project starter template.
         """

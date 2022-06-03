@@ -62,7 +62,6 @@ repos:
       - id: mypy
         args: [--show-error-codes]
         additional_dependencies:
-          - "types-aiofiles"
           - "types-PyYAML"
           - "pydantic"
 
