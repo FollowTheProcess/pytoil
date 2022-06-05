@@ -121,9 +121,9 @@ python -m venv .venv
 
 source .venv/bin/activate
 
-python -m pip install --upgrade pip setuptools wheel
+python -m pip install --upgrade pip flit
 
-python -m pip install -e .[dev]
+flit install
 ```
 
 ### Step 4: Do your thing

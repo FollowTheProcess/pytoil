@@ -48,7 +48,7 @@ jobs:
           python3 -m pip install nox
 
       - name: Run Tests and Coverage
-        run: nox --non-interactive --session "codecov"
+        run: nox --non-interactive --session codecov
 
       - name: Upload Coverage to Codecov
         uses: codecov/codecov-action@v3
@@ -72,7 +72,7 @@ jobs:
           python3 -m pip install nox
 
       - name: Build Docs
-        run: nox --non-interactive --session "docs"
+        run: nox --non-interactive --session docs
 
   publish-docs:
     needs: docs
@@ -97,7 +97,7 @@ jobs:
           # Use the built in CI GITHUB_TOKEN
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          nox --non-interactive --session "deploy_docs"
+          nox --non-interactive --session deploy_docs
 
   release:
     name: Release
@@ -118,7 +118,7 @@ jobs:
           python3 -m pip install nox
 
       - name: Build sdist and wheel
-        run: nox --non-interactive --session "build"
+        run: nox --non-interactive --session build
 
       - name: Publish Distribution to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1

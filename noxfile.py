@@ -91,29 +91,16 @@ def dev(session: nox.Session) -> None:
         "install",
         "--upgrade",
         "pip",
-        "setuptools",
-        "wheel",
+        "flit",
         silent=True,
         external=True,
     )
-    session.run(PYTHON, "-m", "pip", "install", "-e", ".[dev]", external=True)
+    # Flit equivalent of pip install -e .[dev]
+    session.run("flit", "install", "--symlink", "--python", PYTHON, external=True)
 
     if bool(shutil.which("code")) or bool(shutil.which("code-insiders")):
         # Only do this is user has VSCode installed
         set_up_vscode(session)
-
-
-@nox.session(python=False)
-def update(session: nox.Session) -> None:
-    """
-    Updates the dependencies in the virtual environment to their latest versions.
-
-    Note: this is still based on the version specifiers present in pyproject.toml.
-    """
-    session.run(
-        PYTHON, "-m", "pip", "install", "--upgrade", "pip", "setuptools", "wheel"
-    )
-    session.run(PYTHON, "-m", "pip", "install", "--upgrade", "-e", ".[dev]")
 
 
 @nox.session(python=PYTHON_VERSIONS)
@@ -225,10 +212,10 @@ def build(session: nox.Session) -> None:
     """
     Builds the package sdist and wheel.
     """
-    session.install("--upgrade", "pip", "setuptools", "wheel")
-    session.install("build")
+    session.install("--upgrade", "pip", "flit")
+    session.install("flit")
 
-    session.run("pyproject-build", "--sdist", "--wheel")
+    session.run("flit", "build")
 
 
 @nox.session(python=DEFAULT_PYTHON)
