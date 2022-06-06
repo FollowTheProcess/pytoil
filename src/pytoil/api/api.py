@@ -239,6 +239,7 @@ class API:
                     "License": repo["licenseInfo"]["name"]
                     if repo.get("licenseInfo")
                     else None,
+                    "Language": repo["primaryLanguage"]["name"],
                     "Remote": True,
                 }
             return None  # pragma: no cover

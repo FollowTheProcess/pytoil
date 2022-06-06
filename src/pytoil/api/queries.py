@@ -40,6 +40,9 @@ query ($username: String!, $name: String!) {
     licenseInfo {
       name
     }
+    primaryLanguage {
+      name
+    }
   }
 }
 """

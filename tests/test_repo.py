@@ -110,6 +110,7 @@ def test_remote_info_returns_correct_details(
         "Remote": True,
         "Size": "3.2 MB",
         "Updated": "25 days ago",
+        "Language": "Python",
     }
 
 

@@ -81,6 +81,7 @@ def test_get_repo_info_good_response(httpx_mock: HTTPXMock, fake_repo_info_respo
         "Size": "3.2 MB",
         "License": "Apache License 2.0",
         "Remote": True,
+        "Language": "Python",
     }
 
 
@@ -104,6 +105,7 @@ def test_get_repo_info_no_license(
         "Size": "3.2 MB",
         "License": None,
         "Remote": True,
+        "Language": "Python",
     }
 
 
