@@ -187,6 +187,7 @@ def fake_repo_info_response():
                 "pushedAt": "2021-12-27T13:31:53Z",
                 "diskUsage": 3153,
                 "licenseInfo": {"name": "Apache License 2.0"},
+                "primaryLanguage": {"name": "Python"},
             }
         }
     }
@@ -207,6 +208,7 @@ def fake_repo_info_response_no_license():
                 "pushedAt": "2021-12-27T13:31:53Z",
                 "diskUsage": 3153,
                 "licenseInfo": None,
+                "primaryLanguage": {"name": "Python"},
             }
         }
     }
