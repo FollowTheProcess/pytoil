@@ -173,7 +173,7 @@ async def main() -> None:
         console.print("Everything is up to date ✔", style="bold green")
         return
 
-    console.print("⚠️ Potential Differences detected:", style="bold yellow")
+    console.print("⚠️  Potential Differences detected:", style="bold yellow")
 
     for diff in differences:
         table.add_row(diff.name, diff.current, diff.latest)
