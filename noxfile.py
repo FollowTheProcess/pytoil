@@ -4,7 +4,6 @@ Nox automation tasks for pytoil
 
 from __future__ import annotations
 
-import argparse
 import json
 import os
 import shutil
@@ -227,66 +226,6 @@ def dependabot(session: nox.Session) -> None:
     session.install("httpx[http2]", "rtoml", "rich")
 
     session.run("python", "scripts/poormans_dependabot.py")
-
-
-@nox.session(python=DEFAULT_PYTHON)
-def release(session: nox.Session) -> None:
-    """
-    Kicks off the automated release process by creating and pushing a new tag.
-
-    Invokes bump2version with the posarg setting the version.
-
-    Usage:
-
-    $ nox -s release -- [major|minor|patch]
-    """
-    # Little known Nox fact: Passing silent=True captures the output
-    status = session.run(
-        "git", "status", "--porcelain", silent=True, external=True
-    ).strip()
-    if len(status) > 1:
-        session.error("All changes must be committed or removed before release")
-
-    branch = session.run(
-        "git", "rev-parse", "--abbrev-ref", "HEAD", silent=True, external=True
-    ).strip()
-
-    if branch != DEFAULT_BRANCH:
-        session.error(
-            f"Must be on {DEFAULT_BRANCH!r} branch. Currently on {branch!r} branch"
-        )
-
-    parser = argparse.ArgumentParser(description="Release a new semantic version.")
-    parser.add_argument(
-        "version",
-        type=str,
-        nargs=1,
-        help="The type of semver release to make.",
-        choices={"major", "minor", "patch"},
-    )
-    args: argparse.Namespace = parser.parse_args(args=session.posargs)
-    version: str = args.version.pop()
-
-    # If we get here, we should be good to go
-    # Let's do a final check for safety
-    confirm = input(
-        f"You are about to bump the {version!r} version. Are you sure? [y/n]: "
-    )
-
-    # Abort on anything other than 'y'
-    if confirm.lower().strip() != "y":
-        session.error(f"You said no when prompted to bump the {version!r} version.")
-
-    session.install("--upgrade", "pip", "setuptools", "wheel")
-
-    session.install("bump2version")
-
-    session.log(f"Bumping the {version!r} version")
-    session.run("bump2version", version)
-
-    session.log("Pushing the new tag")
-    session.run("git", "push", external=True)
-    session.run("git", "push", "--tags", external=True)
 
 
 def set_up_vscode(session: nox.Session) -> None:
