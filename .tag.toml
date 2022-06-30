@@ -1,0 +1,11 @@
+[tag]
+
+[[files]]
+path = "src/pytoil/__init__.py"
+search = 'version = "{{.Current}}"'
+replace = 'version = "{{.Next}}"'
+
+[[files]]
+path = "pyproject.toml"
+search = 'version = "{{.Current}}"'
+replace = 'version = "{{.Next}}"'
