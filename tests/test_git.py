@@ -13,21 +13,18 @@ from pytoil.git import Git
 
 
 def test_git_instanciation_default():
-
     git = Git()
 
     assert git.git == shutil.which("git")
 
 
 def test_git_instanciation_passed():
-
     git = Git(git="/some/path/to/git")
 
     assert git.git == "/some/path/to/git"
 
 
 def test_git_repr():
-
     git = Git(git="hellogit")
 
     assert repr(git) == "Git(git='hellogit')"

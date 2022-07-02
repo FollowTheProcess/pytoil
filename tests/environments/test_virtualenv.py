@@ -34,7 +34,6 @@ def test_virtualenv_repr():
 def test_exists_returns_correct_value(
     mocker: MockerFixture, exists_return, exists: bool
 ):
-
     # Ensure Path.exists returns what we want it to
     mocker.patch(
         "pytoil.environments.virtualenv.Path.exists",

@@ -15,7 +15,6 @@ ON_WINDOWS = platform.system().lower() == "windows"
 
 
 def test_config_init_defaults():
-
     config = Config()
 
     assert config.projects_dir == defaults.PROJECTS_DIR
@@ -28,7 +27,6 @@ def test_config_init_defaults():
 
 
 def test_config_init_passed():
-
     config = Config(
         projects_dir=Path("some/dir"),
         token="sometoken",
@@ -49,7 +47,6 @@ def test_config_init_passed():
 
 
 def test_config_helper():
-
     config = Config.helper()
 
     assert config.projects_dir == defaults.PROJECTS_DIR
@@ -71,13 +68,11 @@ def test_config_helper():
     ],
 )
 def test_specifies_editor(editor: str, want: bool):
-
     config = Config(editor=editor)
     assert config.specifies_editor() is want
 
 
 def test_from_file_raises_on_missing_file():
-
     with pytest.raises(FileNotFoundError):
         Config.load(path=Path("not/here.toml"))
 
@@ -99,7 +94,6 @@ def test_from_file_raises_on_missing_file():
     ],
 )
 def test_can_use_api(username, token, expected):
-
     config = Config(username=username, token=token)
 
     assert config.can_use_api() is expected

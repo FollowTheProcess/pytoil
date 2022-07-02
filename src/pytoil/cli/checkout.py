@@ -122,7 +122,6 @@ def checkout(config: Config, project: str, venv: bool) -> None:
         printer.good("Done!")
 
     elif bool(PROJECT_REGEX.match(project)):
-
         if repo.exists_local():
             checkout_local(repo=repo, config=config, venv=venv)
         elif repo.exists_remote(api):

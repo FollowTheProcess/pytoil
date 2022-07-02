@@ -63,7 +63,6 @@ def test_exists_local(path: Path, exists: bool):
 def test_exists_remote_returns_false_when_remote_doesnt_exist(
     httpx_mock: HTTPXMock, fake_repo_exists_false_response
 ):
-
     api = API(username="me", token="something")
 
     repo = Repo(owner="me", name="test", local_path=Path("doesn't/matter"))
@@ -79,7 +78,6 @@ def test_exists_remote_returns_false_when_remote_doesnt_exist(
 def test_exists_remote_returns_true_when_remote_exists(
     httpx_mock: HTTPXMock, fake_repo_exists_true_response
 ):
-
     api = API(username="me", token="something")
 
     repo = Repo(owner="me", name="test", local_path=Path("doesn't/matter"))
@@ -153,7 +151,6 @@ def test_does_file_exist(
 def test_is_setuptools(
     repo_folder_with_random_existing_files: Path, file: str, expect: bool
 ):
-
     repo = Repo(
         owner="me", name="test", local_path=repo_folder_with_random_existing_files
     )
@@ -196,77 +193,66 @@ def test_is_conda(
 
 
 def test_is_poetry_true_on_valid_poetry_project(fake_poetry_project: Path):
-
     repo = Repo(owner="blah", name="test", local_path=fake_poetry_project)
 
     assert repo.is_poetry() is True
 
 
 def test_is_poetry_false_on_non_poetry_project(fake_flit_project: Path):
-
     repo = Repo(owner="blah", name="test", local_path=fake_flit_project)
 
     assert repo.is_poetry() is False
 
 
 def test_is_poetry_false_if_no_pyproject_toml():
-
     repo = Repo(owner="blah", name="test", local_path=Path("nowhere"))
 
     assert repo.is_poetry() is False
 
 
 def test_is_poetry_false_if_no_build_system(project_with_no_build_system: Path):
-
     repo = Repo(owner="blah", name="test", local_path=project_with_no_build_system)
 
     assert repo.is_poetry() is False
 
 
 def test_is_poetry_false_if_no_build_backend(project_with_no_build_backend: Path):
-
     repo = Repo(owner="blah", name="test", local_path=project_with_no_build_backend)
 
     assert repo.is_poetry() is False
 
 
 def test_is_flit_true_on_valid_flit_project(fake_flit_project: Path):
-
     repo = Repo(owner="blah", name="test", local_path=fake_flit_project)
 
     assert repo.is_flit() is True
 
 
 def test_is_flit_false_on_non_flit_project(fake_poetry_project: Path):
-
     repo = Repo(owner="blah", name="test", local_path=fake_poetry_project)
 
     assert repo.is_flit() is False
 
 
 def test_is_flit_false_if_no_pyproject_toml():
-
     repo = Repo(owner="blah", name="test", local_path=Path("nowhere"))
 
     assert repo.is_flit() is False
 
 
 def test_is_flit_false_if_no_build_system(project_with_no_build_system: Path):
-
     repo = Repo(owner="blah", name="test", local_path=project_with_no_build_system)
 
     assert repo.is_flit() is False
 
 
 def test_is_flit_false_if_no_build_backend(project_with_no_build_backend: Path):
-
     repo = Repo(owner="blah", name="test", local_path=project_with_no_build_backend)
 
     assert repo.is_flit() is False
 
 
 def test_dispatch_env_correctly_identifies_conda(mocker: MockerFixture):
-
     mocker.patch("pytoil.repo.Repo.is_conda", autospec=True, return_value=True)
 
     repo = Repo(name="test", owner="me", local_path=Path("somewhere"))
@@ -279,7 +265,6 @@ def test_dispatch_env_correctly_identifies_conda(mocker: MockerFixture):
 def test_dispatch_env_correctly_identifies_requirements_txt(
     requirements_project: Path,
 ):
-
     repo = Repo(name="test", owner="me", local_path=requirements_project)
 
     env = repo.dispatch_env(config=Config())
@@ -290,7 +275,6 @@ def test_dispatch_env_correctly_identifies_requirements_txt(
 def test_dispatch_env_correctly_identifies_requirements_dev_txt(
     requirements_dev_project: Path,
 ):
-
     repo = Repo(name="test", owner="me", local_path=requirements_dev_project)
 
     env = repo.dispatch_env(config=Config())
@@ -299,7 +283,6 @@ def test_dispatch_env_correctly_identifies_requirements_dev_txt(
 
 
 def test_dispatch_env_correctly_identifies_setuptools(mocker: MockerFixture):
-
     mocker.patch("pytoil.repo.Repo.is_conda", autospec=True, return_value=False)
 
     mocker.patch("pytoil.repo.Repo.is_setuptools", autospec=True, return_value=True)
@@ -320,7 +303,6 @@ def test_dispatch_env_correctly_identifies_poetry(fake_poetry_project: Path):
 
 
 def test_dispatch_env_correctly_identifies_flit(fake_flit_project: Path):
-
     repo = Repo(name="test", owner="me", local_path=fake_flit_project)
 
     env = repo.dispatch_env(config=Config())
@@ -329,7 +311,6 @@ def test_dispatch_env_correctly_identifies_flit(fake_flit_project: Path):
 
 
 def test_dispatch_env_returns_none_if_it_cant_detect(mocker: MockerFixture):
-
     mocker.patch("pytoil.repo.Repo.is_conda", autospec=True, return_value=False)
 
     mocker.patch("pytoil.repo.Repo.is_setuptools", autospec=True, return_value=False)
