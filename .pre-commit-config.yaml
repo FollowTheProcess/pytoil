@@ -38,7 +38,7 @@ repos:
         args: ["-a", "from __future__ import annotations"]
 
   - repo: https://github.com/hadialqattan/pycln
-    rev: v2.0.3
+    rev: v2.0.4
     hooks:
       - id: pycln
         args: [--all]
