@@ -28,7 +28,7 @@ dependencies = [
   "pydantic==1.9.1",
   "PyYAML==6",
   "questionary==1.10",
-  "rich==12.4.4",
+  "rich==12.5.1",
   "rtoml==0.8",
   "thefuzz[speedup]==0.19",
   "virtualenv==20.15.1",
