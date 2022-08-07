@@ -14,6 +14,7 @@ import time
 import click
 import httpx
 import questionary
+from thefuzz import process
 
 from pytoil import editor
 from pytoil.api import API
@@ -33,6 +34,8 @@ USER_REPO_REGEX = re.compile(r"^([A-Za-z0-9_.-])+/([A-Za-z0-9_.-])+$")
 
 # The bare 'project' pattern
 PROJECT_REGEX = re.compile(r"^([A-Za-z0-9_.-])+$")
+
+FUZZY_SCORE_CUTOFF = 75
 
 
 @click.command()
@@ -127,7 +130,26 @@ def checkout(config: Config, project: str, venv: bool) -> None:
         elif repo.exists_remote(api):
             checkout_remote(repo=repo, config=config, venv=venv, git=git)
         else:
-            printer.error(f"{project!r} not found locally or on GitHub.", exits=1)
+            printer.error(f"{project!r} not found locally or on GitHub.")
+            local_projects: set[str] = {
+                f.name
+                for f in config.projects_dir.iterdir()
+                if f.is_dir() and not f.name.startswith(".")
+            }
+            try:
+                remote_projects = api.get_repo_names()
+            except httpx.HTTPStatusError as err:
+                utils.handle_http_status_error(err)
+            else:
+                all_projects = local_projects.union(remote_projects)
+
+                best_match: tuple[str, int] = process.extractOne(
+                    query=project, choices=all_projects, score_cutoff=FUZZY_SCORE_CUTOFF
+                )
+                if best_match:
+                    best_match_name, _ = best_match
+                    printer.note(f"Did you mean {best_match_name}?", exits=1)
+
     else:
         # Unrecognised regex
         printer.error(f"{project!r} did not match valid pattern.")
