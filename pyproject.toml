@@ -54,7 +54,7 @@ classifiers = [
 [project.optional-dependencies]
 dev = [
   "black==22.6",
-  "coverage[toml]==6.4.2",
+  "coverage[toml]==6.4.3",
   "flake8==5.0.4",
   "flake8-bugbear==22.7.1",
   "freezegun==1.2.1",
