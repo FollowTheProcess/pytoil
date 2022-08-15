@@ -120,7 +120,6 @@ def test(session: nox.Session) -> None:
     )
 
     session.run("pytest", f"--cov={PROJECT_SRC}", f"{PROJECT_TESTS}")
-    session.notify("coverage")
 
 
 @nox.session(python=DEFAULT_PYTHON)
