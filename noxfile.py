@@ -185,6 +185,9 @@ def deploy_docs(session: nox.Session) -> None:
     """
     Used by GitHub actions to deploy docs to GitHub Pages.
     """
+    if not (token := os.getenv("GITHUB_TOKEN")):
+        session.error("Cannot deploy docs without a $GITHUB_TOKEN environment variable")
+
     session.install("--upgrade", "pip", "setuptools", "wheel")
     session.install("mkdocs", "mkdocs-material")
 
@@ -194,7 +197,7 @@ def deploy_docs(session: nox.Session) -> None:
             "remote",
             "add",
             "gh-token",
-            "https://${GITHUB_TOKEN}@github.com/FollowTheProcess/pytoil.git",
+            f"https://{token}@github.com/FollowTheProcess/pytoil.git",
             external=True,
         )
         session.run("git", "fetch", "gh-token", external=True)
