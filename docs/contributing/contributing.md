@@ -121,9 +121,9 @@ python -m venv .venv
 
 source .venv/bin/activate
 
-python -m pip install --upgrade pip flit
+python -m pip install --upgrade pip
 
-flit install
+python -m pip install -e .[dev]
 ```
 
 ### Step 4: Do your thing
@@ -211,8 +211,6 @@ If you add pages to the docs, make sure they are placed in the nav tree in the `
 [GH CLI]: https://cli.github.com
 [nox]: https://nox.thea.codes/en/stable/
 [repo]: https://github.com/FollowTheProcess/pytoil
-[here]: https://stackoverflow.com/questions/20956154/whats-the-workflow-to-contribute-to-an-open-source-project-using-git-pull-reque
-[here too]: https://github.com/asmeurer/git-workflow
 [mkdocs]: https://www.mkdocs.org
 [mkdocs-material]: https://squidfunk.github.io/mkdocs-material/
 [pipx]: https://pypa.github.io/pipx/installation/

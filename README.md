@@ -130,15 +130,10 @@ Your best bet is to check out the [contributing guide] in the docs!
 
 [pipx]: https://pipxproject.github.io/pipx/
 [docs]: https://FollowTheProcess.github.io/pytoil/
-[FollowTheProcess/poetry_pypackage]: https://github.com/FollowTheProcess/poetry_pypackage
-[wasabi]: https://github.com/ines/wasabi
-[httpx]: https://www.python-httpx.org
-[click]: https://click.palletsprojects.com/en/8.1.x/
 [contributing guide]: https://followtheprocess.github.io/pytoil/contributing/contributing.html
 [git]: https://git-scm.com
 [conda]: https://docs.conda.io/en/latest/
 [VSCode]: https://code.visualstudio.com
-[config]: config.md
 [cookiecutter]: https://github.com/cookiecutter/cookiecutter
 [poetry]: https://python-poetry.org
 [flit]: https://flit.readthedocs.io

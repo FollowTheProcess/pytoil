@@ -90,12 +90,12 @@ def dev(session: nox.Session) -> None:
         "install",
         "--upgrade",
         "pip",
-        "flit",
+        "setuptools",
+        "wheel",
         silent=True,
         external=True,
     )
-    # Flit equivalent of pip install -e .[dev]
-    session.run("flit", "install", "--symlink", "--python", PYTHON, external=True)
+    session.run(PYTHON, "-m", "pip", "install", "-e", ".[dev]", external=True)
 
     if bool(shutil.which("code")) or bool(shutil.which("code-insiders")):
         # Only do this is user has VSCode installed
@@ -213,10 +213,8 @@ def build(session: nox.Session) -> None:
     """
     Builds the package sdist and wheel.
     """
-    session.install("--upgrade", "pip", "flit")
-    session.install("flit")
-
-    session.run("flit", "build")
+    session.install("build")
+    session.run("python", "-m", "build", ".")
 
 
 @nox.session(python=DEFAULT_PYTHON)
