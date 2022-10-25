@@ -15,8 +15,9 @@ from typing import Any
 import click
 import httpx
 import humanize
+from rich import box
 from rich.console import Console
-from rich.table import Table, box
+from rich.table import Table
 
 from pytoil.api import API
 from pytoil.cli import utils
@@ -102,7 +103,7 @@ def local(config: Config, limit: int) -> None:
         table.add_row(
             path.name,
             humanize.naturaltime(
-                datetime.utcfromtimestamp(result.st_birthtime), when=datetime.utcnow()  # type: ignore[attr-defined]
+                datetime.utcfromtimestamp(result.st_birthtime), when=datetime.utcnow()
             ),
             humanize.naturaltime(
                 datetime.utcfromtimestamp(result.st_mtime), when=datetime.utcnow()

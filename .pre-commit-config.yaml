@@ -7,7 +7,8 @@ repos:
     rev: "22.10.0"
     hooks:
       - id: black
-        args: ["--preview"]
+        args:
+          - --preview
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.3.0
@@ -24,7 +25,8 @@ repos:
     rev: v3.1.0
     hooks:
       - id: pyupgrade
-        args: [--py39-plus]
+        args:
+          - --py39-plus
 
   - repo: https://github.com/tox-dev/pyproject-fmt
     rev: "0.3.5"
@@ -35,13 +37,16 @@ repos:
     rev: "5.10.1"
     hooks:
       - id: isort
-        args: ["-a", "from __future__ import annotations"]
+        args:
+          - -a
+          - from __future__ import annotations
 
   - repo: https://github.com/hadialqattan/pycln
     rev: v2.1.1
     hooks:
       - id: pycln
-        args: [--all]
+        args:
+          - --all
 
   - repo: https://github.com/asottile/yesqa
     rev: v1.4.0
@@ -60,9 +65,12 @@ repos:
     rev: v0.982
     hooks:
       - id: mypy
-        args: [--show-error-codes]
+        args:
+          - --config-file
+          - pyproject.toml
         additional_dependencies:
           - "types-PyYAML"
+          - "types-click"
           - "pydantic"
 
   - repo: https://github.com/pre-commit/pygrep-hooks

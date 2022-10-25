@@ -9,8 +9,9 @@ Created: 21/12/2021
 from __future__ import annotations
 
 import click
+from rich import box
 from rich.console import Console
-from rich.table import Table, box
+from rich.table import Table
 from rich.text import Text
 from thefuzz import process
 

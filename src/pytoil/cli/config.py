@@ -9,9 +9,10 @@ Created: 21/12/2021
 from __future__ import annotations
 
 import click
+from rich import box
 from rich.console import Console
 from rich.markdown import Markdown
-from rich.table import Table, box
+from rich.table import Table
 
 from pytoil.cli.printer import printer
 from pytoil.config import Config, defaults

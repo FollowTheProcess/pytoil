@@ -101,7 +101,7 @@ branch = true
 exclude_lines = [ "# pragma: no cover", "def __repr__" ]
 
 [tool.mypy]
-files = [ "pytoil/**/*.py", "noxfile.py", "scripts/**/*.py" ]
+files = [ "src/**/*.py", "noxfile.py" ]
 python_version = "3.9"
 ignore_missing_imports = true
 strict = true

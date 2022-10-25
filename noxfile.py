@@ -217,17 +217,6 @@ def build(session: nox.Session) -> None:
     session.run("python", "-m", "build", ".")
 
 
-@nox.session(python=DEFAULT_PYTHON)
-def dependabot(session: nox.Session) -> None:
-    """
-    Runs the poormans_dependabot utility.
-    """
-    session.install("--upgrade", "pip", "setuptools", "wheel")
-    session.install("httpx[http2]", "rtoml", "rich")
-
-    session.run("python", "scripts/poormans_dependabot.py")
-
-
 def set_up_vscode(session: nox.Session) -> None:
     """
     Helper function that will set VSCode's workspace settings
