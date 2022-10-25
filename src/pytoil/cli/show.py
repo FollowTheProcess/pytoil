@@ -15,8 +15,9 @@ from typing import Any
 import click
 import httpx
 import humanize
+from rich import box
 from rich.console import Console
-from rich.table import Table, box
+from rich.table import Table
 
 from pytoil.api import API
 from pytoil.cli import utils

@@ -35,22 +35,22 @@ rich.traceback.install()
 
 
 @click.group(
-    commands=(
-        checkout,
-        config,
-        docs,
-        find,
-        gh,
-        info,
-        new,
-        pull,
-        remove,
-        show,
-        keep,
-        bug,
-    )
+    commands={
+        "checkout": checkout,
+        "config": config,
+        "docs": docs,
+        "find": find,
+        "gh": gh,
+        "info": info,
+        "new": new,
+        "pull": pull,
+        "remove": remove,
+        "show": show,
+        "keep": keep,
+        "bug": bug,
+    }
 )
-@click.version_option(version=__version__, package_name="pytoil", prog_name="pytoil")
+@click.version_option(version=__version__, prog_name="pytoil")
 @click.pass_context
 def main(ctx: click.Context) -> None:
     """
