@@ -13,7 +13,11 @@ import subprocess
 import sys
 from collections.abc import Sequence
 from pathlib import Path
-from typing import TypeAlias
+
+try:
+    from typing import TypeAlias
+except ImportError:
+    from typing_extensions import TypeAlias
 
 import yaml
 

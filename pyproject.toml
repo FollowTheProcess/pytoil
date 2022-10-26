@@ -31,6 +31,7 @@ dependencies = [
   "rich==12.6",
   "rtoml==0.8",
   "thefuzz[speedup]==0.19",
+  'typing_extensions==4.4; python_version <= "3.9"',
   "virtualenv==20.16.6",
 ]
 classifiers = [
