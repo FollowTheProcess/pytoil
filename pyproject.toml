@@ -31,7 +31,7 @@ dependencies = [
   "rich==12.6",
   "rtoml==0.8",
   "thefuzz[speedup]==0.19",
-  "virtualenv==20.16.5",
+  "virtualenv==20.16.6",
 ]
 classifiers = [
   "Development Status :: 3 - Alpha",
