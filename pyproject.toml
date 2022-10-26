@@ -71,7 +71,7 @@ dev = [
   "pytest-mock==3.10",
   "pytest-randomly==3.12",
   "types-click==7.1.8",
-  "types-PyYAML==6.0.12",
+  "types-PyYAML==6.0.12.1",
 ]
 
 [project.urls]
