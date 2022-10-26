@@ -70,6 +70,7 @@ dev = [
   "pytest-httpx==0.21.1",
   "pytest-mock==3.10",
   "pytest-randomly==3.12",
+  "ruff==0.0.82",
   "types-click==7.1.8",
   "types-PyYAML==6.0.12",
 ]
@@ -102,7 +103,7 @@ exclude_lines = [ "# pragma: no cover", "def __repr__" ]
 
 [tool.mypy]
 files = [ "src/**/*.py", "noxfile.py" ]
-python_version = "3.9"
+python_version = "3.10"
 ignore_missing_imports = true
 strict = true
 pretty = true
@@ -124,6 +125,24 @@ filterwarnings = [ "error" ]
 log_cli_level = "info"
 pythonpath = [ "src" ]
 testpaths = [ "tests" ]
+
+[tool.ruff]
+line-length = 120
+extend-select = [
+  # https://github.com/charliermarsh/ruff#supported-rules
+  "U001",
+  "U002",
+  "U003",
+  "U004",
+  "U005",
+  "U006",
+  "U007",
+  "U008",
+  "B011",
+  "B014",
+  "B025",
+]
+
 
 [tool.pycln]
 path = "/src"

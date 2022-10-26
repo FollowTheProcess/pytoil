@@ -13,7 +13,7 @@ import subprocess
 import sys
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Union
+from typing import TypeAlias
 
 import yaml
 
@@ -26,7 +26,7 @@ from pytoil.exceptions import (
 )
 
 # Type alias
-EnvironmentYml = dict[str, Union[list[str], str]]
+EnvironmentYml: TypeAlias = dict[str, list[str] | str]
 
 CONDA = shutil.which("conda")
 
