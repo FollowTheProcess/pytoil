@@ -15,6 +15,11 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Union
 
+try:
+    from typing import TypeAlias
+except ImportError:
+    from typing_extensions import TypeAlias
+
 import yaml
 
 from pytoil.exceptions import (
@@ -26,7 +31,7 @@ from pytoil.exceptions import (
 )
 
 # Type alias
-EnvironmentYml = dict[str, Union[list[str], str]]
+EnvironmentYml: TypeAlias = dict[str, Union[list[str], str]]
 
 CONDA = shutil.which("conda")
 
