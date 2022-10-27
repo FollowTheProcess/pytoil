@@ -48,6 +48,7 @@ classifiers = [
   "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
   "Topic :: Software Development",
   "Topic :: Utilities",
   "Typing :: Typed",
@@ -122,7 +123,10 @@ ignore_errors = true
 minversion = "7.0"
 addopts = [ "-ra", "--strict-markers", "--strict-config" ]
 xfail_strict = true
-filterwarnings = [ "error" ]
+filterwarnings = [
+  "error",
+  "ignore::DeprecationWarning", # DeprecationWarning: read_binary is deprecated. Use files() instead. Comes from virtualenv
+]
 log_cli_level = "info"
 pythonpath = [ "src" ]
 testpaths = [ "tests" ]

@@ -36,12 +36,13 @@ VENV_DIR = PROJECT_ROOT / ".venv"
 PYTHON = os.fsdecode(VENV_DIR / "bin" / "python")
 
 # Python to use for non-test sessions
-DEFAULT_PYTHON: str = "3.10"
+DEFAULT_PYTHON: str = "3.11"
 
 # All supported python versions for pytoil
 PYTHON_VERSIONS: list[str] = [
     "3.9",
     "3.10",
+    "3.11",
 ]
 
 # "dev" should only be run if no virtual environment found and we're not on CI
