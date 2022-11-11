@@ -29,7 +29,7 @@ dependencies = [
   "PyYAML==6",
   "questionary==1.10",
   "rich==12.6",
-  "rtoml==0.9.0",
+  "rtoml==0.9",
   "thefuzz[speedup]==0.19",
   'typing_extensions==4.4; python_version <= "3.9"',
   "virtualenv==20.16.6",
