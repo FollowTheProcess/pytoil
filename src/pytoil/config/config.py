@@ -48,6 +48,10 @@ class Config(BaseModel):
         except FileNotFoundError:
             raise
         else:
+            if config_dict.get("projects_dir"):
+                config_dict["projects_dir"] = (
+                    Path(config_dict["projects_dir"]).expanduser().resolve()
+                )
             return Config(**config_dict)
 
     @classmethod
