@@ -93,7 +93,7 @@ def test_from_file_raises_on_missing_file():
         ("something", "something", True),
     ],
 )
-def test_can_use_api(username, token, expected):
+def test_can_use_api(username: str, token: str, expected: bool):
     config = Config(username=username, token=token)
 
     assert config.can_use_api() is expected
@@ -105,7 +105,7 @@ def test_file_write():
     ) as file:
         # Make a fake config object
         config = Config(
-            projects_dir=Path("some/dir"),
+            projects_dir=Path("some/dir").expanduser().resolve(),
             token="sometoken",
             username="me",
             editor="fakeedit",
