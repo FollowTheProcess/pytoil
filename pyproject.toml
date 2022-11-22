@@ -64,7 +64,7 @@ dev = [
   "mkdocs==1.4.2",
   "mkdocs-material==8.5.10",
   "mypy==0.991",
-  "nox==2022.8.7",
+  "nox==2022.11.21",
   "pre-commit==2.20",
   "pytest==7.2",
   "pytest-clarity==1.0.1",
