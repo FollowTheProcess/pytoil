@@ -116,3 +116,6 @@ docs/site
 
 # Scripts
 !scripts/
+
+# Ignore the spok cache directory
+.spok/

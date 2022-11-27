@@ -1,0 +1,22 @@
+SRC := join(".", "src")
+TESTS := join(".", "tests")
+
+# Run the test suite
+task test("**/*.py") {
+    pytest --cov={{.SRC}} {{.TESTS}}
+}
+
+# Run pre-commit linting
+task lint("**/*.py") {
+    pre-commit run --all-files
+}
+
+# Build the project documentation
+task docs("docs/**/*.md") {
+    mkdocs build --clean
+}
+
+# Build an sdist and wheel
+task build("**/*.py") {
+    python -m build .
+}
