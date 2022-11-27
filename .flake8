@@ -16,6 +16,8 @@ exclude =
 max-complexity = 15
 max-line-length = 120
 extend-ignore =
-	E203, # Black compatibility: whitespace before :
-	W503, # Black compatibility: line break before binary operator
+	# Black compatibility: whitespace before :
+	E203,
+	# Black compatibility: line break before binary operator
+	W503,
 extend-select = B9
