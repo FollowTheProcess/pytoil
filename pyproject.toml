@@ -58,8 +58,6 @@ dev = [
   "black==22.10",
   "build==0.9",
   "coverage[toml]==6.5",
-  "flake8==6",
-  "flake8-bugbear==22.10.27",
   "freezegun==1.2.2",
   "isort==5.10.1",
   "mkdocs==1.4.2",
@@ -106,7 +104,7 @@ exclude_lines = [ "# pragma: no cover", "def __repr__" ]
 
 [tool.mypy]
 files = [ "src/**/*.py", "noxfile.py" ]
-python_version = "3.10"
+python_version = "3.11"
 ignore_missing_imports = true
 strict = true
 pretty = true
@@ -136,18 +134,17 @@ testpaths = [ "tests" ]
 line-length = 120
 extend-select = [
   # https://github.com/charliermarsh/ruff#supported-rules
-  "U001",
-  "U002",
-  "U003",
-  "U004",
-  "U005",
-  "U006",
-  "U008",
-  "B011",
-  "B014",
-  "B025",
+  "W",   # Pycodestyle warnings
+  "U",   # All pyupgrade rules
+  "N",   # PEP8 naming
+  "C",   # Flake8 comprehensions
+  "ERA", # Commented out code
+  "B",   # Flake8 bugbear
+  "M",   # Unused noqa
 ]
 
+[tool.ruff.mccabe]
+max-complexity = 15
 
 [tool.pycln]
 path = "/src"

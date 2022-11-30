@@ -6,7 +6,7 @@ Exceptions implemented in pytoil.
 from __future__ import annotations
 
 
-class PytoilException(Exception):
+class PytoilError(Exception):
     """
     Base pytoil exception from which all subclasses
     must inherit.
@@ -17,7 +17,7 @@ class PytoilException(Exception):
         super().__init__(self.message)
 
 
-class ExternalToolNotInstalledError(PytoilException):
+class ExternalToolNotInstalledError(PytoilError):
     """
     Base exception for any child exception responsible
     for raising in the presence of a required external
@@ -51,7 +51,7 @@ class CondaNotInstalledError(ExternalToolNotInstalledError):
         super().__init__(self.message)
 
 
-class EnvironmentAlreadyExistsError(PytoilException):
+class EnvironmentAlreadyExistsError(PytoilError):
     """
     Trying to overwrite an existing environment, only applicable
     to conda environments.
@@ -62,7 +62,7 @@ class EnvironmentAlreadyExistsError(PytoilException):
         super().__init__(self.message)
 
 
-class BadEnvironmentFileError(PytoilException):
+class BadEnvironmentFileError(PytoilError):
     """
     The conda environment's `environment.yml` is malformed.
     """
@@ -72,7 +72,7 @@ class BadEnvironmentFileError(PytoilException):
         super().__init__(self.message)
 
 
-class EnvironmentDoesNotExistError(PytoilException):
+class EnvironmentDoesNotExistError(PytoilError):
     """
     Trying to do something to a virtual environment that does not
     exist.
@@ -83,7 +83,7 @@ class EnvironmentDoesNotExistError(PytoilException):
         super().__init__(self.message)
 
 
-class UnsupportedCondaInstallationError(PytoilException):
+class UnsupportedCondaInstallationError(PytoilError):
     """
     User's conda installation is not one of the supported
     ones for pytoil. See environments/conda.py.
@@ -94,7 +94,7 @@ class UnsupportedCondaInstallationError(PytoilException):
         super().__init__(self.message)
 
 
-class RepoNotFoundError(PytoilException):
+class RepoNotFoundError(PytoilError):
     """
     The repo object trying to be operated on does not exist.
     """
