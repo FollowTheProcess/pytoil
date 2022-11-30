@@ -63,7 +63,7 @@ dev = [
   "freezegun==1.2.2",
   "isort==5.10.1",
   "mkdocs==1.4.2",
-  "mkdocs-material==8.5.10",
+  "mkdocs-material==8.5.11",
   "mypy==0.991",
   "nox==2022.11.21",
   "pre-commit==2.20",
