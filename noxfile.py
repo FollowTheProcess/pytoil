@@ -117,6 +117,7 @@ def test(session: nox.Session) -> None:
         "pytest-mock",
         "pytest-httpx",
         "pytest-randomly",
+        "covdefaults",
         "freezegun",
     )
 
@@ -137,6 +138,7 @@ def codecov(session: nox.Session) -> None:
         "pytest-mock",
         "pytest-httpx",
         "pytest-randomly",
+        "covdefaults",
         "freezegun",
     )
 
@@ -150,7 +152,7 @@ def coverage(session: nox.Session) -> None:
     Test coverage analysis.
     """
     session.install("--upgrade", "pip", "setuptools", "wheel")
-    session.install("coverage[toml]")
+    session.install("coverage[toml]", "covdefaults")
 
     session.run("coverage", "report", "--show-missing")
 
