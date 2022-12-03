@@ -57,6 +57,7 @@ classifiers = [
 dev = [
   "black==22.10",
   "build==0.9",
+  "covdefaults==2.2",
   "coverage[toml]==6.5",
   "freezegun==1.2.2",
   "isort==5.10.1",
@@ -89,18 +90,17 @@ pytoil = "pytoil.cli.root:main"
 profile = "black"
 
 [tool.coverage.run]
+plugins = [ "covdefaults" ]
 omit = [
-  "*__init__.py",
-  "*__main__.py",
-  "src/pytoil/cli/*",
-  "*exceptions.py",
-  "src/pytoil/environments/base.py",
+  "src/pytoil/cli/*.py",
   "src/pytoil/starters/base.py",
 ]
-branch = true
 
 [tool.coverage.report]
-exclude_lines = [ "# pragma: no cover", "def __repr__" ]
+fail_under = 95
+exclude_lines = [
+  "def __repr__",
+]
 
 [tool.mypy]
 files = [ "src/**/*.py", "noxfile.py" ]
