@@ -57,7 +57,7 @@ classifiers = [
 dev = [
   "black==22.10",
   "build==0.9",
-  "covdefaults==2.2",
+  "covdefaults==2.2.2",
   "coverage[toml]==6.5",
   "freezegun==1.2.2",
   "isort==5.10.1",
