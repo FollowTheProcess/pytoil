@@ -526,6 +526,32 @@ def fake_flit_project(tmp_path_factory):
 
 
 @pytest.fixture
+def fake_hatch_project(tmp_path_factory):
+    """
+    Returns a temporary directory containing a
+    valid hatch pyproject.toml file.
+    """
+
+    # Create the folder and pyproject.toml file
+    folder: Path = tmp_path_factory.mktemp("myrepo")
+    pyproject_toml = folder.joinpath("pyproject.toml")
+    pyproject_toml.touch()
+
+    # Create some fake poetry content
+    build_system = {
+        "build-system": {
+            "requires": ["hatchling"],
+            "build-backend": "hatchling.build",
+        },
+    }
+
+    with open(pyproject_toml, mode="w", encoding="utf-8") as f:
+        rtoml.dump(build_system, f)
+
+    return folder
+
+
+@pytest.fixture
 def requirements_dev_project(tmp_path_factory):
     """
     Returns a temp directory containing a requirements-dev.txt
