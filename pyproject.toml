@@ -142,6 +142,9 @@ extend-select = [
   "B",   # Flake8 bugbear
   "RUF", # Unused noqa
 ]
+extend-ignore = [
+  "B905", # zip() without strict=
+]
 
 [tool.ruff.mccabe]
 max-complexity = 15

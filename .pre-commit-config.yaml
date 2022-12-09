@@ -4,7 +4,7 @@ ci:
 
 repos:
   - repo: https://github.com/psf/black
-    rev: "22.10.0"
+    rev: "22.12.0"
     hooks:
       - id: black
         args:
@@ -27,7 +27,7 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.3.0
+    rev: v3.3.1
     hooks:
       - id: pyupgrade
         args:
@@ -54,7 +54,7 @@ repos:
           - --all
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.158
+    rev: v0.0.170
     hooks:
       - id: ruff
 

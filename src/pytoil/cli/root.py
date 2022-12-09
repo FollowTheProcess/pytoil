@@ -73,8 +73,10 @@ def main(ctx: click.Context) -> None:
     else:
         if not config.can_use_api():
             printer.error(
-                "You must set your GitHub username and personal access token to use API"
-                " features.",
+                (
+                    "You must set your GitHub username and personal access token to use"
+                    " API features."
+                ),
                 exits=1,
             )
         # We have a valid config file at the right place so load it into click's
@@ -98,8 +100,10 @@ def interactive_config() -> None:
         Config.helper().write()
         printer.good("I made a default file for you.")
         printer.note(
-            f"It's here: {defaults.CONFIG_FILE}, you can edit it with `pytoil"
-            " config edit``",
+            (
+                f"It's here: {defaults.CONFIG_FILE}, you can edit it with `pytoil"
+                " config edit``"
+            ),
             exits=0,
         )
         return

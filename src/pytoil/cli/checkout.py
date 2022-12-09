@@ -207,8 +207,10 @@ def checkout_fork(
         if not fork.exists_remote(api):
             printer.warn("Fork not available yet.")
             printer.note(
-                "Forking happens asynchronously so this is normal. Give it a few"
-                " more seconds and try checking it out again.",
+                (
+                    "Forking happens asynchronously so this is normal. Give it a few"
+                    " more seconds and try checking it out again."
+                ),
                 exits=1,
             )
 
