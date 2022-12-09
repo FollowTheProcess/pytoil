@@ -256,6 +256,24 @@ class Repo:
 
         return False
 
+    def is_pep621(self) -> bool:
+        """
+        Does the project comply with PEP 621.
+        """
+        if not self.has_pyproject_toml():
+            return False
+
+        with open(self.local_path.joinpath("pyproject.toml")) as file:
+            toml = rtoml.load(file)
+
+        if not toml.get("build-system"):
+            return False
+
+        if not toml.get("project"):
+            return False
+
+        return True
+
     def is_poetry(self) -> bool:
         """
         Does the project specify a poetry build system
@@ -306,7 +324,7 @@ class Repo:
             )
         elif self.is_requirements():
             return Requirements(root=self.local_path)
-        elif self.is_setuptools():
+        elif self.is_setuptools() or self.is_pep621():
             return Venv(root=self.local_path)
         elif self.is_poetry():
             return Poetry(root=self.local_path)

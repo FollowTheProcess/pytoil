@@ -511,7 +511,7 @@ def fake_flit_project(tmp_path_factory):
     pyproject_toml = folder.joinpath("pyproject.toml")
     pyproject_toml.touch()
 
-    # Create some fake poetry content
+    # Create some fake flit content
     build_system = {
         "build-system": {
             "requires": ["flit_core >=2,<4"],
@@ -537,7 +537,7 @@ def fake_hatch_project(tmp_path_factory):
     pyproject_toml = folder.joinpath("pyproject.toml")
     pyproject_toml.touch()
 
-    # Create some fake poetry content
+    # Create some fake hatch content
     build_system = {
         "build-system": {
             "requires": ["hatchling"],
@@ -547,6 +547,38 @@ def fake_hatch_project(tmp_path_factory):
 
     with open(pyproject_toml, mode="w", encoding="utf-8") as f:
         rtoml.dump(build_system, f)
+
+    return folder
+
+
+@pytest.fixture
+def fake_pep621_project(tmp_path_factory):
+    """
+    Returns a temporary directory containing a
+    valid pep621 pyproject.toml file.
+    """
+
+    # Create the folder and pyproject.toml file
+    folder: Path = tmp_path_factory.mktemp("myrepo")
+    pyproject_toml = folder.joinpath("pyproject.toml")
+    pyproject_toml.touch()
+
+    # Create some fake pep621 content
+    content = {
+        "build-system": {
+            "requires": ["hatchling"],
+            "build-backend": "hatchling.build",
+        },
+        "project": {
+            "name": "myrepo",
+            "version": "0.1.0",
+            "description": "A test project",
+            "readme": "README.md",
+        },
+    }
+
+    with open(pyproject_toml, mode="w", encoding="utf-8") as f:
+        rtoml.dump(content, f)
 
     return folder
 

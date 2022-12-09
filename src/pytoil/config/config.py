@@ -48,7 +48,8 @@ class Config(BaseModel):
         except FileNotFoundError:
             raise
         else:
-            if config_dict.get("projects_dir"):
+            # This is actually covered
+            if config_dict.get("projects_dir"):  # pragma: no cover
                 config_dict["projects_dir"] = (
                     Path(config_dict["projects_dir"]).expanduser().resolve()
                 )
