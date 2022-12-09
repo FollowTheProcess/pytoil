@@ -58,6 +58,34 @@ def test_config_helper():
     assert config.git == defaults.GIT
 
 
+def test_config_load():
+    with tempfile.NamedTemporaryFile(
+        "w", delete=False if ON_CI and ON_WINDOWS else True
+    ) as file:
+        # Make a fake config object
+        config = Config(
+            projects_dir=Path("~/some/dir"),
+            token="sometoken",
+            username="me",
+            editor="fakeedit",
+            common_packages=["black", "mypy", "flake8"],
+            git=False,
+        )
+
+        # Write the config
+        config.write(path=Path(file.name))
+
+        # Load the config
+        loaded_config = Config.load(path=Path(file.name))
+
+    assert loaded_config.projects_dir == Path("~/some/dir").expanduser()
+    assert loaded_config.token == "sometoken"
+    assert loaded_config.username == "me"
+    assert loaded_config.editor == "fakeedit"
+    assert loaded_config.common_packages == ["black", "mypy", "flake8"]
+    assert loaded_config.git is False
+
+
 @pytest.mark.parametrize(
     "editor, want",
     [

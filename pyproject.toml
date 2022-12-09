@@ -94,12 +94,14 @@ plugins = [ "covdefaults" ]
 omit = [
   "src/pytoil/cli/*.py",
   "src/pytoil/starters/base.py",
+  "src/pytoil/exceptions.py",
 ]
 
 [tool.coverage.report]
 fail_under = 95
 exclude_lines = [
   "def __repr__",
+  "except ImportError",
 ]
 
 [tool.mypy]

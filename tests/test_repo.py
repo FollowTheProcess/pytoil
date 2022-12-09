@@ -282,6 +282,36 @@ def test_is_hatch_false_if_no_build_backend(project_with_no_build_backend: Path)
     assert repo.is_hatch() is False
 
 
+def test_is_pep621_true_on_valid_pep621_project(fake_pep621_project: Path):
+    repo = Repo(owner="blah", name="test", local_path=fake_pep621_project)
+
+    assert repo.is_pep621() is True
+
+
+def test_is_pep621_false_on_non_pep621_project(fake_poetry_project: Path):
+    repo = Repo(owner="blah", name="test", local_path=fake_poetry_project)
+
+    assert repo.is_pep621() is False
+
+
+def test_is_pep621_false_if_no_pyproject_toml():
+    repo = Repo(owner="blah", name="test", local_path=Path("nowhere"))
+
+    assert repo.is_pep621() is False
+
+
+def test_is_pep621_false_if_no_build_system(project_with_no_build_system: Path):
+    repo = Repo(owner="blah", name="test", local_path=project_with_no_build_system)
+
+    assert repo.is_pep621() is False
+
+
+def test_is_pep621_false_if_no_build_backend(project_with_no_build_backend: Path):
+    repo = Repo(owner="blah", name="test", local_path=project_with_no_build_backend)
+
+    assert repo.is_pep621() is False
+
+
 def test_dispatch_env_correctly_identifies_conda(mocker: MockerFixture):
     mocker.patch("pytoil.repo.Repo.is_conda", autospec=True, return_value=True)
 
@@ -338,6 +368,14 @@ def test_dispatch_env_correctly_identifies_flit(fake_flit_project: Path):
     env = repo.dispatch_env(config=Config())
 
     assert isinstance(env, Flit)
+
+
+def test_dispatch_env_correctly_identifies_pep621(fake_pep621_project: Path):
+    repo = Repo(name="test", owner="me", local_path=fake_pep621_project)
+
+    env = repo.dispatch_env(config=Config())
+
+    assert isinstance(env, Venv)
 
 
 def test_dispatch_env_returns_none_if_it_cant_detect(mocker: MockerFixture):
