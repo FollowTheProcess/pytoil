@@ -267,12 +267,21 @@ class Repo:
 
     def is_flit(self) -> bool:
         """
-        Does the proeject specify a flit build system.
+        Does the project specify a flit build system.
 
         Returns:
             bool: True if yes, else False.
         """
         return self._specifies_build_tool("flit")
+
+    def is_hatch(self) -> bool:
+        """
+        Does the project specify a hatch build system.
+
+        Returns:
+            bool: True if yes, else False.
+        """
+        return self._specifies_build_tool("hatchling.build")
 
     def dispatch_env(self, config: Config) -> Environment | None:
         """
@@ -291,27 +300,17 @@ class Repo:
         # Each of the environment objects below implements the `Environment` Protocol
         # and has an `install_self` method that does the correct thing for it's environment
 
-        exists = (
-            self.is_conda(),
-            self.is_requirements(),
-            self.is_setuptools(),
-            self.is_poetry(),
-            self.is_flit(),
-        )
-
-        conda, requirements, setuptools, poetry, flit = exists
-
-        if conda:
+        if self.is_conda():
             return Conda(
                 root=self.local_path, environment_name=self.name, conda=config.conda_bin
             )
-        elif requirements:
+        elif self.is_requirements():
             return Requirements(root=self.local_path)
-        elif setuptools:
+        elif self.is_setuptools():
             return Venv(root=self.local_path)
-        elif poetry:
+        elif self.is_poetry():
             return Poetry(root=self.local_path)
-        elif flit:
+        elif self.is_flit():
             return Flit(root=self.local_path)
         else:
             # Could not autodetect, this is handled by the CLI
