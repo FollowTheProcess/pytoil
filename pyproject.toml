@@ -28,7 +28,7 @@ dependencies = [
   "pydantic==1.10.4",
   "PyYAML==6",
   "questionary==1.10",
-  "rich==13.1.0",
+  "rich==13.1",
   "rtoml==0.9",
   "thefuzz[speedup]==0.19",
   'typing_extensions==4.4; python_version <= "3.9"',
