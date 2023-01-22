@@ -131,7 +131,7 @@ def new(  # noqa: C901
     git = Git()
 
     # Additional packages to include
-    to_install: list[str] = [*packages] + config.common_packages
+    to_install: list[str] = [*packages, *config.common_packages]
 
     # Can't use --cookie and --starter
     if cookie and starter:
