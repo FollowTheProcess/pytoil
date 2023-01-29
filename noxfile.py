@@ -163,9 +163,10 @@ def lint(session: nox.Session) -> None:
     Run pre-commit linting.
     """
     session.install("--upgrade", "pip", "setuptools", "wheel")
-    session.install("pre-commit")
+    session.install("pre-commit", "mypy", "pydantic", "types-PyYAML")
 
     session.run("pre-commit", "run", "--all-files")
+    session.run("mypy", ".")
 
 
 @nox.session(python=DEFAULT_PYTHON)
