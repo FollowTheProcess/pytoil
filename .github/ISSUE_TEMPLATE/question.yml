@@ -1,8 +1,8 @@
 name: ❓ Question
 description: Ask something about the project
-title: "[QUESTION] <title>"
+title: "<title>"
 labels:
-  - "question"
+  - question
 body:
   - type: checkboxes
     attributes:

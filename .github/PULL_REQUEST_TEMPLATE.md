@@ -12,9 +12,6 @@ Closes #
 <!-- Please describe in detail how you tested your changes. -->
 <!-- Include details of your testing environment, tests ran to see how -->
 <!-- your change affects other areas of the code, etc. -->
-<!-- If you ran a nox session for example -->
-- [ ] I have tested using **MacOS**
-- [ ] I have tested using **Linux**
 
 #### Checklist
 <!-- Go over all the following points, and put an `x` in all the boxes that apply. -->
