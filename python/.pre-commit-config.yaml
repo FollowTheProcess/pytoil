@@ -1,0 +1,58 @@
+ci:
+  autoupdate_commit_msg: "chore: Update pre-commit hooks"
+  autofix_commit_msg: "style: Pre-commit fixes"
+
+repos:
+  - repo: https://github.com/psf/black
+    rev: "22.12.0"
+    hooks:
+      - id: black
+        args:
+          - --preview
+
+  - repo: https://github.com/asottile/blacken-docs
+    rev: 1.13.0
+    hooks:
+      - id: blacken-docs
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: debug-statements
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+      - id: trailing-whitespace
+
+  - repo: https://github.com/tox-dev/pyproject-fmt
+    rev: "0.5.0"
+    hooks:
+      - id: pyproject-fmt
+
+  - repo: https://github.com/PyCQA/isort
+    rev: "5.12.0"
+    hooks:
+      - id: isort
+        args:
+          - --add
+          - from __future__ import annotations
+
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.0.237
+    hooks:
+      - id: ruff
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v0.991
+    hooks:
+      - id: mypy
+        args:
+          - --config-file
+          - pyproject.toml
+
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.2
+    hooks:
+      - id: codespell
