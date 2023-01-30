@@ -19,21 +19,6 @@ license = { text = "Apache Software License 2.0" }
 maintainers = [ { name = "Tom Fleet" }, { email = "tomfleet2018@gmail.com" } ]
 authors = [ { name = "Tom Fleet" }, { email = "tomfleet2018@gmail.com" } ]
 requires-python = ">=3.9"
-dependencies = [
-  "click==8.1.3",
-  "cookiecutter==2.1.1",
-  "copier==7.0.1",
-  "httpx==0.23.3",
-  "humanize==4.5",
-  "pydantic==1.10.4",
-  "PyYAML==6",
-  "questionary==1.10",
-  "rich==13.3.1",
-  "rtoml==0.9",
-  "thefuzz[speedup]==0.19",
-  'typing_extensions==4.4; python_version <= "3.9"',
-  "virtualenv==20.17.1",
-]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Environment :: Console",
@@ -52,6 +37,21 @@ classifiers = [
   "Topic :: Software Development",
   "Topic :: Utilities",
   "Typing :: Typed",
+]
+dependencies = [
+  "click==8.1.3",
+  "cookiecutter==2.1.1",
+  "copier==7.0.1",
+  "httpx==0.23.3",
+  "humanize==4.5",
+  "pydantic==1.10.4",
+  "PyYAML==6",
+  "questionary==1.10",
+  "rich==13.3.1",
+  "rtoml==0.9",
+  "thefuzz[speedup]==0.19",
+  'typing_extensions==4.4; python_version <= "3.9"',
+  "virtualenv==20.17.1",
 ]
 [project.optional-dependencies]
 dev = [
