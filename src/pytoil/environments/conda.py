@@ -18,7 +18,7 @@ from typing import Union
 try:
     from typing import TypeAlias
 except ImportError:
-    from typing_extensions import TypeAlias
+    from typing_extensions import TypeAlias  # noqa: UP035
 
 import yaml
 
