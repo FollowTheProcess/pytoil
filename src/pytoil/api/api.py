@@ -236,9 +236,9 @@ class API:
                     "Size": humanize.naturalsize(
                         int(repo["diskUsage"]) * 1024
                     ),  # diskUsage is in kB
-                    "License": repo["licenseInfo"]["name"]
-                    if repo.get("licenseInfo")
-                    else None,
+                    "License": (
+                        repo["licenseInfo"]["name"] if repo.get("licenseInfo") else None
+                    ),
                     "Language": repo["primaryLanguage"]["name"],
                     "Remote": True,
                 }
