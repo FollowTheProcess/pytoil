@@ -85,9 +85,11 @@ def find(config: Config, project: str, limit: int) -> None:
         table.add_row(
             match[0],
             str(match[1]),
-            Text("Local", style="green")
-            if is_local
-            else Text("Remote", style="dark_orange"),
+            (
+                Text("Local", style="green")
+                if is_local
+                else Text("Remote", style="dark_orange")
+            ),
         )
 
     console = Console()
