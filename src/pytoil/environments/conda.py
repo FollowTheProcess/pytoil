@@ -31,7 +31,7 @@ from pytoil.exceptions import (
 )
 
 # Type alias
-EnvironmentYml: TypeAlias = dict[str, Union[list[str], str]]
+EnvironmentYml: TypeAlias = dict[str, Union[list[str], str]]  # noqa: UP007
 
 CONDA = shutil.which("conda")
 
