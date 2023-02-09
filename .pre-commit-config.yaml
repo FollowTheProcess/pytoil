@@ -35,7 +35,7 @@ repos:
           - from __future__ import annotations
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.243
+    rev: v0.0.244
     hooks:
       - id: ruff
 
