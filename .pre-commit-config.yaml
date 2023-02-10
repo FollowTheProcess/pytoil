@@ -26,18 +26,12 @@ repos:
     hooks:
       - id: pyproject-fmt
 
-  - repo: https://github.com/PyCQA/isort
-    rev: "5.12.0"
-    hooks:
-      - id: isort
-        args:
-          - --add
-          - from __future__ import annotations
-
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     rev: v0.0.244
     hooks:
       - id: ruff
+        args:
+          - --fix
 
   - repo: https://github.com/codespell-project/codespell
     rev: v2.2.2
