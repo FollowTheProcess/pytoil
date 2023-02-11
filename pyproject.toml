@@ -60,10 +60,9 @@ dev = [
   "covdefaults==2.2.2",
   "coverage[toml]==7.1",
   "freezegun==1.2.2",
-  "isort==5.12",
   "mkdocs==1.4.2",
   "mkdocs-material==9.0.11",
-  "mypy==0.991",
+  "mypy==1",
   "nox==2022.11.21",
   "pre-commit==3.0.4",
   "pytest==7.2.1",
@@ -72,7 +71,7 @@ dev = [
   "pytest-httpx==0.21.3",
   "pytest-mock==3.10",
   "pytest-randomly==3.12",
-  "ruff==0.0.241",
+  "ruff==0.0.244",
   "types-click==7.1.8",
   "types-PyYAML==6.0.12.3",
 ]
@@ -102,7 +101,7 @@ fail_under = 95
 exclude_lines = [ "def __repr__", "except ImportError" ]
 
 [tool.mypy]
-files = [ "src/**/*.py", "noxfile.py" ]
+files = [ "**/*.py" ]
 python_version = "3.11"
 ignore_missing_imports = true
 strict = true
@@ -131,28 +130,39 @@ testpaths = [ "tests" ]
 
 [tool.ruff]
 line-length = 120
-extend-select = [
+select = [
   # https://github.com/charliermarsh/ruff#supported-rules
+  "E",   # Pycodestyle errors
+  "F",   # Pyflakes errors
   "W",   # Pycodestyle warnings
   "UP",  # All pyupgrade rules
   "N",   # PEP8 naming
-  "C",   # Flake8 comprehensions
+  "I",   # Isort
+  "C90", # Complexity
+  "C4",  # Flake8 comprehensions
   "ERA", # Commented out code
   "B",   # Flake8 bugbear
-  "RUF", # Unused noqa
+  "RUF", # Ruff specific rules
+  "YTT", # Flake8 2020
+  "ANN", # Type annotations
+  "BLE", # No blind excepts
+  "PT",  # Pytest style
+  "RET", # Function returns
+  "SIM", # Simplify
+  "ARG", # Unused arguments
+  "PTH", # Use pathlib over os.path
+  "PGH", # Pygrep hooks
 ]
-extend-ignore = [
-  "B905", # zip() without strict=
+ignore = [
+  "B905",   # zip() without strict=
+  "ANN101", # Missing type annotation for `self` in method
 ]
 
 [tool.ruff.mccabe]
 max-complexity = 15
 
-[tool.pycln]
-path = "/src"
-expand_stars = true
-all = true
-no_gitignore = false
+[tool.ruff.isort]
+required-imports = [ "from __future__ import annotations" ]
 
 [tool.codespell]
 skip = "*.svg"

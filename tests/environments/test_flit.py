@@ -3,15 +3,15 @@ from __future__ import annotations
 import subprocess
 import sys
 from pathlib import Path
+from typing import TextIO
 
 import pytest
 from pytest_mock import MockerFixture
-
 from pytoil.environments.flit import Flit
 from pytoil.exceptions import FlitNotInstalledError
 
 
-def test_flit():
+def test_flit() -> None:
     flit = Flit(root=Path("somewhere"), flit="notflit")
 
     assert flit.project_path == Path("somewhere").resolve()
@@ -20,12 +20,12 @@ def test_flit():
     assert flit.flit == "notflit"
 
 
-def test_flit_repr():
+def test_flit_repr() -> None:
     flit = Flit(root=Path("somewhere"), flit="notflit")
     assert repr(flit) == f"Flit(root={Path('somewhere')!r}, flit='notflit')"
 
 
-def test_raises_if_flit_not_installed():
+def test_raises_if_flit_not_installed() -> None:
     flit = Flit(root=Path("somewhere"), flit=None)
 
     with pytest.raises(FlitNotInstalledError):
@@ -33,13 +33,15 @@ def test_raises_if_flit_not_installed():
 
 
 @pytest.mark.parametrize(
-    "silent, stdout, stderr",
+    ("silent", "stdout", "stderr"),
     [
         (True, subprocess.DEVNULL, subprocess.DEVNULL),
         (False, sys.stdout, sys.stderr),
     ],
 )
-def test_install_self_venv_exists(mocker: MockerFixture, silent: bool, stdout, stderr):
+def test_install_self_venv_exists(
+    mocker: MockerFixture, silent: bool, stdout: TextIO | int, stderr: TextIO | int
+) -> None:
     mocker.patch(
         "pytoil.environments.flit.Flit.exists",
         autospec=True,
@@ -69,15 +71,15 @@ def test_install_self_venv_exists(mocker: MockerFixture, silent: bool, stdout, s
 
 
 @pytest.mark.parametrize(
-    "silent, stdout, stderr",
+    ("silent", "stdout", "stderr"),
     [
         (True, subprocess.DEVNULL, subprocess.DEVNULL),
         (False, sys.stdout, sys.stderr),
     ],
 )
 def test_install_self_venv_doesnt_exist(
-    mocker: MockerFixture, silent: bool, stdout, stderr
-):
+    mocker: MockerFixture, silent: bool, stdout: TextIO | int, stderr: TextIO | int
+) -> None:
     mocker.patch(
         "pytoil.environments.flit.Flit.exists",
         autospec=True,

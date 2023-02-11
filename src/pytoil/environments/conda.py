@@ -195,8 +195,8 @@ class Conda:
         project_path = project_path.resolve()
         yml_file = project_path.joinpath("environment.yml")
 
-        with open(yml_file) as file:
-            env_dict: EnvironmentYml = yaml.safe_load(file)
+        contents = yml_file.read_text(encoding="utf-8")
+        env_dict: EnvironmentYml = yaml.safe_load(contents)
 
         env_name = env_dict.get("name")
         if not isinstance(env_name, str):
@@ -252,9 +252,7 @@ class Conda:
         )
 
         yml_file = self.project_path.joinpath("environment.yml")
-
-        with open(yml_file, mode="w", encoding="utf-8") as file:
-            file.write(process.stdout)
+        yml_file.write_text(process.stdout, encoding="utf-8")
 
     def install(self, packages: Sequence[str], silent: bool = False) -> None:
         """

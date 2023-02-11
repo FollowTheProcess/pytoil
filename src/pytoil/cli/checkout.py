@@ -225,7 +225,7 @@ def checkout_fork(
         env = fork.dispatch_env(config=config)
 
         if venv:
-            handle_venv_creation(env=env, config=config)
+            handle_venv_creation(env=env)
 
         if config.specifies_editor():
             printer.sub_info(f"Opening {fork.name} with {config.editor}")
@@ -237,7 +237,7 @@ def checkout_fork(
         printer.error("Aborting", exits=1)
 
 
-def handle_venv_creation(env: Environment | None, config: Config) -> None:
+def handle_venv_creation(env: Environment | None) -> None:
     """
     Handles automatic detection and creation of python virtual
     environments based on detected repo context.
@@ -289,7 +289,7 @@ def checkout_remote(repo: Repo, config: Config, venv: bool, git: Git) -> None:
     env = repo.dispatch_env(config=config)
 
     if venv:
-        handle_venv_creation(env=env, config=config)
+        handle_venv_creation(env=env)
 
     if config.specifies_editor():
         printer.info(f"Opening {repo.name} with {config.editor}", spaced=True)

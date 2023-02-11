@@ -6,12 +6,11 @@ from pathlib import Path
 
 import pytest
 from pytest_mock import MockerFixture
-
 from pytoil.exceptions import CargoNotInstalledError
 from pytoil.starters import RustStarter
 
 
-def test_go_starter_init():
+def test_go_starter_init() -> None:
     starter = RustStarter(path=Path("somewhere"), name="testyrust", cargo="notcargo")
 
     assert starter.path == Path("somewhere")
@@ -22,14 +21,14 @@ def test_go_starter_init():
     ]
 
 
-def test_generate_raises_if_cargo_not_installed():
+def test_generate_raises_if_cargo_not_installed() -> None:
     starter = RustStarter(path=Path("somewhere"), name="testyrust", cargo=None)
 
     with pytest.raises(CargoNotInstalledError):
         starter.generate()
 
 
-def test_rust_starter_generate(mocker: MockerFixture):
+def test_rust_starter_generate(mocker: MockerFixture) -> None:
     with tempfile.TemporaryDirectory() as tmpdir:
         starter = RustStarter(path=Path(tmpdir), name="temprust", cargo="notcargo")
 
@@ -49,7 +48,6 @@ def test_rust_starter_generate(mocker: MockerFixture):
         for file in starter.files:
             assert file.exists()
 
-        with open(starter.root.joinpath("README.md")) as readme:
-            readme_content = readme.read()
+        readme_content = starter.root.joinpath("README.md").read_text()
 
         assert readme_content == "# temprust\n"

@@ -48,7 +48,7 @@ class Poetry:
     def name(self) -> str:
         return "poetry"
 
-    def enforce_local_config(self, silent: bool = False) -> None:
+    def enforce_local_config(self) -> None:
         """
         Ensures any changes to poetry's config such as storing the
         virtual environment in the project directory as we do here, do not

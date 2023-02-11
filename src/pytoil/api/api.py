@@ -114,8 +114,7 @@ class API:
         if data := raw.get("data"):
             return {node["name"] for node in data["user"]["repositories"]["nodes"]}
 
-        else:
-            raise ValueError(f"Bad GraphQL: {raw}")  # pragma: no cover
+        raise ValueError(f"Bad GraphQL: {raw}")  # pragma: no cover
 
     def get_forks(self, limit: int = DEFAULT_REPO_LIMIT) -> list[dict[str, Any]] | None:
         """
@@ -171,10 +170,10 @@ class API:
         if data := raw.get("data"):
             if data["repository"] is None:
                 return False
-            else:
-                return True
-        else:
-            raise ValueError(f"Bad GraphQL: {raw}")  # pragma: no cover
+
+            return True
+
+        raise ValueError(f"Bad GraphQL: {raw}")  # pragma: no cover
 
     def create_fork(self, owner: str, repo: str) -> None:
         """

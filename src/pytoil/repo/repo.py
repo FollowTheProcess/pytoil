@@ -108,7 +108,7 @@ class Repo:
             return {
                 "Name": self.local_path.name,
                 "Created": humanize.naturaltime(
-                    datetime.utcfromtimestamp(self.local_path.stat().st_birthtime),  # type: ignore[attr-defined]
+                    datetime.utcfromtimestamp(self.local_path.stat().st_birthtime),
                     when=datetime.utcnow(),
                 ),
                 "Updated": humanize.naturaltime(
@@ -247,12 +247,15 @@ class Repo:
         if not self.has_pyproject_toml():
             return False
 
-        with open(self.local_path.joinpath("pyproject.toml")) as file:
-            toml = rtoml.load(file)
+        contents = self.local_path.joinpath("pyproject.toml").read_text(
+            encoding="utf-8"
+        )
+        toml = rtoml.loads(contents)
 
-        if build_system := toml.get("build-system"):
-            if build_backend := build_system.get("build-backend"):
-                return build_tool in build_backend.strip().lower()
+        if (build_system := toml.get("build-system")) and (
+            build_backend := build_system.get("build-backend")
+        ):
+            return build_tool in build_backend.strip().lower()
 
         return False
 
@@ -263,8 +266,10 @@ class Repo:
         if not self.has_pyproject_toml():
             return False
 
-        with open(self.local_path.joinpath("pyproject.toml")) as file:
-            toml = rtoml.load(file)
+        contents = self.local_path.joinpath("pyproject.toml").read_text(
+            encoding="utf-8"
+        )
+        toml = rtoml.loads(contents)
 
         if not toml.get("build-system"):
             return False
@@ -322,14 +327,18 @@ class Repo:
             return Conda(
                 root=self.local_path, environment_name=self.name, conda=config.conda_bin
             )
-        elif self.is_requirements():
+
+        if self.is_requirements():
             return Requirements(root=self.local_path)
-        elif self.is_setuptools() or self.is_pep621():
+
+        if self.is_setuptools() or self.is_pep621():
             return Venv(root=self.local_path)
-        elif self.is_poetry():
+
+        if self.is_poetry():
             return Poetry(root=self.local_path)
-        elif self.is_flit():
+
+        if self.is_flit():
             return Flit(root=self.local_path)
-        else:
-            # Could not autodetect, this is handled by the CLI
-            return None
+
+        # Could not autodetect, this is handled by the CLI
+        return None

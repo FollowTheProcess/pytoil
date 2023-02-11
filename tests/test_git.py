@@ -4,40 +4,42 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
+from typing import TextIO
 
 import pytest
 from pytest_mock import MockerFixture
-
 from pytoil.exceptions import GitNotInstalledError
 from pytoil.git import Git
 
 
-def test_git_instanciation_default():
+def test_git_instanciation_default() -> None:
     git = Git()
 
     assert git.git == shutil.which("git")
 
 
-def test_git_instanciation_passed():
+def test_git_instanciation_passed() -> None:
     git = Git(git="/some/path/to/git")
 
     assert git.git == "/some/path/to/git"
 
 
-def test_git_repr():
+def test_git_repr() -> None:
     git = Git(git="hellogit")
 
     assert repr(git) == "Git(git='hellogit')"
 
 
 @pytest.mark.parametrize(
-    "silent, stdout, stderr",
+    ("silent", "stdout", "stderr"),
     [
         (True, subprocess.DEVNULL, subprocess.DEVNULL),
         (False, sys.stdout, sys.stderr),
     ],
 )
-def test_git_init(mocker: MockerFixture, silent: bool, stdout, stderr):
+def test_git_init(
+    mocker: MockerFixture, silent: bool, stdout: TextIO | int, stderr: TextIO | int
+) -> None:
     mock = mocker.patch("pytoil.git.git.subprocess.run", autospec=True)
 
     git = Git(git="notgit")
@@ -53,13 +55,15 @@ def test_git_init(mocker: MockerFixture, silent: bool, stdout, stderr):
 
 
 @pytest.mark.parametrize(
-    "silent, stdout, stderr",
+    ("silent", "stdout", "stderr"),
     [
         (True, subprocess.DEVNULL, subprocess.DEVNULL),
         (False, sys.stdout, sys.stderr),
     ],
 )
-def test_git_clone(mocker: MockerFixture, silent: bool, stdout, stderr):
+def test_git_clone(
+    mocker: MockerFixture, silent: bool, stdout: TextIO | int, stderr: TextIO | int
+) -> None:
     mock = mocker.patch("pytoil.git.git.subprocess.run", autospec=True)
 
     git = Git(git="notgit")
@@ -76,19 +80,21 @@ def test_git_clone(mocker: MockerFixture, silent: bool, stdout, stderr):
     )
 
 
-def test_instantiation_raises_if_git_not_insalled():
+def test_instantiation_raises_if_git_not_insalled() -> None:
     with pytest.raises(GitNotInstalledError):
         Git(git=None)
 
 
 @pytest.mark.parametrize(
-    "silent, stdout, stderr",
+    ("silent", "stdout", "stderr"),
     [
         (True, subprocess.DEVNULL, subprocess.DEVNULL),
         (False, sys.stdout, sys.stderr),
     ],
 )
-def test_git_set_upstream(mocker: MockerFixture, silent: bool, stdout, stderr):
+def test_git_set_upstream(
+    mocker: MockerFixture, silent: bool, stdout: TextIO | int, stderr: TextIO | int
+) -> None:
     mock = mocker.patch("pytoil.git.git.subprocess.run", autospec=True)
 
     git = Git(git="notgit")
@@ -104,13 +110,15 @@ def test_git_set_upstream(mocker: MockerFixture, silent: bool, stdout, stderr):
 
 
 @pytest.mark.parametrize(
-    "silent, stdout, stderr",
+    ("silent", "stdout", "stderr"),
     [
         (True, subprocess.DEVNULL, subprocess.DEVNULL),
         (False, sys.stdout, sys.stderr),
     ],
 )
-def test_git_add_all(mocker: MockerFixture, silent: bool, stdout, stderr):
+def test_git_add_all(
+    mocker: MockerFixture, silent: bool, stdout: TextIO | int, stderr: TextIO | int
+) -> None:
     mock = mocker.patch("pytoil.git.git.subprocess.run", autospec=True)
 
     git = Git(git="notgit")
@@ -123,13 +131,15 @@ def test_git_add_all(mocker: MockerFixture, silent: bool, stdout, stderr):
 
 
 @pytest.mark.parametrize(
-    "silent, stdout, stderr",
+    ("silent", "stdout", "stderr"),
     [
         (True, subprocess.DEVNULL, subprocess.DEVNULL),
         (False, sys.stdout, sys.stderr),
     ],
 )
-def test_git_commit(mocker: MockerFixture, silent: bool, stdout, stderr):
+def test_git_commit(
+    mocker: MockerFixture, silent: bool, stdout: TextIO | int, stderr: TextIO | int
+) -> None:
     mock = mocker.patch("pytoil.git.git.subprocess.run", autospec=True)
 
     git = Git(git="notgit")

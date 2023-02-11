@@ -4,11 +4,10 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
-from typing import NamedTuple
+from typing import NamedTuple, TextIO
 
 import pytest
 from pytest_mock import MockerFixture
-
 from pytoil.environments import Conda
 from pytoil.exceptions import (
     BadEnvironmentFileError,
@@ -19,7 +18,7 @@ from pytoil.exceptions import (
 )
 
 
-def test_conda_default(mocker: MockerFixture):
+def test_conda_default(mocker: MockerFixture) -> None:
     conda = Conda(root=Path("somewhere"), environment_name="test")
 
     # Mock the return of get_envs_dir so it thinks it exists regardless
@@ -37,7 +36,7 @@ def test_conda_default(mocker: MockerFixture):
     assert conda.conda == shutil.which("conda")
 
 
-def test_conda_passed(mocker: MockerFixture):
+def test_conda_passed(mocker: MockerFixture) -> None:
     conda = Conda(root=Path("somewhere"), environment_name="test", conda="notconda")
 
     # Mock the return of get_envs_dir so it thinks it exists regardless
@@ -55,7 +54,7 @@ def test_conda_passed(mocker: MockerFixture):
     assert conda.conda == "notconda"
 
 
-def test_conda_repr():
+def test_conda_repr() -> None:
     conda = Conda(root=Path("somewhere"), environment_name="test", conda="notconda")
     assert (
         repr(conda)
@@ -65,13 +64,13 @@ def test_conda_repr():
 
 
 @pytest.mark.parametrize(
-    "exists_return, want",
+    ("exists_return", "want"),
     [
         (True, True),
         (False, False),
     ],
 )
-def test_exists(mocker: MockerFixture, exists_return: bool, want: bool):
+def test_exists(mocker: MockerFixture, exists_return: bool, want: bool) -> None:
     mocker.patch(
         "pytoil.environments.conda.Path.exists",
         autospec=True,
@@ -91,14 +90,14 @@ def test_exists(mocker: MockerFixture, exists_return: bool, want: bool):
     assert conda.exists() is want
 
 
-def test_create_raises_if_conda_not_installed():
+def test_create_raises_if_conda_not_installed() -> None:
     conda = Conda(root=Path("somewhere"), environment_name="test", conda=None)
 
     with pytest.raises(CondaNotInstalledError):
         conda.create()
 
 
-def test_create_raises_if_environment_already_exists(mocker: MockerFixture):
+def test_create_raises_if_environment_already_exists(mocker: MockerFixture) -> None:
     conda = Conda(root=Path("somewhere"), environment_name="test", conda="notconda")
 
     # Make it think our "test" environment already exists
@@ -111,7 +110,7 @@ def test_create_raises_if_environment_already_exists(mocker: MockerFixture):
 
 
 @pytest.mark.parametrize(
-    "packages, silent, stdout, stderr",
+    ("packages", "silent", "stdout", "stderr"),
     [
         (
             ["black", "mypy", "isort"],
@@ -128,8 +127,12 @@ def test_create_raises_if_environment_already_exists(mocker: MockerFixture):
     ],
 )
 def test_create_correctly_adds_packages_if_specified(
-    mocker: MockerFixture, packages: list[str], silent: bool, stdout, stderr
-):
+    mocker: MockerFixture,
+    packages: list[str],
+    silent: bool,
+    stdout: TextIO | int,
+    stderr: TextIO | int,
+) -> None:
     conda = Conda(root=Path("somewhere"), environment_name="test", conda="notconda")
 
     mock_subprocess = mocker.patch(
@@ -155,7 +158,7 @@ def test_create_correctly_adds_packages_if_specified(
 
 
 @pytest.mark.parametrize(
-    "silent, stdout, stderr",
+    ("silent", "stdout", "stderr"),
     [
         (
             True,
@@ -170,8 +173,8 @@ def test_create_correctly_adds_packages_if_specified(
     ],
 )
 def test_create_doesnt_add_packages_if_not_specified(
-    mocker: MockerFixture, silent: bool, stdout, stderr
-):
+    mocker: MockerFixture, silent: bool, stdout: TextIO | int, stderr: TextIO | int
+) -> None:
     conda = Conda(root=Path("somewhere"), environment_name="test", conda="notconda")
 
     mock_subprocess = mocker.patch(
@@ -196,7 +199,7 @@ def test_create_doesnt_add_packages_if_not_specified(
     )
 
 
-def test_create_from_yml_raises_if_conda_not_installed(mocker: MockerFixture):
+def test_create_from_yml_raises_if_conda_not_installed(mocker: MockerFixture) -> None:
     conda = Conda(root=Path("somewhere"), environment_name="test")
 
     # Ensure shutil.which returns None
@@ -211,15 +214,19 @@ def test_create_from_yml_raises_if_conda_not_installed(mocker: MockerFixture):
 
 
 @pytest.mark.parametrize(
-    "silent, stdout, stderr",
+    ("silent", "stdout", "stderr"),
     [
         (True, subprocess.DEVNULL, subprocess.DEVNULL),
         (False, sys.stdout, sys.stderr),
     ],
 )
 def test_create_from_yml_correctly_calls_subprocess(
-    mocker: MockerFixture, temp_environment_yml: Path, silent: bool, stdout, stderr
-):
+    mocker: MockerFixture,
+    temp_environment_yml: Path,
+    silent: bool,
+    stdout: TextIO | int,
+    stderr: TextIO | int,
+) -> None:
     # Mock out the actual call to conda
     mock_subprocess = mocker.patch(
         "pytoil.environments.conda.subprocess.run", autospec=True
@@ -255,7 +262,7 @@ def test_create_from_yml_correctly_calls_subprocess(
 
 def test_create_from_yml_raises_on_bad_yml_file(
     mocker: MockerFixture, bad_temp_environment_yml: Path
-):
+) -> None:
     # Ensure shutil.which doesn't fail
     mocker.patch(
         "pytoil.environments.conda.shutil.which",
@@ -271,7 +278,7 @@ def test_create_from_yml_raises_on_bad_yml_file(
 
 def test_create_from_yml_raises_if_environment_already_exists(
     mocker: MockerFixture, temp_environment_yml: Path
-):
+) -> None:
     # Ensure shutil.which doesn't fail
     mocker.patch(
         "pytoil.environments.conda.shutil.which",
@@ -294,7 +301,7 @@ def test_create_from_yml_raises_if_environment_already_exists(
 
 def test_get_envs_dir_returns_correctly_for_miniconda(
     mocker: MockerFixture, fake_home_folder_miniconda: Path
-):
+) -> None:
     mocker.patch(
         "pytoil.environments.conda.Path.home",
         autospec=True,
@@ -310,7 +317,7 @@ def test_get_envs_dir_returns_correctly_for_miniconda(
 
 def test_get_envs_dir_returns_correctly_for_anaconda(
     mocker: MockerFixture, fake_home_folder_anaconda: Path
-):
+) -> None:
     mocker.patch(
         "pytoil.environments.conda.Path.home",
         autospec=True,
@@ -326,7 +333,7 @@ def test_get_envs_dir_returns_correctly_for_anaconda(
 
 def test_get_envs_dir_returns_correctly_for_miniforge(
     mocker: MockerFixture, fake_home_folder_miniforge: Path
-):
+) -> None:
     mocker.patch(
         "pytoil.environments.conda.Path.home",
         autospec=True,
@@ -342,7 +349,7 @@ def test_get_envs_dir_returns_correctly_for_miniforge(
 
 def test_get_envs_dir_returns_correctly_for_mambaforge(
     mocker: MockerFixture, fake_home_folder_mambaforge: Path
-):
+) -> None:
     mocker.patch(
         "pytoil.environments.conda.Path.home",
         autospec=True,
@@ -358,7 +365,7 @@ def test_get_envs_dir_returns_correctly_for_mambaforge(
 
 def test_get_envs_dir_raises_if_none_found(
     mocker: MockerFixture, fake_home_folder_no_conda: Path
-):
+) -> None:
     mocker.patch(
         "pytoil.environments.conda.Path.home",
         autospec=True,
@@ -370,17 +377,15 @@ def test_get_envs_dir_raises_if_none_found(
 
 
 @pytest.mark.parametrize(
-    "name, packages, silent, stdout, stderr",
+    ("packages", "silent", "stdout", "stderr"),
     [
         (
-            "sillyenv",
             ["numpy", "pandas", "requests"],
             True,
             subprocess.DEVNULL,
             subprocess.DEVNULL,
         ),
         (
-            "sillyenv",
             ["numpy", "pandas", "requests"],
             False,
             sys.stdout,
@@ -389,8 +394,12 @@ def test_get_envs_dir_raises_if_none_found(
     ],
 )
 def test_install_passes_correct_command(
-    mocker: MockerFixture, name: str, packages: list[str], silent: bool, stdout, stderr
-):
+    mocker: MockerFixture,
+    packages: list[str],
+    silent: bool,
+    stdout: TextIO | int,
+    stderr: TextIO | int,
+) -> None:
     fake_project = Path("/Users/me/projects/fakeproject")
 
     mocker.patch("pytoil.environments.Conda.exists", autospec=True, return_value=True)
@@ -411,7 +420,7 @@ def test_install_passes_correct_command(
     )
 
 
-def test_install_raises_if_environment_doesnt_exist(mocker: MockerFixture):
+def test_install_raises_if_environment_doesnt_exist(mocker: MockerFixture) -> None:
     mocker.patch("pytoil.environments.Conda.exists", autospec=True, return_value=False)
 
     conda = Conda(root=Path("somewhere"), environment_name="testy", conda="notconda")
@@ -420,7 +429,7 @@ def test_install_raises_if_environment_doesnt_exist(mocker: MockerFixture):
         conda.install(packages=["black", "mypy", "isort"])
 
 
-def test_install_raises_if_conda_not_installed():
+def test_install_raises_if_conda_not_installed() -> None:
     conda = Conda(root=Path("somewhere"), environment_name="testy", conda=None)
 
     with pytest.raises(CondaNotInstalledError):
@@ -428,7 +437,9 @@ def test_install_raises_if_conda_not_installed():
 
 
 @pytest.mark.parametrize("silent", [True, False])
-def test_install_self_calls_create_from_yml(mocker: MockerFixture, silent: bool):
+def test_install_self_calls_create_from_yml(
+    mocker: MockerFixture, silent: bool
+) -> None:
     mock_create_from_yml = mocker.patch(
         "pytoil.environments.conda.Conda.create_from_yml", autospec=True
     )
@@ -445,7 +456,7 @@ def test_install_self_calls_create_from_yml(mocker: MockerFixture, silent: bool)
 @pytest.mark.parametrize("silent", [True, False])
 def test_install_self_raises_if_conda_not_installed(
     mocker: MockerFixture, silent: bool
-):
+) -> None:
     mocker.patch("pytoil.environments.conda.Conda.create_from_yml", autospec=True)
 
     conda = Conda(root=Path("somewhere"), environment_name="testy", conda=None)
@@ -454,26 +465,27 @@ def test_install_self_raises_if_conda_not_installed(
         conda.install_self(silent=silent)
 
 
-def test_export_yml_raises_if_conda_not_installed():
+def test_export_yml_raises_if_conda_not_installed() -> None:
     conda = Conda(root=Path("somewhere"), environment_name="testy", conda=None)
 
     with pytest.raises(CondaNotInstalledError):
         conda.export_yml()
 
 
-def test_export_yml_raises_on_missing_env(mocker: MockerFixture):
+def test_export_yml_raises_on_missing_env(mocker: MockerFixture) -> None:
     mocker.patch(
         "pytoil.environments.conda.Conda.exists",
         autospec=True,
         return_value=False,
     )
 
+    env = Conda(root=Path("somewhere"), environment_name="testy", conda="notconda")
+
     with pytest.raises(EnvironmentDoesNotExistError):
-        env = Conda(root=Path("somewhere"), environment_name="testy", conda="notconda")
         env.export_yml()
 
 
-def test_export_yml(mocker: MockerFixture, temp_environment_yml: Path):
+def test_export_yml(mocker: MockerFixture, temp_environment_yml: Path) -> None:
     # It must think the environment exists
     mocker.patch(
         "pytoil.environments.conda.Conda.exists",

@@ -1,14 +1,24 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any, Protocol
 
 import pytest
 import rtoml
 import yaml
 
 
-@pytest.fixture
-def fake_get_repo_names_response():
+class MkTemp(Protocol):
+    """
+    Protocol for the mktemp fixture.
+    """
+
+    def mktemp(self, name: str) -> Path:
+        ...
+
+
+@pytest.fixture()
+def fake_get_repo_names_response() -> dict[str, Any]:
     """
     Response snippet for the get_repo_names GraphQL
     query.
@@ -33,8 +43,8 @@ def fake_get_repo_names_response():
     }
 
 
-@pytest.fixture
-def fake_get_repos_response():
+@pytest.fixture()
+def fake_get_repos_response() -> dict[str, Any]:
     """
     Response snippet for the get_repos GraphQL
     query.
@@ -109,8 +119,8 @@ def fake_get_repos_response():
     }
 
 
-@pytest.fixture
-def fake_get_forks_response():
+@pytest.fixture()
+def fake_get_forks_response() -> dict[str, Any]:
     """
     Response snippet for the get_forks GraphQL
     query.
@@ -141,8 +151,8 @@ def fake_get_forks_response():
     }
 
 
-@pytest.fixture
-def fake_repo_exists_false_response():
+@pytest.fixture()
+def fake_repo_exists_false_response() -> dict[str, Any]:
     """
     Response snippet for the check_repo_exists GraphQL
     query when the requested repo does not exist.
@@ -163,8 +173,8 @@ def fake_repo_exists_false_response():
     }
 
 
-@pytest.fixture
-def fake_repo_exists_true_response():
+@pytest.fixture()
+def fake_repo_exists_true_response() -> dict[str, Any]:
     """
     Response snippet for the check_repo_exists GraphQL
     query when the requested repo exists.
@@ -172,8 +182,8 @@ def fake_repo_exists_true_response():
     return {"data": {"repository": {"name": "pytoil"}}}
 
 
-@pytest.fixture
-def fake_repo_info_response():
+@pytest.fixture()
+def fake_repo_info_response() -> dict[str, Any]:
     """
     Response snippet for the get_repo_info GraphQL
     query.
@@ -193,8 +203,8 @@ def fake_repo_info_response():
     }
 
 
-@pytest.fixture
-def fake_repo_info_response_no_license():
+@pytest.fixture()
+def fake_repo_info_response_no_license() -> dict[str, Any]:
     """
     Response snippet for the get_repo_info GraphQL
     query.
@@ -214,8 +224,8 @@ def fake_repo_info_response_no_license():
     }
 
 
-@pytest.fixture
-def fake_projects_dir(tmp_path_factory):
+@pytest.fixture()
+def fake_projects_dir(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a fake projects directory complete
     with subdirectories mocking development projects.
@@ -238,8 +248,8 @@ def fake_projects_dir(tmp_path_factory):
     return projects_dir
 
 
-@pytest.fixture
-def temp_environment_yml(tmp_path_factory):
+@pytest.fixture()
+def temp_environment_yml(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a valid temporary environment.yml file
     """
@@ -263,15 +273,13 @@ def temp_environment_yml(tmp_path_factory):
         ],
     }
 
-    with open(env_file, mode="w", encoding="utf-8") as f:
-        content = yaml.dump(fake_env_info)
-        f.write(content)
+    env_file.write_text(yaml.dump(fake_env_info))
 
     return env_file
 
 
-@pytest.fixture
-def bad_temp_environment_yml(tmp_path_factory):
+@pytest.fixture()
+def bad_temp_environment_yml(tmp_path_factory: MkTemp) -> Path:
     """
     Returns an invalid temporary environment.yml file
     """
@@ -296,15 +304,13 @@ def bad_temp_environment_yml(tmp_path_factory):
         ],
     }
 
-    with open(env_file, "w") as f:
-        content = yaml.dump(fake_env_info)
-        f.write(content)
+    env_file.write_text(yaml.dump(fake_env_info))
 
     return env_file
 
 
-@pytest.fixture
-def fake_home_folder_miniconda(tmp_path_factory):
+@pytest.fixture()
+def fake_home_folder_miniconda(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a faked $HOME folder. Should be used as the return
     value from pathlib.Path.home().
@@ -320,8 +326,8 @@ def fake_home_folder_miniconda(tmp_path_factory):
     return fake_home
 
 
-@pytest.fixture
-def fake_home_folder_anaconda(tmp_path_factory):
+@pytest.fixture()
+def fake_home_folder_anaconda(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a faked $HOME folder. Should be used as the return
     value from pathlib.Path.home().
@@ -337,8 +343,8 @@ def fake_home_folder_anaconda(tmp_path_factory):
     return fake_home
 
 
-@pytest.fixture
-def fake_home_folder_miniforge(tmp_path_factory):
+@pytest.fixture()
+def fake_home_folder_miniforge(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a faked $HOME folder. Should be used as the return
     value from pathlib.Path.home().
@@ -354,8 +360,8 @@ def fake_home_folder_miniforge(tmp_path_factory):
     return fake_home
 
 
-@pytest.fixture
-def fake_home_folder_mambaforge(tmp_path_factory):
+@pytest.fixture()
+def fake_home_folder_mambaforge(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a faked $HOME folder. Should be used as the return
     value from pathlib.Path.home().
@@ -371,8 +377,8 @@ def fake_home_folder_mambaforge(tmp_path_factory):
     return fake_home
 
 
-@pytest.fixture
-def fake_home_folder_no_conda(tmp_path_factory):
+@pytest.fixture()
+def fake_home_folder_no_conda(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a faked $HOME but without any conda dirs.
     To test whether get_envs_dir raises correctly.
@@ -383,8 +389,8 @@ def fake_home_folder_no_conda(tmp_path_factory):
     return fake_home
 
 
-@pytest.fixture
-def repo_folder_with_random_existing_files(tmp_path_factory):
+@pytest.fixture()
+def repo_folder_with_random_existing_files(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a temporary directory containing a few random files
     to test methods which check for a files existence within
@@ -402,8 +408,8 @@ def repo_folder_with_random_existing_files(tmp_path_factory):
     return folder
 
 
-@pytest.fixture
-def project_with_no_build_system(tmp_path_factory):
+@pytest.fixture()
+def project_with_no_build_system(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a temporary directory containing a
     pyproject.toml but this file does not specify
@@ -418,8 +424,8 @@ def project_with_no_build_system(tmp_path_factory):
     return folder
 
 
-@pytest.fixture
-def project_with_no_build_backend(tmp_path_factory):
+@pytest.fixture()
+def project_with_no_build_backend(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a temporary directory containing a
     pyproject.toml.
@@ -439,14 +445,13 @@ def project_with_no_build_backend(tmp_path_factory):
         },
     }
 
-    with open(pyproject_toml, mode="w", encoding="utf-8") as f:
-        rtoml.dump(build_system, f)
+    pyproject_toml.write_text(rtoml.dumps(build_system))
 
     return folder
 
 
-@pytest.fixture
-def project_with_setuptools_pep621_backend(tmp_path_factory):
+@pytest.fixture()
+def project_with_setuptools_pep621_backend(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a temporary directory containing a PEP 621
     pyproject.toml configured to use setuptools as the
@@ -467,14 +472,13 @@ def project_with_setuptools_pep621_backend(tmp_path_factory):
         }
     }
 
-    with open(pyproject_toml, mode="w", encoding="utf-8") as f:
-        rtoml.dump(build_system, f)
+    pyproject_toml.write_text(rtoml.dumps(build_system))
 
     return folder
 
 
-@pytest.fixture
-def fake_poetry_project(tmp_path_factory):
+@pytest.fixture()
+def fake_poetry_project(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a temporary directory containing a
     valid poetry pyproject.toml file.
@@ -493,14 +497,13 @@ def fake_poetry_project(tmp_path_factory):
         },
     }
 
-    with open(pyproject_toml, mode="w", encoding="utf-8") as f:
-        rtoml.dump(build_system, f)
+    pyproject_toml.write_text(rtoml.dumps(build_system))
 
     return folder
 
 
-@pytest.fixture
-def fake_flit_project(tmp_path_factory):
+@pytest.fixture()
+def fake_flit_project(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a temporary directory containing a
     valid flit pyproject.toml file.
@@ -519,14 +522,13 @@ def fake_flit_project(tmp_path_factory):
         },
     }
 
-    with open(pyproject_toml, mode="w", encoding="utf-8") as f:
-        rtoml.dump(build_system, f)
+    pyproject_toml.write_text(rtoml.dumps(build_system))
 
     return folder
 
 
-@pytest.fixture
-def fake_hatch_project(tmp_path_factory):
+@pytest.fixture()
+def fake_hatch_project(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a temporary directory containing a
     valid hatch pyproject.toml file.
@@ -545,14 +547,13 @@ def fake_hatch_project(tmp_path_factory):
         },
     }
 
-    with open(pyproject_toml, mode="w", encoding="utf-8") as f:
-        rtoml.dump(build_system, f)
+    pyproject_toml.write_text(rtoml.dumps(build_system))
 
     return folder
 
 
-@pytest.fixture
-def fake_pep621_project(tmp_path_factory):
+@pytest.fixture()
+def fake_pep621_project(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a temporary directory containing a
     valid pep621 pyproject.toml file.
@@ -577,14 +578,13 @@ def fake_pep621_project(tmp_path_factory):
         },
     }
 
-    with open(pyproject_toml, mode="w", encoding="utf-8") as f:
-        rtoml.dump(content, f)
+    pyproject_toml.write_text(rtoml.dumps(content))
 
     return folder
 
 
-@pytest.fixture
-def requirements_dev_project(tmp_path_factory):
+@pytest.fixture()
+def requirements_dev_project(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a temp directory containing a requirements-dev.txt
     file.
@@ -597,8 +597,8 @@ def requirements_dev_project(tmp_path_factory):
     return folder
 
 
-@pytest.fixture
-def requirements_project(tmp_path_factory):
+@pytest.fixture()
+def requirements_project(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a temp directory containing a requirements.txt
     file.

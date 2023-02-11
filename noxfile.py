@@ -244,5 +244,4 @@ def set_up_vscode(session: nox.Session) -> None:
             "python.testing.pytestArgs": [PROJECT_TESTS.name],
         }
 
-        with open(SETTINGS_JSON, mode="w", encoding="utf-8") as f:
-            json.dump(settings, f, sort_keys=True, indent=4)
+        SETTINGS_JSON.write_text(json.dumps(settings, sort_keys=True, indent=4))

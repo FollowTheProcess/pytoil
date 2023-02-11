@@ -4,14 +4,14 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+from typing import TextIO
 
 import pytest
 from pytest_mock import MockerFixture
-
 from pytoil.environments import Venv
 
 
-def test_virtualenv():
+def test_virtualenv() -> None:
     venv = Venv(root=Path("somewhere"))
 
     assert venv.project_path == Path("somewhere").resolve()
@@ -19,21 +19,21 @@ def test_virtualenv():
     assert venv.name == "venv"
 
 
-def test_virtualenv_repr():
+def test_virtualenv_repr() -> None:
     venv = Venv(root=Path("somewhere"))
     assert repr(venv) == f"Venv(root={Path('somewhere')!r})"
 
 
 @pytest.mark.parametrize(
-    "exists_return, exists",
+    ("exists_return", "exists"),
     [
         (True, True),
         (False, False),
     ],
 )
 def test_exists_returns_correct_value(
-    mocker: MockerFixture, exists_return, exists: bool
-):
+    mocker: MockerFixture, exists_return: bool, exists: bool
+) -> None:
     # Ensure Path.exists returns what we want it to
     mocker.patch(
         "pytoil.environments.virtualenv.Path.exists",
@@ -46,15 +46,15 @@ def test_exists_returns_correct_value(
 
 
 @pytest.mark.parametrize(
-    "silent, stdout, stderr",
+    ("silent", "stdout", "stderr"),
     [
         (True, subprocess.DEVNULL, subprocess.DEVNULL),
         (False, sys.stdout, sys.stderr),
     ],
 )
 def test_install_calls_pip_correctly(
-    mocker: MockerFixture, silent: bool, stdout, stderr
-):
+    mocker: MockerFixture, silent: bool, stdout: TextIO | int, stderr: TextIO | int
+) -> None:
     mock = mocker.patch(
         "pytoil.environments.virtualenv.subprocess.run",
         autospec=True,
@@ -82,15 +82,15 @@ def test_install_calls_pip_correctly(
 
 
 @pytest.mark.parametrize(
-    "silent, stdout, stderr",
+    ("silent", "stdout", "stderr"),
     [
         (True, subprocess.DEVNULL, subprocess.DEVNULL),
         (False, sys.stdout, sys.stderr),
     ],
 )
 def test_install_self_calls_pip_correctly(
-    mocker: MockerFixture, silent: bool, stdout, stderr
-):
+    mocker: MockerFixture, silent: bool, stdout: TextIO | int, stderr: TextIO | int
+) -> None:
     mock = mocker.patch(
         "pytoil.environments.virtualenv.subprocess.run",
         autospec=True,
@@ -116,15 +116,15 @@ def test_install_self_calls_pip_correctly(
 
 
 @pytest.mark.parametrize(
-    "silent, stdout, stderr",
+    ("silent", "stdout", "stderr"),
     [
         (True, subprocess.DEVNULL, subprocess.DEVNULL),
         (False, sys.stdout, sys.stderr),
     ],
 )
 def test_install_self_creates_venv_if_not_one_already(
-    mocker: MockerFixture, silent: bool, stdout, stderr
-):
+    mocker: MockerFixture, silent: bool, stdout: TextIO | int, stderr: TextIO | int
+) -> None:
     mock = mocker.patch(
         "pytoil.environments.virtualenv.subprocess.run",
         autospec=True,
@@ -156,7 +156,7 @@ def test_install_self_creates_venv_if_not_one_already(
     )
 
 
-def test_venv_create():
+def test_venv_create() -> None:
     with tempfile.TemporaryDirectory("w") as tmp:
         tmp_path = Path(tmp).resolve()
         venv = Venv(tmp_path)

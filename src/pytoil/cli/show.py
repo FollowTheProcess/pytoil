@@ -103,7 +103,7 @@ def local(config: Config, limit: int) -> None:
         table.add_row(
             path.name,
             humanize.naturaltime(
-                datetime.utcfromtimestamp(result.st_birthtime), when=datetime.utcnow()  # type: ignore[attr-defined]
+                datetime.utcfromtimestamp(result.st_birthtime), when=datetime.utcnow()
             ),
             humanize.naturaltime(
                 datetime.utcfromtimestamp(result.st_mtime), when=datetime.utcnow()
@@ -302,9 +302,8 @@ def diff(config: Config, limit: int) -> None:
 
         diff_info: list[dict[str, Any]] = []
         for repo in remote_projects:
-            if name := repo.get("name"):
-                if name in diff:
-                    diff_info.append(repo)
+            if (name := repo.get("name")) and name in diff:
+                diff_info.append(repo)
 
         if not diff:
             printer.good("Your local and remote projects are in sync!")

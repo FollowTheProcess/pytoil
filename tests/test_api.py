@@ -1,13 +1,14 @@
 from __future__ import annotations
 
+from typing import Any
+
 from freezegun import freeze_time
 from pytest_httpx import HTTPXMock
-
 from pytoil import __version__
 from pytoil.api import API
 
 
-def test_headers():
+def test_headers() -> None:
     api = API(username="me", token="notatoken")
 
     assert api.headers == {
@@ -17,7 +18,9 @@ def test_headers():
     }
 
 
-def test_get_repo_names(httpx_mock: HTTPXMock, fake_get_repo_names_response):
+def test_get_repo_names(
+    httpx_mock: HTTPXMock, fake_get_repo_names_response: dict[str, Any]
+) -> None:
     api = API(username="me", token="definitelynotatoken")
 
     httpx_mock.add_response(
@@ -38,8 +41,8 @@ def test_get_repo_names(httpx_mock: HTTPXMock, fake_get_repo_names_response):
 
 
 def test_check_repo_exists_returns_false_if_not_exists(
-    httpx_mock: HTTPXMock, fake_repo_exists_false_response
-):
+    httpx_mock: HTTPXMock, fake_repo_exists_false_response: dict[str, Any]
+) -> None:
     api = API(username="me", token="definitelynotatoken")
 
     httpx_mock.add_response(
@@ -52,8 +55,8 @@ def test_check_repo_exists_returns_false_if_not_exists(
 
 
 def test_check_repo_exists_returns_true_if_exists(
-    httpx_mock: HTTPXMock, fake_repo_exists_true_response
-):
+    httpx_mock: HTTPXMock, fake_repo_exists_true_response: dict[str, Any]
+) -> None:
     api = API(username="me", token="definitelynotatoken")
 
     httpx_mock.add_response(
@@ -66,7 +69,9 @@ def test_check_repo_exists_returns_true_if_exists(
 
 
 @freeze_time("2022-01-16")
-def test_get_repo_info_good_response(httpx_mock: HTTPXMock, fake_repo_info_response):
+def test_get_repo_info_good_response(
+    httpx_mock: HTTPXMock, fake_repo_info_response: dict[str, Any]
+) -> None:
     api = API(username="me", token="definitelynotatoken")
 
     httpx_mock.add_response(url=api.url, json=fake_repo_info_response, status_code=200)
@@ -87,8 +92,8 @@ def test_get_repo_info_good_response(httpx_mock: HTTPXMock, fake_repo_info_respo
 
 @freeze_time("2022-01-16")
 def test_get_repo_info_no_license(
-    httpx_mock: HTTPXMock, fake_repo_info_response_no_license
-):
+    httpx_mock: HTTPXMock, fake_repo_info_response_no_license: dict[str, Any]
+) -> None:
     api = API(username="me", token="definitelynotatoken")
 
     httpx_mock.add_response(
@@ -109,7 +114,7 @@ def test_get_repo_info_no_license(
     }
 
 
-def test_create_fork(httpx_mock: HTTPXMock):
+def test_create_fork(httpx_mock: HTTPXMock) -> None:
     api = API(username="me", token="definitelynotatoken")
 
     httpx_mock.add_response(
@@ -119,7 +124,9 @@ def test_create_fork(httpx_mock: HTTPXMock):
     api.create_fork(owner="someoneelse", repo="project")
 
 
-def test_get_repos(httpx_mock: HTTPXMock, fake_get_repos_response):
+def test_get_repos(
+    httpx_mock: HTTPXMock, fake_get_repos_response: dict[str, Any]
+) -> None:
     api = API(username="me", token="definitelynotatoken")
 
     httpx_mock.add_response(url=api.url, json=fake_get_repos_response, status_code=200)
@@ -186,7 +193,9 @@ def test_get_repos(httpx_mock: HTTPXMock, fake_get_repos_response):
     ]
 
 
-def test_get_forks(httpx_mock: HTTPXMock, fake_get_forks_response):
+def test_get_forks(
+    httpx_mock: HTTPXMock, fake_get_forks_response: dict[str, Any]
+) -> None:
     api = API(username="me", token="definitelynotatoken")
 
     httpx_mock.add_response(url=api.url, json=fake_get_forks_response, status_code=200)

@@ -6,7 +6,7 @@ from pathlib import Path
 from pytoil.starters import PythonStarter
 
 
-def test_python_starter_init():
+def test_python_starter_init() -> None:
     starter = PythonStarter(path=Path("somewhere"), name="testypython")
 
     assert starter.path == Path("somewhere")
@@ -22,7 +22,7 @@ def test_python_starter_init():
     ]
 
 
-def test_python_starter_generate():
+def test_python_starter_generate() -> None:
     with tempfile.TemporaryDirectory() as tmpdir:
         starter = PythonStarter(path=Path(tmpdir), name="temptest")
 
@@ -31,14 +31,9 @@ def test_python_starter_generate():
         for file in starter.files:
             assert file.exists()
 
-        with open(starter.root.joinpath("README.md")) as readme:
-            readme_content = readme.read()
-
-        with open(starter.root.joinpath("requirements.txt")) as requirements:
-            requirements_content = requirements.read()
-
-        with open(starter.root.joinpath("temptest.py")) as python:
-            python_content = python.read()
+        readme_content = starter.root.joinpath("README.md").read_text()
+        requirements_content = starter.root.joinpath("requirements.txt").read_text()
+        python_content = starter.root.joinpath("temptest.py").read_text()
 
         assert readme_content == "# temptest\n"
         assert (

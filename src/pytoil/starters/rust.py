@@ -38,6 +38,7 @@ class RustStarter:
         """
         Generate a new rust/cargo starter template.
         """
+        _ = username  # not needed for rust
         if not self.cargo:
             raise CargoNotInstalledError
 
@@ -56,5 +57,4 @@ class RustStarter:
             file.touch()
 
         readme = self.root.joinpath("README.md")
-        with open(readme, mode="w", encoding="utf-8") as f:
-            f.write(f"# {self.name}\n")
+        readme.write_text(f"# {self.name}\n", encoding="utf-8")
