@@ -112,10 +112,6 @@ show_error_codes = true
 warn_unreachable = true
 enable_error_code = [ "ignore-without-code", "redundant-expr", "truthy-bool" ]
 
-[[tool.mypy.overrides]]
-module = "tests.*"
-ignore_errors = true
-
 [tool.pytest.ini_options]
 minversion = "7.0"
 addopts = [ "-ra", "--strict-markers", "--strict-config" ]
