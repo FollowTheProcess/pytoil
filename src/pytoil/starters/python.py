@@ -31,6 +31,7 @@ class PythonStarter:
         """
         Generate a new python starter template.
         """
+        _ = username  # not needed for python
         self.root.mkdir()
 
         for file in self.files:
@@ -38,18 +39,16 @@ class PythonStarter:
 
         # Put the header in the README
         readme = self.root.joinpath("README.md")
-        with open(readme, mode="w", encoding="utf-8") as f:
-            f.write(f"# {self.name}\n")
-
-        # Put a hint in the requirements.txt
         reqs = self.root.joinpath("requirements.txt")
-        with open(reqs, mode="w", encoding="utf-8") as f:
-            f.write("# Put your requirements here e.g. flask>=1.0.0\n")
+        py_file = self.root.joinpath(f"{self.name}.py")
 
         # Populate the python file
-        py_file = self.root.joinpath(f"{self.name}.py")
         py_text = (
             'def hello(name: str = "world") -> None:\n    print(f"hello {name}")\n'
         )
-        with open(py_file, mode="w", encoding="utf-8") as f:
-            f.write(py_text)
+
+        readme.write_text(f"# {self.name}\n", encoding="utf-8")
+        reqs.write_text(
+            "# Put your requirements here e.g. flask>=1.0.0\n", encoding="utf-8"
+        )
+        py_file.write_text(py_text, encoding="utf-8")

@@ -3,14 +3,14 @@ from __future__ import annotations
 import subprocess
 import sys
 from pathlib import Path
+from typing import TextIO
 
 import pytest
 from pytest_mock import MockerFixture
-
 from pytoil.environments import Requirements
 
 
-def test_requirements():
+def test_requirements() -> None:
     env = Requirements(root=Path("somewhere"))
 
     assert env.project_path == Path("somewhere").resolve()
@@ -18,19 +18,21 @@ def test_requirements():
     assert env.executable == Path("somewhere").resolve().joinpath(".venv/bin/python")
 
 
-def test_requirements_repr():
+def test_requirements_repr() -> None:
     env = Requirements(root=Path("somewhere"))
     assert repr(env) == f"Requirements(root={Path('somewhere')!r})"
 
 
 @pytest.mark.parametrize(
-    "silent, stdout, stderr",
+    ("silent", "stdout", "stderr"),
     [
         (True, subprocess.DEVNULL, subprocess.DEVNULL),
         (False, sys.stdout, sys.stderr),
     ],
 )
-def test_install_self_venv_exists(mocker: MockerFixture, silent: bool, stdout, stderr):
+def test_install_self_venv_exists(
+    mocker: MockerFixture, silent: bool, stdout: TextIO | int, stderr: TextIO | int
+) -> None:
     mocker.patch(
         "pytoil.environments.reqs.Requirements.exists",
         autospec=True,
@@ -52,15 +54,15 @@ def test_install_self_venv_exists(mocker: MockerFixture, silent: bool, stdout, s
 
 
 @pytest.mark.parametrize(
-    "silent, stdout, stderr",
+    ("silent", "stdout", "stderr"),
     [
         (True, subprocess.DEVNULL, subprocess.DEVNULL),
         (False, sys.stdout, sys.stderr),
     ],
 )
 def test_install_self_venv_doesnt_exist(
-    mocker: MockerFixture, silent: bool, stdout, stderr
-):
+    mocker: MockerFixture, silent: bool, stdout: TextIO | int, stderr: TextIO | int
+) -> None:
     mocker.patch(
         "pytoil.environments.reqs.Requirements.exists",
         autospec=True,
@@ -88,15 +90,15 @@ def test_install_self_venv_doesnt_exist(
 
 
 @pytest.mark.parametrize(
-    "silent, stdout, stderr",
+    ("silent", "stdout", "stderr"),
     [
         (True, subprocess.DEVNULL, subprocess.DEVNULL),
         (False, sys.stdout, sys.stderr),
     ],
 )
 def test_install_self_requirements_dev(
-    mocker: MockerFixture, silent: bool, stdout, stderr
-):
+    mocker: MockerFixture, silent: bool, stdout: TextIO | int, stderr: TextIO | int
+) -> None:
     mocker.patch(
         "pytoil.environments.reqs.Requirements.exists",
         autospec=True,

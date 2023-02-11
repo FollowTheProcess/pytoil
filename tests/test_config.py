@@ -6,7 +6,6 @@ import tempfile
 from pathlib import Path
 
 import pytest
-
 from pytoil.config import Config, defaults
 
 # GitHub Actions
@@ -14,7 +13,7 @@ ON_CI = bool(os.getenv("CI"))
 ON_WINDOWS = platform.system().lower() == "windows"
 
 
-def test_config_init_defaults():
+def test_config_init_defaults() -> None:
     config = Config()
 
     assert config.projects_dir == defaults.PROJECTS_DIR
@@ -26,7 +25,7 @@ def test_config_init_defaults():
     assert config.git == defaults.GIT
 
 
-def test_config_init_passed():
+def test_config_init_passed() -> None:
     config = Config(
         projects_dir=Path("some/dir"),
         token="sometoken",
@@ -46,7 +45,7 @@ def test_config_init_passed():
     assert config.git is False
 
 
-def test_config_helper():
+def test_config_helper() -> None:
     config = Config.helper()
 
     assert config.projects_dir == defaults.PROJECTS_DIR
@@ -58,10 +57,8 @@ def test_config_helper():
     assert config.git == defaults.GIT
 
 
-def test_config_load():
-    with tempfile.NamedTemporaryFile(
-        "w", delete=False if ON_CI and ON_WINDOWS else True
-    ) as file:
+def test_config_load() -> None:
+    with tempfile.NamedTemporaryFile("w", delete=not (ON_CI and ON_WINDOWS)) as file:
         # Make a fake config object
         config = Config(
             projects_dir=Path("~/some/dir"),
@@ -87,7 +84,7 @@ def test_config_load():
 
 
 @pytest.mark.parametrize(
-    "editor, want",
+    ("editor", "want"),
     [
         ("code", True),
         ("", True),  # Because it will default to $EDITOR
@@ -95,18 +92,18 @@ def test_config_load():
         ("none", False),
     ],
 )
-def test_specifies_editor(editor: str, want: bool):
+def test_specifies_editor(editor: str, want: bool) -> None:
     config = Config(editor=editor)
     assert config.specifies_editor() is want
 
 
-def test_from_file_raises_on_missing_file():
+def test_from_file_raises_on_missing_file() -> None:
     with pytest.raises(FileNotFoundError):
         Config.load(path=Path("not/here.toml"))
 
 
 @pytest.mark.parametrize(
-    "username, token, expected",
+    ("username", "token", "expected"),
     [
         ("", "", False),
         ("", "something", False),
@@ -121,16 +118,14 @@ def test_from_file_raises_on_missing_file():
         ("something", "something", True),
     ],
 )
-def test_can_use_api(username: str, token: str, expected: bool):
+def test_can_use_api(username: str, token: str, expected: bool) -> None:
     config = Config(username=username, token=token)
 
     assert config.can_use_api() is expected
 
 
-def test_file_write():
-    with tempfile.NamedTemporaryFile(
-        "w", delete=False if ON_CI and ON_WINDOWS else True
-    ) as file:
+def test_file_write() -> None:
+    with tempfile.NamedTemporaryFile("w", delete=not (ON_CI and ON_WINDOWS)) as file:
         # Make a fake config object
         config = Config(
             projects_dir=Path("some/dir").expanduser().resolve(),

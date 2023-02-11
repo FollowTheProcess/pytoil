@@ -1,11 +1,10 @@
 from __future__ import annotations
 
 from click.testing import CliRunner
-
 from pytoil.cli.root import main
 
 
-def test_cli_doesnt_blow_up():
+def test_cli_doesnt_blow_up() -> None:
     runner = CliRunner()
     result = runner.invoke(main, ["--help"])
 

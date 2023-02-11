@@ -4,11 +4,10 @@ import sys
 from pathlib import Path
 
 from pytest_mock import MockerFixture
-
 from pytoil.editor import launch
 
 
-def test_launch(mocker: MockerFixture):
+def test_launch(mocker: MockerFixture) -> None:
     mock = mocker.patch("pytoil.editor.editor.subprocess.run", autospec=True)
 
     launch(path=Path("somewhere"), bin="/path/to/editor")

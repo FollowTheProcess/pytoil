@@ -58,13 +58,14 @@ class GoStarter:
 
         # Put the header in the README
         readme = self.root.joinpath("README.md")
-        with open(readme, mode="w", encoding="utf-8") as f:
-            f.write(f"# {self.name}\n")
 
         # Populate the go file
         main_go = self.root.joinpath("main.go")
-        with open(main_go, mode="w", encoding="utf-8") as f:
-            f.write(
-                'package main\n\nimport "fmt"\n\nfunc main() {\n\tfmt.Println("Hello'
-                ' World")\n}\n'
-            )
+
+        go_text = (
+            'package main\n\nimport "fmt"\n\nfunc main() {\n\tfmt.Println("Hello'
+            ' World")\n}\n'
+        )
+
+        readme.write_text(f"# {self.name}\n", encoding="utf-8")
+        main_go.write_text(go_text, encoding="utf-8")

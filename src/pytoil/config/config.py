@@ -26,8 +26,8 @@ class Config(BaseModel):
     common_packages: list[str] = defaults.COMMON_PACKAGES
     git: bool = defaults.GIT
 
-    @classmethod
-    def load(cls, path: Path = defaults.CONFIG_FILE) -> Config:
+    @staticmethod
+    def load(path: Path = defaults.CONFIG_FILE) -> Config:
         """
         Reads in the ~/.pytoil.toml config file and returns
         a populated `Config` object.
@@ -43,8 +43,9 @@ class Config(BaseModel):
             FileNotFoundError: If config file not found.
         """
         try:
-            with open(path, encoding="utf-8") as f:
-                config_dict: dict[str, Any] = rtoml.load(f).get("pytoil", "")
+            config_dict: dict[str, Any] = rtoml.loads(
+                path.read_text(encoding="utf-8")
+            ).get("pytoil", "")
         except FileNotFoundError:
             raise
         else:
@@ -55,8 +56,8 @@ class Config(BaseModel):
                 )
             return Config(**config_dict)
 
-    @classmethod
-    def helper(cls) -> Config:
+    @staticmethod
+    def helper() -> Config:
         """
         Returns a friendly placeholder object designed to be
         written to a config file as a guide to the user on what
@@ -97,8 +98,9 @@ class Config(BaseModel):
             path (Path, optional): Config file to overwrite.
                 Defaults to defaults.CONFIG_FILE.
         """
-        with open(path, mode="w", encoding="utf-8") as f:
-            rtoml.dump({"pytoil": self.to_dict()}, f, pretty=True)
+        path.write_text(
+            rtoml.dumps({"pytoil": self.to_dict()}, pretty=True), encoding="utf-8"
+        )
 
     def can_use_api(self) -> bool:
         """

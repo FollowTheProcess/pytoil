@@ -6,12 +6,11 @@ from pathlib import Path
 
 import pytest
 from pytest_mock import MockerFixture
-
 from pytoil.exceptions import GoNotInstalledError
 from pytoil.starters import GoStarter
 
 
-def test_go_starter_init():
+def test_go_starter_init() -> None:
     starter = GoStarter(path=Path("somewhere"), name="testygo", go="notgo")
 
     assert starter.path == Path("somewhere")
@@ -23,14 +22,14 @@ def test_go_starter_init():
     ]
 
 
-def test_generate_raises_if_go_not_installed():
+def test_generate_raises_if_go_not_installed() -> None:
     starter = GoStarter(path=Path("somewhere"), name="testygo", go=None)
 
     with pytest.raises(GoNotInstalledError):
         starter.generate()
 
 
-def test_go_starter_generate(mocker: MockerFixture):
+def test_go_starter_generate(mocker: MockerFixture) -> None:
     with tempfile.TemporaryDirectory() as tmpdir:
         starter = GoStarter(path=Path(tmpdir), name="tempgo", go="notgo")
 
@@ -50,11 +49,8 @@ def test_go_starter_generate(mocker: MockerFixture):
         for file in starter.files:
             assert file.exists()
 
-        with open(starter.root.joinpath("README.md")) as readme:
-            readme_content = readme.read()
-
-        with open(starter.root.joinpath("main.go")) as main_go:
-            main_go_content = main_go.read()
+        readme_content = starter.root.joinpath("README.md").read_text()
+        main_go_content = starter.root.joinpath("main.go").read_text()
 
         assert readme_content == "# tempgo\n"
         assert (
