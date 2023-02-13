@@ -71,7 +71,7 @@ dev = [
   "pytest-httpx==0.21.3",
   "pytest-mock==3.10",
   "pytest-randomly==3.12",
-  "ruff==0.0.244",
+  "ruff==0.0.246",
   "types-click==7.1.8",
   "types-PyYAML==6.0.12.3",
 ]
