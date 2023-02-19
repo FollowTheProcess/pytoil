@@ -1,5 +1,7 @@
 SRC := join(".", "src")
 TESTS := join(".", "tests")
+FORCE_COLOR := "1"
+PRE_COMMIT_COLOR := "always"
 
 # Run the test suite
 task test("**/*.py") {
