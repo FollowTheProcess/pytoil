@@ -149,6 +149,7 @@ select = [
 ignore = [
   "B905",   # zip() without strict=
   "ANN101", # Missing type annotation for `self` in method
+  "N999",   # __main__ is not a valid module name
 ]
 
 [tool.ruff.mccabe]
