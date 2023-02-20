@@ -22,12 +22,12 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: "0.8.0"
+    rev: "0.9.1"
     hooks:
       - id: pyproject-fmt
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.246
+    rev: v0.0.248
     hooks:
       - id: ruff
         args:
