@@ -75,18 +75,27 @@ dev = [
   "types-click==7.1.8",
   "types-PyYAML==6.0.12.6",
 ]
-
 [project.urls]
 Documentation = "https://FollowTheProcess.github.io/pytoil/"
 Homepage = "https://github.com/FollowTheProcess/pytoil"
 Source = "https://github.com/FollowTheProcess/pytoil"
-
 [project.scripts]
 pytoil = "pytoil.cli.root:main"
 
-
 [tool.isort]
 profile = "black"
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = [ "-ra", "--strict-markers", "--strict-config" ]
+xfail_strict = true
+filterwarnings = [
+  "error",
+  "ignore::DeprecationWarning", # DeprecationWarning: read_binary is deprecated. Use files() instead. Comes from virtualenv
+]
+log_cli_level = "info"
+pythonpath = [ "src" ]
+testpaths = [ "tests" ]
 
 [tool.coverage.run]
 plugins = [ "covdefaults" ]
@@ -111,18 +120,6 @@ plugins = "pydantic.mypy"
 show_error_codes = true
 warn_unreachable = true
 enable_error_code = [ "ignore-without-code", "redundant-expr", "truthy-bool" ]
-
-[tool.pytest.ini_options]
-minversion = "7.0"
-addopts = [ "-ra", "--strict-markers", "--strict-config" ]
-xfail_strict = true
-filterwarnings = [
-  "error",
-  "ignore::DeprecationWarning", # DeprecationWarning: read_binary is deprecated. Use files() instead. Comes from virtualenv
-]
-log_cli_level = "info"
-pythonpath = [ "src" ]
-testpaths = [ "tests" ]
 
 [tool.ruff]
 line-length = 120
