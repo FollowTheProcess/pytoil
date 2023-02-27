@@ -61,7 +61,7 @@ dev = [
   "coverage[toml]==7.1",
   "freezegun==1.2.2",
   "mkdocs==1.4.2",
-  "mkdocs-material==9.0.13",
+  "mkdocs-material==9.0.15",
   "mypy==1.0.1",
   "nox==2022.11.21",
   "pre-commit==3.0.4",
