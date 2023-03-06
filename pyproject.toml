@@ -57,7 +57,7 @@ dependencies = [
 dev = [
   "black==23.1",
   "build==0.10",
-  "covdefaults==2.3.0",
+  "covdefaults==2.3",
   "coverage[toml]==7.2.1",
   "freezegun==1.2.2",
   "mkdocs==1.4.2",
