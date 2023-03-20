@@ -18,7 +18,7 @@ from typing import Union
 try:
     from typing import TypeAlias
 except ImportError:
-    from typing_extensions import TypeAlias  # noqa: UP035
+    from typing_extensions import TypeAlias
 
 import yaml
 
@@ -31,7 +31,7 @@ from pytoil.exceptions import (
 )
 
 # Type alias
-EnvironmentYml: TypeAlias = dict[str, Union[list[str], str]]  # noqa: UP007
+EnvironmentYml: TypeAlias = dict[str, Union[list[str], str]]
 
 CONDA = shutil.which("conda")
 
