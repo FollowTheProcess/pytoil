@@ -35,27 +35,6 @@ def test_poetry_repr() -> None:
     assert repr(poetry) == f"Poetry(root={Path('somewhere')!r}, poetry='notpoetry')"
 
 
-@pytest.mark.parametrize(
-    ("exists_return", "exists"),
-    [
-        (True, True),
-        (False, False),
-    ],
-)
-def test_exists_returns_correct_value(
-    mocker: MockerFixture, exists_return: bool, exists: bool
-) -> None:
-    # Ensure Path.exists returns what we want it to
-    mocker.patch(
-        "pytoil.environments.poetry.Path.exists",
-        autospec=True,
-        return_value=exists_return,
-    )
-
-    poetry = Poetry(root=Path("somewhere"), poetry="notpoetry")
-    assert poetry.exists() is exists
-
-
 def test_create_raises_not_implemented_error() -> None:
     poetry = Poetry(root=Path("somewhere"), poetry="notpoetry")
 

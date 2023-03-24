@@ -8,6 +8,8 @@ Created: 21/12/2021
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import click
 import copier
 from cookiecutter.main import cookiecutter
@@ -15,7 +17,6 @@ from cookiecutter.main import cookiecutter
 from pytoil import editor
 from pytoil.api import API
 from pytoil.cli.printer import printer
-from pytoil.config import Config
 from pytoil.environments import Conda, Venv
 from pytoil.exceptions import (
     CargoNotInstalledError,
@@ -25,6 +26,9 @@ from pytoil.exceptions import (
 from pytoil.git import Git
 from pytoil.repo import Repo
 from pytoil.starters import GoStarter, PythonStarter, RustStarter
+
+if TYPE_CHECKING:
+    from pytoil.config import Config
 
 
 @click.command()
@@ -257,4 +261,4 @@ def new(  # noqa: C901
     # Now handle opening in an editor
     if config.specifies_editor():
         printer.sub_info(f"Opening {repo.name} with {config.editor}")
-        editor.launch(path=repo.local_path, bin=config.editor)
+        editor.launch(path=repo.local_path, binary=config.editor)

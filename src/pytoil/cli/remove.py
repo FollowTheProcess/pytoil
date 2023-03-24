@@ -10,12 +10,15 @@ from __future__ import annotations
 
 import shutil
 from concurrent.futures import ThreadPoolExecutor
+from typing import TYPE_CHECKING
 
 import click
 import questionary
 
 from pytoil.cli.printer import printer
-from pytoil.config import Config
+
+if TYPE_CHECKING:
+    from pytoil.config import Config
 
 
 @click.command()

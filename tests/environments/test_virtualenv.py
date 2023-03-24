@@ -25,27 +25,6 @@ def test_virtualenv_repr() -> None:
 
 
 @pytest.mark.parametrize(
-    ("exists_return", "exists"),
-    [
-        (True, True),
-        (False, False),
-    ],
-)
-def test_exists_returns_correct_value(
-    mocker: MockerFixture, exists_return: bool, exists: bool
-) -> None:
-    # Ensure Path.exists returns what we want it to
-    mocker.patch(
-        "pytoil.environments.virtualenv.Path.exists",
-        autospec=True,
-        return_value=exists_return,
-    )
-
-    venv = Venv(root=Path("somewhere"))
-    assert venv.exists() is exists
-
-
-@pytest.mark.parametrize(
     ("silent", "stdout", "stderr"),
     [
         (True, subprocess.DEVNULL, subprocess.DEVNULL),

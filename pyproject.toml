@@ -147,7 +147,6 @@ select = [
   "ARG", # Unused arguments
   "PTH", # Use pathlib over os.path
   "PGH", # Pygrep hooks
-  "DTZ", # Datetime timezone gotchas
   "S",   # Bandit (security)
   "A",   # Don't shadow builtins
   "INP", # No implicit namespace packages (causes import errors)

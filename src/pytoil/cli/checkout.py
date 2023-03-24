@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import re
 import time
+from typing import TYPE_CHECKING
 
 import click
 import httpx
@@ -20,14 +21,17 @@ from pytoil import editor
 from pytoil.api import API
 from pytoil.cli import utils
 from pytoil.cli.printer import printer
-from pytoil.config import Config
-from pytoil.environments import Environment
 from pytoil.exceptions import (
     EnvironmentAlreadyExistsError,
     ExternalToolNotInstalledError,
 )
 from pytoil.git import Git
 from pytoil.repo import Repo
+
+if TYPE_CHECKING:
+    from pytoil.config import Config
+    from pytoil.environments import Environment
+
 
 # The username/repo pattern
 USER_REPO_REGEX = re.compile(r"^([A-Za-z0-9_.-])+/([A-Za-z0-9_.-])+$")
@@ -228,7 +232,7 @@ def checkout_fork(
 
         if config.specifies_editor():
             printer.sub_info(f"Opening {fork.name} with {config.editor}")
-            editor.launch(path=config.projects_dir.joinpath(name), bin=config.editor)
+            editor.launch(path=config.projects_dir.joinpath(name), binary=config.editor)
     elif choice == "clone":
         checkout_remote(repo=original, config=config, venv=venv, git=git)
     else:
@@ -274,7 +278,7 @@ def checkout_local(repo: Repo, config: Config, venv: bool) -> None:
 
     if config.specifies_editor():
         printer.sub_info(f"Opening {repo.name} with {config.editor}")
-        editor.launch(path=repo.local_path, bin=config.editor)
+        editor.launch(path=repo.local_path, binary=config.editor)
 
 
 def checkout_remote(repo: Repo, config: Config, venv: bool, git: Git) -> None:
@@ -292,4 +296,4 @@ def checkout_remote(repo: Repo, config: Config, venv: bool, git: Git) -> None:
 
     if config.specifies_editor():
         printer.info(f"Opening {repo.name} with {config.editor}", spaced=True)
-        editor.launch(path=repo.local_path, bin=config.editor)
+        editor.launch(path=repo.local_path, binary=config.editor)

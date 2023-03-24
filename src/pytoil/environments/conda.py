@@ -11,16 +11,19 @@ from __future__ import annotations
 import shutil
 import subprocess
 import sys
-from collections.abc import Sequence
 from pathlib import Path
-from typing import Union
-
-try:
-    from typing import TypeAlias
-except ImportError:
-    from typing_extensions import TypeAlias
+from typing import TYPE_CHECKING, Union
 
 import yaml
+
+if TYPE_CHECKING:
+    try:
+        from typing import TypeAlias
+    except ImportError:
+        from typing_extensions import TypeAlias
+
+    from collections.abc import Sequence
+
 
 from pytoil.exceptions import (
     BadEnvironmentFileError,

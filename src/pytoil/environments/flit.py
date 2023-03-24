@@ -11,10 +11,13 @@ from __future__ import annotations
 import shutil
 import subprocess
 import sys
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from pytoil.environments.virtualenv import Venv
 from pytoil.exceptions import FlitNotInstalledError
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 FLIT = shutil.which("flit")
 

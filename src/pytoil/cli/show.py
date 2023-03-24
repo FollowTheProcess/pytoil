@@ -9,8 +9,7 @@ Created: 21/12/2021
 from __future__ import annotations
 
 from datetime import datetime
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import click
 import httpx
@@ -22,7 +21,12 @@ from rich.table import Table
 from pytoil.api import API
 from pytoil.cli import utils
 from pytoil.cli.printer import printer
-from pytoil.config import Config
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from pytoil.config import Config
+
 
 GITHUB_TIME_FORMAT = r"%Y-%m-%dT%H:%M:%SZ"
 MAX_PROJECTS = 15  # Default max to show
@@ -89,7 +93,7 @@ def local(config: Config, limit: int) -> None:
 
     stats = (project.stat() for project in local_projects)
 
-    results = {project: stat for project, stat in zip(local_projects, stats)}
+    results = dict(zip(local_projects, stats))
 
     printer.title("Local Projects", spaced=False)
     console.print(

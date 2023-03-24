@@ -8,14 +8,18 @@ Created: 21/12/2021
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import click
 import httpx
 
 from pytoil.api import API
 from pytoil.cli import utils
 from pytoil.cli.printer import printer
-from pytoil.config import Config
 from pytoil.repo import Repo
+
+if TYPE_CHECKING:
+    from pytoil.config import Config
 
 
 @click.command()

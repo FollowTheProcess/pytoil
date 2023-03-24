@@ -11,10 +11,13 @@ from __future__ import annotations
 
 import subprocess
 import sys
-from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
-def launch(path: Path, bin: str) -> None:
+def launch(path: Path, binary: str) -> None:
     """
     Launch a directory-aware editor from the command line binary
     `bin` to open a project with root at `path`.
@@ -26,4 +29,4 @@ def launch(path: Path, bin: str) -> None:
         path (Path): Absolute path to the root of the project to open.
         bin (str): Name of the editor binary e.g. `code`.
     """
-    subprocess.run([bin, path], stdout=sys.stdout, stderr=sys.stderr)
+    subprocess.run([binary, path], stdout=sys.stdout, stderr=sys.stderr)

@@ -9,16 +9,19 @@ Created: 22/12/2021
 from __future__ import annotations
 
 from datetime import datetime
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import humanize
 import rtoml
 
-from pytoil.api import API
-from pytoil.config import Config
 from pytoil.environments import Conda, Environment, Flit, Poetry, Requirements, Venv
 from pytoil.exceptions import RepoNotFoundError
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from pytoil.api import API
+    from pytoil.config import Config
 
 
 class Repo:
