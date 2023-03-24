@@ -47,7 +47,6 @@ def remove(config: Config, projects: tuple[str, ...], force: bool, all_: bool) -
     prompt. Use with caution!
 
     Examples:
-
     $ pytoil remove project1 project2 project3
 
     $ pytoil remove project1 project2 project3 --force

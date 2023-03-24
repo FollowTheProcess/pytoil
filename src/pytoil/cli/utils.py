@@ -18,6 +18,7 @@ def handle_http_status_error(error: httpx.HTTPStatusError) -> None:
     to the user, and exits the program if necessary.
     Call this in an except block on CLI commands accessing the
     GitHub API.
+
     Args:
         error (httpx.HTTPStatusError): The error to be handled.
     """

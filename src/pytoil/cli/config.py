@@ -39,7 +39,6 @@ def show(config: Config) -> None:
     the defaults otherwise.
 
     Examples:
-
     $ pytoil config show
     """
     table = Table(box=box.SIMPLE)
@@ -63,7 +62,6 @@ def get(config: Config, key: str) -> None:
     The get command will only allow valid pytoil config keys.
 
     Examples:
-
     $ pytoil config get editor
     """
     if key not in defaults.CONFIG_KEYS:
@@ -79,7 +77,6 @@ def edit() -> None:
     Open pytoil's config file in $EDITOR.
 
     Examples:
-
     $ pytoil config edit
     """
     click.launch(str(defaults.CONFIG_FILE), wait=False)
@@ -91,7 +88,6 @@ def explain() -> None:
     Print a list and description of pytoil config values.
 
     Examples:
-
     $ pytoil config explain
     """
     console = Console()

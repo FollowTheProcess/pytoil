@@ -54,7 +54,6 @@ def pull(config: Config, projects: tuple[str, ...], force: bool, all_: bool) -> 
     desired.
 
     Examples:
-
     $ pytoil pull project1 project2 project3
 
     $ pytoil pull project1 project2 project3 --force

@@ -39,7 +39,6 @@ def keep(config: Config, projects: tuple[str, ...], force: bool) -> None:
     prompt. Use with caution!
 
     Examples:
-
     $ pytoil keep project1 project2 project3
 
     $ pytoil keep project1 project2 project3 --force

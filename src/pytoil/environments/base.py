@@ -35,7 +35,7 @@ class Environment(Protocol):
     def name(self) -> str:
         """
         Returns the type of environment implemented by the concrete instance.
-        Used for logging and debugging
+        Used for logging and debugging.
 
         Returns:
             str: E.g. 'conda', 'venv', 'poetry' etc.

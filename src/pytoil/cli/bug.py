@@ -23,7 +23,6 @@ def bug() -> None:
     repo. This can be a bug report, feature request, or a question!
 
     Examples:
-
     $ pytoil bug
     """
     printer.info("Opening pytoil's issues in your browser...")

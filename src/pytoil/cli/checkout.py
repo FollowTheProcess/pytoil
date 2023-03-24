@@ -89,7 +89,6 @@ def checkout(config: Config, project: str, venv: bool) -> None:
     More info about this can be found in the documentation. Use `pytoil docs` to go there.
 
     Examples:
-
     $ pytoil checkout my_project
 
     $ pytoil checkout my_project --venv

@@ -52,7 +52,6 @@ def find(config: Config, project: str, limit: int) -> None:
     of results shown.
 
     Examples:
-
     $ pytoil find my
 
     $ pytoil find proj --limit 3

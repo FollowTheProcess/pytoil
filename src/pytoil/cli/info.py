@@ -37,7 +37,6 @@ def info(config: Config, project: str) -> None:
     system about the project.
 
     Examples:
-
     $ pytoil info my_project
     """
     api = API(username=config.username, token=config.token)

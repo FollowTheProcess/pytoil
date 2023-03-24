@@ -174,7 +174,7 @@ class Conda:
     def create_from_yml(project_path: Path, conda: str, silent: bool = False) -> None:
         """
         Creates a conda environment from the `environment.yml` contained
-        in the root `project_path`
+        in the root `project_path`.
 
         Args:
             project_path (Path): Filepath to the project root.
@@ -187,7 +187,6 @@ class Conda:
             EnvironmentAlreadyExistsError: If a conda environment of the same name
                 exists on the system.
         """
-
         if not shutil.which(conda):
             raise CondaNotInstalledError
 

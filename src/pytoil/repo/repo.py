@@ -182,7 +182,7 @@ class Repo:
     def is_setuptools(self) -> bool:
         """
         Is the project based on setuptools, i.e. does it
-        have a `setup.cfg` or `setup.py`
+        have a `setup.cfg` or `setup.py`.
 
         Returns:
             bool: True if setuptools, else False.
@@ -197,7 +197,7 @@ class Repo:
 
     def is_requirements(self) -> bool:
         """
-        Is the project a python app with a requirements file?
+        Is the project a python app with a requirements file?.
 
         Returns:
             bool: True if yes, else False.
@@ -231,7 +231,7 @@ class Repo:
     def _specifies_build_tool(self, build_tool: str) -> bool:
         """
         Generalised method to check for a particular build tool
-        in `pyproject.toml`
+        in `pyproject.toml`.
 
         Does more than a naive search for `build_tool`, actually checks the
         appropriate toml construction so if this method returns True, caller
@@ -281,7 +281,7 @@ class Repo:
 
     def is_poetry(self) -> bool:
         """
-        Does the project specify a poetry build system
+        Does the project specify a poetry build system.
 
         Returns:
             bool: True if yes, else False.

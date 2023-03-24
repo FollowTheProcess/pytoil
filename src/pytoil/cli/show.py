@@ -68,7 +68,6 @@ def local(config: Config, limit: int) -> None:
     "--limit/-l" flag.
 
     Examples:
-
     $ pytoil show local
 
     $ pytoil show local --limit 5
@@ -136,7 +135,6 @@ def remote(config: Config, limit: int) -> None:
     returned.
 
     Examples:
-
     $ pytoil show remote
 
     $ pytoil show remote --limit 10
@@ -204,7 +202,6 @@ def forks(config: Config, limit: int) -> None:
     repos returned.
 
     Examples:
-
     $ pytoil show forks
 
     $ pytoil show forks --limit 10
@@ -274,7 +271,6 @@ def diff(config: Config, limit: int) -> None:
     returned.
 
     Examples:
-
     $ pytoil show diff
 
     $ pytoil show diff --limit 10

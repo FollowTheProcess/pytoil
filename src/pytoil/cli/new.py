@@ -109,7 +109,6 @@ def new(  # noqa: C901
     be interpreted by the shell as a command redirection.
 
     Examples:
-
     $ pytoil new my_project
 
     $ pytoil new my_project --cookie https://github.com/some/cookie.git

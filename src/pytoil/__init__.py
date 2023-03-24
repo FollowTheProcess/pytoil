@@ -1,8 +1,4 @@
-from __future__ import annotations
-
-__version__ = "0.38.0"
-
-__doc__ = """
+"""
 
 Helpful CLI to automate the development workflow.
 
@@ -14,3 +10,7 @@ Helpful CLI to automate the development workflow.
 
 - Minimal configuration required.
 """
+
+from __future__ import annotations
+
+__version__ = "0.38.0"

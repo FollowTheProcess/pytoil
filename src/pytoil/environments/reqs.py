@@ -1,6 +1,6 @@
 """
 Module responsible for handling python environments
-with a `requirements.txt` (or `requirements-dev.txt`)
+with a `requirements.txt` (or `requirements-dev.txt`).
 
 
 Author: Tom Fleet
