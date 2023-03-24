@@ -27,7 +27,7 @@ class API:
     def __init__(self, username: str, token: str, url: str = URL) -> None:
         """
         Container for methods and data for hitting the GitHub v4
-        GraphQL API
+        GraphQL API.
 
         Args:
             username (str): User's GitHub username.
@@ -147,7 +147,7 @@ class API:
     def check_repo_exists(self, owner: str, name: str) -> bool:
         """
         Checks whether or not a repo given by `name` exists
-        under the current user
+        under the current user.
 
         Args:
             name (str): Repo name to check for

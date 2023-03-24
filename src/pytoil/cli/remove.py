@@ -10,12 +10,15 @@ from __future__ import annotations
 
 import shutil
 from concurrent.futures import ThreadPoolExecutor
+from typing import TYPE_CHECKING
 
 import click
 import questionary
 
 from pytoil.cli.printer import printer
-from pytoil.config import Config
+
+if TYPE_CHECKING:
+    from pytoil.config import Config
 
 
 @click.command()
@@ -47,7 +50,6 @@ def remove(config: Config, projects: tuple[str, ...], force: bool, all_: bool) -
     prompt. Use with caution!
 
     Examples:
-
     $ pytoil remove project1 project2 project3
 
     $ pytoil remove project1 project2 project3 --force

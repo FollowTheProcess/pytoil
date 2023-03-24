@@ -11,10 +11,13 @@ from __future__ import annotations
 
 import subprocess
 import sys
-from collections.abc import Sequence
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import virtualenv
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from pathlib import Path
 
 
 class Venv:
@@ -48,7 +51,7 @@ class Venv:
         If this executable exists then both the project and virtual environment
         must also exist and therefore must be valid.
         """
-        return self.executable.exists()
+        return self.executable.exists()  # pragma: no cover
 
     def create(
         self, packages: Sequence[str] | None = None, silent: bool = False

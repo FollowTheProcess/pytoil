@@ -8,6 +8,8 @@ Created: 21/12/2021
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import click
 from rich import box
 from rich.console import Console
@@ -15,9 +17,11 @@ from rich.table import Table
 
 from pytoil.api import API
 from pytoil.cli.printer import printer
-from pytoil.config import Config
 from pytoil.exceptions import RepoNotFoundError
 from pytoil.repo import Repo
+
+if TYPE_CHECKING:
+    from pytoil.config import Config
 
 
 @click.command()
@@ -37,7 +41,6 @@ def info(config: Config, project: str) -> None:
     system about the project.
 
     Examples:
-
     $ pytoil info my_project
     """
     api = API(username=config.username, token=config.token)

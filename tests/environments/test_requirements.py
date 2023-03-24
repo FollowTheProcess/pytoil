@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 from typing import TextIO
 
@@ -99,28 +100,24 @@ def test_install_self_venv_doesnt_exist(
 def test_install_self_requirements_dev(
     mocker: MockerFixture, silent: bool, stdout: TextIO | int, stderr: TextIO | int
 ) -> None:
-    mocker.patch(
-        "pytoil.environments.reqs.Requirements.exists",
-        autospec=True,
-        return_value=True,
-    )
+    with tempfile.TemporaryDirectory() as tmpdir:
+        (Path(tmpdir) / "requirements-dev.txt").touch()
 
-    # Make it think that requirements-dev.txt exists
-    mocker.patch(
-        "pytoil.environments.reqs.Path.exists",
-        autospec=True,
-        return_value=True,
-    )
+        mocker.patch(
+            "pytoil.environments.reqs.Requirements.exists",
+            autospec=True,
+            return_value=True,
+        )
 
-    mock = mocker.patch("pytoil.environments.reqs.subprocess.run", autospec=True)
+        mock = mocker.patch("pytoil.environments.reqs.subprocess.run", autospec=True)
 
-    env = Requirements(root=Path("somewhere"))
+        env = Requirements(root=Path(tmpdir))
 
-    env.install_self(silent=silent)
+        env.install_self(silent=silent)
 
-    mock.assert_called_once_with(
-        [f"{env.executable}", "-m", "pip", "install", "-r", "requirements-dev.txt"],
-        cwd=env.project_path,
-        stdout=stdout,
-        stderr=stderr,
-    )
+        mock.assert_called_once_with(
+            [f"{env.executable}", "-m", "pip", "install", "-r", "requirements-dev.txt"],
+            cwd=env.project_path,
+            stdout=stdout,
+            stderr=stderr,
+        )

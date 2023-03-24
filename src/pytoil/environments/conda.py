@@ -11,16 +11,19 @@ from __future__ import annotations
 import shutil
 import subprocess
 import sys
-from collections.abc import Sequence
 from pathlib import Path
-from typing import Union
-
-try:
-    from typing import TypeAlias
-except ImportError:
-    from typing_extensions import TypeAlias
+from typing import TYPE_CHECKING, Union
 
 import yaml
+
+if TYPE_CHECKING:
+    try:
+        from typing import TypeAlias
+    except ImportError:
+        from typing_extensions import TypeAlias
+
+    from collections.abc import Sequence
+
 
 from pytoil.exceptions import (
     BadEnvironmentFileError,
@@ -174,7 +177,7 @@ class Conda:
     def create_from_yml(project_path: Path, conda: str, silent: bool = False) -> None:
         """
         Creates a conda environment from the `environment.yml` contained
-        in the root `project_path`
+        in the root `project_path`.
 
         Args:
             project_path (Path): Filepath to the project root.
@@ -187,7 +190,6 @@ class Conda:
             EnvironmentAlreadyExistsError: If a conda environment of the same name
                 exists on the system.
         """
-
         if not shutil.which(conda):
             raise CondaNotInstalledError
 

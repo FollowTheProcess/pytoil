@@ -1,6 +1,6 @@
 """
 Module responsible for handling python environments
-with a `requirements.txt` (or `requirements-dev.txt`)
+with a `requirements.txt` (or `requirements-dev.txt`).
 
 
 Author: Tom Fleet
@@ -11,9 +11,12 @@ from __future__ import annotations
 
 import subprocess
 import sys
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from pytoil.environments.virtualenv import Venv
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class Requirements(Venv):

@@ -15,10 +15,13 @@ from __future__ import annotations
 import shutil
 import subprocess
 import sys
-from collections.abc import Sequence
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from pytoil.exceptions import PoetryNotInstalledError
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from pathlib import Path
 
 POETRY = shutil.which("poetry")
 
@@ -70,7 +73,7 @@ class Poetry:
         If this executable exists then both the project and the virtual environment
         must also exist and must therefore be valid.
         """
-        return self.executable.exists()
+        return self.executable.exists()  # pragma: no cover
 
     def create(
         self, packages: Sequence[str] | None = None, silent: bool = False

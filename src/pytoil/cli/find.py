@@ -8,6 +8,8 @@ Created: 21/12/2021
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import click
 from rich import box
 from rich.console import Console
@@ -17,7 +19,9 @@ from thefuzz import process
 
 from pytoil.api import API
 from pytoil.cli.printer import printer
-from pytoil.config import Config
+
+if TYPE_CHECKING:
+    from pytoil.config import Config
 
 FUZZY_SCORE_CUTOFF = 75
 
@@ -52,7 +56,6 @@ def find(config: Config, project: str, limit: int) -> None:
     of results shown.
 
     Examples:
-
     $ pytoil find my
 
     $ pytoil find proj --limit 3

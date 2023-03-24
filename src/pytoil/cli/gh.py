@@ -8,14 +8,18 @@ Created: 21/12/2021
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import click
 import httpx
 
 from pytoil.api import API
 from pytoil.cli import utils
 from pytoil.cli.printer import printer
-from pytoil.config import Config
 from pytoil.repo import Repo
+
+if TYPE_CHECKING:
+    from pytoil.config import Config
 
 
 @click.command()
@@ -34,7 +38,6 @@ def gh(config: Config, project: str, issues: bool, prs: bool) -> None:
     open up the repo's issues or pull requests page.
 
     Examples:
-
     $ pytoil gh my_project
 
     $ pytoil gh my_project --issues

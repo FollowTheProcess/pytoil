@@ -20,7 +20,6 @@ def docs() -> None:
     Open pytoil's documentation in your browser.
 
     Examples:
-
     $ pytoil docs
     """
     printer.info("Opening pytoil's docs in your browser...")

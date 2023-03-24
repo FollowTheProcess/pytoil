@@ -9,6 +9,7 @@ Created: 21/12/2021
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
+from typing import TYPE_CHECKING
 
 import click
 import httpx
@@ -17,9 +18,11 @@ import questionary
 from pytoil.api import API
 from pytoil.cli import utils
 from pytoil.cli.printer import printer
-from pytoil.config import Config
 from pytoil.git import Git
 from pytoil.repo import Repo
+
+if TYPE_CHECKING:
+    from pytoil.config import Config
 
 
 @click.command()
@@ -54,7 +57,6 @@ def pull(config: Config, projects: tuple[str, ...], force: bool, all_: bool) -> 
     desired.
 
     Examples:
-
     $ pytoil pull project1 project2 project3
 
     $ pytoil pull project1 project2 project3 --force

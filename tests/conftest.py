@@ -23,7 +23,6 @@ def fake_get_repo_names_response() -> dict[str, Any]:
     Response snippet for the get_repo_names GraphQL
     query.
     """
-
     return {
         "data": {
             "user": {
@@ -230,7 +229,6 @@ def fake_projects_dir(tmp_path_factory: MkTemp) -> Path:
     Returns a fake projects directory complete
     with subdirectories mocking development projects.
     """
-
     project_names: list[str] = [
         "project1",
         "myproject",
@@ -251,9 +249,8 @@ def fake_projects_dir(tmp_path_factory: MkTemp) -> Path:
 @pytest.fixture()
 def temp_environment_yml(tmp_path_factory: MkTemp) -> Path:
     """
-    Returns a valid temporary environment.yml file
+    Returns a valid temporary environment.yml file.
     """
-
     env_file: Path = tmp_path_factory.mktemp("temp").joinpath("environment.yml")
 
     fake_env_info: dict[str, str | list[str]] = {
@@ -281,9 +278,8 @@ def temp_environment_yml(tmp_path_factory: MkTemp) -> Path:
 @pytest.fixture()
 def bad_temp_environment_yml(tmp_path_factory: MkTemp) -> Path:
     """
-    Returns an invalid temporary environment.yml file
+    Returns an invalid temporary environment.yml file.
     """
-
     env_file: Path = tmp_path_factory.mktemp("temp").joinpath("environment.yml")
 
     # name must be a string
@@ -317,7 +313,6 @@ def fake_home_folder_miniconda(tmp_path_factory: MkTemp) -> Path:
     Designed to test the auto detection of conda environment
     storage directory.
     """
-
     fake_home: Path = tmp_path_factory.mktemp("home")
 
     miniconda = fake_home.joinpath("miniconda3/envs")
@@ -334,7 +329,6 @@ def fake_home_folder_anaconda(tmp_path_factory: MkTemp) -> Path:
     Designed to test the auto detection of conda environment
     storage directory.
     """
-
     fake_home: Path = tmp_path_factory.mktemp("home")
 
     anaconda = fake_home.joinpath("anaconda3/envs")
@@ -351,7 +345,6 @@ def fake_home_folder_miniforge(tmp_path_factory: MkTemp) -> Path:
     Designed to test the auto detection of conda environment
     storage directory.
     """
-
     fake_home: Path = tmp_path_factory.mktemp("home")
 
     anaconda = fake_home.joinpath("miniforge3/envs")
@@ -368,7 +361,6 @@ def fake_home_folder_mambaforge(tmp_path_factory: MkTemp) -> Path:
     Designed to test the auto detection of conda environment
     storage directory.
     """
-
     fake_home: Path = tmp_path_factory.mktemp("home")
 
     anaconda = fake_home.joinpath("mambaforge/envs")
@@ -383,7 +375,6 @@ def fake_home_folder_no_conda(tmp_path_factory: MkTemp) -> Path:
     Returns a faked $HOME but without any conda dirs.
     To test whether get_envs_dir raises correctly.
     """
-
     fake_home: Path = tmp_path_factory.mktemp("home")
 
     return fake_home
@@ -396,7 +387,6 @@ def repo_folder_with_random_existing_files(tmp_path_factory: MkTemp) -> Path:
     to test methods which check for a files existence within
     a certain directory.
     """
-
     folder: Path = tmp_path_factory.mktemp("myrepo")
 
     files: list[str] = ["here.txt", "i_exist.yml", "hello.py", "me_too.json"]
@@ -415,7 +405,6 @@ def project_with_no_build_system(tmp_path_factory: MkTemp) -> Path:
     pyproject.toml but this file does not specify
     a build-system, which is bad.
     """
-
     # Create the folder and pyproject.toml file
     folder: Path = tmp_path_factory.mktemp("myrepo")
     pyproject_toml = folder.joinpath("pyproject.toml")
@@ -432,7 +421,6 @@ def project_with_no_build_backend(tmp_path_factory: MkTemp) -> Path:
     This time we do write a 'build-system' but no
     'build-backend'.
     """
-
     # Create the folder and pyproject.toml file
     folder: Path = tmp_path_factory.mktemp("myrepo")
     pyproject_toml = folder.joinpath("pyproject.toml")
@@ -483,7 +471,6 @@ def fake_poetry_project(tmp_path_factory: MkTemp) -> Path:
     Returns a temporary directory containing a
     valid poetry pyproject.toml file.
     """
-
     # Create the folder and pyproject.toml file
     folder: Path = tmp_path_factory.mktemp("myrepo")
     pyproject_toml = folder.joinpath("pyproject.toml")
@@ -508,7 +495,6 @@ def fake_flit_project(tmp_path_factory: MkTemp) -> Path:
     Returns a temporary directory containing a
     valid flit pyproject.toml file.
     """
-
     # Create the folder and pyproject.toml file
     folder: Path = tmp_path_factory.mktemp("myrepo")
     pyproject_toml = folder.joinpath("pyproject.toml")
@@ -533,7 +519,6 @@ def fake_hatch_project(tmp_path_factory: MkTemp) -> Path:
     Returns a temporary directory containing a
     valid hatch pyproject.toml file.
     """
-
     # Create the folder and pyproject.toml file
     folder: Path = tmp_path_factory.mktemp("myrepo")
     pyproject_toml = folder.joinpath("pyproject.toml")
@@ -558,7 +543,6 @@ def fake_pep621_project(tmp_path_factory: MkTemp) -> Path:
     Returns a temporary directory containing a
     valid pep621 pyproject.toml file.
     """
-
     # Create the folder and pyproject.toml file
     folder: Path = tmp_path_factory.mktemp("myrepo")
     pyproject_toml = folder.joinpath("pyproject.toml")
@@ -589,7 +573,6 @@ def requirements_dev_project(tmp_path_factory: MkTemp) -> Path:
     Returns a temp directory containing a requirements-dev.txt
     file.
     """
-
     folder: Path = tmp_path_factory.mktemp("myrepo")
     req_dev_txt = folder.joinpath("requirements-dev.txt")
     req_dev_txt.touch()
@@ -603,7 +586,6 @@ def requirements_project(tmp_path_factory: MkTemp) -> Path:
     Returns a temp directory containing a requirements.txt
     file.
     """
-
     folder: Path = tmp_path_factory.mktemp("myrepo")
     req_txt = folder.joinpath("requirements.txt")
     req_txt.touch()

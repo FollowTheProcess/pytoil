@@ -10,12 +10,15 @@ from __future__ import annotations
 
 import shutil
 from concurrent.futures import ThreadPoolExecutor
+from typing import TYPE_CHECKING
 
 import click
 import questionary
 
 from pytoil.cli.printer import printer
-from pytoil.config import Config
+
+if TYPE_CHECKING:
+    from pytoil.config import Config
 
 
 @click.command()
@@ -39,7 +42,6 @@ def keep(config: Config, projects: tuple[str, ...], force: bool) -> None:
     prompt. Use with caution!
 
     Examples:
-
     $ pytoil keep project1 project2 project3
 
     $ pytoil keep project1 project2 project3 --force

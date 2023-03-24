@@ -9,7 +9,10 @@ Created: 29/12/2021
 
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class PythonStarter:

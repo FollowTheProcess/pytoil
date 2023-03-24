@@ -7,17 +7,21 @@ Created: 30/12/2021
 """
 from __future__ import annotations
 
-import httpx
+from typing import TYPE_CHECKING
 
 from pytoil.cli.printer import printer
 
+if TYPE_CHECKING:
+    from httpx import HTTPStatusError
 
-def handle_http_status_error(error: httpx.HTTPStatusError) -> None:
+
+def handle_http_status_error(error: HTTPStatusError) -> None:
     """
     Handles a variety of possible HTTP Status errors, print's nicer output
     to the user, and exits the program if necessary.
     Call this in an except block on CLI commands accessing the
     GitHub API.
+
     Args:
         error (httpx.HTTPStatusError): The error to be handled.
     """

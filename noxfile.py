@@ -1,5 +1,5 @@
 """
-Nox automation tasks for pytoil
+Nox automation tasks for pytoil.
 """
 
 from __future__ import annotations
