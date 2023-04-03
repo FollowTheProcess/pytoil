@@ -115,10 +115,8 @@ class Conda:
             if directory.exists() and directory.is_dir():
                 return directory.joinpath("envs")
 
-        raise UnsupportedCondaInstallationError(
-            f"""Could not detect the type of conda
-        installation present. Checked for: {names}"""
-        )
+        raise UnsupportedCondaInstallationError(f"""Could not detect the type of conda
+        installation present. Checked for: {names}""")
 
     def exists(self) -> bool:
         """
