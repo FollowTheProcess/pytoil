@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -10,8 +10,6 @@ from typing import TextIO
 import pytest
 from pytest_mock import MockerFixture
 from pytoil.environments import Venv
-
-ON_CI = bool(os.getenv("CI"))
 
 
 def test_virtualenv() -> None:
@@ -139,10 +137,12 @@ def test_install_self_creates_venv_if_not_one_already(
 
 
 def test_venv_create() -> None:
-    with tempfile.TemporaryDirectory("w", ignore_cleanup_errors=ON_CI) as tmp:
+    with tempfile.TemporaryDirectory() as tmp:
         tmp_path = Path(tmp).resolve()
         venv = Venv(tmp_path)
         venv.create(silent=True)
 
         assert tmp_path.joinpath(".venv").exists()
         assert tmp_path.joinpath(".venv/pyvenv.cfg").exists()
+
+    shutil.rmtree(tmp, ignore_errors=True)
