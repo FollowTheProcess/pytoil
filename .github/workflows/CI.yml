@@ -50,7 +50,7 @@ jobs:
         run: python3 -m pip install --upgrade pip hatch
 
       - name: Run Tests and Coverage
-        run: hatch run test:cov
+        run: hatch run tests:cov
 
       - name: Upload Coverage to Codecov
         uses: codecov/codecov-action@v3
