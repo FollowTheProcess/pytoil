@@ -80,68 +80,46 @@ This will (in order):
 
 Before you do anything, you'll want to set up your development environment...
 
-pytoil uses [nox] for automation superpowers. So to work on it you'll need to get it too!
+pytoil uses [hatch] for project management and task automation.
 
-I recommend using [pipx] for python command line tools like these, it installs each tool in it's own isolated environment but exposes the command to your terminal as if you installed it globally. To install [nox] with pipx:
-
-```shell
-pipx install nox
-```
-
-We've automated the crap out of the development process for pytoil, to get started all you need to do is run:
+I recommend using [pipx] for python command line tools like these, it installs each tool in it's own isolated environment but exposes the command to your terminal as if you installed it globally. To install [hatch] with pipx:
 
 ```shell
-nox
+pipx install hatch
 ```
 
-!!! note
+To get started all you need to do is run:
 
-    If you've never used nox before, go check it out. It's great!
+```shell
+hatch env create
+```
 
-    It's an amazing project automation toolkit, you can do just about anything with it but it's especially good at things like this!
-
-When you run this, nox will:
-
-* Create a fresh python virtual environment in the project for you (.venv)
-* Install pytoil for you along with all of it's development dependencies
-* Make sure VSCode is set up to use this environment (if you use it)
+When you run this, hatch will create a virtual environment for you and install all the dependencies you need to develop pytoil
 
 Not bad for a single command! Doing it this way means that before you start working on pytoil you know its all been installed and works correctly.
 
 Wait for it to do it's thing and then you can get started.
 
-!!! note
+!!! tip
 
-    The next time you run `nox`, it won't do this step again. It will run all the project tests, lint and format the source code, analyse test coverage and build the docs :robot:
-
-If you don't want to use [nox] to do this automatically, you can still set up a dev environment very easily with standard python tools:
-
-```shell
-python -m venv .venv
-
-source .venv/bin/activate
-
-python -m pip install --upgrade pip
-
-python -m pip install -e .[dev]
-```
+    If you run `hatch env show` it will show you all the different environments and the things you can do in them.
 
 ### Step 4: Do your thing
 
 **Always checkout a new branch before changing anything**
 
 ```shell
-git checkout -b <name-of-your-bugfix-or-feature>
+git switch --create <name-of-your-bugfix-or-feature>
 ```
 
 Now you're ready to start working!
 
 *Remember! pytoil aims for high test coverage. If you implement a new feature, make sure to write tests for it! Similarly, if you fix a bug, it's good practice to write a test that would have caught that bug so we can be sure it doesn't reappear in the future!*
 
-pytoil uses [nox] for automated testing, building the docs, formatting and linting etc. So when you've made your changes, just run:
+The tasks for automated testing, building the docs, formatting and linting etc. are all defined in [hatch] So when you've made your changes, just run:
 
 ```shell
-nox
+hatch run check
 ```
 
 And it will tell you if something's wrong!
@@ -194,14 +172,14 @@ That's it! Your code will be tested automatically by pytoil's CI suite and if ev
 
 Any improvements to the documentation are always appreciated! pytoil uses [mkdocs] with the [mkdocs-material] theme so the documentation is all written in markdown and can be found in the `docs` folder in the project root.
 
-Because pytoil uses [nox], things like building and serving the documentation is super easy. All you have to do is:
+Because pytoil uses [hatch], things like building and serving the documentation is super easy. All you have to do is:
 
 ```shell
 # Builds the docs
-nox -s docs
+hatch run docs:build
 
 # Builds and serves
-nox -s docs -- serve
+hatch run docs:serve
 ```
 
 If you use the `serve` option, you can navigate to the localhost IP address it gives you and as you make changes to the source files, it will automatically reload your browser! Automation is power! :robot:
@@ -209,8 +187,8 @@ If you use the `serve` option, you can navigate to the localhost IP address it g
 If you add pages to the docs, make sure they are placed in the nav tree in the `mkdocs.yml` file and you're good to go!
 
 [GH CLI]: https://cli.github.com
-[nox]: https://nox.thea.codes/en/stable/
 [repo]: https://github.com/FollowTheProcess/pytoil
 [mkdocs]: https://www.mkdocs.org
 [mkdocs-material]: https://squidfunk.github.io/mkdocs-material/
 [pipx]: https://pypa.github.io/pipx/installation/
+[hatch]: https://hatch.pypa.io/latest/

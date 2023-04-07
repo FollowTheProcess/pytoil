@@ -30,12 +30,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install Dependencies
-        run: |
-          python3 -m pip install --upgrade pip setuptools wheel
-          python3 -m pip install nox
+        run: python3 -m pip install --upgrade pip hatch
 
       - name: Run Tests and Coverage
-        run: nox --non-interactive --session "test-${{ matrix.python-version }}"
+        run: hatch run tests:run
 
   codecov:
     name: Codecov
@@ -49,12 +47,10 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install Dependencies
-        run: |
-          python3 -m pip install --upgrade pip setuptools wheel
-          python3 -m pip install nox
+        run: python3 -m pip install --upgrade pip hatch
 
       - name: Run Tests and Coverage
-        run: nox --non-interactive --session codecov
+        run: hatch run test:cov
 
       - name: Upload Coverage to Codecov
         uses: codecov/codecov-action@v3
@@ -72,13 +68,12 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
+
       - name: Install Dependencies
-        run: |
-          python3 -m pip install --upgrade pip setuptools wheel
-          python3 -m pip install nox
+        run: python3 -m pip install --upgrade pip hatch
 
       - name: Build Docs
-        run: nox --non-interactive --session docs
+        run: hatch run docs:build
 
   publish-docs:
     needs: docs
@@ -93,17 +88,15 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
+
       - name: Install Dependencies
-        run: |
-          python3 -m pip install --upgrade pip setuptools wheel
-          python3 -m pip install nox
+        run: python3 -m pip install --upgrade pip hatch
 
       - name: Deploy Docs to GitHub Pages
         env:
           # Use the built in CI GITHUB_TOKEN
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          nox --non-interactive --session deploy_docs
+        run: hatch run docs:deploy
 
   release:
     name: Release
@@ -119,12 +112,10 @@ jobs:
           python-version: "3.11"
 
       - name: Install Dependencies
-        run: |
-          python3 -m pip install --upgrade pip setuptools wheel
-          python3 -m pip install nox
+        run: python3 -m pip install --upgrade pip hatch
 
       - name: Build sdist and wheel
-        run: nox --non-interactive --session build
+        run: hatch build
 
       - name: Publish Distribution to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1

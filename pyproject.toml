@@ -53,17 +53,26 @@ dependencies = [
   'typing_extensions==4.4; python_version <= "3.9"',
   "virtualenv==20.21",
 ]
-[project.optional-dependencies]
-dev = [
-  "black==23.3",
-  "build==0.10",
+[project.urls]
+Documentation = "https://FollowTheProcess.github.io/pytoil/"
+Homepage = "https://github.com/FollowTheProcess/pytoil"
+Source = "https://github.com/FollowTheProcess/pytoil"
+[project.scripts]
+pytoil = "pytoil.cli.root:main"
+
+[tool.hatch.envs.default]
+# Include dev dependencies in the default environment
+description = """
+Default environment for development, contains everything
+you need to work on the project, installed by default.
+"""
+extra-dependencies = [
   "covdefaults==2.3",
   "coverage[toml]==7.2.2",
   "freezegun==1.2.2",
   "mkdocs==1.4.2",
   "mkdocs-material==9.1.5",
   "mypy==1.1.1",
-  "nox==2022.11.21",
   "pre-commit==3.2",
   "pytest==7.2.2",
   "pytest-clarity==1.0.1",
@@ -75,15 +84,73 @@ dev = [
   "types-click==7.1.8",
   "types-PyYAML==6.0.12.9",
 ]
-[project.urls]
-Documentation = "https://FollowTheProcess.github.io/pytoil/"
-Homepage = "https://github.com/FollowTheProcess/pytoil"
-Source = "https://github.com/FollowTheProcess/pytoil"
-[project.scripts]
-pytoil = "pytoil.cli.root:main"
 
-[tool.isort]
-profile = "black"
+[tool.hatch.envs.default.scripts]
+check = [
+  "pytest --cov ./src ./tests",
+  "pre-commit run --all-files",
+  "mypy",
+]
+
+[tool.hatch.envs.tests]
+template = "tests" # Don't inherit from default
+description = """
+Environment for running tests, contains only the
+test dependencies and installs the project.
+"""
+dependencies = [
+  "pytest",
+  "pytest-cov",
+  "pytest-mock",
+  "pytest-httpx",
+  "pytest-randomly",
+  "covdefaults",
+  "freezegun",
+  "coverage[toml]",
+]
+
+[tool.hatch.envs.tests.scripts]
+run = "pytest --cov ./src ./tests"
+
+cov = [
+  "run",
+  "coverage xml",
+]
+
+[tool.hatch.envs.lint]
+detached = true
+description = """
+Environment for running linters, contains only the linting
+dependencies and does not install the project.
+"""
+dependencies = [
+  "pre-commit",
+  "mypy",
+  "pydantic",
+  "types-PyYAML",
+]
+
+[tool.hatch.envs.lint.scripts]
+run = [
+  "pre-commit run --all-files",
+  "mypy",
+]
+
+[tool.hatch.envs.docs]
+detached = true
+description = """
+Environment for building and serving docs, contains only
+the docs dependencies and does not install the project.
+"""
+dependencies = [
+  "mkdocs",
+  "mkdocs-material",
+]
+
+[tool.hatch.envs.docs.scripts]
+build = "mkdocs build --clean"
+serve = "mkdocs serve"
+deploy = "mkdocs gh-deploy"
 
 [tool.pytest.ini_options]
 minversion = "7.0"
@@ -111,7 +178,7 @@ exclude_lines = [ "def __repr__", "except ImportError" ]
 
 [tool.mypy]
 files = [ "**/*.py" ]
-python_version = "3.11"
+python_version = "3.9"
 ignore_missing_imports = true
 strict = true
 pretty = true
