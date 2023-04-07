@@ -150,7 +150,7 @@ dependencies = [
 [tool.hatch.envs.docs.scripts]
 build = "mkdocs build --clean"
 serve = "mkdocs serve"
-deploy = "mkdocs gh-deploy"
+deploy = "mkdocs gh-deploy --force"
 
 [tool.pytest.ini_options]
 minversion = "7.0"
