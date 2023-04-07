@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-import shutil
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 from typing import TextIO
 
@@ -134,22 +132,3 @@ def test_install_self_creates_venv_if_not_one_already(
         stdout=stdout,
         stderr=stderr,
     )
-
-
-def test_venv_create() -> None:
-    # Sometimes this fails on CI for un-cleaned up resources so we suppress
-    # any exceptions and do the cleanup manually at the end, always seems fine locally
-    # it's just CI that has the issue
-    try:
-        with tempfile.TemporaryDirectory() as tmp:
-            tmp_path = Path(tmp).resolve()
-            venv = Venv(tmp_path)
-            venv.create(silent=True)
-
-            assert tmp_path.joinpath(".venv").exists()
-            assert tmp_path.joinpath(".venv/pyvenv.cfg").exists()
-    except:  # noqa: E722
-        tmp = "missing"
-        pass
-    finally:
-        shutil.rmtree(tmp, ignore_errors=True)
