@@ -18,7 +18,7 @@ import yaml
 
 if TYPE_CHECKING:
     try:
-        from typing import TypeAlias
+        from typing import TypeAlias  # type: ignore[attr-defined,misc]
     except ImportError:
         from typing_extensions import TypeAlias
 

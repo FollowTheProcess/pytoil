@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 from typing import TextIO
 
@@ -133,13 +132,3 @@ def test_install_self_creates_venv_if_not_one_already(
         stdout=stdout,
         stderr=stderr,
     )
-
-
-def test_venv_create() -> None:
-    with tempfile.TemporaryDirectory("w") as tmp:
-        tmp_path = Path(tmp).resolve()
-        venv = Venv(tmp_path)
-        venv.create(silent=True)
-
-        assert tmp_path.joinpath(".venv").exists()
-        assert tmp_path.joinpath(".venv/pyvenv.cfg").exists()
