@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import contextlib
 import shutil
 import subprocess
 import sys
@@ -141,12 +140,16 @@ def test_venv_create() -> None:
     # Sometimes this fails on CI for un-cleaned up resources so we suppress
     # any exceptions and do the cleanup manually at the end, always seems fine locally
     # it's just CI that has the issue
-    with contextlib.suppress(Exception), tempfile.TemporaryDirectory() as tmp:
-        tmp_path = Path(tmp).resolve()
-        venv = Venv(tmp_path)
-        venv.create(silent=True)
+    try:
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp).resolve()
+            venv = Venv(tmp_path)
+            venv.create(silent=True)
 
-        assert tmp_path.joinpath(".venv").exists()
-        assert tmp_path.joinpath(".venv/pyvenv.cfg").exists()
-
-    shutil.rmtree(tmp, ignore_errors=True)
+            assert tmp_path.joinpath(".venv").exists()
+            assert tmp_path.joinpath(".venv/pyvenv.cfg").exists()
+    except:  # noqa: E722
+        tmp = "missing"
+        pass
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
