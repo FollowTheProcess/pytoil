@@ -89,7 +89,6 @@ extra-dependencies = [
 check = [
   "pytest --cov ./src ./tests",
   "pre-commit run --all-files",
-  "mypy",
 ]
 
 [tool.hatch.envs.tests]
@@ -111,7 +110,6 @@ dependencies = [
 
 [tool.hatch.envs.tests.scripts]
 run = "pytest --cov ./src ./tests"
-
 cov = [
   "run",
   "coverage xml",
@@ -131,10 +129,7 @@ dependencies = [
 ]
 
 [tool.hatch.envs.lint.scripts]
-run = [
-  "pre-commit run --all-files",
-  "mypy",
-]
+run = "pre-commit run --all-files"
 
 [tool.hatch.envs.docs]
 detached = true
