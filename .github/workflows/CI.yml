@@ -123,13 +123,10 @@ jobs:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+      - name: Publish Draft Release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-        with:
-          draft: false
-          prerelease: false
-          files: |
-            dist/*
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          DRAFT_RELEASE_TAG=$(gh api repos/${{ github.repository }}/releases --jq '.[] | select(.draft==true) | .tag_name')
+          gh release edit $DRAFT_RELEASE_TAG --draft=false --latest --tag ${{ github.ref_name }} --title ${{ github.ref_name }} --repo ${{ github.repository }}
+          gh release upload ${{ github.ref_name }} --repo ${{ github.repository }} dist/*
