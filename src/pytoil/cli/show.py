@@ -109,7 +109,7 @@ def local(config: Config, limit: int) -> None:
                 datetime.utcfromtimestamp(result.st_birthtime), when=datetime.utcnow()  # type: ignore[attr-defined]
             ),
             humanize.naturaltime(
-                datetime.utcfromtimestamp(result.st_mtime), when=datetime.utcnow()  # type: ignore[attr-defined]
+                datetime.utcfromtimestamp(result.st_mtime), when=datetime.utcnow()
             ),
         )
 
