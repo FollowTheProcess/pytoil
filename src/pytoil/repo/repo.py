@@ -112,7 +112,7 @@ class Repo:
                 "Name": self.local_path.name,
                 "Created": humanize.naturaltime(
                     datetime.utcfromtimestamp(self.local_path.stat().st_birthtime),
-                    when=datetime.utcnow(),
+                    when=datetime.utcnow(),  # type: ignore[attr-defined]
                 ),
                 "Updated": humanize.naturaltime(
                     datetime.utcfromtimestamp(self.local_path.stat().st_mtime),
