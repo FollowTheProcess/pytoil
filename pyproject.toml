@@ -26,9 +26,9 @@ classifiers = [
   "License :: OSI Approved :: Apache Software License",
   "Natural Language :: English",
   "Operating System :: MacOS :: MacOS X",
-  "Operating System :: POSIX :: Linux",
   "Operating System :: Microsoft :: Windows",
   "Operating System :: OS Independent",
+  "Operating System :: POSIX :: Linux",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.9",
@@ -77,10 +77,10 @@ extra-dependencies = [
   "pytest==7.2.2",
   "pytest-clarity==1.0.1",
   "pytest-cov==4",
-  "pytest-httpx==0.21.3",
+  "pytest-httpx==0.22.0",
   "pytest-mock==3.10",
   "pytest-randomly==3.12",
-  "ruff==0.0.260",
+  "ruff==0.0.262",
   "types-click==7.1.8",
   "types-PyYAML==6.0.12.9",
 ]
@@ -221,6 +221,7 @@ ignore = [
   "ANN101", # Missing type annotation for self in method
   "S105",   # Hardcoded passwords (lots of false positives)
   "S106",   # Hardcoded passwords (again?)
+  "S603",   # Subprocess calls
 ]
 
 [tool.ruff.mccabe]
