@@ -50,7 +50,7 @@ dependencies = [
   "rtoml==0.9",
   "thefuzz[speedup]==0.19",
   'typing_extensions==4.4; python_version <= "3.9"',
-  "virtualenv==20.22",
+  "virtualenv==20.23",
 ]
 [project.urls]
 Documentation = "https://FollowTheProcess.github.io/pytoil/"
