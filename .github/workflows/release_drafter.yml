@@ -10,6 +10,8 @@ on:
       - reopened
       - synchronize
 
+permissions: read-all
+
 jobs:
   draft_release:
     name: Draft Release
