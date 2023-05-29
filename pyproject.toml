@@ -43,7 +43,7 @@ dependencies = [
   "copier==7.2",
   "httpx==0.24.1",
   "humanize==4.6",
-  "pydantic==1.10.7",
+  "pydantic==1.10.8",
   "PyYAML==6",
   "questionary==1.10",
   "rich==13.3.5",
