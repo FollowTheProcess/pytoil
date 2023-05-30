@@ -1,14 +1,16 @@
-version = "0.38.1"
+version = '0.38.2'
 
 [git]
-default-branch = "main"
-message-template = "Bump version {{.Current}} -> {{.Next}}"
-tag-template = "v{{.Next}}"
+default-branch = 'main'
+message-template = 'Bump version 0.38.1 -> 0.38.2'
+tag-template = 'v0.38.2'
 
 [[file]]
-path = "pyproject.toml"
-search = 'version = "{{.Current}}"'
+path = 'pyproject.toml'
+search = 'version = "0.38.1"'
+- = 'version = "0.38.2"'
 
 [[file]]
-path = "src/pytoil/__init__.py"
-search = '__version__ = "{{.Current}}"'
+path = 'src/pytoil/__init__.py'
+search = '__version__ = "0.38.1"'
+- = '__version__ = "0.38.2"'
