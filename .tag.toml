@@ -1,9 +1,14 @@
-[[tag.files]]
-path = "src/pytoil/__init__.py"
-search = '__version__ = "{{.Current}}"'
-replace = '__version__ = "{{.Next}}"'
+version = "0.38.1"
 
-[[tag.files]]
+[git]
+default-branch = "main"
+message-template = "Bump version {{.Current}} -> {{.Next}}"
+tag-template = "v{{.Next}}"
+
+[[file]]
 path = "pyproject.toml"
 search = 'version = "{{.Current}}"'
-replace = 'version = "{{.Next}}"'
+
+[[file]]
+path = "src/pytoil/__init__.py"
+search = '__version__ = "{{.Current}}"'
