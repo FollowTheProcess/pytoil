@@ -180,7 +180,7 @@ def new(  # noqa: C901
 
     elif _copier:
         printer.info(f"Creating {repo.name} from copier: {_copier}.")
-        copier.run_auto(src_path=_copier, dst_path=repo.local_path)
+        copier.run_copy(src_path=_copier, dst_path=repo.local_path)
 
     elif starter == "go":
         printer.info(f"Creating {repo.name} from starter: {starter}.")
