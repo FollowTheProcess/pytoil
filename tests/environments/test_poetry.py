@@ -12,7 +12,7 @@ from pytoil.environments import Poetry
 from pytoil.exceptions import PoetryNotInstalledError
 
 
-def test_poetry_instanciation_default() -> None:
+def test_poetry_instantiation_default() -> None:
     poetry = Poetry(root=Path("somewhere"))
 
     assert poetry.project_path == Path("somewhere").resolve()
