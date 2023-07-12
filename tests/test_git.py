@@ -18,7 +18,7 @@ def test_git_instanciation_default() -> None:
     assert git.git == shutil.which("git")
 
 
-def test_git_instanciation_passed() -> None:
+def test_git_instantiation_passed() -> None:
     git = Git(git="/some/path/to/git")
 
     assert git.git == "/some/path/to/git"
@@ -80,7 +80,7 @@ def test_git_clone(
     )
 
 
-def test_instantiation_raises_if_git_not_insalled() -> None:
+def test_instantiation_raises_if_git_not_installed() -> None:
     with pytest.raises(GitNotInstalledError):
         Git(git=None)
 
