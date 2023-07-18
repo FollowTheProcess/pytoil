@@ -70,20 +70,16 @@ def keep(config: Config, projects: tuple[str, ...], force: bool) -> None:
         if len(to_delete) <= 3:
             # Nice number to show the names
             question = questionary.confirm(
-                (
-                    f"This will delete {', '.join(to_delete)} from your local"
-                    " filesystem. Are you sure?"
-                ),
+                f"This will delete {', '.join(to_delete)} from your local"
+                " filesystem. Are you sure?",
                 default=False,
                 auto_enter=False,
             )
         else:
             # Too many to print the names nicely
             question = questionary.confirm(
-                (
-                    f"This will delete {len(to_delete)} projects from your local"
-                    " filesystem. Are you sure?"
-                ),
+                f"This will delete {len(to_delete)} projects from your local"
+                " filesystem. Are you sure?",
                 default=False,
                 auto_enter=False,
             )
