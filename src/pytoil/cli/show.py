@@ -106,7 +106,7 @@ def local(config: Config, limit: int) -> None:
         table.add_row(
             path.name,
             humanize.naturaltime(
-                datetime.utcfromtimestamp(result.st_birthtime), when=datetime.utcnow()
+                datetime.utcfromtimestamp(result.st_ctime), when=datetime.utcnow()
             ),
             humanize.naturaltime(
                 datetime.utcfromtimestamp(result.st_mtime), when=datetime.utcnow()
