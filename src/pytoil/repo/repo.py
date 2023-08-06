@@ -111,7 +111,7 @@ class Repo:
             return {
                 "Name": self.local_path.name,
                 "Created": humanize.naturaltime(
-                    datetime.utcfromtimestamp(self.local_path.stat().st_birthtime),  # type: ignore[attr-defined]
+                    datetime.utcfromtimestamp(self.local_path.stat().st_birthtime),
                     when=datetime.utcnow(),
                 ),
                 "Updated": humanize.naturaltime(
