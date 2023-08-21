@@ -38,7 +38,7 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [
-  "click==8.1.6",
+  "click==8.1.7",
   "cookiecutter==2.3",
   "copier==8.1",
   "httpx==0.24.1",
@@ -48,7 +48,7 @@ dependencies = [
   "questionary==2",
   "rich==13.5.2",
   "rtoml==0.9",
-  "thefuzz[speedup]==0.19",
+  "thefuzz[speedup]==0.20",
   'typing_extensions==4.4; python_version <= "3.9"',
   "virtualenv==20.24.3",
 ]
