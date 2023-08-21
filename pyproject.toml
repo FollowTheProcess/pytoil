@@ -48,7 +48,7 @@ dependencies = [
   "questionary==2",
   "rich==13.5.2",
   "rtoml==0.9",
-  "thefuzz[speedup]==0.19",
+  "thefuzz[speedup]==0.20.0",
   'typing_extensions==4.4; python_version <= "3.9"',
   "virtualenv==20.24.3",
 ]
