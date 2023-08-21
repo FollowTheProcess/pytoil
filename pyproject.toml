@@ -38,7 +38,7 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [
-  "click==8.1.6",
+  "click==8.1.7",
   "cookiecutter==2.3",
   "copier==8.1",
   "httpx==0.24.1",
