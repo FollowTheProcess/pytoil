@@ -13,8 +13,7 @@ class MkTemp(Protocol):
     Protocol for the mktemp fixture.
     """
 
-    def mktemp(self, name: str) -> Path:
-        ...
+    def mktemp(self, name: str) -> Path: ...
 
 
 @pytest.fixture()
