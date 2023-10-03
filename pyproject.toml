@@ -33,13 +33,14 @@ classifiers = [
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
   "Topic :: Software Development",
   "Topic :: Utilities",
   "Typing :: Typed",
 ]
 dependencies = [
   "click==8.1.7",
-  "cookiecutter==2.3.1",
+  "cookiecutter==2.4",
   "copier==8.1",
   "httpx==0.24.1",
   "humanize==4.8",
