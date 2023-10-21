@@ -18,7 +18,7 @@ import yaml
 
 if TYPE_CHECKING:
     try:
-        from typing import TypeAlias
+        from typing import TypeAlias  # type: ignore[attr-defined] # We run mypy on 3.9
     except ImportError:
         from typing_extensions import TypeAlias
 

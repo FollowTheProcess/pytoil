@@ -5,6 +5,7 @@ Collection of useful helpers for the CLI.
 Author: Tom Fleet
 Created: 30/12/2021
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING

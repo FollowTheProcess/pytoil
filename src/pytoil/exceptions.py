@@ -2,7 +2,6 @@
 Exceptions implemented in pytoil.
 """
 
-
 from __future__ import annotations
 
 

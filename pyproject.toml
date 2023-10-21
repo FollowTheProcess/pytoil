@@ -67,22 +67,22 @@ Default environment for development, contains everything
 you need to work on the project, installed by default.
 """
 extra-dependencies = [
-  "covdefaults==2.3",
-  "coverage[toml]==7.2.7",
-  "freezegun==1.2.2",
-  "mkdocs==1.5.2",
-  "mkdocs-material==9.1.21",
-  "mypy==1.4.1",
-  "pre-commit==3.3.3",
-  "pytest==7.4",
-  "pytest-clarity==1.0.1",
-  "pytest-cov==4.1",
-  "pytest-httpx==0.23.1",
-  "pytest-mock==3.11.1",
-  "pytest-randomly==3.13",
-  "ruff==0.0.282",
-  "types-click==7.1.8",
-  "types-PyYAML==6.0.12.11",
+  "covdefaults",
+  "coverage[toml]",
+  "freezegun",
+  "mkdocs",
+  "mkdocs-material",
+  "mypy",
+  "pre-commit",
+  "pytest",
+  "pytest-clarity",
+  "pytest-cov",
+  "pytest-httpx",
+  "pytest-mock",
+  "pytest-randomly",
+  "ruff",
+  "types-click",
+  "types-PyYAML",
 ]
 
 [tool.hatch.envs.default.scripts]
@@ -234,7 +234,7 @@ exclude_lines = [ "def __repr__", "except ImportError" ]
 
 [tool.mypy]
 files = [ "**/*.py" ]
-python_version = "3.11"
+python_version = "3.9"
 ignore_missing_imports = true
 strict = true
 pretty = true
