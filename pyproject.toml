@@ -234,7 +234,7 @@ exclude_lines = [ "def __repr__", "except ImportError" ]
 
 [tool.mypy]
 files = [ "**/*.py" ]
-python_version = "3.11"
+python_version = "3.9"
 ignore_missing_imports = true
 strict = true
 pretty = true
