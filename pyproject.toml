@@ -41,7 +41,7 @@ classifiers = [
 dependencies = [
   "click==8.1.7",
   "cookiecutter==2.4",
-  "copier==8.1",
+  "copier==8.3.0",
   "httpx==0.24.1",
   "humanize==4.8",
   "pydantic==1.10.9",
