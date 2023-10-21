@@ -5,7 +5,7 @@
 [![GitHub](https://img.shields.io/github/v/release/FollowTheProcess/pytoil?logo=github&sort=semver)](https://github.com/FollowTheProcess/pytoil)
 [![Code Style](https://img.shields.io/badge/code%20style-black-black)](https://github.com/FollowTheProcess/pytoil)
 [![Hatch project](https://img.shields.io/badge/%F0%9F%A5%9A-Hatch-4051b5.svg)](https://github.com/pypa/hatch)
-[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v1.json)](https://github.com/charliermarsh/ruff)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![CI](https://github.com/FollowTheProcess/pytoil/workflows/CI/badge.svg)](https://github.com/FollowTheProcess/pytoil/actions?query=workflow%3ACI)
 [![codecov](https://codecov.io/gh/FollowTheProcess/pytoil/branch/main/graph/badge.svg?token=OLMR2P3J6N)](https://codecov.io/gh/FollowTheProcess/pytoil)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/FollowTheProcess/pytoil/main.svg)](https://results.pre-commit.ci/latest/github/FollowTheProcess/pytoil/main)
