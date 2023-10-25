@@ -30,10 +30,7 @@ class RustStarter:
         self.files = [self.root.joinpath(filename) for filename in ["README.md"]]
 
     def __repr__(self) -> str:
-        return (
-            self.__class__.__qualname__
-            + f"(path={self.path!r}, name={self.name!r}, cargo={self.cargo!r})"
-        )
+        return self.__class__.__qualname__ + f"(path={self.path!r}, name={self.name!r}, cargo={self.cargo!r})"
 
     __slots__ = ("path", "name", "cargo", "root", "files")
 

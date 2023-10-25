@@ -112,9 +112,7 @@ def checkout(config: Config, project: str, venv: bool) -> None:
         # to create a fork
         owner, name = project.split("/")
         if owner == config.username:
-            printer.warn(
-                "You don't need the '/' when checking out a repo you own", exits=1
-            )
+            printer.warn("You don't need the '/' when checking out a repo you own", exits=1)
 
         checkout_fork(
             owner=owner,
@@ -135,9 +133,7 @@ def checkout(config: Config, project: str, venv: bool) -> None:
         else:
             printer.error(f"{project!r} not found locally or on GitHub.")
             local_projects: set[str] = {
-                f.name
-                for f in config.projects_dir.iterdir()
-                if f.is_dir() and not f.name.startswith(".")
+                f.name for f in config.projects_dir.iterdir() if f.is_dir() and not f.name.startswith(".")
             }
             try:
                 remote_projects = api.get_repo_names()
@@ -178,17 +174,13 @@ def checkout_fork(
         name=name,
         local_path=config.projects_dir.joinpath(name),
     )
-    original = Repo(
-        owner=owner, name=name, local_path=config.projects_dir.joinpath(name)
-    )
+    original = Repo(owner=owner, name=name, local_path=config.projects_dir.joinpath(name))
 
     if not original.exists_remote(api=api):
         printer.error(f"{owner}/{name} not found on GitHub. Was it a typo?", exits=1)
 
     printer.info(f"{owner}/{name} belongs to {owner}")
-    choice: str = questionary.select(
-        "Fork project or clone the original?", choices=("fork", "clone")
-    ).ask()
+    choice: str = questionary.select("Fork project or clone the original?", choices=("fork", "clone")).ask()
 
     if fork.exists_remote(api):
         printer.warn(f"Looks like you've already forked {owner}/{name}")
@@ -247,9 +239,7 @@ def handle_venv_creation(env: Environment | None) -> None:
         printer.warn("Unable to auto-detect required environment. Skipping.")
 
     else:
-        printer.info(
-            f"Auto creating virtual environment using: {env.name}", spaced=True
-        )
+        printer.info(f"Auto creating virtual environment using: {env.name}", spaced=True)
         if env.name == "conda":
             printer.note("Conda environments can take a few minutes to create.")
 

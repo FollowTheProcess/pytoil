@@ -59,9 +59,7 @@ def remove(config: Config, projects: tuple[str, ...], force: bool, all_: bool) -
     $ pytoil remove --all --force
     """
     local_projects: set[str] = {
-        f.name
-        for f in config.projects_dir.iterdir()
-        if f.is_dir() and not f.name.startswith(".")
+        f.name for f in config.projects_dir.iterdir() if f.is_dir() and not f.name.startswith(".")
     }
 
     if not local_projects:
@@ -93,16 +91,14 @@ def remove(config: Config, projects: tuple[str, ...], force: bool, all_: bool) -
         elif len(projects) <= 3:
             # Nice number to show the names
             question = questionary.confirm(
-                f"This will delete {', '.join(projects)} from your local"
-                " filesystem. Are you sure?",
+                f"This will delete {', '.join(projects)} from your local" " filesystem. Are you sure?",
                 default=False,
                 auto_enter=False,
             )
         else:
             # Too many to print the names nicely
             question = questionary.confirm(
-                f"This will delete {len(projects)} projects from your local"
-                " filesystem. Are you sure?",
+                f"This will delete {len(projects)} projects from your local" " filesystem. Are you sure?",
                 default=False,
                 auto_enter=False,
             )

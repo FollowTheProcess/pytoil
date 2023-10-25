@@ -32,9 +32,7 @@ def test_rust_starter_generate(mocker: MockerFixture) -> None:
     with tempfile.TemporaryDirectory() as tmpdir:
         starter = RustStarter(path=Path(tmpdir), name="temprust", cargo="notcargo")
 
-        mock_cargo_init = mocker.patch(
-            "pytoil.starters.rust.subprocess.run", autospec=True
-        )
+        mock_cargo_init = mocker.patch("pytoil.starters.rust.subprocess.run", autospec=True)
 
         starter.generate()
 

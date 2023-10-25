@@ -52,9 +52,7 @@ class Environment(Protocol):
         """
         ...
 
-    def create(
-        self, packages: Sequence[str] | None = None, silent: bool = False
-    ) -> None:
+    def create(self, packages: Sequence[str] | None = None, silent: bool = False) -> None:
         """
         Method to create the virtual environment. If packages are specified,
         these can be installed during environment creation.

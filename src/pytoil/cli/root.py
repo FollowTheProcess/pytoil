@@ -73,8 +73,7 @@ def main(ctx: click.Context) -> None:
     else:
         if not config.can_use_api():
             printer.error(
-                "You must set your GitHub username and personal access token to use"
-                " API features.",
+                "You must set your GitHub username and personal access token to use" " API features.",
                 exits=1,
             )
         # We have a valid config file at the right place so load it into click's
@@ -88,9 +87,7 @@ def interactive_config() -> None:
     to configure pytoil interactively.
     """
     printer.warn("No pytoil config file detected!")
-    interactive: bool = questionary.confirm(
-        "Interactively configure pytoil?", default=False, auto_enter=False
-    ).ask()
+    interactive: bool = questionary.confirm("Interactively configure pytoil?", default=False, auto_enter=False).ask()
 
     if not interactive:
         # User doesn't want to interactively walk through a config file
@@ -98,8 +95,7 @@ def interactive_config() -> None:
         Config.helper().write()
         printer.good("I made a default file for you.")
         printer.note(
-            f"It's here: {defaults.CONFIG_FILE}, you can edit it with `pytoil"
-            " config edit``",
+            f"It's here: {defaults.CONFIG_FILE}, you can edit it with `pytoil" " config edit``",
             exits=0,
         )
         return
@@ -115,18 +111,14 @@ def interactive_config() -> None:
 
     username: str = questionary.text("What's your GitHub username?").ask()
 
-    use_editor: bool = questionary.confirm(
-        "Auto open projects in an editor?", default=False, auto_enter=False
-    ).ask()
+    use_editor: bool = questionary.confirm("Auto open projects in an editor?", default=False, auto_enter=False).ask()
 
     if use_editor:
         editor: str = questionary.text("Name of the editor binary to use?").ask()
     else:
         editor = "None"
 
-    git: bool = questionary.confirm(
-        "Make git repos when creating new projects?", default=True, auto_enter=False
-    ).ask()
+    git: bool = questionary.confirm("Make git repos when creating new projects?", default=True, auto_enter=False).ask()
 
     conda_bin: str = questionary.select(
         "Use conda or mamba for conda environments?",

@@ -72,9 +72,7 @@ def test_install_self_venv_doesnt_exist(
 
     mock = mocker.patch("pytoil.environments.reqs.subprocess.run", autospec=True)
 
-    mock_create = mocker.patch(
-        "pytoil.environments.reqs.Requirements.create", autospec=True
-    )
+    mock_create = mocker.patch("pytoil.environments.reqs.Requirements.create", autospec=True)
 
     env = Requirements(root=Path("somewhere"))
 

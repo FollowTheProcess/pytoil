@@ -40,10 +40,7 @@ class API:
         self.url = url
 
     def __repr__(self) -> str:
-        return (
-            self.__class__.__qualname__
-            + f"(username={self.username}, token={self.token}, url={self.url})"
-        )
+        return self.__class__.__qualname__ + f"(username={self.username}, token={self.token}, url={self.url})"
 
     __slots__ = ("username", "token", "url")
 
@@ -197,9 +194,7 @@ class API:
         Takes a string datetime of GITHUB_TIME_FORMAT
         and converts it to our STR_TIME_FORMAT.
         """
-        s: str = humanize.naturaltime(
-            datetime.strptime(dt, GITHUB_TIME_FORMAT), when=datetime.utcnow()
-        )
+        s: str = humanize.naturaltime(datetime.strptime(dt, GITHUB_TIME_FORMAT), when=datetime.utcnow())
         return s
 
     def get_repo_info(self, name: str) -> dict[str, Any] | None:
@@ -232,12 +227,8 @@ class API:
                     "Description": repo["description"],
                     "Created": self._humanize_datetime(repo["createdAt"]),
                     "Updated": self._humanize_datetime(repo["pushedAt"]),
-                    "Size": humanize.naturalsize(
-                        int(repo["diskUsage"]) * 1024
-                    ),  # diskUsage is in kB
-                    "License": (
-                        repo["licenseInfo"]["name"] if repo.get("licenseInfo") else None
-                    ),
+                    "Size": humanize.naturalsize(int(repo["diskUsage"]) * 1024),  # diskUsage is in kB
+                    "License": (repo["licenseInfo"]["name"] if repo.get("licenseInfo") else None),
                     "Language": repo["primaryLanguage"]["name"],
                     "Remote": True,
                 }

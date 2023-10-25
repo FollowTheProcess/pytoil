@@ -66,8 +66,7 @@ class Conda:
 
     def __repr__(self) -> str:
         return (
-            self.__class__.__qualname__
-            + f"(root={self.root!r}, environment_name={self.environment_name!r},"
+            self.__class__.__qualname__ + f"(root={self.root!r}, environment_name={self.environment_name!r},"
             f" conda={self.conda!r})"
         )
 
@@ -115,8 +114,10 @@ class Conda:
             if directory.exists() and directory.is_dir():
                 return directory.joinpath("envs")
 
-        raise UnsupportedCondaInstallationError(f"""Could not detect the type of conda
-        installation present. Checked for: {names}""")
+        raise UnsupportedCondaInstallationError(
+            f"""Could not detect the type of conda
+        installation present. Checked for: {names}"""
+        )
 
     def exists(self) -> bool:
         """
@@ -128,9 +129,7 @@ class Conda:
         """
         return self.executable.exists()
 
-    def create(
-        self, packages: Sequence[str] | None = None, silent: bool = False
-    ) -> None:
+    def create(self, packages: Sequence[str] | None = None, silent: bool = False) -> None:
         """
         Creates the conda environment described by the instance.
 
@@ -155,9 +154,7 @@ class Conda:
             raise CondaNotInstalledError
 
         if self.exists():
-            raise EnvironmentAlreadyExistsError(
-                f"Conda env: {self.environment_name!r} already exists"
-            )
+            raise EnvironmentAlreadyExistsError(f"Conda env: {self.environment_name!r} already exists")
 
         cmd = [self.conda, "create", "-y", "--name", self.environment_name, "python=3"]
 
@@ -201,16 +198,13 @@ class Conda:
         env_name = env_dict.get("name")
         if not isinstance(env_name, str):
             raise BadEnvironmentFileError(
-                "The environment yml file has an invalid format. Cannot determine value"
-                " for key: `name`."
+                "The environment yml file has an invalid format. Cannot determine value" " for key: `name`."
             )
 
         env = Conda(root=project_path, environment_name=env_name)
 
         if env.exists():
-            raise EnvironmentAlreadyExistsError(
-                f"Conda env: {env_name!r} already exists."
-            )
+            raise EnvironmentAlreadyExistsError(f"Conda env: {env_name!r} already exists.")
         # Can't use self.conda here as static method so just rely on $PATH
         subprocess.run(
             [conda, "env", "create", "--file", f"{yml_file}"],
@@ -276,8 +270,7 @@ class Conda:
 
         if not self.exists():
             raise EnvironmentDoesNotExistError(
-                f"Conda env: {self.environment_name!r} does not exist. Create it first"
-                " before installing packages."
+                f"Conda env: {self.environment_name!r} does not exist. Create it first" " before installing packages."
             )
 
         subprocess.run(
@@ -300,6 +293,4 @@ class Conda:
         if not self.conda:
             raise CondaNotInstalledError
 
-        self.create_from_yml(
-            project_path=self.project_path, conda=self.conda, silent=silent
-        )
+        self.create_from_yml(project_path=self.project_path, conda=self.conda, silent=silent)

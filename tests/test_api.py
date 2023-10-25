@@ -18,14 +18,10 @@ def test_headers() -> None:
     }
 
 
-def test_get_repo_names(
-    httpx_mock: HTTPXMock, fake_get_repo_names_response: dict[str, Any]
-) -> None:
+def test_get_repo_names(httpx_mock: HTTPXMock, fake_get_repo_names_response: dict[str, Any]) -> None:
     api = API(username="me", token="definitelynotatoken")
 
-    httpx_mock.add_response(
-        url=api.url, json=fake_get_repo_names_response, status_code=200
-    )
+    httpx_mock.add_response(url=api.url, json=fake_get_repo_names_response, status_code=200)
 
     names = api.get_repo_names()
 
@@ -45,9 +41,7 @@ def test_check_repo_exists_returns_false_if_not_exists(
 ) -> None:
     api = API(username="me", token="definitelynotatoken")
 
-    httpx_mock.add_response(
-        url=api.url, json=fake_repo_exists_false_response, status_code=200
-    )
+    httpx_mock.add_response(url=api.url, json=fake_repo_exists_false_response, status_code=200)
 
     exists = api.check_repo_exists(owner="me", name="dave")
 
@@ -59,9 +53,7 @@ def test_check_repo_exists_returns_true_if_exists(
 ) -> None:
     api = API(username="me", token="definitelynotatoken")
 
-    httpx_mock.add_response(
-        url=api.url, json=fake_repo_exists_true_response, status_code=200
-    )
+    httpx_mock.add_response(url=api.url, json=fake_repo_exists_true_response, status_code=200)
 
     exists = api.check_repo_exists(owner="me", name="pytoil")
 
@@ -69,9 +61,7 @@ def test_check_repo_exists_returns_true_if_exists(
 
 
 @freeze_time("2022-01-16")
-def test_get_repo_info_good_response(
-    httpx_mock: HTTPXMock, fake_repo_info_response: dict[str, Any]
-) -> None:
+def test_get_repo_info_good_response(httpx_mock: HTTPXMock, fake_repo_info_response: dict[str, Any]) -> None:
     api = API(username="me", token="definitelynotatoken")
 
     httpx_mock.add_response(url=api.url, json=fake_repo_info_response, status_code=200)
@@ -91,14 +81,10 @@ def test_get_repo_info_good_response(
 
 
 @freeze_time("2022-01-16")
-def test_get_repo_info_no_license(
-    httpx_mock: HTTPXMock, fake_repo_info_response_no_license: dict[str, Any]
-) -> None:
+def test_get_repo_info_no_license(httpx_mock: HTTPXMock, fake_repo_info_response_no_license: dict[str, Any]) -> None:
     api = API(username="me", token="definitelynotatoken")
 
-    httpx_mock.add_response(
-        url=api.url, json=fake_repo_info_response_no_license, status_code=200
-    )
+    httpx_mock.add_response(url=api.url, json=fake_repo_info_response_no_license, status_code=200)
 
     info = api.get_repo_info(name="pytoil")
 
@@ -117,16 +103,12 @@ def test_get_repo_info_no_license(
 def test_create_fork(httpx_mock: HTTPXMock) -> None:
     api = API(username="me", token="definitelynotatoken")
 
-    httpx_mock.add_response(
-        url="https://api.github.com/repos/someoneelse/project/forks", status_code=201
-    )
+    httpx_mock.add_response(url="https://api.github.com/repos/someoneelse/project/forks", status_code=201)
 
     api.create_fork(owner="someoneelse", repo="project")
 
 
-def test_get_repos(
-    httpx_mock: HTTPXMock, fake_get_repos_response: dict[str, Any]
-) -> None:
+def test_get_repos(httpx_mock: HTTPXMock, fake_get_repos_response: dict[str, Any]) -> None:
     api = API(username="me", token="definitelynotatoken")
 
     httpx_mock.add_response(url=api.url, json=fake_get_repos_response, status_code=200)
@@ -193,9 +175,7 @@ def test_get_repos(
     ]
 
 
-def test_get_forks(
-    httpx_mock: HTTPXMock, fake_get_forks_response: dict[str, Any]
-) -> None:
+def test_get_forks(httpx_mock: HTTPXMock, fake_get_forks_response: dict[str, Any]) -> None:
     api = API(username="me", token="definitelynotatoken")
 
     httpx_mock.add_response(url=api.url, json=fake_get_forks_response, status_code=200)

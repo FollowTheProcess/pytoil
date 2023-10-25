@@ -77,11 +77,7 @@ def local(config: Config, limit: int) -> None:
     $ pytoil show local --limit 5
     """
     console = Console()
-    local_projects: set[Path] = {
-        f
-        for f in config.projects_dir.iterdir()
-        if f.is_dir() and not f.name.startswith(".")
-    }
+    local_projects: set[Path] = {f for f in config.projects_dir.iterdir() if f.is_dir() and not f.name.startswith(".")}
 
     if not local_projects:
         printer.error("You don't have any local projects yet!", exits=1)
@@ -97,20 +93,13 @@ def local(config: Config, limit: int) -> None:
 
     printer.title("Local Projects", spaced=False)
     console.print(
-        f"[bright_black italic]\nShowing {min(limit, len(results))} out of"
-        f" {len(local_projects)} local projects [/]"
+        f"[bright_black italic]\nShowing {min(limit, len(results))} out of" f" {len(local_projects)} local projects [/]"
     )
-    for path, result in sorted(results.items(), key=lambda x: str.casefold(str(x[0])))[
-        :limit
-    ]:
+    for path, result in sorted(results.items(), key=lambda x: str.casefold(str(x[0])))[:limit]:
         table.add_row(
             path.name,
-            humanize.naturaltime(
-                datetime.utcfromtimestamp(result.st_ctime), when=datetime.utcnow()
-            ),
-            humanize.naturaltime(
-                datetime.utcfromtimestamp(result.st_mtime), when=datetime.utcnow()
-            ),
+            humanize.naturaltime(datetime.utcfromtimestamp(result.st_ctime), when=datetime.utcnow()),
+            humanize.naturaltime(datetime.utcfromtimestamp(result.st_mtime), when=datetime.utcnow()),
         )
 
     console.print(table)
@@ -164,8 +153,7 @@ def remote(config: Config, limit: int) -> None:
 
         printer.title("Remote Projects", spaced=False)
         console.print(
-            f"[bright_black italic]\nShowing {min(limit, len(repos))} out of"
-            f" {len(repos)} remote projects [/]"
+            f"[bright_black italic]\nShowing {min(limit, len(repos))} out of" f" {len(repos)} remote projects [/]"
         )
 
         for repo in repos[:limit]:
@@ -231,8 +219,7 @@ def forks(config: Config, limit: int) -> None:
 
         printer.title("Forked Projects", spaced=False)
         console.print(
-            f"[bright_black italic]\nShowing {min(limit, len(forks))} out of"
-            f" {len(forks)} forked projects [/]"
+            f"[bright_black italic]\nShowing {min(limit, len(forks))} out of" f" {len(forks)} forked projects [/]"
         )
 
         for repo in forks[:limit]:
@@ -283,9 +270,7 @@ def diff(config: Config, limit: int) -> None:
     api = API(username=config.username, token=config.token)
 
     local_projects: set[str] = {
-        f.name
-        for f in config.projects_dir.iterdir()
-        if f.is_dir() and not f.name.startswith(".")
+        f.name for f in config.projects_dir.iterdir() if f.is_dir() and not f.name.startswith(".")
     }
 
     try:
@@ -316,8 +301,7 @@ def diff(config: Config, limit: int) -> None:
 
             printer.title("Diff: Remote - Local", spaced=False)
             console.print(
-                f"[bright_black italic]\nShowing {min(limit, len(diff_info))} out of"
-                f" {len(diff_info)} projects [/]"
+                f"[bright_black italic]\nShowing {min(limit, len(diff_info))} out of" f" {len(diff_info)} projects [/]"
             )
 
             for repo in diff_info[:limit]:

@@ -41,10 +41,7 @@ def test_pulls_url() -> None:
 
 def test_repo_repr() -> None:
     repo = Repo(owner="me", name="project", local_path=Path("somewhere"))
-    assert (
-        repr(repo)
-        == f"Repo(owner='me', name='project', local_path={Path('somewhere')!r})"
-    )
+    assert repr(repo) == f"Repo(owner='me', name='project', local_path={Path('somewhere')!r})"
 
 
 @pytest.mark.parametrize(
@@ -67,9 +64,7 @@ def test_exists_remote_returns_false_when_remote_doesnt_exist(
 
     repo = Repo(owner="me", name="test", local_path=Path("doesn't/matter"))
 
-    httpx_mock.add_response(
-        url=api.url, json=fake_repo_exists_false_response, status_code=200
-    )
+    httpx_mock.add_response(url=api.url, json=fake_repo_exists_false_response, status_code=200)
 
     result = repo.exists_remote(api=api)
     assert result is False
@@ -82,18 +77,14 @@ def test_exists_remote_returns_true_when_remote_exists(
 
     repo = Repo(owner="me", name="test", local_path=Path("doesn't/matter"))
 
-    httpx_mock.add_response(
-        url=api.url, json=fake_repo_exists_true_response, status_code=200
-    )
+    httpx_mock.add_response(url=api.url, json=fake_repo_exists_true_response, status_code=200)
 
     result = repo.exists_remote(api=api)
     assert result is True
 
 
 @freeze_time("2022-01-22 09:00")
-def test_remote_info_returns_correct_details(
-    httpx_mock: HTTPXMock, fake_repo_info_response: dict[str, Any]
-) -> None:
+def test_remote_info_returns_correct_details(httpx_mock: HTTPXMock, fake_repo_info_response: dict[str, Any]) -> None:
     api = API(username="me", token="something")
     repo = Repo(owner="me", name="test", local_path=Path("somewhere"))
 
@@ -130,9 +121,7 @@ def test_does_file_exist(
     file: str,
     exists: bool,
 ) -> None:
-    repo = Repo(
-        owner="me", name="test", local_path=repo_folder_with_random_existing_files
-    )
+    repo = Repo(owner="me", name="test", local_path=repo_folder_with_random_existing_files)
 
     assert repo._file_exists(file) is exists
 
@@ -148,12 +137,8 @@ def test_does_file_exist(
         ("environment.yml", False),
     ],
 )
-def test_is_setuptools(
-    repo_folder_with_random_existing_files: Path, file: str, expect: bool
-) -> None:
-    repo = Repo(
-        owner="me", name="test", local_path=repo_folder_with_random_existing_files
-    )
+def test_is_setuptools(repo_folder_with_random_existing_files: Path, file: str, expect: bool) -> None:
+    repo = Repo(owner="me", name="test", local_path=repo_folder_with_random_existing_files)
 
     # Add in the required file to trigger
     repo_folder_with_random_existing_files.joinpath(file).touch()
@@ -162,9 +147,7 @@ def test_is_setuptools(
 
 
 def test_is_setuptools_pep621(project_with_setuptools_pep621_backend: Path) -> None:
-    repo = Repo(
-        owner="me", name="test", local_path=project_with_setuptools_pep621_backend
-    )
+    repo = Repo(owner="me", name="test", local_path=project_with_setuptools_pep621_backend)
 
     assert repo.is_setuptools() is True
 
@@ -180,12 +163,8 @@ def test_is_setuptools_pep621(project_with_setuptools_pep621_backend: Path) -> N
         ("environment.yml", True),
     ],
 )
-def test_is_conda(
-    repo_folder_with_random_existing_files: Path, file: str, expect: bool
-) -> None:
-    repo = Repo(
-        owner="me", name="test", local_path=repo_folder_with_random_existing_files
-    )
+def test_is_conda(repo_folder_with_random_existing_files: Path, file: str, expect: bool) -> None:
+    repo = Repo(owner="me", name="test", local_path=repo_folder_with_random_existing_files)
     # Add in the required file to trigger
     repo_folder_with_random_existing_files.joinpath(file).touch()
 

@@ -66,16 +66,12 @@ def pull(config: Config, projects: tuple[str, ...], force: bool, all_: bool) -> 
     $ pytoil pull --all --force
     """
     if not projects and not all_:
-        printer.error(
-            "If not using the '--all' flag, you must specify projects to pull.", exits=1
-        )
+        printer.error("If not using the '--all' flag, you must specify projects to pull.", exits=1)
 
     api = API(username=config.username, token=config.token)
 
     local_projects: set[str] = {
-        f.name
-        for f in config.projects_dir.iterdir()
-        if f.is_dir() and not f.name.startswith(".")
+        f.name for f in config.projects_dir.iterdir() if f.is_dir() and not f.name.startswith(".")
     }
 
     try:
@@ -91,9 +87,7 @@ def pull(config: Config, projects: tuple[str, ...], force: bool, all_: bool) -> 
         # Check for typos
         for project in projects:
             if project not in remote_projects:
-                printer.error(
-                    f"{project!r} not found on GitHub. Was it a typo?", exits=1
-                )
+                printer.error(f"{project!r} not found on GitHub. Was it a typo?", exits=1)
 
         diff = specified_remotes.difference(local_projects)
         if not diff:
@@ -106,9 +100,7 @@ def pull(config: Config, projects: tuple[str, ...], force: bool, all_: bool) -> 
                 # Too many to show nicely
                 message = f"This will pull down {len(diff)} projects. Are you sure?"
 
-            confirmed: bool = questionary.confirm(
-                message, default=False, auto_enter=False
-            ).ask()
+            confirmed: bool = questionary.confirm(message, default=False, auto_enter=False).ask()
 
             if not confirmed:
                 printer.warn("Aborted", exits=1)

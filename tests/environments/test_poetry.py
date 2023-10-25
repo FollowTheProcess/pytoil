@@ -77,9 +77,7 @@ def test_install_correctly_calls_poetry(
     poetry = Poetry(root=Path("somewhere"), poetry="notpoetry")
 
     # Mock out enforce local config as `install` runs this first
-    mocker.patch(
-        "pytoil.environments.poetry.Poetry.enforce_local_config", autospec=True
-    )
+    mocker.patch("pytoil.environments.poetry.Poetry.enforce_local_config", autospec=True)
 
     poetry.install(packages=["black", "isort", "flake8", "mypy"], silent=silent)
 
@@ -113,9 +111,7 @@ def test_install_self_correctly_calls_poetry(
     poetry = Poetry(root=Path("somewhere"), poetry="notpoetry")
 
     # Mock out enforce local config as `install` runs this first
-    mocker.patch(
-        "pytoil.environments.poetry.Poetry.enforce_local_config", autospec=True
-    )
+    mocker.patch("pytoil.environments.poetry.Poetry.enforce_local_config", autospec=True)
 
     poetry.install_self(silent=silent)
 

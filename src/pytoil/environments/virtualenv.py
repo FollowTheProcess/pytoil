@@ -53,9 +53,7 @@ class Venv:
         """
         return self.executable.exists()  # pragma: no cover
 
-    def create(
-        self, packages: Sequence[str] | None = None, silent: bool = False
-    ) -> None:
+    def create(self, packages: Sequence[str] | None = None, silent: bool = False) -> None:
         """
         Create the virtual environment in the project.
 

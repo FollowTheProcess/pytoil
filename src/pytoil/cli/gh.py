@@ -57,9 +57,7 @@ def gh(config: Config, project: str, issues: bool, prs: bool) -> None:
         utils.handle_http_status_error(err)
     else:
         if not exists:
-            printer.error(
-                f"Could not find {project!r} on GitHub. Was it a typo?", exits=1
-            )
+            printer.error(f"Could not find {project!r} on GitHub. Was it a typo?", exits=1)
         if issues:
             printer.info(f"Opening {project}'s issues on GitHub")
             click.launch(url=repo.issues_url)

@@ -13,7 +13,8 @@ class MkTemp(Protocol):
     Protocol for the mktemp fixture.
     """
 
-    def mktemp(self, name: str) -> Path: ...
+    def mktemp(self, name: str) -> Path:
+        ...
 
 
 @pytest.fixture()
@@ -75,9 +76,7 @@ def fake_get_repos_response() -> dict[str, Any]:
                         },
                         {
                             "name": "cookie_pypackage",
-                            "description": (
-                                "My own version of the Cookiecutter pypackage template"
-                            ),
+                            "description": ("My own version of the Cookiecutter pypackage template"),
                             "createdAt": "2020-07-04T10:05:36Z",
                             "pushedAt": "2021-12-03T08:45:49Z",
                             "diskUsage": 734,
@@ -162,10 +161,7 @@ def fake_repo_exists_false_response() -> dict[str, Any]:
                 "type": "NOT_FOUND",
                 "path": ["repository"],
                 "locations": [{"line": 7, "column": 3}],
-                "message": (
-                    "Could not resolve to a Repository with the name"
-                    " 'FollowTheProcess/dave'."
-                ),
+                "message": ("Could not resolve to a Repository with the name" " 'FollowTheProcess/dave'."),
             }
         ],
     }

@@ -63,9 +63,7 @@ def find(config: Config, project: str, limit: int) -> None:
     api = API(username=config.username, token=config.token)
 
     local_projects: set[str] = {
-        f.name
-        for f in config.projects_dir.iterdir()
-        if f.is_dir() and not f.name.startswith(".")
+        f.name for f in config.projects_dir.iterdir() if f.is_dir() and not f.name.startswith(".")
     }
     remote_projects = api.get_repo_names()
 
@@ -88,11 +86,7 @@ def find(config: Config, project: str, limit: int) -> None:
         table.add_row(
             match[0],
             str(match[1]),
-            (
-                Text("Local", style="green")
-                if is_local
-                else Text("Remote", style="dark_orange")
-            ),
+            (Text("Local", style="green") if is_local else Text("Remote", style="dark_orange")),
         )
 
     console = Console()

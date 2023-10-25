@@ -33,9 +33,7 @@ def test_go_starter_generate(mocker: MockerFixture) -> None:
     with tempfile.TemporaryDirectory() as tmpdir:
         starter = GoStarter(path=Path(tmpdir), name="tempgo", go="notgo")
 
-        mock_go_mod_init = mocker.patch(
-            "pytoil.starters.go.subprocess.run", autospec=True
-        )
+        mock_go_mod_init = mocker.patch("pytoil.starters.go.subprocess.run", autospec=True)
 
         starter.generate(username="me")
 
@@ -53,8 +51,4 @@ def test_go_starter_generate(mocker: MockerFixture) -> None:
         main_go_content = starter.root.joinpath("main.go").read_text()
 
         assert readme_content == "# tempgo\n"
-        assert (
-            main_go_content
-            == 'package main\n\nimport "fmt"\n\nfunc main() {\n\tfmt.Println("Hello'
-            ' World")\n}\n'
-        )
+        assert main_go_content == 'package main\n\nimport "fmt"\n\nfunc main() {\n\tfmt.Println("Hello' ' World")\n}\n'

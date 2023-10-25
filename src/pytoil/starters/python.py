@@ -19,10 +19,7 @@ class PythonStarter:
         self.path = path
         self.name = name
         self.root = self.path.joinpath(self.name).resolve()
-        self.files = [
-            self.root.joinpath(filename)
-            for filename in ["README.md", "requirements.txt", f"{self.name}.py"]
-        ]
+        self.files = [self.root.joinpath(filename) for filename in ["README.md", "requirements.txt", f"{self.name}.py"]]
 
     def __repr__(self) -> str:
         return self.__class__.__qualname__ + f"(path={self.path!r}, name={self.name!r})"
@@ -45,12 +42,8 @@ class PythonStarter:
         py_file = self.root.joinpath(f"{self.name}.py")
 
         # Populate the python file
-        py_text = (
-            'def hello(name: str = "world") -> None:\n    print(f"hello {name}")\n'
-        )
+        py_text = 'def hello(name: str = "world") -> None:\n    print(f"hello {name}")\n'
 
         readme.write_text(f"# {self.name}\n", encoding="utf-8")
-        reqs.write_text(
-            "# Put your requirements here e.g. flask>=1.0.0\n", encoding="utf-8"
-        )
+        reqs.write_text("# Put your requirements here e.g. flask>=1.0.0\n", encoding="utf-8")
         py_file.write_text(py_text, encoding="utf-8")

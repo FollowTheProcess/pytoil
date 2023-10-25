@@ -37,9 +37,7 @@ def test_git_repr() -> None:
         (False, sys.stdout, sys.stderr),
     ],
 )
-def test_git_init(
-    mocker: MockerFixture, silent: bool, stdout: TextIO | int, stderr: TextIO | int
-) -> None:
+def test_git_init(mocker: MockerFixture, silent: bool, stdout: TextIO | int, stderr: TextIO | int) -> None:
     mock = mocker.patch("pytoil.git.git.subprocess.run", autospec=True)
 
     git = Git(git="notgit")
@@ -61,16 +59,12 @@ def test_git_init(
         (False, sys.stdout, sys.stderr),
     ],
 )
-def test_git_clone(
-    mocker: MockerFixture, silent: bool, stdout: TextIO | int, stderr: TextIO | int
-) -> None:
+def test_git_clone(mocker: MockerFixture, silent: bool, stdout: TextIO | int, stderr: TextIO | int) -> None:
     mock = mocker.patch("pytoil.git.git.subprocess.run", autospec=True)
 
     git = Git(git="notgit")
 
-    git.clone(
-        url="https://nothub.com/some/project.git", cwd=Path("somewhere"), silent=silent
-    )
+    git.clone(url="https://nothub.com/some/project.git", cwd=Path("somewhere"), silent=silent)
 
     mock.assert_called_once_with(
         ["notgit", "clone", "https://nothub.com/some/project.git"],
@@ -92,9 +86,7 @@ def test_instantiation_raises_if_git_not_installed() -> None:
         (False, sys.stdout, sys.stderr),
     ],
 )
-def test_git_set_upstream(
-    mocker: MockerFixture, silent: bool, stdout: TextIO | int, stderr: TextIO | int
-) -> None:
+def test_git_set_upstream(mocker: MockerFixture, silent: bool, stdout: TextIO | int, stderr: TextIO | int) -> None:
     mock = mocker.patch("pytoil.git.git.subprocess.run", autospec=True)
 
     git = Git(git="notgit")
@@ -116,18 +108,14 @@ def test_git_set_upstream(
         (False, sys.stdout, sys.stderr),
     ],
 )
-def test_git_add_all(
-    mocker: MockerFixture, silent: bool, stdout: TextIO | int, stderr: TextIO | int
-) -> None:
+def test_git_add_all(mocker: MockerFixture, silent: bool, stdout: TextIO | int, stderr: TextIO | int) -> None:
     mock = mocker.patch("pytoil.git.git.subprocess.run", autospec=True)
 
     git = Git(git="notgit")
 
     git.add(cwd=Path("somewhere"), silent=silent)
 
-    mock.assert_called_once_with(
-        ["notgit", "add", "-A"], cwd=Path("somewhere"), stdout=stdout, stderr=stderr
-    )
+    mock.assert_called_once_with(["notgit", "add", "-A"], cwd=Path("somewhere"), stdout=stdout, stderr=stderr)
 
 
 @pytest.mark.parametrize(
@@ -137,9 +125,7 @@ def test_git_add_all(
         (False, sys.stdout, sys.stderr),
     ],
 )
-def test_git_commit(
-    mocker: MockerFixture, silent: bool, stdout: TextIO | int, stderr: TextIO | int
-) -> None:
+def test_git_commit(mocker: MockerFixture, silent: bool, stdout: TextIO | int, stderr: TextIO | int) -> None:
     mock = mocker.patch("pytoil.git.git.subprocess.run", autospec=True)
 
     git = Git(git="notgit")
