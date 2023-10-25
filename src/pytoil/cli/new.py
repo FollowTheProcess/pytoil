@@ -163,15 +163,11 @@ def new(  # noqa: C901
 
     if local:
         printer.error(f"{repo.name} already exists locally.")
-        printer.note(
-            f"To checkout this project, use `pytoil checkout {repo.name}`.", exits=1
-        )
+        printer.note(f"To checkout this project, use `pytoil checkout {repo.name}`.", exits=1)
 
     if remote:
         printer.error(f"{repo.name} already exists on GitHub.")
-        printer.note(
-            f"To checkout this project, use `pytoil checkout {repo.name}`.", exits=1
-        )
+        printer.note(f"To checkout this project, use `pytoil checkout {repo.name}`.", exits=1)
 
     # If we get here, we're good to create a new project
     if cookie:
@@ -244,9 +240,7 @@ def new(  # noqa: C901
         if to_install:
             printer.note(f"Including {', '.join(to_install)}")
 
-        conda_env = Conda(
-            root=repo.local_path, environment_name=repo.name, conda=config.conda_bin
-        )
+        conda_env = Conda(root=repo.local_path, environment_name=repo.name, conda=config.conda_bin)
         try:
             conda_env.create(packages=to_install)
         except EnvironmentAlreadyExistsError:

@@ -109,9 +109,7 @@ class Git:
             stderr=subprocess.DEVNULL if silent else sys.stderr,
         )
 
-    def set_upstream(
-        self, owner: str, repo: str, cwd: Path, silent: bool = True
-    ) -> None:
+    def set_upstream(self, owner: str, repo: str, cwd: Path, silent: bool = True) -> None:
         """
         Sets the upstream repo for a local repo, e.g. on a cloned fork.
 

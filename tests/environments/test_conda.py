@@ -56,11 +56,7 @@ def test_conda_passed(mocker: MockerFixture) -> None:
 
 def test_conda_repr() -> None:
     conda = Conda(root=Path("somewhere"), environment_name="test", conda="notconda")
-    assert (
-        repr(conda)
-        == f"Conda(root={Path('somewhere')!r}, environment_name='test',"
-        " conda='notconda')"
-    )
+    assert repr(conda) == f"Conda(root={Path('somewhere')!r}, environment_name='test'," " conda='notconda')"
 
 
 @pytest.mark.parametrize(
@@ -101,9 +97,7 @@ def test_create_raises_if_environment_already_exists(mocker: MockerFixture) -> N
     conda = Conda(root=Path("somewhere"), environment_name="test", conda="notconda")
 
     # Make it think our "test" environment already exists
-    mocker.patch(
-        "pytoil.environments.conda.Conda.exists", autospec=True, return_value=True
-    )
+    mocker.patch("pytoil.environments.conda.Conda.exists", autospec=True, return_value=True)
 
     with pytest.raises(EnvironmentAlreadyExistsError):
         conda.create()
@@ -135,9 +129,7 @@ def test_create_correctly_adds_packages_if_specified(
 ) -> None:
     conda = Conda(root=Path("somewhere"), environment_name="test", conda="notconda")
 
-    mock_subprocess = mocker.patch(
-        "pytoil.environments.conda.subprocess.run", autospec=True
-    )
+    mock_subprocess = mocker.patch("pytoil.environments.conda.subprocess.run", autospec=True)
 
     # Mock the return of get_envs_dir so it thinks it exists regardless
     # of whether the tester has conda installed or not
@@ -177,9 +169,7 @@ def test_create_doesnt_add_packages_if_not_specified(
 ) -> None:
     conda = Conda(root=Path("somewhere"), environment_name="test", conda="notconda")
 
-    mock_subprocess = mocker.patch(
-        "pytoil.environments.conda.subprocess.run", autospec=True
-    )
+    mock_subprocess = mocker.patch("pytoil.environments.conda.subprocess.run", autospec=True)
 
     # Mock the return of get_envs_dir so it thinks it exists regardless
     # of whether the tester has conda installed or not
@@ -228,9 +218,7 @@ def test_create_from_yml_correctly_calls_subprocess(
     stderr: TextIO | int,
 ) -> None:
     # Mock out the actual call to conda
-    mock_subprocess = mocker.patch(
-        "pytoil.environments.conda.subprocess.run", autospec=True
-    )
+    mock_subprocess = mocker.patch("pytoil.environments.conda.subprocess.run", autospec=True)
 
     # Give it a fake envs dir
     mocker.patch(
@@ -248,9 +236,7 @@ def test_create_from_yml_correctly_calls_subprocess(
 
     conda = Conda(root=Path("somewhere"), environment_name="test", conda="notconda")
 
-    conda.create_from_yml(
-        project_path=temp_environment_yml.parent, conda="notconda", silent=silent
-    )
+    conda.create_from_yml(project_path=temp_environment_yml.parent, conda="notconda", silent=silent)
 
     mock_subprocess.assert_called_once_with(
         ["notconda", "env", "create", "--file", f"{temp_environment_yml.resolve()}"],
@@ -260,9 +246,7 @@ def test_create_from_yml_correctly_calls_subprocess(
     )
 
 
-def test_create_from_yml_raises_on_bad_yml_file(
-    mocker: MockerFixture, bad_temp_environment_yml: Path
-) -> None:
+def test_create_from_yml_raises_on_bad_yml_file(mocker: MockerFixture, bad_temp_environment_yml: Path) -> None:
     # Ensure shutil.which doesn't fail
     mocker.patch(
         "pytoil.environments.conda.shutil.which",
@@ -287,21 +271,15 @@ def test_create_from_yml_raises_if_environment_already_exists(
     )
 
     # Make it think the environment already exists
-    mocker.patch(
-        "pytoil.environments.conda.Conda.exists", autospec=True, return_value=True
-    )
+    mocker.patch("pytoil.environments.conda.Conda.exists", autospec=True, return_value=True)
 
     conda = Conda(root=Path("somewhere"), environment_name="test", conda="notconda")
 
     with pytest.raises(EnvironmentAlreadyExistsError):
-        conda.create_from_yml(
-            project_path=temp_environment_yml.parent, conda="notconda"
-        )
+        conda.create_from_yml(project_path=temp_environment_yml.parent, conda="notconda")
 
 
-def test_get_envs_dir_returns_correctly_for_miniconda(
-    mocker: MockerFixture, fake_home_folder_miniconda: Path
-) -> None:
+def test_get_envs_dir_returns_correctly_for_miniconda(mocker: MockerFixture, fake_home_folder_miniconda: Path) -> None:
     mocker.patch(
         "pytoil.environments.conda.Path.home",
         autospec=True,
@@ -315,9 +293,7 @@ def test_get_envs_dir_returns_correctly_for_miniconda(
     assert env == expected_env_dir
 
 
-def test_get_envs_dir_returns_correctly_for_anaconda(
-    mocker: MockerFixture, fake_home_folder_anaconda: Path
-) -> None:
+def test_get_envs_dir_returns_correctly_for_anaconda(mocker: MockerFixture, fake_home_folder_anaconda: Path) -> None:
     mocker.patch(
         "pytoil.environments.conda.Path.home",
         autospec=True,
@@ -331,9 +307,7 @@ def test_get_envs_dir_returns_correctly_for_anaconda(
     assert env == expected_env_dir
 
 
-def test_get_envs_dir_returns_correctly_for_miniforge(
-    mocker: MockerFixture, fake_home_folder_miniforge: Path
-) -> None:
+def test_get_envs_dir_returns_correctly_for_miniforge(mocker: MockerFixture, fake_home_folder_miniforge: Path) -> None:
     mocker.patch(
         "pytoil.environments.conda.Path.home",
         autospec=True,
@@ -363,9 +337,7 @@ def test_get_envs_dir_returns_correctly_for_mambaforge(
     assert env == expected_env_dir
 
 
-def test_get_envs_dir_raises_if_none_found(
-    mocker: MockerFixture, fake_home_folder_no_conda: Path
-) -> None:
+def test_get_envs_dir_raises_if_none_found(mocker: MockerFixture, fake_home_folder_no_conda: Path) -> None:
     mocker.patch(
         "pytoil.environments.conda.Path.home",
         autospec=True,
@@ -404,9 +376,7 @@ def test_install_passes_correct_command(
 
     mocker.patch("pytoil.environments.Conda.exists", autospec=True, return_value=True)
 
-    mock_subprocess = mocker.patch(
-        "pytoil.environments.conda.subprocess.run", autospec=True
-    )
+    mock_subprocess = mocker.patch("pytoil.environments.conda.subprocess.run", autospec=True)
 
     env = Conda(root=fake_project, environment_name="testy", conda="notconda")
 
@@ -437,12 +407,8 @@ def test_install_raises_if_conda_not_installed() -> None:
 
 
 @pytest.mark.parametrize("silent", [True, False])
-def test_install_self_calls_create_from_yml(
-    mocker: MockerFixture, silent: bool
-) -> None:
-    mock_create_from_yml = mocker.patch(
-        "pytoil.environments.conda.Conda.create_from_yml", autospec=True
-    )
+def test_install_self_calls_create_from_yml(mocker: MockerFixture, silent: bool) -> None:
+    mock_create_from_yml = mocker.patch("pytoil.environments.conda.Conda.create_from_yml", autospec=True)
 
     conda = Conda(root=Path("somewhere"), environment_name="testy", conda="notconda")
 
@@ -454,9 +420,7 @@ def test_install_self_calls_create_from_yml(
 
 
 @pytest.mark.parametrize("silent", [True, False])
-def test_install_self_raises_if_conda_not_installed(
-    mocker: MockerFixture, silent: bool
-) -> None:
+def test_install_self_raises_if_conda_not_installed(mocker: MockerFixture, silent: bool) -> None:
     mocker.patch("pytoil.environments.conda.Conda.create_from_yml", autospec=True)
 
     conda = Conda(root=Path("somewhere"), environment_name="testy", conda=None)
@@ -493,9 +457,7 @@ def test_export_yml(mocker: MockerFixture, temp_environment_yml: Path) -> None:
         return_value=True,
     )
 
-    conda = Conda(
-        root=temp_environment_yml.parent, environment_name="testy", conda="notconda"
-    )
+    conda = Conda(root=temp_environment_yml.parent, environment_name="testy", conda="notconda")
 
     class Process(NamedTuple):
         content: str = """

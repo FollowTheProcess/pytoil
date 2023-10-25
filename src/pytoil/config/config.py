@@ -43,17 +43,13 @@ class Config(BaseModel):
             FileNotFoundError: If config file not found.
         """
         try:
-            config_dict: dict[str, Any] = rtoml.loads(
-                path.read_text(encoding="utf-8")
-            ).get("pytoil", "")
+            config_dict: dict[str, Any] = rtoml.loads(path.read_text(encoding="utf-8")).get("pytoil", "")
         except FileNotFoundError:
             raise
         else:
             # This is actually covered
             if config_dict.get("projects_dir"):  # pragma: no cover
-                config_dict["projects_dir"] = (
-                    Path(config_dict["projects_dir"]).expanduser().resolve()
-                )
+                config_dict["projects_dir"] = Path(config_dict["projects_dir"]).expanduser().resolve()
             return Config(**config_dict)
 
     @staticmethod
@@ -98,9 +94,7 @@ class Config(BaseModel):
             path (Path, optional): Config file to overwrite.
                 Defaults to defaults.CONFIG_FILE.
         """
-        path.write_text(
-            rtoml.dumps({"pytoil": self.to_dict()}, pretty=True), encoding="utf-8"
-        )
+        path.write_text(rtoml.dumps({"pytoil": self.to_dict()}, pretty=True), encoding="utf-8")
 
     def can_use_api(self) -> bool:
         """

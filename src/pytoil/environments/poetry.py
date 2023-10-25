@@ -32,10 +32,7 @@ class Poetry:
         self.poetry = poetry
 
     def __repr__(self) -> str:
-        return (
-            self.__class__.__qualname__
-            + f"(root={self.root!r}, poetry={self.poetry!r})"
-        )
+        return self.__class__.__qualname__ + f"(root={self.root!r}, poetry={self.poetry!r})"
 
     __slots__ = ("root", "poetry")
 
@@ -75,9 +72,7 @@ class Poetry:
         """
         return self.executable.exists()  # pragma: no cover
 
-    def create(
-        self, packages: Sequence[str] | None = None, silent: bool = False
-    ) -> None:
+    def create(self, packages: Sequence[str] | None = None, silent: bool = False) -> None:
         """
         This method is not implemented for poetry environments.
 

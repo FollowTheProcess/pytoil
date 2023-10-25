@@ -12,6 +12,4 @@ def test_launch(mocker: MockerFixture) -> None:
 
     launch(path=Path("somewhere"), binary="/path/to/editor")
 
-    mock.assert_called_once_with(
-        ["/path/to/editor", Path("somewhere")], stdout=sys.stdout, stderr=sys.stderr
-    )
+    mock.assert_called_once_with(["/path/to/editor", Path("somewhere")], stdout=sys.stdout, stderr=sys.stderr)

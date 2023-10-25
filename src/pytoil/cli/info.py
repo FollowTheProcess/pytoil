@@ -53,9 +53,7 @@ def info(config: Config, project: str) -> None:
     try:
         info = repo.info(api)
     except RepoNotFoundError:
-        printer.error(
-            f"{project!r} not found locally or on GitHub. Was it a typo?", exits=1
-        )
+        printer.error(f"{project!r} not found locally or on GitHub. Was it a typo?", exits=1)
     else:
         table = Table(box=box.SIMPLE)
         table.add_column("Key", style="cyan", justify="right")

@@ -116,9 +116,7 @@ def test_install_self_creates_venv_if_not_one_already(
     )
 
     # Mock out the venv.create method
-    mock_create = mocker.patch(
-        "pytoil.environments.virtualenv.Venv.create", autospec=True
-    )
+    mock_create = mocker.patch("pytoil.environments.virtualenv.Venv.create", autospec=True)
 
     venv = Venv(root=Path("somewhere"))
 

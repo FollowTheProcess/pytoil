@@ -47,9 +47,7 @@ def keep(config: Config, projects: tuple[str, ...], force: bool) -> None:
     $ pytoil keep project1 project2 project3 --force
     """
     local_projects: set[str] = {
-        f.name
-        for f in config.projects_dir.iterdir()
-        if f.is_dir() and not f.name.startswith(".")
+        f.name for f in config.projects_dir.iterdir() if f.is_dir() and not f.name.startswith(".")
     }
 
     if not local_projects:
@@ -70,16 +68,14 @@ def keep(config: Config, projects: tuple[str, ...], force: bool) -> None:
         if len(to_delete) <= 3:
             # Nice number to show the names
             question = questionary.confirm(
-                f"This will delete {', '.join(to_delete)} from your local"
-                " filesystem. Are you sure?",
+                f"This will delete {', '.join(to_delete)} from your local" " filesystem. Are you sure?",
                 default=False,
                 auto_enter=False,
             )
         else:
             # Too many to print the names nicely
             question = questionary.confirm(
-                f"This will delete {len(to_delete)} projects from your local"
-                " filesystem. Are you sure?",
+                f"This will delete {len(to_delete)} projects from your local" " filesystem. Are you sure?",
                 default=False,
                 auto_enter=False,
             )

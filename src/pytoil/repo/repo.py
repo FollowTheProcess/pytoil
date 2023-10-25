@@ -41,8 +41,7 @@ class Repo:
 
     def __repr__(self) -> str:
         return (
-            self.__class__.__qualname__
-            + f"(owner={self.owner!r}, name={self.name!r},"
+            self.__class__.__qualname__ + f"(owner={self.owner!r}, name={self.name!r},"
             f" local_path={self.local_path!r})"
         )
 
@@ -163,9 +162,7 @@ class Repo:
             # We know it doesn't exist on GitHub if we got here
             info.update({"Remote": False})
         else:
-            raise RepoNotFoundError(
-                f"Repo: {self.name!r} does not exist locally or on GitHub."
-            )
+            raise RepoNotFoundError(f"Repo: {self.name!r} does not exist locally or on GitHub.")
 
         return info
 
@@ -250,14 +247,10 @@ class Repo:
         if not self.has_pyproject_toml():
             return False
 
-        contents = self.local_path.joinpath("pyproject.toml").read_text(
-            encoding="utf-8"
-        )
+        contents = self.local_path.joinpath("pyproject.toml").read_text(encoding="utf-8")
         toml = rtoml.loads(contents)
 
-        if (build_system := toml.get("build-system")) and (
-            build_backend := build_system.get("build-backend")
-        ):
+        if (build_system := toml.get("build-system")) and (build_backend := build_system.get("build-backend")):
             return build_tool in build_backend.strip().lower()
 
         return False
@@ -269,9 +262,7 @@ class Repo:
         if not self.has_pyproject_toml():
             return False
 
-        contents = self.local_path.joinpath("pyproject.toml").read_text(
-            encoding="utf-8"
-        )
+        contents = self.local_path.joinpath("pyproject.toml").read_text(encoding="utf-8")
         toml = rtoml.loads(contents)
 
         if not toml.get("build-system"):
@@ -327,9 +318,7 @@ class Repo:
         # and has an `install_self` method that does the correct thing for it's environment
 
         if self.is_conda():
-            return Conda(
-                root=self.local_path, environment_name=self.name, conda=config.conda_bin
-            )
+            return Conda(root=self.local_path, environment_name=self.name, conda=config.conda_bin)
 
         if self.is_requirements():
             return Requirements(root=self.local_path)

@@ -92,9 +92,7 @@ class Printer:
 
         If `exits` is not None, will call `sys.exit` with given code.
         """
-        self._pytoil_console.print(
-            f"[error]✘  Error: [/error][error_message]{msg}[/error_message]"
-        )
+        self._pytoil_console.print(f"[error]✘  Error: [/error][error_message]{msg}[/error_message]")
         if exits is not None:
             sys.exit(exits)
 

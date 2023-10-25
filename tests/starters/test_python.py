@@ -14,10 +14,7 @@ def test_python_starter_init() -> None:
     assert starter.root == Path("somewhere").joinpath("testypython").resolve()
     assert starter.files == [
         Path("somewhere").joinpath("testypython").resolve().joinpath("README.md"),
-        Path("somewhere")
-        .joinpath("testypython")
-        .resolve()
-        .joinpath("requirements.txt"),
+        Path("somewhere").joinpath("testypython").resolve().joinpath("requirements.txt"),
         Path("somewhere").joinpath("testypython").resolve().joinpath("testypython.py"),
     ]
 
@@ -36,10 +33,5 @@ def test_python_starter_generate() -> None:
         python_content = starter.root.joinpath("temptest.py").read_text()
 
         assert readme_content == "# temptest\n"
-        assert (
-            requirements_content == "# Put your requirements here e.g. flask>=1.0.0\n"
-        )
-        assert (
-            python_content
-            == 'def hello(name: str = "world") -> None:\n    print(f"hello {name}")\n'
-        )
+        assert requirements_content == "# Put your requirements here e.g. flask>=1.0.0\n"
+        assert python_content == 'def hello(name: str = "world") -> None:\n    print(f"hello {name}")\n'

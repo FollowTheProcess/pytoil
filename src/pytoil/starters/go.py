@@ -27,15 +27,10 @@ class GoStarter:
         self.name = name
         self.go = go
         self.root = self.path.joinpath(self.name).resolve()
-        self.files = [
-            self.root.joinpath(filename) for filename in ["README.md", "main.go"]
-        ]
+        self.files = [self.root.joinpath(filename) for filename in ["README.md", "main.go"]]
 
     def __repr__(self) -> str:
-        return (
-            self.__class__.__qualname__
-            + f"(path={self.path!r}, name={self.name!r}, go={self.go!r})"
-        )
+        return self.__class__.__qualname__ + f"(path={self.path!r}, name={self.name!r}, go={self.go!r})"
 
     __slots__ = ("path", "name", "go", "root", "files")
 
@@ -65,10 +60,7 @@ class GoStarter:
         # Populate the go file
         main_go = self.root.joinpath("main.go")
 
-        go_text = (
-            'package main\n\nimport "fmt"\n\nfunc main() {\n\tfmt.Println("Hello'
-            ' World")\n}\n'
-        )
+        go_text = 'package main\n\nimport "fmt"\n\nfunc main() {\n\tfmt.Println("Hello' ' World")\n}\n'
 
         readme.write_text(f"# {self.name}\n", encoding="utf-8")
         main_go.write_text(go_text, encoding="utf-8")
