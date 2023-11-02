@@ -41,16 +41,16 @@ classifiers = [
 dependencies = [
   "click==8.1.7",
   "cookiecutter==2.4",
-  "copier==8.1",
+  "copier==9.0.1",
   "httpx==0.24.1",
   "humanize==4.8",
-  "pydantic==1.10.9",
+  "pydantic==2.4.2",
   "PyYAML==6.0.1",
   "questionary==2.0.1",
   "rich==13.6",
   "rtoml==0.9",
   "thefuzz[speedup]==0.20",
-  'typing_extensions==4.4; python_version <= "3.9"',
+  'typing_extensions==4.8; python_version <= "3.9"',
   "virtualenv==20.24.6",
 ]
 [project.optional-dependencies]
