@@ -37,10 +37,10 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install Dependencies
-        run: python3 -m pip install --upgrade pip hatch
+        run: python3 -m pip install --upgrade pip nox
 
       - name: Run Tests and Coverage
-        run: hatch run tests:run
+        run: nox --non-interactive --session test
 
   codecov:
     name: Codecov
@@ -56,10 +56,10 @@ jobs:
           python-version: ${{ env.DEFAULT_PYTHON }}
 
       - name: Install Dependencies
-        run: python3 -m pip install --upgrade pip hatch
+        run: python3 -m pip install --upgrade pip nox
 
       - name: Run Tests and Coverage
-        run: hatch run tests:cov
+        run: nox --non-interactive --session test -- cover
 
       - name: Upload Coverage to Codecov
         uses: codecov/codecov-action@v3
@@ -80,10 +80,10 @@ jobs:
           python-version: ${{ env.DEFAULT_PYTHON }}
 
       - name: Install Dependencies
-        run: python3 -m pip install --upgrade pip hatch
+        run: python3 -m pip install --upgrade pip nox
 
       - name: Build Docs
-        run: hatch run docs:build
+        run: nox --non-interactive --session docs
 
   publish-docs:
     needs: docs
@@ -105,13 +105,13 @@ jobs:
           python-version: ${{ env.DEFAULT_PYTHON }}
 
       - name: Install Dependencies
-        run: python3 -m pip install --upgrade pip hatch
+        run: python3 -m pip install --upgrade pip nox
 
       - name: Deploy Docs to GitHub Pages
         env:
           # Use the built in CI GITHUB_TOKEN
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: hatch run docs:deploy
+        run: nox --non-interactive --session docs -- deploy
 
   release:
     name: Release
@@ -148,10 +148,10 @@ jobs:
           python-version: ${{ env.DEFAULT_PYTHON }}
 
       - name: Install Dependencies
-        run: python3 -m pip install --upgrade pip hatch
+        run: python3 -m pip install --upgrade pip nox
 
       - name: Build sdist and wheel
-        run: hatch build
+        run: nox --non-interactive --session build
 
       - name: Publish Draft Release
         uses: release-drafter/release-drafter@v5
