@@ -13,4 +13,4 @@ Helpful CLI to automate the development workflow.
 
 from __future__ import annotations
 
-__version__ = "0.39.0"
+__version__ = "0.40.0"

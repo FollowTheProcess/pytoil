@@ -6,7 +6,7 @@ requires = [
 
 [project]
 name = "pytoil"
-version = "0.39.0"
+version = "0.40.0"
 description = "CLI to automate the development workflow."
 readme = "README.md"
 keywords = [
