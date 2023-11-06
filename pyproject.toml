@@ -143,6 +143,10 @@ required-imports = [ "from __future__ import annotations" ]
   "TCH", # Conftest is only run for tests (with dev dependencies)
 ]
 
+[tool.codespell]
+skip = "*.svg"
+ignore-words-list = "ines,Ines"
+
 [tool.pytest.ini_options]
 minversion = "7.0"
 addopts = [ "-ra", "--strict-markers", "--strict-config" ]
@@ -178,7 +182,3 @@ plugins = "pydantic.mypy"
 show_error_codes = true
 warn_unreachable = true
 enable_error_code = [ "ignore-without-code", "redundant-expr", "truthy-bool" ]
-
-[tool.codespell]
-skip = "*.svg"
-ignore-words-list = "ines,Ines"
