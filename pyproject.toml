@@ -42,7 +42,7 @@ dependencies = [
   "click==8.1.7",
   "cookiecutter==2.4",
   "copier==9.0.1",
-  "httpx==0.25.1",
+  "httpx==0.25.2",
   "humanize==4.8",
   "pydantic==2.5.1",
   "PyYAML==6.0.1",
