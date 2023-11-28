@@ -40,10 +40,10 @@ classifiers = [
 ]
 dependencies = [
   "click==8.1.7",
-  "cookiecutter==2.4",
+  "cookiecutter==2.5",
   "copier==9.0.1",
-  "httpx==0.25.1",
   "humanize==4.9",
+  "httpx==0.25.2",
   "pydantic==2.5.1",
   "PyYAML==6.0.1",
   "questionary==2.0.1",
@@ -51,7 +51,7 @@ dependencies = [
   "rtoml==0.9",
   "thefuzz[speedup]==0.20",
   'typing_extensions==4.8; python_version <= "3.9"',
-  "virtualenv==20.24.6",
+  "virtualenv==20.24.7",
 ]
 [project.optional-dependencies]
 dev = [
