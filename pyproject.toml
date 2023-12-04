@@ -51,7 +51,7 @@ dependencies = [
   "rtoml==0.9",
   "thefuzz[speedup]==0.20",
   'typing_extensions==4.8; python_version <= "3.9"',
-  "virtualenv==20.24.7",
+  "virtualenv==20.25.0",
 ]
 [project.optional-dependencies]
 dev = [
