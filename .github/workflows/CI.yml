@@ -62,7 +62,7 @@ jobs:
         run: nox --non-interactive --session test -- cover
 
       - name: Upload Coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           files: ./coverage.xml
 
@@ -154,7 +154,7 @@ jobs:
         run: nox --non-interactive --session build
 
       - name: Publish Draft Release
-        uses: release-drafter/release-drafter@v5
+        uses: release-drafter/release-drafter@v6
         with:
           version: ${{ steps.version.outputs.version }}
           publish: true
