@@ -42,16 +42,16 @@ dependencies = [
   "click==8.1.7",
   "cookiecutter==2.6",
   "copier==9.1.1",
-  "httpx==0.26",
+  "httpx==0.27",
   "humanize==4.9",
-  "pydantic==2.6.1",
+  "pydantic==2.6.2",
   "PyYAML==6.0.1",
   "questionary==2.0.1",
   "rich==13.7",
   "rtoml==0.10",
   "thefuzz[speedup]==0.22.1",
   'typing_extensions==4.8; python_version <= "3.9"',
-  "virtualenv==20.25",
+  "virtualenv==20.25.1",
 ]
 [project.optional-dependencies]
 dev = [
