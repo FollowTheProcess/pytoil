@@ -1,6 +1,7 @@
 """
 Maintenance tasks, driven by Nox!
 """
+
 from __future__ import annotations
 
 from pathlib import Path
