@@ -16,8 +16,14 @@ keywords = [
   "python",
 ]
 license = { text = "Apache Software License 2.0" }
-maintainers = [ { name = "Tom Fleet" }, { email = "tomfleet2018@gmail.com" } ]
-authors = [ { name = "Tom Fleet" }, { email = "tomfleet2018@gmail.com" } ]
+maintainers = [
+  { name = "Tom Fleet" },
+  { email = "tomfleet2018@gmail.com" },
+]
+authors = [
+  { name = "Tom Fleet" },
+  { email = "tomfleet2018@gmail.com" },
+]
 requires-python = ">=3.9"
 classifiers = [
   "Development Status :: 3 - Alpha",
@@ -45,16 +51,15 @@ dependencies = [
   "httpx==0.27",
   "humanize==4.9",
   "pydantic==2.7.1",
-  "PyYAML==6.0.1",
+  "pyyaml==6.0.1",
   "questionary==2.0.1",
   "rich==13.7.1",
   "rtoml==0.10",
   "thefuzz[speedup]==0.22.1",
-  'typing_extensions==4.8; python_version <= "3.9"',
+  "typing-extensions==4.8; python_version<='3.9'",
   "virtualenv==20.26.1",
 ]
-[project.optional-dependencies]
-dev = [
+optional-dependencies.dev = [
   "covdefaults",
   "coverage[toml]",
   "freezegun",
@@ -71,76 +76,69 @@ dev = [
   "pytest-randomly",
   "ruff",
   "types-click",
-  "types-PyYAML",
+  "types-pyyaml",
 ]
-[project.urls]
-Documentation = "https://FollowTheProcess.github.io/pytoil/"
-Homepage = "https://github.com/FollowTheProcess/pytoil"
-Source = "https://github.com/FollowTheProcess/pytoil"
-[project.scripts]
-pytoil = "pytoil.cli.root:main"
+urls.Documentation = "https://FollowTheProcess.github.io/pytoil/"
+urls.Homepage = "https://github.com/FollowTheProcess/pytoil"
+urls.Source = "https://github.com/FollowTheProcess/pytoil"
+scripts.pytoil = "pytoil.cli.root:main"
 
 [tool.ruff]
 target-version = "py39"
 line-length = 120
 
-[tool.ruff.lint]
-select = [
+lint.select = [
+  "A",   # Don't shadow builtins
+  "ANN", # Type annotations
+  "ARG", # Unused arguments
+  "B",   # Flake8 bugbear
+  "BLE", # No blind excepts
+  "C4",  # Flake8 comprehensions
+  "C90", # Complexity
   # https://github.com/charliermarsh/ruff#supported-rules
   "E",   # Pycodestyle errors
-  "F",   # Pyflakes errors
-  "W",   # Pycodestyle warnings
-  "UP",  # All pyupgrade rules
-  "N",   # PEP8 naming
-  "I",   # Isort
-  "C90", # Complexity
-  "C4",  # Flake8 comprehensions
   "ERA", # Commented out code
-  "B",   # Flake8 bugbear
-  "RUF", # Ruff specific rules
-  "YTT", # Flake8 2020
-  "ANN", # Type annotations
-  "BLE", # No blind excepts
+  "F",   # Pyflakes errors
+  "I",   # Isort
+  "INP", # No implicit namespace packages (causes import errors)
+  "N",   # PEP8 naming
+  "PGH", # Pygrep hooks
   "PIE", # Flake8 pie
   "PT",  # Pytest style
-  "RET", # Function returns
-  "SIM", # Simplify
-  "ARG", # Unused arguments
   "PTH", # Use pathlib over os.path
-  "PGH", # Pygrep hooks
-  "S",   # Bandit (security)
-  "A",   # Don't shadow builtins
-  "INP", # No implicit namespace packages (causes import errors)
-  "T20", # No print statements
+  "RET", # Function returns
   "RSE", # When raising an exception chain, use from
+  "RUF", # Ruff specific rules
+  "S",   # Bandit (security)
+  "SIM", # Simplify
   "SLF", # Flake8-self, private member access
+  "T20", # No print statements
   "TCH", # Stuff for typing is behind an if TYPE_CHECKING block
+  "UP",  # All pyupgrade rules
+  "W",   # Pycodestyle warnings
+  "YTT", # Flake8 2020
 ]
-ignore = [
+lint.per-file-ignores."conftest.py" = [
+  "TCH", # Conftest is only run for tests (with dev dependencies)
+]
+lint.per-file-ignores."tests/**/*.py" = [
+  "ARG001", # Thinks pytest fixtures are unused arguments
+  "D104",   # Missing docstring in __init__.py in tests (which is fine)
+  "FBT001", # Tests are allowed positional bools (fixtures etc.)
+  "S",      # Security stuff in tests is fine
+  "S101",   # Assert is allowed in tests (obviously)
+  "SLF001", # Private member access in tests is fine
+  "TCH",    # Tests will be run with dev dependencies so we don't care
+]
+lint.isort.required-imports = [
+  "from __future__ import annotations",
+]
+lint.mccabe.max-complexity = 15
+lint.ignore = [
   "ANN101", # Missing type annotation for self in method
   "S105",   # Hardcoded passwords (lots of false positives)
   "S106",   # Hardcoded passwords (again?)
   "S603",   # Subprocess calls
-]
-
-[tool.ruff.lint.mccabe]
-max-complexity = 15
-
-[tool.ruff.lint.isort]
-required-imports = [ "from __future__ import annotations" ]
-
-[tool.ruff.lint.per-file-ignores]
-"tests/**/*.py" = [
-  "ARG001", # Thinks pytest fixtures are unused arguments
-  "D104",   # Missing docstring in __init__.py in tests (which is fine)
-  "FBT001", # Tests are allowed positional bools (fixtures etc.)
-  "S101",   # Assert is allowed in tests (obviously)
-  "TCH",    # Tests will be run with dev dependencies so we don't care
-  "S",      # Security stuff in tests is fine
-  "SLF001", # Private member access in tests is fine
-]
-"conftest.py" = [
-  "TCH", # Conftest is only run for tests (with dev dependencies)
 ]
 
 [tool.codespell]
@@ -149,18 +147,28 @@ ignore-words-list = "ines,Ines"
 
 [tool.pytest.ini_options]
 minversion = "7.0"
-addopts = [ "-ra", "--strict-markers", "--strict-config" ]
+addopts = [
+  "-ra",
+  "--strict-markers",
+  "--strict-config",
+]
 xfail_strict = true
 filterwarnings = [
   "error",
   "ignore::DeprecationWarning", # DeprecationWarning: read_binary is deprecated. Use files() instead. Comes from virtualenv
 ]
 log_cli_level = "info"
-pythonpath = [ "src" ]
-testpaths = [ "tests" ]
+pythonpath = [
+  "src",
+]
+testpaths = [
+  "tests",
+]
 
 [tool.coverage.run]
-plugins = [ "covdefaults" ]
+plugins = [
+  "covdefaults",
+]
 omit = [
   "src/pytoil/cli/*.py",
   "src/pytoil/starters/base.py",
@@ -169,10 +177,15 @@ omit = [
 
 [tool.coverage.report]
 fail_under = 95
-exclude_lines = [ "def __repr__", "except ImportError" ]
+exclude_lines = [
+  "def __repr__",
+  "except ImportError",
+]
 
 [tool.mypy]
-files = [ "**/*.py" ]
+files = [
+  "**/*.py",
+]
 python_version = "3.9"
 ignore_missing_imports = true
 strict = true
@@ -181,4 +194,8 @@ disallow_untyped_decorators = false
 plugins = "pydantic.mypy"
 show_error_codes = true
 warn_unreachable = true
-enable_error_code = [ "ignore-without-code", "redundant-expr", "truthy-bool" ]
+enable_error_code = [
+  "ignore-without-code",
+  "redundant-expr",
+  "truthy-bool",
+]
