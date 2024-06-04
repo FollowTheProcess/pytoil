@@ -118,6 +118,13 @@ lint.select = [
   "W",   # Pycodestyle warnings
   "YTT", # Flake8 2020
 ]
+lint.ignore = [
+  "ANN101", # Missing type annotation for self in method
+  "S105",   # Hardcoded passwords (lots of false positives)
+  "S106",   # Hardcoded passwords (again?)
+  "S603",   # Subprocess calls
+]
+
 lint.per-file-ignores."conftest.py" = [
   "TCH", # Conftest is only run for tests (with dev dependencies)
 ]
@@ -134,12 +141,6 @@ lint.isort.required-imports = [
   "from __future__ import annotations",
 ]
 lint.mccabe.max-complexity = 15
-lint.ignore = [
-  "ANN101", # Missing type annotation for self in method
-  "S105",   # Hardcoded passwords (lots of false positives)
-  "S106",   # Hardcoded passwords (again?)
-  "S603",   # Subprocess calls
-]
 
 [tool.codespell]
 skip = "*.svg"
