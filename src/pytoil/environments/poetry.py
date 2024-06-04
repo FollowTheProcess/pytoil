@@ -52,7 +52,7 @@ class Poetry:
         """
         Ensures any changes to poetry's config such as storing the
         virtual environment in the project directory as we do here, do not
-        propegate to the user's global poetry config.
+        propagate to the user's global poetry config.
         """
         if not self.poetry:
             raise PoetryNotInstalledError
