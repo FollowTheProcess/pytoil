@@ -50,7 +50,7 @@ dependencies = [
   "copier==9.2",
   "httpx==0.27",
   "humanize==4.9",
-  "pydantic==2.7.2",
+  "pydantic==2.7.3",
   "pyyaml==6.0.1",
   "questionary==2.0.1",
   "rich==13.7.1",
