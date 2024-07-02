@@ -165,10 +165,7 @@ class API:
         raw: dict[str, Any] = r.json()
 
         if data := raw.get("data"):
-            if data["repository"] is None:
-                return False
-
-            return True
+            return data["repository"] is not None
 
         raise ValueError(f"Bad GraphQL: {raw}")  # pragma: no cover
 
