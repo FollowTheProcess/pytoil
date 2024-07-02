@@ -268,10 +268,7 @@ class Repo:
         if not toml.get("build-system"):
             return False
 
-        if not toml.get("project"):
-            return False
-
-        return True
+        return toml.get("project") is not None
 
     def is_poetry(self) -> bool:
         """
