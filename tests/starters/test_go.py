@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 from pytest_mock import MockerFixture
+
 from pytoil.exceptions import GoNotInstalledError
 from pytoil.starters import GoStarter
 

@@ -8,6 +8,7 @@ from typing import TextIO
 
 import pytest
 from pytest_mock import MockerFixture
+
 from pytoil.exceptions import GitNotInstalledError
 from pytoil.git import Git
 

@@ -8,6 +8,7 @@ from typing import NamedTuple, TextIO
 
 import pytest
 from pytest_mock import MockerFixture
+
 from pytoil.environments import Conda
 from pytoil.exceptions import (
     BadEnvironmentFileError,
