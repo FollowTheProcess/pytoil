@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 
 from pytest_mock import MockerFixture
+
 from pytoil.editor import launch
 
 

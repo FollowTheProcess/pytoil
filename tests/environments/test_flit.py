@@ -7,6 +7,7 @@ from typing import TextIO
 
 import pytest
 from pytest_mock import MockerFixture
+
 from pytoil.environments.flit import Flit
 from pytoil.exceptions import FlitNotInstalledError
 

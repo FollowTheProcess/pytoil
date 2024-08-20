@@ -4,6 +4,7 @@ from typing import Any
 
 from freezegun import freeze_time
 from pytest_httpx import HTTPXMock
+
 from pytoil import __version__
 from pytoil.api import API
 
