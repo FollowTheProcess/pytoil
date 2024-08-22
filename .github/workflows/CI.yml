@@ -37,7 +37,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install Dependencies
-        run: python3 -m pip install --upgrade pip nox
+        run: python3 -m pip install --upgrade pip nox[uv]
 
       - name: Run Tests and Coverage
         run: nox --non-interactive --session test
@@ -56,7 +56,7 @@ jobs:
           python-version: ${{ env.DEFAULT_PYTHON }}
 
       - name: Install Dependencies
-        run: python3 -m pip install --upgrade pip nox
+        run: python3 -m pip install --upgrade pip nox[uv]
 
       - name: Run Tests and Coverage
         run: nox --non-interactive --session test -- cover
@@ -80,7 +80,7 @@ jobs:
           python-version: ${{ env.DEFAULT_PYTHON }}
 
       - name: Install Dependencies
-        run: python3 -m pip install --upgrade pip nox
+        run: python3 -m pip install --upgrade pip nox[uv]
 
       - name: Build Docs
         run: nox --non-interactive --session docs
@@ -105,7 +105,7 @@ jobs:
           python-version: ${{ env.DEFAULT_PYTHON }}
 
       - name: Install Dependencies
-        run: python3 -m pip install --upgrade pip nox
+        run: python3 -m pip install --upgrade pip nox[uv]
 
       - name: Deploy Docs to GitHub Pages
         env:
@@ -148,7 +148,7 @@ jobs:
           python-version: ${{ env.DEFAULT_PYTHON }}
 
       - name: Install Dependencies
-        run: python3 -m pip install --upgrade pip nox
+        run: python3 -m pip install --upgrade pip nox[uv]
 
       - name: Build sdist and wheel
         run: nox --non-interactive --session build

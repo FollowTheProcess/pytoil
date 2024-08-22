@@ -8,6 +8,8 @@ from pathlib import Path
 
 import nox
 
+nox.options.default_venv_backend = "uv"
+
 ROOT = Path(__file__).parent.resolve()
 SRC = ROOT / "src"
 TESTS = ROOT / "tests"
