@@ -1,0 +1,1198 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="CLI to automate the development workflow.">
+      
+      
+        <meta name="author" content="Tom Fleet">
+      
+      
+        <link rel="canonical" href="https://FollowTheProcess.github.io/pytoil/commands/new.html">
+      
+      
+        <link rel="prev" href="show.html">
+      
+      
+        <link rel="next" href="checkout.html">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.32">
+    
+    
+      
+        <title>New - pytoil</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.3cba04c6.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CSF+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"SF Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../css/termynal.css">
+    
+      <link rel="stylesheet" href="../css/custom.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#new" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../index.html" title="pytoil" class="md-header__button md-logo" aria-label="pytoil" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            pytoil
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              New
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="blue"  aria-label="Dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7M9 21v-1h6v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1m3-17a5 5 0 0 0-5 5c0 2.05 1.23 3.81 3 4.58V16h4v-2.42c1.77-.77 3-2.53 3-4.58a5 5 0 0 0-5-5Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue-grey" data-md-color-accent="blue"  aria-label="Light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7M9 21v-1h6v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1m3-17a5 5 0 0 0-5 5c0 2.05 1.23 3.81 3 4.58V16h4v-2.42c1.77-.77 3-2.53 3-4.58a5 5 0 0 0-5-5Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/FollowTheProcess/pytoil" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../index.html" title="pytoil" class="md-nav__button md-logo" aria-label="pytoil" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    pytoil
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/FollowTheProcess/pytoil" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Config
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Commands
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Commands
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="show.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Show
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    New
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="new.html" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    New
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#help" class="md-nav__link">
+    <span class="md-ellipsis">
+      Help
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#no-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      No Options
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="No Options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#new-git-repo" class="md-nav__link">
+    <span class="md-ellipsis">
+      New Git Repo
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#include-virtual-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Include Virtual Environment
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#install-packages-at-creation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Install Packages at Creation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#build-a-project-from-a-cookiecuttercopier-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      Build a project from a Cookiecutter/Copier Template
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-from-a-starter" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create from a starter
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#all-in-one-go" class="md-nav__link">
+    <span class="md-ellipsis">
+      All in One Go
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checkout.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Checkout
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="remove.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remove
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="keep.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Keep
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="info.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Info
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="find.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Find
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="gh.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    GH
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="pull.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Pull
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="config.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Config
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="bug.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Bug
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Contributing
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Contributing
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/contributing.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Guide
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code_of_conduct.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Code of Conduct
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#help" class="md-nav__link">
+    <span class="md-ellipsis">
+      Help
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#no-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      No Options
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="No Options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#new-git-repo" class="md-nav__link">
+    <span class="md-ellipsis">
+      New Git Repo
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#include-virtual-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Include Virtual Environment
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#install-packages-at-creation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Install Packages at Creation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#build-a-project-from-a-cookiecuttercopier-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      Build a project from a Cookiecutter/Copier Template
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-from-a-starter" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create from a starter
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#all-in-one-go" class="md-nav__link">
+    <span class="md-ellipsis">
+      All in One Go
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="new">New<a class="headerlink" href="#new" title="Permanent link">&para;</a></h1>
+<p><code>new</code> will make you a new project locally. You have the option to create a new virtual environment with it and to create the project from a <a href="https://cookiecutter.readthedocs.io/en/1.7.2/">cookiecutter</a> template 🍪</p>
+<h2 id="help">Help<a class="headerlink" href="#help" title="Permanent link">&para;</a></h2>
+<div class="termy">
+
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>pytoil<span class="w"> </span>new<span class="w"> </span>--help
+
+<span class="go">Usage: pytoil new [OPTIONS] PROJECT [PACKAGES]...</span>
+
+<span class="go">  Create a new development project.</span>
+
+<span class="go">  Bare usage will simply create an empty folder in your configured projects</span>
+<span class="go">  directory.</span>
+
+<span class="go">  You can also create a project from a cookiecutter or copier template by</span>
+<span class="go">  passing a valid url to the &#39;--cookie/-c&#39; or &#39;--copier/-C&#39; flags.</span>
+
+<span class="go">  If you just want a very simple, language-specific starting template, use the</span>
+<span class="go">  &#39;--starter/-s&#39; option.</span>
+
+<span class="go">  By default, pytoil will initialise a local git repo in the folder and commit</span>
+<span class="go">  it, following the style of modern language build tools such as rust&#39;s cargo.</span>
+<span class="go">  You can disable this behaviour by setting &#39;git&#39; to false in pytoil&#39;s config</span>
+<span class="go">  file or by passing the &#39;--no-git/-n&#39; flag here.</span>
+
+<span class="go">  If you want pytoil to create a new virtual environment for your project, you</span>
+<span class="go">  can use the &#39;--venv/-v&#39; flag. Standard python and conda virtual environments</span>
+<span class="go">  are supported.</span>
+
+<span class="go">  If the &#39;--venv/-v&#39; flag is used, you may also pass a list of python packages</span>
+<span class="go">  to install into the created virtual environment. These will be delegated to</span>
+<span class="go">  the appropriate tool (pip or conda) depending on what environment was</span>
+<span class="go">  created. If the environment is conda, the packages will be passed at</span>
+<span class="go">  environment creation time meaning they will have their dependencies resolved</span>
+<span class="go">  together. Normal python environments will first be created and then have</span>
+<span class="go">  specified packages installed.</span>
+
+<span class="go">  If &#39;common_packages&#39; is specified in pytoil&#39;s config file, these will</span>
+<span class="go">  automatically be included in the environment.</span>
+
+<span class="go">  To specify versions of packages via the command line, you must enclose them</span>
+<span class="go">  in double quotes e.g. &quot;flask&gt;=1.0.0&quot; not flask&gt;=1.0.0 otherwise this will be</span>
+<span class="go">  interpreted by the shell as a command redirection.</span>
+
+<span class="go">  Examples:</span>
+
+<span class="gp">  $ </span>pytoil<span class="w"> </span>new<span class="w"> </span>my_project
+
+<span class="gp">  $ </span>pytoil<span class="w"> </span>new<span class="w"> </span>my_project<span class="w"> </span>--cookie<span class="w"> </span>https://github.com/some/cookie.git
+
+<span class="gp">  $ </span>pytoil<span class="w"> </span>new<span class="w"> </span>my_project<span class="w"> </span>--venv<span class="w"> </span>conda
+
+<span class="gp">  $ </span>pytoil<span class="w"> </span>new<span class="w"> </span>my_project<span class="w"> </span>-c<span class="w"> </span>https://github.com/some/cookie.git<span class="w"> </span>-v<span class="w"> </span>conda<span class="w"> </span>--no-
+<span class="go">  git</span>
+
+<span class="gp">  $ </span>pytoil<span class="w"> </span>new<span class="w"> </span>my_project<span class="w"> </span>-v<span class="w"> </span>venv<span class="w"> </span>requests<span class="w"> </span><span class="s2">&quot;flask&gt;=1.0.0&quot;</span>
+
+<span class="gp">  $ </span>pytoil<span class="w"> </span>new<span class="w"> </span>my_project<span class="w"> </span>--starter<span class="w"> </span>python
+
+<span class="go">Options:</span>
+<span class="go">  -c, --cookie TEXT               URL to a cookiecutter template from which to</span>
+<span class="go">                                  build the project.</span>
+<span class="go">  -C, --copier TEXT               URL to a copier template from which to build</span>
+<span class="go">                                  the project.</span>
+<span class="go">  -s, --starter [python|go|rust]  Use a language-specific starter template.</span>
+<span class="go">  -v, --venv [venv|conda]         Which type of virtual environment to create.</span>
+<span class="go">  -n, --no-git                    Don&#39;t do any git stuff.</span>
+<span class="go">  --help                          Show this message and exit.</span>
+</code></pre></div>
+
+</div>
+
+<h2 id="no-options">No Options<a class="headerlink" href="#no-options" title="Permanent link">&para;</a></h2>
+<p>If you don't give any options, the default behaviour is to just make a new empty folder with no virtual environment for you to do whatever you want with!</p>
+<p>In this sense, you don't have to be a python developer to use pytoil!</p>
+<div class="termy">
+
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>pytoil<span class="w"> </span>new<span class="w"> </span>my_new_project
+
+<span class="go">Creating new project: &#39;my_new_project&#39;</span>
+<span class="go">// Does some stuff...</span>
+</code></pre></div>
+
+</div>
+
+<h3 id="new-git-repo">New Git Repo<a class="headerlink" href="#new-git-repo" title="Permanent link">&para;</a></h3>
+<p>By default, pytoil will also create a local git repository in this folder for you. You can disable this behaviour by changing the value for <code>git</code> in your config file, or on a per use basis by using the <code>--no-git</code> flag.</p>
+<p>You will need <code>git</code> installed to be able to use this feature.</p>
+<div class="termy">
+
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>pytoil<span class="w"> </span>new<span class="w"> </span>my_new_project<span class="w"> </span>--no-git
+
+<span class="go">Creating new project: &#39;my_new_project&#39;</span>
+<span class="go">// Does some stuff...but not git</span>
+</code></pre></div>
+
+</div>
+
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A lot of modern language tools (e.g. rust's <code>cargo</code>) initialise a git repo by default and I liked the idea so here it is <img alt="😃" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f603.svg" title=":smiley:" /></p>
+</div>
+<h2 id="include-virtual-environment">Include Virtual Environment<a class="headerlink" href="#include-virtual-environment" title="Permanent link">&para;</a></h2>
+<p>If you are a python developer though, chances are you'll want to create a virtual environment with your project. pytoil supports both <a href="https://docs.python.org/3/library/venv.html">venv</a> and <a href="https://docs.conda.io/en/latest/">conda</a> environments, although for the latter you'll have to have the conda package manager already installed on your system. I personally recommend <a href="https://docs.conda.io/en/latest/miniconda.html">miniconda</a> as you get the package manager but none of the bundled packages (which can be quite large!).</p>
+<p>For standard python virtual environments, pytoil uses the standard library <code>venv</code> module so you don't need to install anything external.</p>
+<p>If you want to use conda environments though, you'll need to have a <code>conda</code> package manager installed and available on $PATH.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>If you don't know what conda is: as a general rule, you'll want to use venv on most python projects (particularly packages i.e. things that can be pip installed). If you do a lot of work with data (think pandas, numpy, scikit-learn) you'll probably want to use conda as a lot of python data tools include native C libraries which require compiling, and conda makes this happen seamlessly <img alt="🤓" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f913.svg" title=":nerd_face:" /></p>
+</div>
+<p>Pytoil has been tested and supports the following conda distributions:</p>
+<ul>
+<li>Anaconda</li>
+<li>Miniconda</li>
+<li>Miniforge</li>
+<li>Mambaforge</li>
+</ul>
+<p>All you have to do is specify which virtual environment to create, using the <code>--venv/-v</code> option flag. You can choose from <code>venv</code> or <code>conda</code>. The default is <code>None</code>.</p>
+<div class="termy">
+
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>pytoil<span class="w"> </span>new<span class="w"> </span>my_new_project<span class="w"> </span>--venv<span class="w"> </span>venv
+
+<span class="go">Creating new project: &#39;my_new_project&#39;</span>
+<span class="go">Creating virtual environment for: &#39;my_new_project&#39;</span>
+</code></pre></div>
+
+</div>
+
+<p>Or with conda...</p>
+<div class="termy">
+
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>pytoil<span class="w"> </span>new<span class="w"> </span>my_new_project<span class="w"> </span>--venv<span class="w"> </span>conda
+
+<span class="go">Creating new project: &#39;my_new_project&#39;</span>
+<span class="go">Creating conda environment for: &#39;my_new_project&#39;</span>
+<span class="go">// Conda environments typically take a bit longer to make as it has to do a bit more work!</span>
+</code></pre></div>
+
+</div>
+
+<h2 id="install-packages-at-creation">Install Packages at Creation<a class="headerlink" href="#install-packages-at-creation" title="Permanent link">&para;</a></h2>
+<p>A blank virtual environment isn't really much use yet! <code>pytoil</code> lets you inject packages at environment creation time! All you have to do is pass packages you want to install into the new environment as additional command line arguments and pytoil will figure this all out for you.</p>
+<div class="termy">
+
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>pytoil<span class="w"> </span>new<span class="w"> </span>my_new_project<span class="w"> </span>--venv<span class="w"> </span>conda<span class="w"> </span>pandas<span class="w"> </span>numpy<span class="w"> </span>scikit-learn
+
+<span class="go">Creating new project: &#39;my_new_project&#39;</span>
+<span class="go">Creating conda environment for: &#39;my_new_project&#39;</span>
+<span class="go">Including packages: pandas, numpy, scikit-learn</span>
+<span class="go">// Conda environments typically take a bit longer to make as it has to do a bit more work!</span>
+</code></pre></div>
+
+</div>
+
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is also where the <code>common_packages</code> setting from the config file comes in! If you specify packages here, these will automatically get injected into every environment pytoil creates, whether its a python virtual environment or a conda environment. This is particularly useful for development dependencies like linters and formatters etc.</p>
+</div>
+<h2 id="build-a-project-from-a-cookiecuttercopier-template">Build a project from a Cookiecutter/Copier Template<a class="headerlink" href="#build-a-project-from-a-cookiecuttercopier-template" title="Permanent link">&para;</a></h2>
+<p>If you don't know what <a href="https://cookiecutter.readthedocs.io/en/1.7.2/">cookiecutter</a> or <a href="https://copier.readthedocs.io/en/latest/">copier</a> are, go and check them out! Essentially, they are templating engines for development projects and, after asking you a few questions, can dynamically insert and modify text inside your project, set up directory structure and all sorts of cool automation stuff!</p>
+<p>It means that if you find a template you like (or make your own) you can use it as the base for development projects without having to create so much boilerplate at the beginning, they're great <img alt="👍" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f44d.svg" title=":thumbsup:" /></p>
+<p>Because I love these projects so much, I built pytoil to support them easily. You can create a new project from a cookiecutter or copier template by using the <code>--cookie/-c</code> or <code>--copier/-C</code> flag like this:</p>
+<div class="termy">
+
+<div class="highlight"><pre><span></span><code><span class="go">// Just pass a url to a cookiecutter template</span>
+<span class="gp">$ </span>pytoil<span class="w"> </span>new<span class="w"> </span>my_new_project<span class="w"> </span>--cookie<span class="w"> </span>https://github.com/some/cookie.git
+
+<span class="go">Creating new project: &#39;my_new_project&#39; from cookiecutter: &#39;https://github.com/some/cookie.git&#39;</span>
+</code></pre></div>
+
+</div>
+
+<h2 id="create-from-a-starter">Create from a starter<a class="headerlink" href="#create-from-a-starter" title="Permanent link">&para;</a></h2>
+<p>pytoil also comes with a few basic starter templates for some common languages. How it creates these templates is specific to the language, but you can use them like this....</p>
+<p>Here's a python one:</p>
+<div class="termy">
+
+<div class="highlight"><pre><span></span><code><span class="go">// Just pass a valid starter</span>
+<span class="gp">$ </span>pytoil<span class="w"> </span>new<span class="w"> </span>my_new_python_project<span class="w"> </span>--starter<span class="w"> </span>python
+
+<span class="go">Creating new project: &#39;my_new_python_project&#39; from starter: &#39;python&#39;</span>
+</code></pre></div>
+
+</div>
+
+<p>And with go:</p>
+<div class="termy">
+
+<div class="highlight"><pre><span></span><code><span class="go">// Just pass a valid starter</span>
+<span class="gp">$ </span>pytoil<span class="w"> </span>new<span class="w"> </span>my_new_go_project<span class="w"> </span>--starter<span class="w"> </span>go
+
+<span class="go">Creating new project: &#39;my_new_go_project&#39; from starter: &#39;go&#39;</span>
+</code></pre></div>
+
+</div>
+
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Currently pytoil supports python, go and rust starter templates. The starters are super easy to implement though so if you want more languages supported, maybe throw us a PR <img alt="😉" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f609.svg" title=":wink:" /></p>
+</div>
+<p>The table below shows what happens under the hood when a starter is given to <code>pytoil new</code>:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Starter</th>
+<th style="text-align: center;">Implementation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><code>python</code></td>
+<td style="text-align: center;">Creates everything internally using pathlib</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>go</code></td>
+<td style="text-align: center;">Creates the root directory and main.go internally. Then calls <code>go mod init</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>rust</code></td>
+<td style="text-align: center;">Creates the root directory internally. Then calls <code>cargo init</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="all-in-one-go">All in One Go<a class="headerlink" href="#all-in-one-go" title="Permanent link">&para;</a></h2>
+<p>Because pytoil uses [async-click] for it's CLI, the arguments and options to CLI commands are all resolved really intelligently so you can specify all of them in one go if you like to get complex behaviour!</p>
+<div class="termy">
+
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>pytoil<span class="w"> </span>new<span class="w"> </span>my_new_project<span class="w"> </span>--cookie<span class="w"> </span>https://github.com/some/cookie.git<span class="w"> </span>--venv<span class="w"> </span>venv<span class="w"> </span>--no-git<span class="w"> </span>requests<span class="w"> </span><span class="s2">&quot;flask&gt;=1.0.0&quot;</span><span class="w"> </span>sqlalchemy
+
+<span class="go">// Many things will now happen!</span>
+</code></pre></div>
+
+</div>
+
+<p>In this snippet we've:</p>
+<ul>
+<li>Created a new project in the correct folder called 'my_new_project'</li>
+<li>Built this project from a cookiecutter template hosted on GitHub</li>
+<li>Created a fresh python virtual environment for the project</li>
+<li>Told pytoil not to initialise an empty git repo (it actually doesn't do this on cookiecutter projects anyway but you get the point)</li>
+<li>Passed a list of additional packages to install into the new environment (along with any we've specified in the config file)</li>
+</ul>
+<p>That's better than doing all this yourself isn't it! <img alt="👍" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.0.3/assets/svg/1f44d.svg" title=":thumbsup:" /></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.471ce7a9.min.js"></script>
+      
+        <script src="https://unpkg.com/mermaid@8.4.6/dist/mermaid.min.js"></script>
+      
+        <script src="../js/termynal.js"></script>
+      
+        <script src="../js/custom.js"></script>
+      
+    
+  </body>
+</html>
