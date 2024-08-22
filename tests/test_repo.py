@@ -7,6 +7,7 @@ import pytest
 from freezegun import freeze_time
 from pytest_httpx import HTTPXMock
 from pytest_mock import MockerFixture
+
 from pytoil.api import API
 from pytoil.config import Config
 from pytoil.environments import Conda, Flit, Poetry, Requirements, Venv

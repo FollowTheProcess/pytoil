@@ -16,7 +16,7 @@ class MkTemp(Protocol):
     def mktemp(self, name: str) -> Path: ...
 
 
-@pytest.fixture()
+@pytest.fixture
 def fake_get_repo_names_response() -> dict[str, Any]:
     """
     Response snippet for the get_repo_names GraphQL
@@ -41,7 +41,7 @@ def fake_get_repo_names_response() -> dict[str, Any]:
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def fake_get_repos_response() -> dict[str, Any]:
     """
     Response snippet for the get_repos GraphQL
@@ -115,7 +115,7 @@ def fake_get_repos_response() -> dict[str, Any]:
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def fake_get_forks_response() -> dict[str, Any]:
     """
     Response snippet for the get_forks GraphQL
@@ -147,7 +147,7 @@ def fake_get_forks_response() -> dict[str, Any]:
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def fake_repo_exists_false_response() -> dict[str, Any]:
     """
     Response snippet for the check_repo_exists GraphQL
@@ -166,7 +166,7 @@ def fake_repo_exists_false_response() -> dict[str, Any]:
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def fake_repo_exists_true_response() -> dict[str, Any]:
     """
     Response snippet for the check_repo_exists GraphQL
@@ -175,7 +175,7 @@ def fake_repo_exists_true_response() -> dict[str, Any]:
     return {"data": {"repository": {"name": "pytoil"}}}
 
 
-@pytest.fixture()
+@pytest.fixture
 def fake_repo_info_response() -> dict[str, Any]:
     """
     Response snippet for the get_repo_info GraphQL
@@ -196,7 +196,7 @@ def fake_repo_info_response() -> dict[str, Any]:
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def fake_repo_info_response_no_license() -> dict[str, Any]:
     """
     Response snippet for the get_repo_info GraphQL
@@ -217,7 +217,7 @@ def fake_repo_info_response_no_license() -> dict[str, Any]:
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def fake_projects_dir(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a fake projects directory complete
@@ -240,7 +240,7 @@ def fake_projects_dir(tmp_path_factory: MkTemp) -> Path:
     return projects_dir
 
 
-@pytest.fixture()
+@pytest.fixture
 def temp_environment_yml(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a valid temporary environment.yml file.
@@ -269,7 +269,7 @@ def temp_environment_yml(tmp_path_factory: MkTemp) -> Path:
     return env_file
 
 
-@pytest.fixture()
+@pytest.fixture
 def bad_temp_environment_yml(tmp_path_factory: MkTemp) -> Path:
     """
     Returns an invalid temporary environment.yml file.
@@ -299,7 +299,7 @@ def bad_temp_environment_yml(tmp_path_factory: MkTemp) -> Path:
     return env_file
 
 
-@pytest.fixture()
+@pytest.fixture
 def fake_home_folder_miniconda(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a faked $HOME folder. Should be used as the return
@@ -315,7 +315,7 @@ def fake_home_folder_miniconda(tmp_path_factory: MkTemp) -> Path:
     return fake_home
 
 
-@pytest.fixture()
+@pytest.fixture
 def fake_home_folder_anaconda(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a faked $HOME folder. Should be used as the return
@@ -331,7 +331,7 @@ def fake_home_folder_anaconda(tmp_path_factory: MkTemp) -> Path:
     return fake_home
 
 
-@pytest.fixture()
+@pytest.fixture
 def fake_home_folder_miniforge(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a faked $HOME folder. Should be used as the return
@@ -347,7 +347,7 @@ def fake_home_folder_miniforge(tmp_path_factory: MkTemp) -> Path:
     return fake_home
 
 
-@pytest.fixture()
+@pytest.fixture
 def fake_home_folder_mambaforge(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a faked $HOME folder. Should be used as the return
@@ -363,7 +363,7 @@ def fake_home_folder_mambaforge(tmp_path_factory: MkTemp) -> Path:
     return fake_home
 
 
-@pytest.fixture()
+@pytest.fixture
 def fake_home_folder_no_conda(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a faked $HOME but without any conda dirs.
@@ -374,7 +374,7 @@ def fake_home_folder_no_conda(tmp_path_factory: MkTemp) -> Path:
     return fake_home
 
 
-@pytest.fixture()
+@pytest.fixture
 def repo_folder_with_random_existing_files(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a temporary directory containing a few random files
@@ -392,7 +392,7 @@ def repo_folder_with_random_existing_files(tmp_path_factory: MkTemp) -> Path:
     return folder
 
 
-@pytest.fixture()
+@pytest.fixture
 def project_with_no_build_system(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a temporary directory containing a
@@ -407,7 +407,7 @@ def project_with_no_build_system(tmp_path_factory: MkTemp) -> Path:
     return folder
 
 
-@pytest.fixture()
+@pytest.fixture
 def project_with_no_build_backend(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a temporary directory containing a
@@ -432,7 +432,7 @@ def project_with_no_build_backend(tmp_path_factory: MkTemp) -> Path:
     return folder
 
 
-@pytest.fixture()
+@pytest.fixture
 def project_with_setuptools_pep621_backend(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a temporary directory containing a PEP 621
@@ -459,7 +459,7 @@ def project_with_setuptools_pep621_backend(tmp_path_factory: MkTemp) -> Path:
     return folder
 
 
-@pytest.fixture()
+@pytest.fixture
 def fake_poetry_project(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a temporary directory containing a
@@ -483,7 +483,7 @@ def fake_poetry_project(tmp_path_factory: MkTemp) -> Path:
     return folder
 
 
-@pytest.fixture()
+@pytest.fixture
 def fake_flit_project(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a temporary directory containing a
@@ -507,7 +507,7 @@ def fake_flit_project(tmp_path_factory: MkTemp) -> Path:
     return folder
 
 
-@pytest.fixture()
+@pytest.fixture
 def fake_hatch_project(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a temporary directory containing a
@@ -531,7 +531,7 @@ def fake_hatch_project(tmp_path_factory: MkTemp) -> Path:
     return folder
 
 
-@pytest.fixture()
+@pytest.fixture
 def fake_pep621_project(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a temporary directory containing a
@@ -561,7 +561,7 @@ def fake_pep621_project(tmp_path_factory: MkTemp) -> Path:
     return folder
 
 
-@pytest.fixture()
+@pytest.fixture
 def requirements_dev_project(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a temp directory containing a requirements-dev.txt
@@ -574,7 +574,7 @@ def requirements_dev_project(tmp_path_factory: MkTemp) -> Path:
     return folder
 
 
-@pytest.fixture()
+@pytest.fixture
 def requirements_project(tmp_path_factory: MkTemp) -> Path:
     """
     Returns a temp directory containing a requirements.txt
