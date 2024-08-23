@@ -2,7 +2,7 @@ name: 🚀 Feature Request
 description: Request a new feature or enhancement
 title: "<title>"
 labels:
-  - enhancement
+  - feature
 body:
   - type: checkboxes
     attributes:
