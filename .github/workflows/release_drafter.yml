@@ -10,7 +10,7 @@ on:
       - reopened
       - synchronize
 
-permissions: read-all
+permissions: {}
 
 jobs:
   draft_release:
@@ -19,6 +19,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: read
+
     steps:
       - name: Run Release Drafter
         uses: release-drafter/release-drafter@v6

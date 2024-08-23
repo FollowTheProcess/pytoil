@@ -5,7 +5,7 @@ on:
     branches:
       - main
 
-permissions: read-all
+permissions: {}
 
 jobs:
   labeler:
@@ -14,6 +14,7 @@ jobs:
     permissions:
       contents: write
       issues: write
+
     steps:
       - name: Check out the repository
         uses: actions/checkout@v4
