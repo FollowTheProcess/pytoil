@@ -6,7 +6,7 @@ categories:
     label: breaking
 
   - title: ":rocket: Features"
-    label:
+    labels:
       - enhancement
       - feature
 
