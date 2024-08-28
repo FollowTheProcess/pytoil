@@ -3,6 +3,7 @@ description: Request a new feature or enhancement
 title: "<title>"
 labels:
   - feature
+
 body:
   - type: checkboxes
     attributes:

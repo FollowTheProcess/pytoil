@@ -3,6 +3,7 @@ description: Ask something about the project
 title: "<title>"
 labels:
   - question
+
 body:
   - type: checkboxes
     attributes:
