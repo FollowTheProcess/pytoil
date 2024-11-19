@@ -62,7 +62,7 @@ jobs:
         run: nox --non-interactive --session test -- cover
 
       - name: Upload Coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           files: ./coverage.xml
 
