@@ -42,7 +42,7 @@ class API:
     def __repr__(self) -> str:
         return self.__class__.__qualname__ + f"(username={self.username}, token={self.token}, url={self.url})"
 
-    __slots__ = ("username", "token", "url")
+    __slots__ = ("token", "url", "username")
 
     @property
     def headers(self) -> dict[str, str]:

@@ -32,7 +32,7 @@ class RustStarter:
     def __repr__(self) -> str:
         return self.__class__.__qualname__ + f"(path={self.path!r}, name={self.name!r}, cargo={self.cargo!r})"
 
-    __slots__ = ("path", "name", "cargo", "root", "files")
+    __slots__ = ("cargo", "files", "name", "path", "root")
 
     def generate(self, username: str | None = None) -> None:
         """

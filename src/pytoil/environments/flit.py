@@ -31,7 +31,7 @@ class Flit(Venv):
     def __repr__(self) -> str:
         return self.__class__.__qualname__ + f"(root={self.root!r}, flit={self.flit!r})"
 
-    __slots__ = ("root", "flit")
+    __slots__ = ("flit", "root")
 
     @property
     def name(self) -> str:
