@@ -5,7 +5,7 @@ from pytoil.starters.python import PythonStarter
 from pytoil.starters.rust import RustStarter
 
 __all__ = (
-    "PythonStarter",
     "GoStarter",
+    "PythonStarter",
     "RustStarter",
 )

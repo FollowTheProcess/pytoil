@@ -45,7 +45,7 @@ class Repo:
             f" local_path={self.local_path!r})"
         )
 
-    __slots__ = ("owner", "name", "local_path")
+    __slots__ = ("local_path", "name", "owner")
 
     @property
     def clone_url(self) -> str:

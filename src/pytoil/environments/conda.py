@@ -70,7 +70,7 @@ class Conda:
             f" conda={self.conda!r})"
         )
 
-    __slots__ = ("root", "environment_name", "conda")
+    __slots__ = ("conda", "environment_name", "root")
 
     @property
     def project_path(self) -> Path:
