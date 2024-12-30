@@ -53,7 +53,7 @@ dependencies = [
   "humanize==4.11",
   "pydantic==2.10.4",
   "pyyaml==6.0.2",
-  "questionary==2.1.0",
+  "questionary==2.1",
   "rich==13.9.4",
   "rtoml==0.12",
   "thefuzz[speedup]==0.22.1",
