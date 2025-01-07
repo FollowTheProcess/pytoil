@@ -19,6 +19,9 @@
 
 ![help](https://github.com/FollowTheProcess/pytoil/raw/main/docs/img/help.svg)
 
+> [!WARNING]
+> `pytoil` is no longer under active maintenance. I barely write any python any more, I haven't made changes to pytoil in a while and I'm focussed on other projects 🧠
+
 ## What is it?
 
 *pytoil is a small, helpful CLI to take the toil out of software development!*
