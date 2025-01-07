@@ -57,7 +57,7 @@ dependencies = [
   "rich==13.9.4",
   "rtoml==0.12",
   "thefuzz[speedup]==0.22.1",
-  "virtualenv==20.28",
+  "virtualenv==20.28.1",
 ]
 
 urls.Documentation = "https://FollowTheProcess.github.io/pytoil/"
